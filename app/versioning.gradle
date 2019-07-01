@@ -1,0 +1,55 @@
+ext {
+
+    defaultVersionCode = 5
+    defaultVersionName = "1.57.5"
+
+    versionFile = file('../version.properties')
+
+    // Dynamic build version code from version.properties
+    buildVersionCode = {
+        def version = readVersion()
+        return versionFile.exists() ? version['version.code'] as int : defaultVersionCode
+    }
+
+    // Dynamic build version name from version.properties
+    buildVersionName = {
+        def version = readVersion()
+        return versionFile.exists() ? "${version['version.name']}" : defaultVersionName
+    }
+}
+
+task increaseVersionCode {
+    doFirst {
+        increaseVersionNumber()
+    }
+}
+
+int increaseVersionNumber() {
+    def version = readVersion()
+
+    def build = version['version.code'] as int
+    build++
+    version['version.code'] = build.toString()
+
+    def stream = new FileOutputStream(versionFile)
+    try {
+        version.store(stream, null)
+    } finally {
+        stream.close()
+    }
+
+    return build
+}
+
+Properties readVersion() {
+    def version = new Properties()
+    def stream
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (FileNotFoundException ignore) {
+    } finally {
+        if (stream != null) stream.close()
+    }
+    return version
+}

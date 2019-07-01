@@ -1,0 +1,164 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+apply from: 'versioning.gradle'
+
+def enableSeparateBuildPerCPUArchitecture = false
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.bitmark.registry"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode buildVersionCode()
+        versionName buildVersionName()
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+    }
+
+    splits {
+        abi {
+            reset()
+            enable enableSeparateBuildPerCPUArchitecture
+            universalApk false  // If true, also generate a universal APK
+            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+    }
+
+    signingConfigs {
+
+        debug {
+            def keystorePropertiesFile = rootProject.file("keystores/debug.properties")
+            def keystoreProperties = new Properties()
+            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            keyAlias keystoreProperties['key.alias']
+            keyPassword keystoreProperties['key.alias.password']
+            storeFile file('../keystores/debug.keystore')
+            storePassword keystoreProperties['key.store.password']
+        }
+
+        release {
+            def keystorePropertiesFile = rootProject.file("keystores/release.properties")
+            def keystoreProperties = new Properties()
+            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            keyAlias keystoreProperties['key.alias']
+            keyPassword keystoreProperties['key.alias.password']
+            storeFile file('../keystores/release.keystore')
+            storePassword keystoreProperties['key.store.password']
+        }
+    }
+
+    buildTypes {
+
+        debug {
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    // applicationVariants are e.g. debug, release
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            // For each separate APK per architecture, set a unique version code as described here:
+            // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
+            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+            def abi = output.getFilter(com.android.build.OutputFile.ABI)
+            if (abi != null) {  // null for the universal-debug, universal-release variants
+                output.versionCodeOverride =
+                        versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+
+    flavorDimensions "version"
+
+    productFlavors {
+
+        inhouse {
+            dimension "version"
+            applicationIdSuffix ".inhouse"
+            resValue "string", "app_name", "Bitmark"
+            manifestPlaceholders = [
+                    appIcon     : "@mipmap/ic_launcher_dev",
+                    appIconRound: "@mipmap/ic_launcher_dev_round"
+            ]
+            ext.betaDistributionReleaseNotesFilePath = "${project.rootDir}/distribution/release_note.txt"
+            ext.betaDistributionEmailsFilePath = "${project.rootDir}/distribution/testers.txt"
+        }
+
+        prd {
+            dimension "version"
+            resValue "string", "app_name", "Bitmark"
+            manifestPlaceholders = [
+                    appIcon     : "@mipmap/ic_launcher",
+                    appIconRound: "@mipmap/ic_launcher_round"
+            ]
+            ext.betaDistributionReleaseNotesFilePath = "${project.rootDir}/distribution/release_note.txt"
+            ext.betaDistributionEmailsFilePath = "${project.rootDir}/distribution/testers.txt"
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def name = variant.getName()
+
+        if (name.contains("inhouse")) {
+            variant.buildConfigField 'int', 'KEY_VALIDITY_DURATION', '120'
+        } else if (name.contains("prd")) {
+            variant.buildConfigField 'int', 'KEY_VALIDITY_DURATION', '600'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
+    implementation 'androidx.core:core-ktx:1.2.0-alpha02'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
+}
+
+task fillSecretKey << {
+    def keyPropertiesFile = rootProject.file('key.properties')
+    def keyProperties = new Properties()
+    keyProperties.load(new FileInputStream(keyPropertiesFile))
+    def apiKeyFile = file('src/main/jni/api-key.cpp')
+    def content = apiKeyFile.getText()
+    content = content.replace('bitmark-api-key-to-be-filled', keyProperties['api.key.bitmark'])
+            .replace('intercom-api-key-to-be-filled', keyProperties['api.key.intercom'])
+    apiKeyFile.bytes = []
+    apiKeyFile.text = content
+}

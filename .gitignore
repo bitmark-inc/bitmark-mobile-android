@@ -1,0 +1,11 @@
+*.properties
+*.iml
+app/build
+build
+.externalNativeBuild
+keystores/release.keystore
+keystores/*.properties
+google-services.json
+.DS_Store
+.idea
+.gradle
