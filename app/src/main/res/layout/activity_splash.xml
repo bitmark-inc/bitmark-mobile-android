@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivBrand"
+            android:layout_width="@dimen/dp_320"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:srcCompat="@drawable/slogan"
+            tools:src="@drawable/ic_brand"
+            android:layout_centerInParent="true"/>
+
+    <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="@dimen/dp_36"
+            android:layout_centerHorizontal="true"
+            android:layout_height="@dimen/dp_36"
+            tools:visibility="visible"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_below="@id/ivBrand"/>
+
+
+    <androidx.appcompat.widget.AppCompatButton
+            tools:visibility="visible"
+            android:visibility="gone"
+            android:id="@+id/btnCreateAccount"
+            android:layout_width="match_parent"
+            android:background="@drawable/blue_ribbon_clickable"
+            android:text="@string/create_new_account"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/sp_16"
+            android:fontFamily="@font/avenir_bold"
+            android:layout_above="@id/btnAccessAccount"
+            android:layout_height="@dimen/dp_44"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+            tools:visibility="visible"
+            android:visibility="gone"
+            android:id="@+id/btnAccessAccount"
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/alice_blue_clickable"
+            android:text="@string/access_existing_account"
+            android:textColor="@color/blue_ribbon"
+            android:textSize="@dimen/sp_16"
+            android:fontFamily="@font/avenir_bold"
+            android:layout_height="@dimen/dp_44"/>
+
+
+</RelativeLayout>

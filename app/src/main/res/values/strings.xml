@@ -1,2 +1,4 @@
 <resources>
+    <string name="create_new_account">Create New Account</string>
+    <string name="access_existing_account">Access Existing Account</string>
 </resources>

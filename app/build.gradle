@@ -117,6 +117,11 @@ android {
             ]
             ext.betaDistributionReleaseNotesFilePath = "${project.rootDir}/distribution/release_note.txt"
             ext.betaDistributionEmailsFilePath = "${project.rootDir}/distribution/testers.txt"
+
+            buildConfigField "String", "CORE_API_ENDPOINT", "https://api.test.bitmark.com"
+            buildConfigField "String", "MOBILE_SERVER_EMPOINT", "https://bm.devel.bitmark.com"
+            buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT", "https://file-courier.test.bitmark.com"
+            buildConfigField "String", "PROFILE_SERVER_ENDPOINT", "https://profiles.test.bitmark.com"
         }
 
         prd {
@@ -128,6 +133,11 @@ android {
             ]
             ext.betaDistributionReleaseNotesFilePath = "${project.rootDir}/distribution/release_note.txt"
             ext.betaDistributionEmailsFilePath = "${project.rootDir}/distribution/testers.txt"
+
+            buildConfigField "String", "CORE_API_ENDPOINT", "https://api.bitmark.com"
+            buildConfigField "String", "MOBILE_SERVER_EMPOINT", "https://bm.bitmark.com"
+            buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT", "https://file-courier.bitmark.com"
+            buildConfigField "String", "PROFILE_SERVER_ENDPOINT", "https://profiles.bitmark.com"
         }
     }
 
@@ -179,6 +189,8 @@ dependencies {
     }
     implementation 'com.android.support:support-annotations:28.0.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
+
+    implementation 'com.bitmark.sdk:android-sdk:2.1.0-SNAPSHOT'
 
 
     testImplementation 'junit:junit:4.12'
