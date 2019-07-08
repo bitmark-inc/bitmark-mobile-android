@@ -22,4 +22,7 @@
     </string>
     <string name="warning">Warning</string>
     <string name="unexpected_error">Unexpected error. Please try again</string>
+    <string name="properties">Properties</string>
+    <string name="transaction">Transactions</string>
+    <string name="account">Account</string>
 </resources>

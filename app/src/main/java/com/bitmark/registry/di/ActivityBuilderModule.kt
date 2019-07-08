@@ -1,7 +1,5 @@
 package com.bitmark.registry.di
 
-import com.bitmark.registry.feature.main.MainActivity
-import com.bitmark.registry.feature.main.MainModule
 import com.bitmark.registry.feature.register.RegisterActivity
 import com.bitmark.registry.feature.register.RegisterModule
 import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
@@ -22,10 +20,6 @@ import dagger.android.ContributesAndroidInjector
  */
 @Module
 abstract class ActivityBuilderModule {
-
-    @ContributesAndroidInjector(modules = [MainModule::class])
-    @ActivityScope
-    internal abstract fun bindMainActivity(): MainActivity
 
     @ContributesAndroidInjector(modules = [SplashModule::class])
     @ActivityScope

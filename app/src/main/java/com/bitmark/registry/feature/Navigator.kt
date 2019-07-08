@@ -18,13 +18,14 @@ import com.bitmark.registry.R
 class Navigator<T>(host: T) {
 
     companion object {
+        const val NONE = 0x00
         const val BOTTOM_UP = 0x01
         const val RIGHT_LEFT = 0x02
     }
 
     private var fragment: Fragment? = null
     private var activity: FragmentActivity? = null
-    private var anim: Int = 0x00
+    private var anim: Int = NONE
 
     init {
         if (host is FragmentActivity) activity = host
