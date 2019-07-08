@@ -53,6 +53,7 @@
       android:textColor="@android:color/white"
       android:textSize="@dimen/sp_16"
       tools:visibility="visible"
+      style="?android:attr/borderlessButtonStyle"
       />
 
   <androidx.appcompat.widget.AppCompatButton
@@ -66,6 +67,7 @@
       android:textColor="@color/blue_ribbon"
       android:textSize="@dimen/sp_16"
       tools:visibility="visible"
+      style="?android:attr/borderlessButtonStyle"
       />
 
 </RelativeLayout>

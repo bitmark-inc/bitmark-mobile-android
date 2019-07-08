@@ -70,6 +70,7 @@
       android:textSize="@dimen/sp_16"
       app:layout_constraintBottom_toTopOf="@id/btnAccessAccount"
       tools:visibility="visible"
+      style="?android:attr/borderlessButtonStyle"
       />
 
   <androidx.appcompat.widget.AppCompatButton
@@ -84,6 +85,7 @@
       android:textSize="@dimen/sp_16"
       app:layout_constraintBottom_toBottomOf="parent"
       tools:visibility="visible"
+      style="?android:attr/borderlessButtonStyle"
       />
 
   <ProgressBar
