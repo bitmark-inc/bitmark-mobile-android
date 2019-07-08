@@ -12,5 +12,4 @@ import com.bitmark.registry.data.source.local.api.SharedPrefApi
  */
 abstract class LocalDataSource(
     protected val sharedPrefApi: SharedPrefApi, protected val fileApi: FileApi
-) {
-}
+)

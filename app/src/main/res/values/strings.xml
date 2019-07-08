@@ -1,4 +1,25 @@
 <resources>
     <string name="create_new_account">Create New Account</string>
     <string name="access_existing_account">Access Existing Account</string>
+    <string name="bitmark_registry">Bitmark Registry</string>
+    <string name="protect_the_legal_rights">Protect the legal rights to your
+        data and other digital assets.
+    </string>
+    <string name="error">Error</string>
+    <string name="authentication_required">Authentication required</string>
+    <string name="passcode_pin_required">Device Pass code/PIN is required
+    </string>
+    <string name="fingerprint_required">Fingerprint/Biometric is required
+    </string>
+    <string name="touch_face_id">Touch/Face ID</string>
+    <string name="use_touch_face_id">Use Touch/Face ID to sign and encrypt your
+        data.
+    </string>
+    <string name="enable_touch_face_id">Enable touch/face ID</string>
+    <string name="skip">Skip</string>
+    <string name="are_you_sure_you_dont_to_protect">Are you sure you don’t want
+        to protect your data with Touch &amp; Face ID?
+    </string>
+    <string name="warning">Warning</string>
+    <string name="unexpected_error">Unexpected error. Please try again</string>
 </resources>

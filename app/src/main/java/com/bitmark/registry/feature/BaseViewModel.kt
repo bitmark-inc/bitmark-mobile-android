@@ -11,7 +11,8 @@ import androidx.lifecycle.OnLifecycleEvent
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-abstract class BaseViewModel : LifecycleObserver {
+abstract class BaseViewModel :
+    LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     open fun onCreate() {

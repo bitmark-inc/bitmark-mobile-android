@@ -1,7 +1,10 @@
 package com.bitmark.registry
 
 import android.app.Application
+import com.bitmark.registry.data.source.RepositoryModule
+import com.bitmark.registry.data.source.remote.api.NetworkModule
 import com.bitmark.registry.di.ActivityBuilderModule
+import com.bitmark.registry.di.FragmentBuilderModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -18,7 +21,8 @@ import javax.inject.Singleton
 
 @Component(
     modules = [AndroidSupportInjectionModule::class, AppModule::class,
-        ActivityBuilderModule::class]
+        ActivityBuilderModule::class, FragmentBuilderModule::class,
+        NetworkModule::class, RepositoryModule::class]
 )
 @Singleton
 interface AppComponent : AndroidInjector<RegistryApplication> {

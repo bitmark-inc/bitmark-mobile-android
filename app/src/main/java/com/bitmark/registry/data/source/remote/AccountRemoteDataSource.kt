@@ -1,9 +1,14 @@
 package com.bitmark.registry.data.source.remote
 
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.request.RegisterEncKeyRequest
+import com.bitmark.registry.data.source.remote.api.request.RegisterJwtRequest
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
 import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 
@@ -19,4 +24,35 @@ class AccountRemoteDataSource @Inject constructor(
 ) : RemoteDataSource(
     coreApi, mobileServerApi, fileCourierServerApi, converter
 ) {
+
+    fun registerMobileServerJwt(
+        timestamp: String,
+        signature: String,
+        requester: String
+    ): Single<String> {
+        return mobileServerApi.registerJwt(
+            RegisterJwtRequest(
+                timestamp,
+                signature,
+                requester
+            )
+        ).map { response ->
+            response.getValue("jwt_token")
+        }.subscribeOn(Schedulers.io())
+    }
+
+    fun registerMobileServerAccount(): Completable {
+        return mobileServerApi.registerAccount().subscribeOn(Schedulers.io())
+    }
+
+    fun registerEncPubKey(
+        accountNumber: String,
+        encPubKey: String,
+        signature: String
+    ): Completable {
+        return coreApi.registerEncryptionKey(
+            accountNumber,
+            RegisterEncKeyRequest(encPubKey, signature)
+        ).subscribeOn(Schedulers.io())
+    }
 }

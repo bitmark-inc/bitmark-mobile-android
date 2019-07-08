@@ -13,5 +13,4 @@ import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 class BitmarkRepository(
     private val localDataSource: BitmarkLocalDataSource,
     private val remoteDataSource: BitmarkRemoteDataSource
-) : AbsRepository() {
-}
+) : AbsRepository()

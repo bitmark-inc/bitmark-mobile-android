@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    >
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvAppName"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/dp_48"
+      android:layout_marginStart="@dimen/dp_48"
+      android:layout_marginTop="@dimen/dp_48"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/bitmark_registry"
+      android:textAllCaps="true"
+      android:textColor="@color/colorAccent"
+      android:textSize="@dimen/sp_16"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/tvAppName"
+      android:layout_marginEnd="@dimen/dp_48"
+      android:layout_marginStart="@dimen/dp_48"
+      android:fontFamily="@font/avenir_light"
+      android:text="@string/protect_the_legal_rights"
+      android:textColor="@android:color/secondary_text_light"
+      android:textSize="@dimen/sp_16"
+      />
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:layout_width="@dimen/dp_320"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:adjustViewBounds="true"
+      app:srcCompat="@drawable/bg_onboarding"
+      />
+
+  <androidx.appcompat.widget.AppCompatButton
+      android:id="@+id/btnCreateAccount"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:layout_above="@id/btnAccessAccount"
+      android:background="@drawable/blue_ribbon_clickable"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/create_new_account"
+      android:textColor="@android:color/white"
+      android:textSize="@dimen/sp_16"
+      tools:visibility="visible"
+      />
+
+  <androidx.appcompat.widget.AppCompatButton
+      android:id="@+id/btnAccessAccount"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:layout_alignParentBottom="true"
+      android:background="@drawable/alice_blue_clickable"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/access_existing_account"
+      android:textColor="@color/blue_ribbon"
+      android:textSize="@dimen/sp_16"
+      tools:visibility="visible"
+      />
+
+</RelativeLayout>

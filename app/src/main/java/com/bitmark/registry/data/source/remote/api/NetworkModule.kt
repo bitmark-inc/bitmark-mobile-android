@@ -1,5 +1,6 @@
 package com.bitmark.registry.data.source.remote.api
 
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.remote.api.middleware.CoreApiInterceptor
 import com.bitmark.registry.data.source.remote.api.middleware.FileCourierServerInterceptor
 import com.bitmark.registry.data.source.remote.api.middleware.MobileServerApiInterceptor
@@ -32,11 +33,11 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideCoreApi(
-        endpoint: String, timeout: Long, gson: Gson,
-        interceptor: CoreApiInterceptor
+        gson: Gson, interceptor: CoreApiInterceptor
     ): CoreApi {
         return ServiceGenerator.createService(
-            endpoint, CoreApi::class.java, gson, interceptor, timeout
+            BuildConfig.CORE_API_ENDPOINT, CoreApi::class.java, gson,
+            interceptor
         )
     }
 
@@ -49,11 +50,11 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideMobileServerApi(
-        endpoint: String, timeout: Long, gson: Gson,
-        interceptor: MobileServerApiInterceptor
+        gson: Gson, interceptor: MobileServerApiInterceptor
     ): MobileServerApi {
         return ServiceGenerator.createService(
-            endpoint, MobileServerApi::class.java, gson, interceptor, timeout
+            BuildConfig.MOBILE_SERVER_EMPOINT, MobileServerApi::class.java,
+            gson, interceptor
         )
     }
 
@@ -66,12 +67,11 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideFileCourierApi(
-        endpoint: String, timeout: Long, gson: Gson,
-        interceptor: FileCourierServerInterceptor
+        gson: Gson, interceptor: FileCourierServerInterceptor
     ): FileCourierServerApi {
         return ServiceGenerator.createService(
-            endpoint, FileCourierServerApi::class.java, gson, interceptor,
-            timeout
+            BuildConfig.FILE_COURIER_SERVER_ENPOINT,
+            FileCourierServerApi::class.java, gson, interceptor
         )
     }
 

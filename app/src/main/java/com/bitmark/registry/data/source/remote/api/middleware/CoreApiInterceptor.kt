@@ -7,5 +7,4 @@ package com.bitmark.registry.data.source.remote.api.middleware
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class CoreApiInterceptor : Interceptor() {
-}
+class CoreApiInterceptor : Interceptor()

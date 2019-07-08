@@ -2,8 +2,7 @@ package com.bitmark.registry.feature
 
 import android.os.Bundle
 import androidx.annotation.LayoutRes
-import dagger.android.support.DaggerAppCompatActivity
-
+import com.bitmark.registry.di.DaggerAppCompatActivity
 
 /**
  * @author Hieu Pham
@@ -13,39 +12,46 @@ import dagger.android.support.DaggerAppCompatActivity
  */
 abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (viewModel() != null) {
-            lifecycle.addObserver(viewModel()!!)
-        }
-        setContentView(layoutRes())
-        initComponents()
-        observe()
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    if (viewModel() != null) {
+      lifecycle.addObserver(viewModel()!!)
     }
+    setContentView(layoutRes())
+    initComponents()
+    observe()
+  }
 
-    /**
-     * Define the layout res id can be used to [Activity.setContentView]
-     *
-     * @return the layout res id
-     */
-    @LayoutRes
-    protected abstract fun layoutRes(): Int
+  override fun onDestroy() {
+    if (viewModel() != null) {
+      lifecycle.removeObserver(viewModel()!!)
+    }
+    super.onDestroy()
+  }
 
-    /**
-     * Define the [BaseViewModel] instance
-     *
-     * @return the [BaseViewModel] instance
-     */
-    protected abstract fun viewModel(): BaseViewModel?
+  /**
+   * Define the layout res id can be used to [Activity.setContentView]
+   *
+   * @return the layout res id
+   */
+  @LayoutRes
+  protected abstract fun layoutRes(): Int
 
-    /**
-     * Init [View] components here. Such as set adapter for [RecyclerView], set listener
-     * or anything else
-     */
-    protected fun initComponents() {}
+  /**
+   * Define the [BaseViewModel] instance
+   *
+   * @return the [BaseViewModel] instance
+   */
+  protected abstract fun viewModel(): BaseViewModel?
 
-    /**
-     * Observe data change from ViewModel
-     */
-    protected fun observe() {}
+  /**
+   * Init [View] components here. Such as set adapter for [RecyclerView], set listener
+   * or anything else
+   */
+  protected open fun initComponents() {}
+
+  /**
+   * Observe data change from ViewModel
+   */
+  protected open fun observe() {}
 }

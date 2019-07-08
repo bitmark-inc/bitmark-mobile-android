@@ -2,6 +2,7 @@ package com.bitmark.registry.data.source.local
 
 import com.bitmark.registry.data.source.local.api.FileApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
+import io.reactivex.Single
 import javax.inject.Inject
 
 
@@ -14,4 +15,28 @@ import javax.inject.Inject
 class AccountLocalDataSource @Inject constructor(
     sharedPrefApi: SharedPrefApi, fileApi: FileApi
 ) : LocalDataSource(sharedPrefApi, fileApi) {
+
+    fun saveAccountInfo(
+        accountNumber: String,
+        authRequired: Boolean
+    ): Single<Pair<String, Boolean>> {
+        return sharedPrefApi.rxSingle { sharePrefGateway ->
+            sharePrefGateway.put(SharedPrefApi.ACCOUNT_NUMBER, accountNumber)
+            sharePrefGateway.put(SharedPrefApi.AUTH_REQUIRED, authRequired)
+            Pair(accountNumber, authRequired)
+        }
+    }
+
+    fun getAccountInfo(): Single<Pair<String, Boolean>> {
+        return sharedPrefApi.rxSingle { sharePrefGateway ->
+            val accountNumber = sharePrefGateway.get(
+                SharedPrefApi.ACCOUNT_NUMBER, String::class
+            )
+            val authRequired = sharePrefGateway.get(
+                SharedPrefApi.AUTH_REQUIRED,
+                Boolean::class
+            )
+            Pair(accountNumber, authRequired)
+        }
+    }
 }

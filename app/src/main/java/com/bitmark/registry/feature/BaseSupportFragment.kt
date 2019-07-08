@@ -39,6 +39,12 @@ abstract class BaseSupportFragment : DaggerFragment() {
         initComponents()
     }
 
+    override fun onDestroyView() {
+        if (null != viewModel())
+            lifecycle.removeObserver(viewModel()!!)
+        super.onDestroyView()
+    }
+
 
     /**
      * Define the layout res id can be used to inflate [View]

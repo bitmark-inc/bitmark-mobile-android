@@ -1,5 +1,7 @@
 package com.bitmark.registry
 
+import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGER
+import com.bitmark.sdk.features.BitmarkSDK
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 
@@ -18,5 +20,15 @@ class RegistryApplication : DaggerApplication() {
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
         return applicationInjector
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        if ("prd".equals(BuildConfig.FLAVOR)) {
+            BitmarkSDK.init(API_KEY_MANAGER.bitmarkApiKey)
+        } else {
+            BitmarkSDK.init("bmk-lljpzkhqdkzmblhg")
+        }
+
     }
 }

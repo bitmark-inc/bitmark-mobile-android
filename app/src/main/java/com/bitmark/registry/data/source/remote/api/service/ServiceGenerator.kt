@@ -1,6 +1,5 @@
 package com.bitmark.registry.data.source.remote.api.service
 
-import androidx.annotation.VisibleForTesting
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.remote.api.middleware.RxErrorHandlingCallAdapterFactory
 import com.google.gson.Gson
@@ -23,10 +22,7 @@ class ServiceGenerator {
 
     companion object {
 
-        const val CONNECTION_TIMEOUT = 15L
-
-        @VisibleForTesting
-        const val TEST_CONNECTION_TIMEOUT = 2L
+        private const val CONNECTION_TIMEOUT = 30L
 
         fun <T> createService(
             endPoint: String, serviceClass: Class<T>, gson: Gson,

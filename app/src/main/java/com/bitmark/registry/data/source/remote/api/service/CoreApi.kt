@@ -1,5 +1,11 @@
 package com.bitmark.registry.data.source.remote.api.service
 
+import com.bitmark.registry.data.source.remote.api.request.RegisterEncKeyRequest
+import io.reactivex.Completable
+import retrofit2.http.Body
+import retrofit2.http.POST
+import retrofit2.http.Path
+
 
 /**
  * @author Hieu Pham
@@ -8,4 +14,10 @@ package com.bitmark.registry.data.source.remote.api.service
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 interface CoreApi {
+
+    @POST("v1/encryption_keys/{accountNumber}")
+    fun registerEncryptionKey(
+        @Path("accountNumber") accountNumber: String, @Body
+        request: RegisterEncKeyRequest
+    ): Completable
 }

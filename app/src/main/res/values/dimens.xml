@@ -13,6 +13,7 @@
     <dimen name="dp_56">56dp</dimen>
     <dimen name="dp_64">64dp</dimen>
     <dimen name="dp_72">72dp</dimen>
+    <dimen name="dp_90">90dp</dimen>
     <dimen name="dp_320">320dp</dimen>
 
 
