@@ -10,9 +10,11 @@
 
   <androidx.appcompat.widget.AppCompatImageView
       android:id="@+id/ivBrand"
-      android:layout_width="@dimen/dp_320"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
+      android:layout_marginEnd="@dimen/dp_20"
+      android:layout_marginStart="@dimen/dp_20"
       android:adjustViewBounds="true"
       app:srcCompat="@drawable/bg_slogan"
       tools:src="@drawable/bg_slogan"
