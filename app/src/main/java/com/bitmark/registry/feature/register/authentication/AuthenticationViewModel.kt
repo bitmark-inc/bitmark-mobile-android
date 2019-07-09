@@ -1,10 +1,13 @@
 package com.bitmark.registry.feature.register.authentication
 
+import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
+import io.reactivex.Single
 
 
 /**
@@ -20,6 +23,8 @@ class AuthenticationViewModel(
 
     private val registerAccountLiveData =
         CompositeLiveData<Pair<String, Boolean>>()
+
+    internal val progressLiveData = MutableLiveData<Int>()
 
     fun registerAccount(
         timestamp: String,
@@ -52,16 +57,34 @@ class AuthenticationViewModel(
         encPubKeyHex: String,
         requester: String,
         authRequired: Boolean
-    ) = Completable.merge(
-        listOf(
-            accountRepo.registerMobileServerAccount(
-                timestamp,
-                jwtSig,
-                requester
-            ),
-            accountRepo.registerEncPubKey(requester, encPubKeyHex, encPubKeySig)
+    ): Single<Pair<String, Boolean>> {
+        val max = 3 // three data stream
+        var progress = 0
+        return Completable.merge(
+            listOf(
+                accountRepo.registerMobileServerAccount(
+                    timestamp,
+                    jwtSig,
+                    requester
+                ).doOnComplete {
+                    progressLiveData.set(++progress * 100 / max)
+                },
+                accountRepo.registerEncPubKey(
+                    requester,
+                    encPubKeyHex,
+                    encPubKeySig
+                ).doOnComplete {
+                    progressLiveData.set(++progress * 100 / max)
+                }
+            )
+        ).andThen(
+            accountRepo.saveAccountInfo(
+                requester,
+                authRequired
+            ).doOnSuccess {
+                progressLiveData.set(++progress * 100 / max)
+            }
         )
-    ).andThen(
-        accountRepo.saveAccountInfo(requester, authRequired)
-    )
+    }
+
 }

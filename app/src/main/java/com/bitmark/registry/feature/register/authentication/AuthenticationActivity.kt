@@ -2,6 +2,7 @@ package com.bitmark.registry.feature.register.authentication
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.utils.callback.Callback0
@@ -13,6 +14,7 @@ import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -34,7 +36,7 @@ import javax.inject.Inject
 class AuthenticationActivity : BaseAppCompatActivity() {
 
     companion object {
-        private const val RECOVERY_PHRASE = "account_seed"
+        private const val RECOVERY_PHRASE = "recovery_phrase"
 
         fun getBundle(phrase: Array<String?>? = null): Bundle {
             val bundle = Bundle()
@@ -89,8 +91,11 @@ class AuthenticationActivity : BaseAppCompatActivity() {
         viewModel.registerAccountLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    progressBar.gone()
-                    navigator.startActivityAsRoot(MainActivity::class.java)
+                    Handler().postDelayed({
+                        navigator.anim(RIGHT_LEFT).startActivityAsRoot(
+                            MainActivity::class.java
+                        )
+                    }, 250)
                 }
                 res.isError() -> {
                     progressBar.gone()
@@ -103,6 +108,10 @@ class AuthenticationActivity : BaseAppCompatActivity() {
                     progressBar.visible()
                 }
             }
+        })
+
+        viewModel.progressLiveData.observe(this, Observer { progress ->
+            progressBar.progress = progress
         })
     }
 
@@ -117,6 +126,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
         }
         val spec = KeyAuthenticationSpec.Builder(this)
             .setAuthenticationValidityDuration(15)
+            .setKeyAlias(account.accountNumber)
             .setAuthenticationRequired(authRequired).build()
         account.saveToKeyStore(this, spec, object : Callback0 {
             override fun onSuccess() {

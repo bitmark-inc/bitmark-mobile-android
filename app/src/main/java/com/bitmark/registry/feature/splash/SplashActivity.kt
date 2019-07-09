@@ -135,8 +135,9 @@ class SplashActivity : BaseAppCompatActivity() {
         authenticateRequired: Boolean,
         action: (Account) -> Unit
     ) {
-        val spec = KeyAuthenticationSpec.Builder(this)
-            .setAuthenticationRequired(authenticateRequired).build()
+        val spec =
+            KeyAuthenticationSpec.Builder(this).setKeyAlias(accountNumber)
+                .setAuthenticationRequired(authenticateRequired).build()
         Account.loadFromKeyStore(
             this,
             accountNumber,

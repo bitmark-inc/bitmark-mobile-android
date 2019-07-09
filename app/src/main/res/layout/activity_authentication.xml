@@ -68,7 +68,6 @@
       android:text="@string/enable_touch_face_id"
       android:textColor="@android:color/white"
       android:textSize="@dimen/sp_16"
-      app:layout_constraintBottom_toTopOf="@id/btnAccessAccount"
       tools:visibility="visible"
       style="?android:attr/borderlessButtonStyle"
       />
@@ -93,9 +92,10 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_above="@+id/btnEnableTouchId"
-      android:indeterminate="true"
+      android:layout_marginBottom="-4dp"
       android:visibility="gone"
-      tools:progress="50"
+      tools:progress="33"
+      tools:visibility="visible"
       style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
       />
 
