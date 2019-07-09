@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/wild_sand</color>
-    <color name="colorPrimaryDark">@color/catskill_white</color>
-    <color name="colorAccent">@color/blue_ribbon</color>
+  <color name="colorPrimary">@color/wild_sand</color>
+  <color name="colorPrimaryDark">@color/catskill_white</color>
+  <color name="colorAccent">@color/blue_ribbon</color>
 
-    <color name="blue_ribbon">#0060F2</color>
-    <color name="blue">#0020f2</color>
-    <color name="azure_radiance">#0095f2</color>
-    <color name="alice_blue">#F2FAFF</color>
-    <color name="catskill_white">#DFECF0</color>
-    <color name="wild_sand">#F5F5F5</color>
-    <color name="mercury">#E5E5E5</color>
-    <color name="dusty_gray">#999999</color>
+  <color name="blue_ribbon">#0060F2</color>
+  <color name="blue">#0020f2</color>
+  <color name="azure_radiance">#0095f2</color>
+  <color name="alice_blue">#F2FAFF</color>
+  <color name="catskill_white">#DFECF0</color>
+  <color name="wild_sand">#F5F5F5</color>
+  <color name="mercury">#E5E5E5</color>
+  <color name="dusty_gray">#999999</color>
+  <color name="alto">#D4D4D4</color>
+  <color name="gray">#828282</color>
+  <color name="torch_red">#FF003C</color>
 </resources>

@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.register.authentication
 
 import android.content.Intent
+import android.os.Bundle
 import android.provider.Settings
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.utils.callback.Callback0
@@ -32,8 +33,18 @@ import javax.inject.Inject
  */
 class AuthenticationActivity : BaseAppCompatActivity() {
 
+    companion object {
+        private const val RECOVERY_PHRASE = "account_seed"
+
+        fun getBundle(phrase: Array<String?>? = null): Bundle {
+            val bundle = Bundle()
+            if (null != phrase) bundle.putStringArray(RECOVERY_PHRASE, phrase)
+            return bundle
+        }
+    }
+
     @Inject
-    lateinit var viewModel: AuthenticationViewModel
+    internal lateinit var viewModel: AuthenticationViewModel
 
     @Inject
     internal lateinit var dialogController: DialogController<AuthenticationActivity>
@@ -53,14 +64,21 @@ class AuthenticationActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        btnEnableTouchId.setSafetyOnclickListener { createAccount(true) }
+        val phrase = intent.extras?.getStringArray(RECOVERY_PHRASE)
+
+        btnEnableTouchId.setSafetyOnclickListener {
+            createAccount(
+                phrase,
+                true
+            )
+        }
 
         btnSkip.setSafetyOnclickListener {
             dialogController.confirm(
                 R.string.warning,
                 R.string.are_you_sure_you_dont_to_protect,
                 android.R.string.yes,
-                { createAccount(false) },
+                { createAccount(phrase, false) },
                 android.R.string.no, {}
             )
         }
@@ -88,8 +106,15 @@ class AuthenticationActivity : BaseAppCompatActivity() {
         })
     }
 
-    private fun createAccount(authRequired: Boolean) {
-        val account = Account()
+    private fun createAccount(
+        phrase: Array<String?>? = null,
+        authRequired: Boolean
+    ) {
+        val account = if (null == phrase) {
+            Account()
+        } else {
+            Account.fromRecoveryPhrase(*phrase)
+        }
         val spec = KeyAuthenticationSpec.Builder(this)
             .setAuthenticationValidityDuration(15)
             .setAuthenticationRequired(authRequired).build()
@@ -172,4 +197,10 @@ class AuthenticationActivity : BaseAppCompatActivity() {
         val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
         navigator.startActivity(intent)
     }
+
+    override fun onBackPressed() {
+        navigator.anim(Navigator.RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
+    }
+
 }

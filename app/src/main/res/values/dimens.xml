@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="dp_2">2dp</dimen>
-    <dimen name="dp_4">4dp</dimen>
-    <dimen name="dp_6">6dp</dimen>
-    <dimen name="dp_8">8dp</dimen>
-    <dimen name="dp_12">12dp</dimen>
-    <dimen name="dp_16">16dp</dimen>
-    <dimen name="dp_24">24dp</dimen>
-    <dimen name="dp_36">36dp</dimen>
-    <dimen name="dp_44">44dp</dimen>
-    <dimen name="dp_48">48dp</dimen>
-    <dimen name="dp_56">56dp</dimen>
-    <dimen name="dp_64">64dp</dimen>
-    <dimen name="dp_72">72dp</dimen>
-    <dimen name="dp_90">90dp</dimen>
-    <dimen name="dp_320">320dp</dimen>
+  <dimen name="dp_2">2dp</dimen>
+  <dimen name="dp_4">4dp</dimen>
+  <dimen name="dp_6">6dp</dimen>
+  <dimen name="dp_8">8dp</dimen>
+  <dimen name="dp_12">12dp</dimen>
+  <dimen name="dp_16">16dp</dimen>
+  <dimen name="dp_18">18dp</dimen>
+  <dimen name="dp_24">24dp</dimen>
+  <dimen name="dp_36">36dp</dimen>
+  <dimen name="dp_44">44dp</dimen>
+  <dimen name="dp_48">48dp</dimen>
+  <dimen name="dp_56">56dp</dimen>
+  <dimen name="dp_64">64dp</dimen>
+  <dimen name="dp_72">72dp</dimen>
+  <dimen name="dp_90">90dp</dimen>
+  <dimen name="dp_320">320dp</dimen>
 
 
-    <dimen name="sp_8">8sp</dimen>
-    <dimen name="sp_10">10sp</dimen>
-    <dimen name="sp_12">12sp</dimen>
-    <dimen name="sp_14">14sp</dimen>
-    <dimen name="sp_16">16sp</dimen>
-    <dimen name="sp_18">18sp</dimen>
-    <dimen name="sp_20">20sp</dimen>
-    <dimen name="sp_22">22sp</dimen>
+  <dimen name="sp_8">8sp</dimen>
+  <dimen name="sp_10">10sp</dimen>
+  <dimen name="sp_12">12sp</dimen>
+  <dimen name="sp_14">14sp</dimen>
+  <dimen name="sp_15">15sp</dimen>
+  <dimen name="sp_16">16sp</dimen>
+  <dimen name="sp_17">17sp</dimen>
+  <dimen name="sp_18">18sp</dimen>
+  <dimen name="sp_20">20sp</dimen>
+  <dimen name="sp_22">22sp</dimen>
 </resources>

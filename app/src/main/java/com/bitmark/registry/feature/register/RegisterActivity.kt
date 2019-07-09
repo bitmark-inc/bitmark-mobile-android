@@ -6,6 +6,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
+import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninActivity
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import kotlinx.android.synthetic.main.activity_register.*
 import javax.inject.Inject
@@ -28,7 +29,10 @@ class RegisterActivity : BaseAppCompatActivity() {
 
     override fun initComponents() {
         super.initComponents()
-        btnAccessAccount.setSafetyOnclickListener { }
+        btnAccessAccount.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT)
+                .startActivity(RecoveryPhraseSigninActivity::class.java)
+        }
 
         btnCreateAccount.setSafetyOnclickListener {
             navigator.anim(RIGHT_LEFT)

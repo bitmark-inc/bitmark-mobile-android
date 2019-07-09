@@ -42,7 +42,7 @@ class Navigator<T>(host: T) {
 
     fun replaceFragment(
         @IdRes container: Int, fragment: Fragment,
-        addToBackStack: Boolean
+        addToBackStack: Boolean = true
     ) {
         val transaction = activity?.supportFragmentManager?.beginTransaction()
         transactionAnim(transaction)
@@ -51,34 +51,38 @@ class Navigator<T>(host: T) {
         transaction?.commitAllowingStateLoss()
     }
 
+    fun addFragment(
+        @IdRes container: Int, fragment: Fragment,
+        addToBackStack: Boolean = true
+    ) {
+        val transaction = activity?.supportFragmentManager?.beginTransaction()
+        transactionAnim(transaction)
+        if (addToBackStack) transaction?.addToBackStack(null)
+        transaction?.add(container, fragment)
+        transaction?.commitAllowingStateLoss()
+    }
+
     fun popFragment() {
         val fragManager = activity?.supportFragmentManager
         fragManager?.popBackStackImmediate()
     }
 
-    fun addFragment(@IdRes container: Int, fragment: Fragment) {
-        activity?.supportFragmentManager
-            ?.beginTransaction()
-            ?.add(container, fragment)
-            ?.commitAllowingStateLoss()
-    }
-
     fun startActivity(intent: Intent) {
         activity?.startActivity(intent)
-        transactionAnim(activity)
+        startTransactionAnim(activity)
     }
 
     fun startActivityAsRoot(intent: Intent) {
         activity?.finishAffinity()
         activity?.startActivity(intent)
-        transactionAnim(activity)
+        startTransactionAnim(activity)
     }
 
     fun startActivity(clazz: Class<*>, bundle: Bundle? = null) {
         val intent = Intent(activity, clazz)
         if (null != bundle) intent.putExtras(bundle)
         activity?.startActivity(intent)
-        transactionAnim(activity)
+        startTransactionAnim(activity)
     }
 
     fun startActivityAsRoot(clazz: Class<*>, bundle: Bundle? = null) {
@@ -87,14 +91,15 @@ class Navigator<T>(host: T) {
         if (null != bundle) intent.putExtras(bundle)
         activity?.finishAffinity()
         activity?.startActivity(intent)
-        transactionAnim(activity)
+        startTransactionAnim(activity)
     }
 
     fun finishActivity() {
         activity?.finish()
+        finishTransactionAnim(activity)
     }
 
-    private fun transactionAnim(activity: FragmentActivity?) {
+    private fun startTransactionAnim(activity: FragmentActivity?) {
         when (anim) {
             BOTTOM_UP -> activity?.overridePendingTransition(
                 R.anim.slide_bottom_in,
@@ -103,6 +108,19 @@ class Navigator<T>(host: T) {
             RIGHT_LEFT -> activity?.overridePendingTransition(
                 R.anim.slide_right_in,
                 R.anim.slide_left_out
+            )
+        }
+    }
+
+    private fun finishTransactionAnim(activity: FragmentActivity?) {
+        when (anim) {
+            BOTTOM_UP -> activity?.overridePendingTransition(
+                0,
+                R.anim.slide_bottom_out
+            )
+            RIGHT_LEFT -> activity?.overridePendingTransition(
+                R.anim.slide_right_out,
+                R.anim.slide_left_in
             )
         }
     }

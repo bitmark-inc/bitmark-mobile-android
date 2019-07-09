@@ -1,58 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.bitmark.registry">
+    package="com.bitmark.registry">
 
-    <application
-            android:name=".RegistryApplication"
-            android:icon="${appIcon}"
-            android:label="@string/app_name"
-            android:roundIcon="${appIconRound}"
-            android:supportsRtl="true"
-            android:theme="@style/AppTheme">
+  <application
+      android:name=".RegistryApplication"
+      android:icon="${appIcon}"
+      android:label="@string/app_name"
+      android:roundIcon="${appIconRound}"
+      android:supportsRtl="true"
+      android:theme="@style/AppTheme">
 
-        <activity android:name=".feature.splash.SplashActivity"
-                  android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+    <activity
+        android:name=".feature.splash.SplashActivity"
+        android:screenOrientation="portrait">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
 
-        <activity android:name=".feature.main.MainActivity"
-                  android:launchMode="singleTop"
-                  android:screenOrientation="portrait"
-                    />
+    <activity
+        android:name=".feature.main.MainActivity"
+        android:launchMode="singleTop"
+        android:screenOrientation="portrait"
+        />
 
-        <activity android:name=".feature.register.RegisterActivity"
-                  android:screenOrientation="portrait"/>
+    <activity
+        android:name=".feature.register.RegisterActivity"
+        android:screenOrientation="portrait"/>
 
-        <activity
-                android:name=".feature.register.authentication.AuthenticationActivity"
-                android:screenOrientation="portrait"/>
+    <activity
+        android:name=".feature.register.authentication.AuthenticationActivity"
+        android:screenOrientation="portrait"/>
 
-        <activity
-                android:name=".feature.register.recoveryphrase.RecoveryPhraseActivity"
-                android:screenOrientation="portrait"/>
+    <activity
+        android:name=".feature.register.recoveryphrase.RecoveryPhraseSigninActivity"
+        android:screenOrientation="portrait"
+        android:windowSoftInputMode="adjustResize"/>
 
-        <!-- Firebase message service -->
-        <service
-                android:name=".feature.notification.AppFirebaseMessageService"
-                android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
+    <!-- Firebase message service -->
+    <service
+        android:name=".feature.notification.AppFirebaseMessageService"
+        android:exported="false">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+      </intent-filter>
+    </service>
 
-        <meta-data
-                android:name="com.google.firebase.messaging.default_notification_icon"
-                android:resource="@drawable/ic_notification"/>
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/ic_notification"/>
 
-        <meta-data
-                android:name="com.google.firebase.messaging.default_notification_color"
-                android:resource="@color/colorAccent"/>
-        <!-- End Firebase message service -->
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        android:resource="@color/colorAccent"/>
+    <!-- End Firebase message service -->
 
-    </application>
+  </application>
 
 </manifest>

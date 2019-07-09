@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_24"
+    android:layout_marginBottom="@dimen/dp_6"
+    android:layout_marginEnd="@dimen/dp_20"
+    android:layout_marginStart="@dimen/dp_20"
+    android:layout_marginTop="@dimen/dp_6"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    >
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvNo"
+      android:layout_width="@dimen/dp_24"
+      android:layout_height="match_parent"
+      android:fontFamily="@font/avenir_light"
+      android:textColor="@color/alto"
+      android:textSize="@dimen/sp_15"
+      tools:text="1."
+      />
+
+  <androidx.appcompat.widget.AppCompatEditText
+      android:id="@+id/edtWord"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginStart="@dimen/dp_6"
+      android:background="@drawable/bg_border_blue_ribbon_stateful"
+      android:fontFamily="@font/avenir_light"
+      android:gravity="center_vertical"
+      android:inputType="text"
+      android:maxLines="1"
+      android:textColor="@color/gray"
+      android:textSize="@dimen/sp_18"
+      tools:text="abandon"
+      />
+
+</LinearLayout>

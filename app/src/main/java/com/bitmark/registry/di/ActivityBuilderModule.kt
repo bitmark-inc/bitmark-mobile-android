@@ -4,8 +4,8 @@ import com.bitmark.registry.feature.register.RegisterActivity
 import com.bitmark.registry.feature.register.RegisterModule
 import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
 import com.bitmark.registry.feature.register.authentication.AuthenticationModule
-import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseActivity
-import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseModule
+import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninActivity
+import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninModule
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.feature.splash.SplashModule
 import dagger.Module
@@ -33,7 +33,7 @@ abstract class ActivityBuilderModule {
     @ActivityScope
     internal abstract fun bindRegisterActivity(): RegisterActivity
 
-    @ContributesAndroidInjector(modules = [RecoveryPhraseModule::class])
+    @ContributesAndroidInjector(modules = [RecoveryPhraseSigninModule::class])
     @ActivityScope
-    internal abstract fun bindRecoveryPhraseActivity(): RecoveryPhraseActivity
+    internal abstract fun bindRecoveryPhraseActivity(): RecoveryPhraseSigninActivity
 }
