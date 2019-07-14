@@ -26,11 +26,11 @@ class AuthenticationViewModel(
 
     internal val progressLiveData = MutableLiveData<Int>()
 
-    fun registerAccount(
+    internal fun registerAccount(
         timestamp: String,
         jwtSig: String,
-        encPubKeySig: String,
-        encPubKeyHex: String,
+        encPubKeySig: String? = null,
+        encPubKeyHex: String? = null,
         requester: String,
         authRequired: Boolean
     ) {
@@ -48,35 +48,39 @@ class AuthenticationViewModel(
         )
     }
 
-    fun registerAccountLiveData() = registerAccountLiveData.asLiveData()
+    internal fun registerAccountLiveData() = registerAccountLiveData.asLiveData()
 
     private fun registerAccountStream(
         timestamp: String,
         jwtSig: String,
-        encPubKeySig: String,
-        encPubKeyHex: String,
+        encPubKeySig: String? = null,
+        encPubKeyHex: String? = null,
         requester: String,
         authRequired: Boolean
     ): Single<Pair<String, Boolean>> {
         val max = 3 // three data stream
         var progress = 0
+
+        val registerMobileServerAccStream =
+            accountRepo.registerMobileServerAccount(
+                timestamp,
+                jwtSig,
+                requester
+            ).doOnComplete {
+                progressLiveData.set(++progress * 100 / max)
+            }
+
+        val registerEncKeyStream =
+            if (null != encPubKeyHex && null != encPubKeySig) accountRepo.registerEncPubKey(
+                requester,
+                encPubKeyHex,
+                encPubKeySig
+            ).doOnComplete {
+                progressLiveData.set(++progress * 100 / max)
+            } else Completable.complete()
+
         return Completable.merge(
-            listOf(
-                accountRepo.registerMobileServerAccount(
-                    timestamp,
-                    jwtSig,
-                    requester
-                ).doOnComplete {
-                    progressLiveData.set(++progress * 100 / max)
-                },
-                accountRepo.registerEncPubKey(
-                    requester,
-                    encPubKeyHex,
-                    encPubKeySig
-                ).doOnComplete {
-                    progressLiveData.set(++progress * 100 / max)
-                }
-            )
+            listOf(registerMobileServerAccStream, registerEncKeyStream)
         ).andThen(
             accountRepo.saveAccountInfo(
                 requester,
@@ -85,6 +89,11 @@ class AuthenticationViewModel(
                 progressLiveData.set(++progress * 100 / max)
             }
         )
+    }
+
+    override fun onDestroy() {
+        rxLiveDataTransformer.dispose()
+        super.onDestroy()
     }
 
 }

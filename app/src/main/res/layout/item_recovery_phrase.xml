@@ -28,7 +28,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_marginStart="@dimen/dp_6"
-      android:background="@drawable/bg_border_blue_ribbon_stateful"
+      android:background="@drawable/bg_border_blue_ribbon_wild_sand_stateful"
       android:fontFamily="@font/avenir_light"
       android:gravity="center_vertical"
       android:inputType="text"

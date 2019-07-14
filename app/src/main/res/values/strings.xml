@@ -33,5 +33,13 @@
   <string name="submit">Submit</string>
   <string name="wrong_recovery_phrase">Wrong Recovery Phrase!</string>
   <string name="please_try_again">Please try again!</string>
+  <string name="create_your_first_property">Create your first property</string>
+  <string name="welcome_to_bitmark">Welcome to Bitmark!</string>
+  <string name="register_track_trade">Register, track, and trade property rights for your digital assets.</string>
+  <string name="yours">Yours</string>
+  <string name="global">Global</string>
+  <string name="you">You</string>
+  <string name="incoming">Incoming</string>
+  <string name="registering">Registering</string>
 
 </resources>

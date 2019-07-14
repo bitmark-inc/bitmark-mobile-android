@@ -24,22 +24,19 @@ import javax.inject.Inject
 class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
 
     @Inject
-    internal lateinit var viewModel: RecoveryPhraseSigninViewModel
-
-    @Inject
-    internal lateinit var dialogController: DialogController<RecoveryPhraseSigninActivity>
+    internal lateinit var dialogController: DialogController
 
     @Inject
     internal lateinit var navigator: Navigator<RecoveryPhraseSigninActivity>
 
     override fun layoutRes(): Int = R.layout.activity_recovery_phrase_signin
 
-    override fun viewModel(): BaseViewModel? = viewModel
+    override fun viewModel(): BaseViewModel? = null
 
     override fun initComponents() {
         super.initComponents()
 
-        val adapter = RecoveryPhraseAdapter()
+        val adapter = RecoveryPhraseAdapter(textColor = R.color.blue_ribbon)
         val layoutManager =
             GridLayoutManager(this, 2, RecyclerView.VERTICAL, false)
         rvRecoveryPhrase.layoutManager = layoutManager

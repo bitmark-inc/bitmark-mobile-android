@@ -37,5 +37,6 @@ abstract class BaseViewModel :
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     open fun onDestroy() {
+
     }
 }

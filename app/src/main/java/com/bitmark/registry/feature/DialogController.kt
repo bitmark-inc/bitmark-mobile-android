@@ -13,7 +13,7 @@ import java.util.*
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class DialogController<T : Activity>(private val activity: T) {
+class DialogController(private val activity: Activity) {
 
     private val queue = ArrayDeque<AppCompatDialog>()
 
@@ -26,6 +26,7 @@ class DialogController<T : Activity>(private val activity: T) {
         title: String,
         message: String,
         text: String = activity.getString(android.R.string.ok),
+        cancelable: Boolean = false,
         clickEvent: () -> Unit = {}
     ) {
         val dialog =
@@ -38,7 +39,7 @@ class DialogController<T : Activity>(private val activity: T) {
                         dialog.show()
                     }
                 }
-                .create()
+                .setCancelable(cancelable).create()
         if (isShowing())
             queue.add(dialog)
         else dialog.show()
@@ -46,6 +47,7 @@ class DialogController<T : Activity>(private val activity: T) {
 
     fun alert(
         @StringRes title: Int, @StringRes message: Int, @StringRes text: Int = android.R.string.ok,
+        cancelable: Boolean = false,
         clickEvent: () -> Unit = {}
     ) {
         val dialog =
@@ -58,7 +60,7 @@ class DialogController<T : Activity>(private val activity: T) {
                         dialog.show()
                     }
                 }
-                .create()
+                .setCancelable(cancelable).create()
         if (isShowing())
             queue.add(dialog)
         else dialog.show()
@@ -67,6 +69,7 @@ class DialogController<T : Activity>(private val activity: T) {
     fun confirm(
         title: String,
         message: String,
+        cancelable: Boolean = false,
         positive: String = activity.getString(android.R.string.ok),
         positiveEvent: () -> Unit = {},
         negative: String = activity.getString(android.R.string.cancel),
@@ -89,7 +92,7 @@ class DialogController<T : Activity>(private val activity: T) {
                         dialog.show()
                     }
                 }
-                .create()
+                .setCancelable(cancelable).create()
         if (isShowing())
             queue.add(dialog)
         else dialog.show()
@@ -98,6 +101,7 @@ class DialogController<T : Activity>(private val activity: T) {
     fun confirm(
         @StringRes title: Int,
         @StringRes message: Int,
+        cancelable: Boolean = false,
         @StringRes positive: Int = android.R.string.ok,
         positiveEvent: () -> Unit = {},
         @StringRes negative: Int = android.R.string.cancel,
@@ -120,7 +124,7 @@ class DialogController<T : Activity>(private val activity: T) {
                         dialog.show()
                     }
                 }
-                .create()
+                .setCancelable(cancelable).create()
         if (isShowing())
             queue.add(dialog)
         else dialog.show()

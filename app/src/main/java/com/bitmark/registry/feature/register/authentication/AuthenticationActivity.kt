@@ -49,7 +49,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
     internal lateinit var viewModel: AuthenticationViewModel
 
     @Inject
-    internal lateinit var dialogController: DialogController<AuthenticationActivity>
+    internal lateinit var dialogController: DialogController
 
     @Inject
     internal lateinit var navigator: Navigator<AuthenticationActivity>
@@ -77,11 +77,11 @@ class AuthenticationActivity : BaseAppCompatActivity() {
 
         btnSkip.setSafetyOnclickListener {
             dialogController.confirm(
-                R.string.warning,
-                R.string.are_you_sure_you_dont_to_protect,
-                android.R.string.yes,
-                { createAccount(phrase, false) },
-                android.R.string.no, {}
+                title = R.string.warning,
+                message = R.string.are_you_sure_you_dont_to_protect,
+                positive = android.R.string.yes,
+                positiveEvent = { createAccount(phrase, false) },
+                negative = android.R.string.no
             )
         }
     }
@@ -133,8 +133,22 @@ class AuthenticationActivity : BaseAppCompatActivity() {
 
                 val requester = account.accountNumber
                 val signingPrivateKey = account.keyPair.privateKey().toBytes()
-                val encPubKey = account.encryptionKey.publicKey().toBytes()
-                val encPubKeyHex = HEX.encode(encPubKey)
+
+                // ignore register encryption key in case of recover account
+                var encPubKeyHex: String? = null
+                var encPubKeySig: String? = null
+                if (null == phrase) {
+                    val encPubKey =
+                        account.encryptionKey.publicKey().toBytes()
+                    encPubKeyHex = HEX.encode(encPubKey)
+                    encPubKeySig = HEX.encode(
+                        Ed25519.sign(
+                            encPubKey,
+                            signingPrivateKey
+                        )
+                    )
+                }
+
                 val timestamp = System.currentTimeMillis().toString()
                 val jwtSig = HEX.encode(
                     Ed25519.sign(
@@ -142,12 +156,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
                         signingPrivateKey
                     )
                 )
-                val encPubKeySig = HEX.encode(
-                    Ed25519.sign(
-                        encPubKey,
-                        signingPrivateKey
-                    )
-                )
+
                 viewModel.registerAccount(
                     timestamp,
                     jwtSig,
@@ -163,10 +172,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
 
                     // authentication error
                     is AuthenticationException -> {
-                        dialogController.alert(
-                            R.string.error,
-                            R.string.authentication_required
-                        )
+                        // Do nothing
                     }
 
                     // missing security requirement
@@ -209,7 +215,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        navigator.anim(Navigator.RIGHT_LEFT).finishActivity()
+        navigator.anim(RIGHT_LEFT).finishActivity()
         super.onBackPressed()
     }
 

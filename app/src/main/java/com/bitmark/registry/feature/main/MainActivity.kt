@@ -1,26 +1,26 @@
 package com.bitmark.registry.feature.main
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.R
+import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseSupportFragment
+import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.ViewPagerAdapter
 import com.bitmark.registry.feature.main.account.AccountFragment
 import com.bitmark.registry.feature.main.properties.PropertiesFragment
 import com.bitmark.registry.feature.main.transactions.TransactionsFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseAppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        initComponents()
-    }
+    override fun layoutRes(): Int = R.layout.activity_main
 
-    private fun initComponents() {
+    override fun viewModel(): BaseViewModel? = null
+
+    override fun initComponents() {
+        super.initComponents()
         val navAdapter = AHBottomNavigationAdapter(this, R.menu.navigation)
         navAdapter.setupWithBottomNavigation(bottomNav)
         bottomNav.accentColor =
@@ -32,12 +32,14 @@ class MainActivity : AppCompatActivity() {
         )
         bottomNav.setTitleTextSizeInSp(10f, 10f)
 
-        val adapter = MainViewPagerAdapter(supportFragmentManager)
+        val adapter =
+            ViewPagerAdapter(supportFragmentManager)
         adapter.add(
             PropertiesFragment.newInstance(),
             TransactionsFragment.newInstance(),
             AccountFragment.newInstance()
         )
+        viewPager.offscreenPageLimit = adapter.count
         viewPager.adapter = adapter
         viewPager.setCurrentItem(0, false)
 

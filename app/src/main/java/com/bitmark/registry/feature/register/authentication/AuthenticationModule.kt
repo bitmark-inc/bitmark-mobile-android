@@ -39,7 +39,7 @@ class AuthenticationModule {
     @ActivityScope
     fun provideDialogController(
         activity: AuthenticationActivity
-    ): DialogController<AuthenticationActivity> {
+    ): DialogController {
         return DialogController(activity)
     }
 }

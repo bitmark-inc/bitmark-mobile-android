@@ -4,6 +4,8 @@ import com.bitmark.registry.feature.main.account.AccountFragment
 import com.bitmark.registry.feature.main.account.AccountModule
 import com.bitmark.registry.feature.main.properties.PropertiesFragment
 import com.bitmark.registry.feature.main.properties.PropertiesModule
+import com.bitmark.registry.feature.main.properties.yours.YourPropertiesFragment
+import com.bitmark.registry.feature.main.properties.yours.YourPropertiesModule
 import com.bitmark.registry.feature.main.transactions.TransactionsFragment
 import com.bitmark.registry.feature.main.transactions.TransactionsModule
 import dagger.Module
@@ -30,4 +32,8 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [AccountModule::class])
     @FragmentScope
     internal abstract fun bindAccountFragment(): AccountFragment
+
+    @ContributesAndroidInjector(modules = [YourPropertiesModule::class])
+    @FragmentScope
+    internal abstract fun bindYourPropertiesFragment(): YourPropertiesFragment
 }

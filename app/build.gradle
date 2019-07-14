@@ -11,208 +11,247 @@ apply from: 'versioning.gradle'
 def enableSeparateBuildPerCPUArchitecture = false
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
 
-    defaultConfig {
-        applicationId "com.bitmark.registry"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode buildVersionCode()
-        versionName buildVersionName()
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  defaultConfig {
+    applicationId "com.bitmark.registry"
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+    versionCode buildVersionCode()
+    versionName buildVersionName()
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        ndk {
-            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
-        }
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
+    ndk {
+      abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
     }
-
-    splits {
-        abi {
-            reset()
-            enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
-        }
-    }
-
-    androidExtensions {
-        experimental = true
-    }
-
-    signingConfigs {
-
-        debug {
-            def keystorePropertiesFile = rootProject.file("keystores/debug.properties")
-            def keystoreProperties = new Properties()
-            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-            keyAlias keystoreProperties['key.alias']
-            keyPassword keystoreProperties['key.alias.password']
-            storeFile file('../keystores/debug.keystore')
-            storePassword keystoreProperties['key.store.password']
-        }
-
-        release {
-            def keystorePropertiesFile = rootProject.file("keystores/release.properties")
-            def keystoreProperties = new Properties()
-            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-            keyAlias keystoreProperties['key.alias']
-            keyPassword keystoreProperties['key.alias.password']
-            storeFile file('../keystores/release.keystore')
-            storePassword keystoreProperties['key.store.password']
-        }
-    }
-
-    buildTypes {
-
-        debug {
-            debuggable true
-            minifyEnabled false
-            signingConfig signingConfigs.debug
-        }
-
-        release {
-            minifyEnabled true
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
-    }
-    // applicationVariants are e.g. debug, release
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            // For each separate APK per architecture, set a unique version code as described here:
-            // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(com.android.build.OutputFile.ABI)
-            if (abi != null) {  // null for the universal-debug, universal-release variants
-                output.versionCodeOverride =
-                        versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
-            }
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
-    }
-
     externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
+      cmake {
+        cppFlags ""
+      }
     }
 
-    flavorDimensions "version"
+    javaCompileOptions {
+      annotationProcessorOptions {
+        arguments = ["room.schemaLocation":
+            "$projectDir/schemas".toString()]
+      }
+    }
+  }
 
-    productFlavors {
+  splits {
+    abi {
+      reset()
+      enable enableSeparateBuildPerCPUArchitecture
+      universalApk false // If true, also generate a universal APK
+      include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+    }
+  }
 
-        inhouse {
-            dimension "version"
-            applicationIdSuffix ".inhouse"
-            resValue "string", "app_name", "Bitmark"
-            manifestPlaceholders = [
-                    appIcon     : "@mipmap/ic_launcher_dev",
-                    appIconRound: "@mipmap/ic_launcher_dev_round"
-            ]
-            ext.betaDistributionReleaseNotesFilePath = "${project.rootDir}/distribution/release_note.txt"
-            ext.betaDistributionEmailsFilePath = "${project.rootDir}/distribution/testers.txt"
+  androidExtensions {
+    experimental = true
+  }
 
-            buildConfigField "String", "CORE_API_ENDPOINT", "\"https://api.test.bitmark.com\""
-            buildConfigField "String", "MOBILE_SERVER_EMPOINT", "\"https://bm.test.bitmark.com\""
-            buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT", "\"https://file-courier.test.bitmark.com\""
-            buildConfigField "String", "PROFILE_SERVER_ENDPOINT", "\"https://profiles.test.bitmark.com\""
-        }
+  signingConfigs {
 
-        prd {
-            dimension "version"
-            resValue "string", "app_name", "Bitmark"
-            manifestPlaceholders = [
-                    appIcon     : "@mipmap/ic_launcher",
-                    appIconRound: "@mipmap/ic_launcher_round"
-            ]
-            ext.betaDistributionReleaseNotesFilePath = "${project.rootDir}/distribution/release_note.txt"
-            ext.betaDistributionEmailsFilePath = "${project.rootDir}/distribution/testers.txt"
-
-            buildConfigField "String", "CORE_API_ENDPOINT", "\"https://api.bitmark.com\""
-            buildConfigField "String", "MOBILE_SERVER_EMPOINT", "\"https://bm.bitmark.com\""
-            buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT", "\"https://file-courier.bitmark.com\""
-            buildConfigField "String", "PROFILE_SERVER_ENDPOINT", "\"https://profiles.bitmark.com\""
-        }
+    debug {
+      def keystorePropertiesFile = rootProject.file(
+          "keystores/debug.properties")
+      def keystoreProperties = new Properties()
+      keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+      keyAlias keystoreProperties['key.alias']
+      keyPassword keystoreProperties['key.alias.password']
+      storeFile file('../keystores/debug.keystore')
+      storePassword keystoreProperties['key.store.password']
     }
 
-    applicationVariants.all { variant ->
-        def name = variant.getName()
-
-        if (name.contains("inhouse")) {
-            variant.buildConfigField 'int', 'KEY_VALIDITY_DURATION', '120'
-        } else if (name.contains("prd")) {
-            variant.buildConfigField 'int', 'KEY_VALIDITY_DURATION', '600'
-        }
+    release {
+      def keystorePropertiesFile = rootProject.file(
+          "keystores/release.properties")
+      def keystoreProperties = new Properties()
+      keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+      keyAlias keystoreProperties['key.alias']
+      keyPassword keystoreProperties['key.alias.password']
+      storeFile file('../keystores/release.keystore')
+      storePassword keystoreProperties['key.store.password']
     }
+  }
+
+  buildTypes {
+
+    debug {
+      debuggable true
+      minifyEnabled false
+      signingConfig signingConfigs.debug
+    }
+
+    release {
+      minifyEnabled true
+      signingConfig signingConfigs.release
+      proguardFiles getDefaultProguardFile("proguard-android.txt"),
+          "proguard-rules.pro"
+    }
+  }
+  // applicationVariants are e.g. debug, release
+  applicationVariants.all { variant ->
+    variant.outputs.each { output ->
+      // For each separate APK per architecture, set a unique version code as described here:
+      // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
+      def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+      def abi = output.getFilter(com.android.build.OutputFile.ABI)
+      if (abi != null) {
+        // null for the universal-debug, universal-release variants
+        output.versionCodeOverride =
+            versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+      }
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility 1.8
+    targetCompatibility 1.8
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+    }
+  }
+
+  flavorDimensions "version"
+
+  productFlavors {
+
+    inhouse {
+      dimension "version"
+      applicationIdSuffix ".inhouse"
+      resValue "string", "app_name", "Bitmark"
+      manifestPlaceholders = [
+          appIcon: "@mipmap/ic_launcher_dev",
+          appIconRound: "@mipmap/ic_launcher_dev_round"
+      ]
+      ext.betaDistributionReleaseNotesFilePath =
+          "${project.rootDir}/distribution/release_note.txt"
+      ext.betaDistributionEmailsFilePath =
+          "${project.rootDir}/distribution/testers.txt"
+
+      buildConfigField "String", "CORE_API_ENDPOINT",
+          "\"https://api.test.bitmark.com\""
+      buildConfigField "String", "MOBILE_SERVER_EMPOINT",
+          "\"https://bm.test.bitmark.com\""
+      buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT",
+          "\"https://file-courier.test.bitmark.com\""
+      buildConfigField "String", "PROFILE_SERVER_ENDPOINT",
+          "\"https://profiles.test.bitmark.com\""
+      buildConfigField "String", "REGISTRY_WEBSITE",
+          "\"https://registry.test.bitmark.com\""
+    }
+
+    prd {
+      dimension "version"
+      resValue "string", "app_name", "Bitmark"
+      manifestPlaceholders = [
+          appIcon: "@mipmap/ic_launcher",
+          appIconRound: "@mipmap/ic_launcher_round"
+      ]
+      ext.betaDistributionReleaseNotesFilePath =
+          "${project.rootDir}/distribution/release_note.txt"
+      ext.betaDistributionEmailsFilePath =
+          "${project.rootDir}/distribution/testers.txt"
+
+      buildConfigField "String", "CORE_API_ENDPOINT",
+          "\"https://api.bitmark.com\""
+      buildConfigField "String", "MOBILE_SERVER_EMPOINT",
+          "\"https://bm.bitmark.com\""
+      buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT",
+          "\"https://file-courier.bitmark.com\""
+      buildConfigField "String", "PROFILE_SERVER_ENDPOINT",
+          "\"https://profiles.bitmark.com\""
+      buildConfigField "String", "REGISTRY_WEBSITE",
+          "\"https://registry.bitmark.com\""
+    }
+  }
+
+  applicationVariants.all { variant ->
+    def name = variant.getName()
+
+    if (name.contains("inhouse")) {
+      variant.buildConfigField 'int', 'KEY_VALIDITY_DURATION', '120'
+    } else if (name.contains("prd")) {
+      variant.buildConfigField 'int', 'KEY_VALIDITY_DURATION', '600'
+    }
+  }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
-    implementation 'androidx.core:core-ktx:1.2.0-alpha02'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.aurelhubert:ahbottomnavigation:2.3.4'
 
-    // Dagger
-    implementation 'com.google.dagger:dagger-android:2.23.2'
-    implementation 'com.google.dagger:dagger-android-support:2.23.2'
-    kapt 'com.google.dagger:dagger-android-processor:2.23.2'
-    kapt 'com.google.dagger:dagger-compiler:2.23.2'
+  // Basic
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
+  implementation 'androidx.core:core-ktx:1.2.0-alpha02'
+  implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    // Rx2
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+  // Dagger
+  implementation 'com.google.dagger:dagger-android:2.23.2'
+  implementation 'com.google.dagger:dagger-android-support:2.23.2'
+  kapt 'com.google.dagger:dagger-android-processor:2.23.2'
+  kapt 'com.google.dagger:dagger-compiler:2.23.2'
 
-    // Retrofit + Okhttp
-    implementation "com.squareup.retrofit2:retrofit:2.6.0"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:2.6.0"
-    implementation "com.squareup.retrofit2:converter-gson:2.6.0"
-    implementation "com.squareup.okhttp3:okhttp:4.0.0"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.0.0"
+  // Rx2
+  implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
+  implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
-    // Architecture component
-    implementation "android.arch.lifecycle:livedata:2.0.0"
-    implementation "android.arch.lifecycle:runtime:2.0.0"
-    kapt "android.arch.lifecycle:compiler:2.0.0"
+  // Retrofit + Okhttp
+  implementation "com.squareup.retrofit2:retrofit:2.6.0"
+  implementation "com.squareup.retrofit2:adapter-rxjava2:2.6.0"
+  implementation "com.squareup.retrofit2:converter-gson:2.6.0"
+  implementation "com.squareup.okhttp3:okhttp:4.0.0"
+  implementation "com.squareup.okhttp3:logging-interceptor:4.0.0"
 
-    // Glide
-    implementation('com.github.bumptech.glide:glide:4.9.0') {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'support-fragment'
-    }
-    implementation 'com.android.support:support-annotations:28.0.0'
-    kapt 'com.github.bumptech.glide:compiler:4.9.0'
+  // Architecture component
+  implementation "android.arch.lifecycle:livedata:2.0.0"
+  implementation "android.arch.lifecycle:runtime:2.0.0"
+  kapt "android.arch.lifecycle:compiler:2.0.0"
 
-    implementation 'com.bitmark.sdk:android-sdk:2.1.0-SNAPSHOT'
-    implementation 'com.google.firebase:firebase-messaging:19.0.1'
+  // Glide
+  implementation('com.github.bumptech.glide:glide:4.9.0') {
+    exclude group: 'com.android.support', module: 'support-annotations'
+    exclude group: 'com.android.support', module: 'support-fragment'
+  }
+  implementation 'com.android.support:support-annotations:28.0.0'
+  kapt 'com.github.bumptech.glide:compiler:4.9.0'
+
+  // Room
+  implementation 'androidx.room:room-runtime:2.1.0'
+  kapt 'androidx.room:room-compiler:2.1.0'
+  implementation 'androidx.room:room-rxjava2:2.1.0'
+
+  // Others
+  implementation 'com.bitmark.sdk:android-sdk:2.1.0-SNAPSHOT'
+  implementation 'com.google.firebase:firebase-messaging:19.0.1'
+  implementation 'com.aurelhubert:ahbottomnavigation:2.3.4'
 
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.3.0-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha01'
+  // Testing
+  testImplementation 'junit:junit:4.12'
+  androidTestImplementation 'androidx.test:runner:1.3.0-alpha01'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha01'
 }
 
 task fillSecretKey << {
-    def keyPropertiesFile = rootProject.file('key.properties')
-    def keyProperties = new Properties()
-    keyProperties.load(new FileInputStream(keyPropertiesFile))
-    def apiKeyFile = file('src/main/jni/api-key.cpp')
-    def content = apiKeyFile.getText()
-    content = content.replace('bitmark-api-key-to-be-filled', keyProperties['api.key.bitmark'])
-            .replace('intercom-api-key-to-be-filled', keyProperties['api.key.intercom'])
-    apiKeyFile.bytes = []
-    apiKeyFile.text = content
+  def keyPropertiesFile = rootProject.file('key.properties')
+  def keyProperties = new Properties()
+  keyProperties.load(new FileInputStream(keyPropertiesFile))
+  def apiKeyFile = file('src/main/jni/api-key.cpp')
+  def content = apiKeyFile.getText()
+  content = content.replace('bitmark-api-key-to-be-filled',
+      keyProperties['api.key.bitmark'])
+      .
+      replace('intercom-api-key-to-be-filled',
+          keyProperties['api.key.intercom'])
+  apiKeyFile.bytes = []
+  apiKeyFile.text = content
 }
 
 apply plugin: 'com.google.gms.google-services'

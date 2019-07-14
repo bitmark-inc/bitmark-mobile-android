@@ -1,7 +1,11 @@
 package com.bitmark.registry.data.source
 
+import android.content.Context
+import androidx.room.Room
 import com.bitmark.registry.data.source.local.AccountLocalDataSource
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
+import com.bitmark.registry.data.source.local.api.DatabaseApi
+import com.bitmark.registry.data.source.local.api.DatabaseGateway
 import com.bitmark.registry.data.source.remote.AccountRemoteDataSource
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import dagger.Module
@@ -34,5 +38,21 @@ class RepositoryModule {
         localDataSource: BitmarkLocalDataSource
     ): BitmarkRepository {
         return BitmarkRepository(localDataSource, remoteDataSource)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDatabaseGateway(context: Context): DatabaseGateway {
+        return Room.databaseBuilder(
+            context, DatabaseGateway::class.java,
+            DatabaseGateway.DATABASE_NAME
+        )
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDatabaseApi(databaseGateway: DatabaseGateway): DatabaseApi {
+        return DatabaseApi(databaseGateway)
     }
 }

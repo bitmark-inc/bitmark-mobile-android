@@ -1,10 +1,8 @@
 package com.bitmark.registry.feature.register.recoveryphrase
 
-import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
 
@@ -20,15 +18,6 @@ class RecoveryPhraseSigninModule {
 
     @Provides
     @ActivityScope
-    fun provideViewModel(
-        accountRepo: AccountRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
-    ): RecoveryPhraseSigninViewModel {
-        return RecoveryPhraseSigninViewModel(accountRepo, rxLiveDataTransformer)
-    }
-
-    @Provides
-    @ActivityScope
     fun provideNavigator(
         activity: RecoveryPhraseSigninActivity
     ): Navigator<RecoveryPhraseSigninActivity> {
@@ -39,7 +28,7 @@ class RecoveryPhraseSigninModule {
     @ActivityScope
     fun provideDialogController(
         activity: RecoveryPhraseSigninActivity
-    ): DialogController<RecoveryPhraseSigninActivity> {
+    ): DialogController {
         return DialogController(activity)
     }
 }

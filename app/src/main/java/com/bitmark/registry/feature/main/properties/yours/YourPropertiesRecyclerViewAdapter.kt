@@ -1,0 +1,129 @@
+package com.bitmark.registry.feature.main.properties.yours
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.bitmark.registry.R
+import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.util.modelview.BitmarkModelView
+import com.bitmark.registry.util.modelview.BitmarkModelView.AssetType.*
+import kotlinx.android.synthetic.main.item_your_properties.view.*
+
+
+/**
+ * @author Hieu Pham
+ * @since 2019-07-10
+ * Email: hieupham@bitmark.com
+ * Copyright © 2019 Bitmark. All rights reserved.
+ */
+class YourPropertiesRecyclerViewAdapter() :
+    RecyclerView.Adapter<YourPropertiesRecyclerViewAdapter.ViewHolder>() {
+
+    private val items = mutableListOf<BitmarkModelView>()
+
+    internal fun add(items: List<BitmarkModelView>) {
+        val pos = this.items.size
+        this.items.addAll(items)
+        notifyItemRangeInserted(pos, items.size)
+    }
+
+    internal fun set(items: List<BitmarkModelView>) {
+        this.items.clear()
+        this.items.addAll(items)
+        notifyDataSetChanged()
+    }
+
+    internal fun clear() {
+        this.items.clear()
+        notifyDataSetChanged()
+    }
+
+    internal fun isEmpty() = items.isEmpty()
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_your_properties, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun getItemCount(): Int = items.size
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(items[position])
+    }
+
+    class ViewHolder(view: View) :
+        RecyclerView.ViewHolder(view) {
+
+        fun bind(item: BitmarkModelView) {
+            with(itemView) {
+                if (item.seen) {
+                    tvConfirmedAt.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.black
+                        )
+                    )
+                    tvIssuer.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.black
+                        )
+                    )
+                    tvName.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.black
+                        )
+                    )
+                } else {
+                    tvConfirmedAt.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.blue_ribbon
+                        )
+                    )
+                    tvIssuer.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.blue_ribbon
+                        )
+                    )
+                    tvName.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.blue_ribbon
+                        )
+                    )
+                }
+
+                tvName.text = item.name
+                tvIssuer.text =
+                    if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.shortIssuer()
+                tvConfirmedAt.text = when (item.status) {
+                    BitmarkData.Status.ISSUING -> context.getString(R.string.registering).toUpperCase()
+                    BitmarkData.Status.TRANSFERRING -> context.getString(R.string.incoming).toUpperCase()
+                    BitmarkData.Status.SETTLED -> item.confirmedAt()?.toUpperCase()
+                    else -> ""
+                }
+                ivAssetType.setImageResource(
+                    when (item.assetType) {
+                        IMAGE -> R.drawable.ic_asset_image
+                        VIDEO -> R.drawable.ic_asset_video
+                        HEALTH -> R.drawable.ic_asset_health_data
+                        MEDICAL -> R.drawable.ic_asset_medical_record
+                        ZIP -> R.drawable.ic_asset_zip
+                        DOC -> R.drawable.ic_asset_doc
+                        UNKNOWN -> R.drawable.ic_asset_unknow
+                    }
+                )
+            }
+        }
+
+    }
+}

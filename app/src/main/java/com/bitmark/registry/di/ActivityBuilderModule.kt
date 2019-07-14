@@ -1,5 +1,7 @@
 package com.bitmark.registry.di
 
+import com.bitmark.registry.feature.main.MainActivity
+import com.bitmark.registry.feature.main.MainModule
 import com.bitmark.registry.feature.register.RegisterActivity
 import com.bitmark.registry.feature.register.RegisterModule
 import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
@@ -36,4 +38,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [RecoveryPhraseSigninModule::class])
     @ActivityScope
     internal abstract fun bindRecoveryPhraseActivity(): RecoveryPhraseSigninActivity
+
+    @ContributesAndroidInjector(modules = [MainModule::class])
+    @ActivityScope
+    internal abstract fun bindMainActivity(): MainActivity
 }

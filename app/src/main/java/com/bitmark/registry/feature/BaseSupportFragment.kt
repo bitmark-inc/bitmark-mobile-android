@@ -40,9 +40,15 @@ abstract class BaseSupportFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
+        deinitComponents()
         if (null != viewModel())
             lifecycle.removeObserver(viewModel()!!)
         super.onDestroyView()
+    }
+
+    override fun onDetach() {
+        unobserve()
+        super.onDetach()
     }
 
 
@@ -68,9 +74,20 @@ abstract class BaseSupportFragment : DaggerFragment() {
     protected open fun initComponents() {}
 
     /**
+     * Deinit [View] components here. Such as set adapter for [RecyclerView], remove listener
+     * or anything else
+     */
+    protected open fun deinitComponents() {}
+
+    /**
      * Observe data change from ViewModel
      */
     protected open fun observe() {}
+
+    /**
+     * Unobserve data change from ViewModel
+     */
+    protected open fun unobserve() {}
 
     /**
      * Refresh stuff like view, data or something

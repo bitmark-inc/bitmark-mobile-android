@@ -22,7 +22,7 @@ class SplashViewModel(
         CompositeLiveData<Pair<String, Boolean>>()
     private val registerJwtLiveData = CompositeLiveData<String>()
 
-    fun getExistingAccount() {
+    internal fun getExistingAccount() {
         getExistingAccountLiveData.add(
             rxLiveDataTransformer.single(
                 accountRepo.getAccountInfo()
@@ -30,7 +30,7 @@ class SplashViewModel(
         )
     }
 
-    fun registerJwt(timestamp: String, signature: String, requester: String) {
+    internal fun registerJwt(timestamp: String, signature: String, requester: String) {
         registerJwtLiveData.add(
             rxLiveDataTransformer.single(
                 accountRepo.registerMobileServerJwt(
@@ -42,15 +42,13 @@ class SplashViewModel(
         )
     }
 
-    fun getExistingAccountLiveData() =
+    internal fun getExistingAccountLiveData() =
         getExistingAccountLiveData.asLiveData()
 
-    fun registerJwtLiveData() = registerJwtLiveData.asLiveData()
+    internal fun registerJwtLiveData() = registerJwtLiveData.asLiveData()
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()
         super.onDestroy()
     }
-
-
 }

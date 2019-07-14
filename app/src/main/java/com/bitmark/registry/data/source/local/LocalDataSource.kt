@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source.local
 
-import com.bitmark.registry.data.source.local.api.FileApi
+import com.bitmark.registry.data.source.local.api.DatabaseApi
+import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
 
 
@@ -11,5 +12,7 @@ import com.bitmark.registry.data.source.local.api.SharedPrefApi
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 abstract class LocalDataSource(
-    protected val sharedPrefApi: SharedPrefApi, protected val fileApi: FileApi
+    protected val databaseApi: DatabaseApi,
+    protected val sharedPrefApi: SharedPrefApi,
+    protected val fileStorageApi: FileStorageApi
 )

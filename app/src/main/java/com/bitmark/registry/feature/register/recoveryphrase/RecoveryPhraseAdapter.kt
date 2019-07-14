@@ -108,23 +108,44 @@ class RecoveryPhraseAdapter(
         private lateinit var item: Item
 
         init {
-            if (!editable) {
-                itemView.edtWord.isFocusable = false
-            }
-            itemView.edtWord.setTextColor(
-                ContextCompat.getColor(
-                    itemView.context,
-                    textColor
+            with(itemView) {
+                if (!editable) {
+                    edtWord.isFocusable = false
+                }
+
+                edtWord.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        textColor
+                    )
                 )
-            )
 
-            itemView.edtWord.doOnTextChanged { text, _, _, _ ->
-                item.word = text.toString()
-                listener.onTextChanged(item)
-            }
+                edtWord.doOnTextChanged { text, _, _, _ ->
+                    item.word = text.toString()
 
-            itemView.edtWord.doAfterTextChanged {
-                listener.afterTextChanged(item)
+                    edtWord.background = ContextCompat.getDrawable(
+                        context,
+                        if (text.isNullOrBlank()) R.drawable.bg_border_blue_ribbon_wild_sand_stateful else R.drawable.bg_border_blue_ribbon_white_stateful
+                    )
+
+                    listener.onTextChanged(item)
+                }
+
+                edtWord.doAfterTextChanged {
+                    listener.afterTextChanged(item)
+                }
+
+                edtWord.setOnFocusChangeListener { _, hasFocus ->
+                    val text = edtWord.text
+                    if (!hasFocus && !text.isNullOrBlank()) {
+                        edtWord.background = null
+                    } else {
+                        edtWord.background = ContextCompat.getDrawable(
+                            context,
+                            if (text.isNullOrBlank()) R.drawable.bg_border_blue_ribbon_wild_sand_stateful else R.drawable.bg_border_blue_ribbon_white_stateful
+                        )
+                    }
+                }
             }
         }
 

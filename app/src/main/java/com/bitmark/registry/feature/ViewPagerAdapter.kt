@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.main
+package com.bitmark.registry.feature
 
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -12,15 +12,15 @@ import androidx.fragment.app.FragmentPagerAdapter
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class MainViewPagerAdapter(fm: FragmentManager) :
+open class ViewPagerAdapter(fm: FragmentManager) :
     FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     var currentFragment: Fragment? = null
         private set
 
-    private val fragments = mutableListOf<Fragment>()
+    protected val fragments = mutableListOf<Fragment>()
 
-    fun add(vararg fragments: Fragment) {
+    open fun add(vararg fragments: Fragment) {
         for (fr in fragments) {
             if (this.fragments.contains(fr)) continue
             this.fragments.add(fr)
@@ -36,7 +36,7 @@ class MainViewPagerAdapter(fm: FragmentManager) :
         position: Int,
         `object`: Any
     ) {
-        if (currentFragment == `object`) {
+        if (currentFragment != `object`) {
             currentFragment = `object` as Fragment
         }
         super.setPrimaryItem(container, position, `object`)

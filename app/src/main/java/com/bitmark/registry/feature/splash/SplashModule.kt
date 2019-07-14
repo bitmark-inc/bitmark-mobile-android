@@ -37,7 +37,7 @@ class SplashModule {
     @ActivityScope
     fun provideDialogController(
         activity: SplashActivity
-    ): DialogController<SplashActivity> {
+    ): DialogController {
         return DialogController(activity)
     }
 }

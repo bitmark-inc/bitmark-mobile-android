@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source.local
 
-import com.bitmark.registry.data.source.local.api.FileApi
+import com.bitmark.registry.data.source.local.api.DatabaseApi
+import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
 import io.reactivex.Single
 import javax.inject.Inject
@@ -13,8 +14,9 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class AccountLocalDataSource @Inject constructor(
-    sharedPrefApi: SharedPrefApi, fileApi: FileApi
-) : LocalDataSource(sharedPrefApi, fileApi) {
+    databaseApi: DatabaseApi,
+    sharedPrefApi: SharedPrefApi, fileStorageApi: FileStorageApi
+) : LocalDataSource(databaseApi, sharedPrefApi, fileStorageApi) {
 
     fun saveAccountInfo(
         accountNumber: String,

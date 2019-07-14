@@ -2,6 +2,7 @@ package com.bitmark.registry.util.extension
 
 import android.app.Activity
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.graphics.Rect
 import android.os.Handler
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -62,17 +63,23 @@ fun TextView.setText(@StringRes id: Int) {
 
 fun Activity.detectKeyBoardState(action: (Boolean) -> Unit) {
     val contentView = findViewById<View>(android.R.id.content)
-    var prevHeight = 0
+    var isShowing = false
     contentView.viewTreeObserver.addOnGlobalLayoutListener {
-        val newHeight = contentView.height
-        if (prevHeight != 0) {
-            if (prevHeight > newHeight) {
+        val rect = Rect()
+        contentView.getWindowVisibleDisplayFrame(rect)
+        val screenHeight = contentView.rootView.height
+        val keyboardHeight = screenHeight - rect.bottom
+        if (keyboardHeight > screenHeight * 0.15) {
+            if (!isShowing) {
+                isShowing = true
                 action.invoke(true)
-            } else if (prevHeight < newHeight) {
+            }
+        } else {
+            if (isShowing) {
+                isShowing = false
                 action.invoke(false)
             }
         }
-        prevHeight = newHeight
     }
 }
 
