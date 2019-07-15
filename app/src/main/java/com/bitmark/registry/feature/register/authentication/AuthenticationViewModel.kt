@@ -48,7 +48,8 @@ class AuthenticationViewModel(
         )
     }
 
-    internal fun registerAccountLiveData() = registerAccountLiveData.asLiveData()
+    internal fun registerAccountLiveData() =
+        registerAccountLiveData.asLiveData()
 
     private fun registerAccountStream(
         timestamp: String,
@@ -58,7 +59,8 @@ class AuthenticationViewModel(
         requester: String,
         authRequired: Boolean
     ): Single<Pair<String, Boolean>> {
-        val max = 3 // three data stream
+        val streamCount =
+            if (null != encPubKeyHex && null != encPubKeySig) 3 else 2
         var progress = 0
 
         val registerMobileServerAccStream =
@@ -67,7 +69,7 @@ class AuthenticationViewModel(
                 jwtSig,
                 requester
             ).doOnComplete {
-                progressLiveData.set(++progress * 100 / max)
+                progressLiveData.set(++progress * 100 / streamCount)
             }
 
         val registerEncKeyStream =
@@ -76,7 +78,7 @@ class AuthenticationViewModel(
                 encPubKeyHex,
                 encPubKeySig
             ).doOnComplete {
-                progressLiveData.set(++progress * 100 / max)
+                progressLiveData.set(++progress * 100 / streamCount)
             } else Completable.complete()
 
         return Completable.merge(
@@ -86,7 +88,7 @@ class AuthenticationViewModel(
                 requester,
                 authRequired
             ).doOnSuccess {
-                progressLiveData.set(++progress * 100 / max)
+                progressLiveData.set(++progress * 100 / streamCount)
             }
         )
     }
