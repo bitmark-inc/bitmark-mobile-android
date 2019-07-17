@@ -1,15 +1,16 @@
 package com.bitmark.registry.data.source.remote
 
+import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.params.query.BitmarkQueryBuilder
 import com.bitmark.apiservice.params.query.TransactionQueryBuilder
 import com.bitmark.apiservice.response.GetBitmarksResponse
 import com.bitmark.apiservice.response.GetTransactionsResponse
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.UnexpectedException
-import com.bitmark.apiservice.utils.record.AssetRecord
-import com.bitmark.apiservice.utils.record.BitmarkRecord
-import com.bitmark.apiservice.utils.record.BlockRecord
-import com.bitmark.apiservice.utils.record.TransactionRecord
+import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.BlockData
+import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
@@ -37,6 +38,7 @@ class BitmarkRemoteDataSource @Inject constructor(
 
     fun listBitmarks(
         owner: String? = null,
+        bitmarkIds: List<String>? = null,
         at: Long = 0,
         to: String = "earlier",
         limit: Int = 100,
@@ -44,8 +46,8 @@ class BitmarkRemoteDataSource @Inject constructor(
         issuer: String? = null,
         refAssetId: String? = null,
         loadAsset: Boolean = false
-    ): Single<Pair<List<BitmarkRecord>, List<AssetRecord>>> {
-        return Single.create(SingleOnSubscribe<Pair<List<BitmarkRecord>, List<AssetRecord>>> { emitter ->
+    ): Single<Pair<List<BitmarkData>, List<AssetData>>> {
+        return Single.create(SingleOnSubscribe<Pair<List<BitmarkData>, List<AssetData>>> { emitter ->
             val builder =
                 BitmarkQueryBuilder().limit(limit).pending(pending)
                     .loadAsset(loadAsset)
@@ -53,9 +55,19 @@ class BitmarkRemoteDataSource @Inject constructor(
             if (null != issuer) builder.issuedBy(issuer)
             if (null != owner) builder.ownedBy(owner)
             if (null != refAssetId) builder.referencedAsset(refAssetId)
+            if (null != bitmarkIds) builder.bitmarkIds(bitmarkIds.toTypedArray())
             Bitmark.list(builder, object : Callback1<GetBitmarksResponse> {
                 override fun onSuccess(data: GetBitmarksResponse) {
-                    emitter.onSuccess(Pair(data.bitmarks, data.assets))
+                    emitter.onSuccess(
+                        Pair(
+                            if (data.bitmarks.isNullOrEmpty()) listOf() else data.bitmarks.map(
+                                converter.mapBitmark()
+                            ),
+                            if (data.assets.isNullOrEmpty()) listOf() else data.assets.map(
+                                converter.mapAsset()
+                            )
+                        )
+                    )
                 }
 
                 override fun onError(throwable: Throwable) {
@@ -78,9 +90,9 @@ class BitmarkRemoteDataSource @Inject constructor(
         to: String? = null,
         limit: Int = 100,
         loadBlock: Boolean = false
-    ): Single<Triple<List<TransactionRecord>, List<AssetRecord>, List<BlockRecord>>> =
+    ): Single<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> =
         Single.create(
-            SingleOnSubscribe<Triple<List<TransactionRecord>, List<AssetRecord>, List<BlockRecord>>> { emt ->
+            SingleOnSubscribe<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> { emt ->
 
                 val queryBuilder =
                     TransactionQueryBuilder().loadAsset(loadAsset)
@@ -107,9 +119,15 @@ class BitmarkRemoteDataSource @Inject constructor(
                             if (data == null) emt.onError(UnexpectedException("response is null"))
                             else emt.onSuccess(
                                 Triple(
-                                    data.transactions,
-                                    data.assets,
-                                    data.blocks
+                                    if (data.transactions.isNullOrEmpty()) listOf() else data.transactions.map(
+                                        converter.mapTx()
+                                    ),
+                                    if (data.assets.isNullOrEmpty()) listOf() else data.assets.map(
+                                        converter.mapAsset()
+                                    ),
+                                    if (data.blocks.isNullOrEmpty()) listOf() else data.blocks.map(
+                                        converter.mapBlk()
+                                    )
                                 )
                             )
                         }
@@ -121,4 +139,19 @@ class BitmarkRemoteDataSource @Inject constructor(
                     })
 
             }).subscribeOn(Schedulers.io())
+
+    fun transfer(params: TransferParams): Single<String> = Single.create(
+        SingleOnSubscribe<String> { emt ->
+            Bitmark.transfer(params, object : Callback1<String> {
+                override fun onSuccess(data: String?) {
+                    if (data == null) emt.onError(UnexpectedException("response is null"))
+                    else emt.onSuccess(data)
+                }
+
+                override fun onError(throwable: Throwable?) {
+                    emt.onError(throwable!!)
+                }
+
+            })
+        }).subscribeOn(Schedulers.io())
 }

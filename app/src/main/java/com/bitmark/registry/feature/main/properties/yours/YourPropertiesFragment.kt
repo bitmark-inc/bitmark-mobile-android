@@ -166,6 +166,10 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 }
             }
         })
+
+        viewModel.deletedBitmarkLiveData.observe(this, Observer { bitmarkIds ->
+            adapter.remove(bitmarkIds)
+        })
     }
 
     override fun refresh() {

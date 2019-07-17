@@ -21,12 +21,12 @@ class BitmarkModelView constructor(
     private val confirmedAt: String?,
     private val issuedAt: String? = null,
     val issuer: String,
+    val headId: String,
     val metadata: Map<String, String>?,
-    var accountNumber: String,
+    val accountNumber: String,
     var seen: Boolean = false,
     val assetType: AssetType = AssetType.UNKNOWN,
     val status: BitmarkData.Status,
-    val provenance: List<TransactionModelView>? = null,
     val assetFile: File? = null
 ) : Parcelable {
 
@@ -128,9 +128,13 @@ class BitmarkModelView constructor(
                 bitmark.confirmedAt,
                 bitmark.issuedAt,
                 bitmark.issuer,
+                bitmark.headId,
                 bitmark.asset?.metadata ?: mapOf(),
                 accountNumber,
-                bitmark.seen, assetType, bitmark.status, assetFile = assetFile
+                bitmark.seen,
+                assetType,
+                bitmark.status,
+                assetFile = assetFile
             )
         }
     }

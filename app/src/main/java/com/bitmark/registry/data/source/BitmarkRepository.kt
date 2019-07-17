@@ -1,12 +1,17 @@
 package com.bitmark.registry.data.source
 
-import com.bitmark.registry.data.model.*
+import com.bitmark.apiservice.params.TransferParams
+import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_DELETED
+import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.local.BitmarkDeletedListener
 import com.bitmark.registry.data.source.local.BitmarkInsertedListener
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
 import com.bitmark.registry.data.source.local.BitmarkStatusChangedListener
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import com.bitmark.registry.util.extension.append
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -55,42 +60,7 @@ class BitmarkRepository(
             issuer = issuer,
             refAssetId = refAssetId,
             loadAsset = true
-        ).observeOn(Schedulers.computation()).map { p ->
-            val bitmarks = p.first.map { b ->
-                BitmarkData(
-                    b.id,
-                    b.assetId,
-                    b.blockNumber,
-                    b.confirmedAt,
-                    b.createdAt,
-                    mapHead(b.head),
-                    b.headId,
-                    b.issuedAt,
-                    b.issuer,
-                    b.offset,
-                    b.owner,
-                    BitmarkData.map(b.status)
-                )
-            }
-
-            val assets = p.second.map { a ->
-                AssetData(
-                    a.id,
-                    a.blockNumber,
-                    a.blockOffset,
-                    a.createdAt,
-                    a.expiredAt,
-                    a.fingerprint,
-                    a.metadata,
-                    a.name,
-                    a.offset,
-                    a.registrant,
-                    AssetData.map(a.status)
-                )
-            }
-
-            Pair(bitmarks, assets)
-        }.flatMap { p ->
+        ).observeOn(Schedulers.computation()).flatMap { p ->
             localDataSource.saveAssets(p.second)
                 .andThen(localDataSource.saveBitmarks(p.first))
                 .andThen(Single.just(p))
@@ -110,12 +80,18 @@ class BitmarkRepository(
         at: Long,
         limit: Int
     ): Maybe<List<BitmarkData>> {
-        return localDataSource.countBitmark().flatMapMaybe { count ->
+        return localDataSource.countBitmarks().flatMapMaybe { count ->
             if (count == 0L) {
                 // database is empty, sync with remote data
                 syncBitmarks(owner = owner, limit = limit).toMaybe()
             } else {
-                localDataSource.listBitmarksByOffsetLimitDesc(at, limit)
+                cleanupBitmark(owner).andThen(
+                    localDataSource.listBitmarksByOffsetLimitDesc(
+                        at,
+                        limit
+                    )
+                )
+                    .map { bitmarks -> bitmarks.filter { b -> b.status != TO_BE_DELETED } }
                     .flatMap { bitmarks ->
 
                         // if database return empty, sync with remote data
@@ -131,6 +107,48 @@ class BitmarkRepository(
             }
         }
     }
+
+    private fun cleanupBitmark(owner: String): Completable =
+        localDataSource.listBitmarksByStatus(TO_BE_DELETED).flatMapCompletable { bitmarks ->
+            if (bitmarks.isNullOrEmpty()) Completable.complete()
+            else {
+                val bitmarkIds = bitmarks.map { b -> b.id }
+
+                remoteDataSource.listBitmarks(bitmarkIds = bitmarkIds)
+                    .flatMapCompletable { p ->
+
+                        // the bitmarks're been updated in local to be deleted but not be reflected in server
+                        val usableBitmarks =
+                            p.first.filter { b -> b.owner == owner }
+
+                        // the bitmarks're been deleted in server but not be reflected to local
+                        val deletedBitmarkIds =
+                            p.first.filter { b -> b.owner != owner }
+                                .map { b -> b.id }
+
+                        val updateUsableBitmarksStream =
+                            if (usableBitmarks.isNullOrEmpty()) Completable.complete() else localDataSource.saveBitmarks(
+                                usableBitmarks
+                            )
+
+                        val deleteBitmarksStream =
+                            if (deletedBitmarkIds.isNullOrEmpty()) Completable.complete() else Completable.mergeArray(
+                                localDataSource.deleteTxsByBitmarkIds(
+                                    deletedBitmarkIds
+                                ),
+                                localDataSource.deleteBitmarkByIds(
+                                    deletedBitmarkIds
+                                )
+                            )
+
+                        Completable.mergeArray(
+                            updateUsableBitmarksStream,
+                            deleteBitmarksStream
+                        )
+
+                    }.onErrorResumeNext { Completable.complete() }
+            }
+        }
 
     fun listStoredPendingBitmarks(): Maybe<List<BitmarkData>> = Maybe.zip(
         localDataSource.listBitmarksByStatus(BitmarkData.Status.TRANSFERRING),
@@ -177,7 +195,8 @@ class BitmarkRepository(
     ): Single<Pair<String, File?>> =
         localDataSource.checkAssetFile(accountNumber, assetId)
 
-    fun countStoredBitmark(): Single<Long> = localDataSource.countBitmark()
+    fun countUsableBitmarks(): Single<Long> =
+        localDataSource.countUsableBitmarks()
 
     fun syncTxs(
         bitmarkId: String,
@@ -192,48 +211,7 @@ class BitmarkRepository(
             isPending = isPending,
             loadBlock = loadBlock,
             limit = limit
-        ).observeOn(Schedulers.computation()).map { t ->
-            val txs = t.first.map { tx ->
-                TransactionData(
-                    tx.id,
-                    tx.owner,
-                    tx.assetId,
-                    mapHead(tx.head),
-                    TransactionData.map(tx.status),
-                    tx.blockNumber,
-                    tx.blockOffset,
-                    tx.offset,
-                    tx.expiredAt,
-                    tx.payId,
-                    tx.previousId,
-                    tx.bitmarkId,
-                    tx.isCounterSignature
-                )
-            }
-
-            val assets = t.second.map { a ->
-                AssetData(
-                    a.id,
-                    a.blockNumber,
-                    a.blockOffset,
-                    a.createdAt,
-                    a.expiredAt,
-                    a.fingerprint,
-                    a.metadata,
-                    a.name,
-                    a.offset,
-                    a.registrant,
-                    AssetData.map(a.status)
-                )
-            }
-
-            val blocks = t.third.map { b ->
-                BlockData(b.number, b.hash, b.bitmarkId, b.createdAt)
-            }
-
-            Triple(txs, assets, blocks)
-
-        }.flatMap { t ->
+        ).observeOn(Schedulers.computation()).flatMap { t ->
             localDataSource.saveBlocks(t.third)
                 .andThen(localDataSource.saveAssets(t.second))
                 .andThen(localDataSource.saveTxs(t.first))
@@ -271,5 +249,16 @@ class BitmarkRepository(
             limit
         )
     }
+
+    fun deleteBitmark(params: TransferParams, bitmarkId: String): Completable =
+        localDataSource.updateBitmarkStatus(
+            bitmarkId,
+            TO_BE_DELETED
+        ).andThen(remoteDataSource.transfer(params)).flatMapCompletable {
+            Completable.mergeArray(
+                localDataSource.deleteBitmarkById(bitmarkId),
+                localDataSource.deleteTxsByBitmarkId(bitmarkId)
+            )
+        }
 
 }

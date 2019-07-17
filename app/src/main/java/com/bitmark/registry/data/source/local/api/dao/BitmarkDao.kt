@@ -37,6 +37,9 @@ abstract class BitmarkDao {
     @Query("SELECT COUNT(*) FROM Bitmark")
     abstract fun count(): Single<Long>
 
+    @Query("SELECT COUNT(*) FROM Bitmark WHERE status != 'to_be_deleted'")
+    abstract fun countUsableBitmarks(): Single<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun save(bitmarks: List<BitmarkData>): Completable
 
@@ -51,6 +54,9 @@ abstract class BitmarkDao {
 
     @Query("DELETE FROM Bitmark WHERE id = :bitmarkId")
     abstract fun deleteById(bitmarkId: String): Completable
+
+    @Query("DELETE FROM Bitmark WHERE id IN (:bitmarkIds)")
+    abstract fun deleteByIds(bitmarkIds: List<String>): Completable
 
     @Query("UPDATE Bitmark SET seen = 1 WHERE id = :bitmarkId")
     abstract fun markSeen(bitmarkId: String): Completable

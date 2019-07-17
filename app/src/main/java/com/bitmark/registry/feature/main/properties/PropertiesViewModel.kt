@@ -37,5 +37,5 @@ class PropertiesViewModel(
         getBitmarkCountLiveData.asLiveData()
 
     internal fun getBitmarkCount() =
-        getBitmarkCountLiveData.add(rxLiveDataTransformer.single(bitmarkRepo.countStoredBitmark()))
+        getBitmarkCountLiveData.add(rxLiveDataTransformer.single(bitmarkRepo.countUsableBitmarks()))
 }

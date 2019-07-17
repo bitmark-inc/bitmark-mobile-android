@@ -83,7 +83,8 @@ data class BitmarkData(
     enum class Status(val value: String) {
         ISSUING("issuing"), TRANSFERRING("transferring"), OFFERING("offering"), SETTLED(
             "settled"
-        );
+        ),
+        TO_BE_DELETED("to_be_deleted");
 
         companion object {
             fun from(value: String): Status? = when (value) {
@@ -91,6 +92,7 @@ data class BitmarkData(
                 "transferring" -> TRANSFERRING
                 "offering" -> OFFERING
                 "settled" -> SETTLED
+                "to_be_deleted" -> TO_BE_DELETED
                 else -> null
             }
         }

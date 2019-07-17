@@ -145,6 +145,8 @@ android {
           "\"https://profiles.test.bitmark.com\""
       buildConfigField "String", "REGISTRY_WEBSITE",
           "\"https://registry.test.bitmark.com\""
+      buildConfigField "String", "ZERO_ADDRESS",
+          "\"dw9MQXcC5rJZb3QE1nz86PiQAheMP1dx9M3dr52tT8NNs14m33\""
     }
 
     prd {
@@ -169,6 +171,8 @@ android {
           "\"https://profiles.bitmark.com\""
       buildConfigField "String", "REGISTRY_WEBSITE",
           "\"https://registry.bitmark.com\""
+      buildConfigField "String", "ZERO_ADDRESS",
+          "\"a3ezwdYVEVrHwszQrYzDTCAZwUD3yKtNsCq9YhEu97bPaGAKy1\""
     }
   }
 

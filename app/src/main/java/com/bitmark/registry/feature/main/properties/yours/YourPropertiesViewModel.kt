@@ -1,11 +1,13 @@
 package com.bitmark.registry.feature.main.properties.yours
 
+import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.ISSUING
 import com.bitmark.registry.data.model.BitmarkData.Status.TRANSFERRING
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.extension.append
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
@@ -26,12 +28,15 @@ import java.io.File
 class YourPropertiesViewModel(
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val realtimeBus: RealtimeBus
 ) : BaseViewModel() {
 
     companion object {
         private const val PAGE_SIZE = 50
     }
+
+    internal val deletedBitmarkLiveData = MutableLiveData<List<String>>()
 
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -191,7 +196,15 @@ class YourPropertiesViewModel(
             }
         }
 
+    override fun onCreate() {
+        super.onCreate()
+        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { bitmarkIds ->
+            deletedBitmarkLiveData.value = bitmarkIds
+        }
+    }
+
     override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
         rxLiveDataTransformer.dispose()
         super.onDestroy()
     }

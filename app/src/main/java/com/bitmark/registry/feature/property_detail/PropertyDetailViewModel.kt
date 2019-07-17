@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.property_detail
 
+import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
@@ -26,12 +27,16 @@ class PropertyDetailViewModel(
     private val getProvenanceLiveData =
         CompositeLiveData<Pair<String, List<TransactionModelView>>>()
 
-    internal fun getProvenanceLiveData() = getProvenanceLiveData.asLiveData()
-
     private val syncProvenanceLiveData =
         CompositeLiveData<Pair<String, List<TransactionModelView>>>()
 
+    private val deleteBitmarkLiveData = CompositeLiveData<Any>()
+
+    internal fun getProvenanceLiveData() = getProvenanceLiveData.asLiveData()
+
     internal fun syncProvenanceLiveData() = syncProvenanceLiveData.asLiveData()
+
+    internal fun deleteBitmarkLiveData() = deleteBitmarkLiveData.asLiveData()
 
     internal fun getProvenance(bitmarkId: String) {
         getProvenanceLiveData.add(
@@ -105,6 +110,17 @@ class PropertyDetailViewModel(
                 )
             })
     }
+
+    internal fun deleteBitmark(params: TransferParams, bitmarkId: String) {
+        deleteBitmarkLiveData.add(
+            rxLiveDataTransformer.completable(
+                deleteBitmarkStream(params, bitmarkId)
+            )
+        )
+    }
+
+    private fun deleteBitmarkStream(params: TransferParams, bitmarkId: String) =
+        bitmarkRepo.deleteBitmark(params, bitmarkId)
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

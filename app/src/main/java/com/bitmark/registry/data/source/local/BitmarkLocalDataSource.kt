@@ -84,11 +84,18 @@ class BitmarkLocalDataSource @Inject constructor(
             }
         }
 
-    fun deleteBitmark(bitmarkId: String) = databaseApi.rxCompletable { db ->
+    fun deleteBitmarkById(bitmarkId: String) = databaseApi.rxCompletable { db ->
         db.bitmarkDao().deleteById(bitmarkId).doOnComplete {
-            bitmarkDeletedListener?.onDeleted(bitmarkId)
+            bitmarkDeletedListener?.onDeleted(listOf(bitmarkId))
         }
     }
+
+    fun deleteBitmarkByIds(bitmarkIds: List<String>) =
+        databaseApi.rxCompletable { db ->
+            db.bitmarkDao().deleteByIds(bitmarkIds).doOnComplete {
+                bitmarkDeletedListener?.onDeleted(bitmarkIds)
+            }
+        }
 
     fun maxBitmarkOffset(): Single<Long> =
         databaseApi.rxSingle { db ->
@@ -100,9 +107,14 @@ class BitmarkLocalDataSource @Inject constructor(
         db.bitmarkDao().minOffset().onErrorResumeNext { Single.just(-1) }
     }
 
-    fun countBitmark(): Single<Long> = databaseApi.rxSingle { db ->
+    fun countBitmarks(): Single<Long> = databaseApi.rxSingle { db ->
         db.bitmarkDao().count()
     }.onErrorResumeNext { Single.just(0) }
+
+    fun countUsableBitmarks(): Single<Long> =
+        databaseApi.rxSingle { db ->
+            db.bitmarkDao().countUsableBitmarks()
+        }.onErrorResumeNext { Single.just(0) }
 
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
         databaseApi.rxCompletable { db ->
@@ -212,6 +224,16 @@ class BitmarkLocalDataSource @Inject constructor(
             } else Maybe.just(txs)
         }
     }
+
+    fun deleteTxsByBitmarkId(bitmarkId: String) =
+        databaseApi.rxCompletable { db ->
+            db.transactionDao().deleteTxsByBitmarkId(bitmarkId)
+        }
+
+    fun deleteTxsByBitmarkIds(bitmarkIds: List<String>) =
+        databaseApi.rxCompletable { db ->
+            db.transactionDao().deleteTxsByBitmarkIds(bitmarkIds)
+        }
 
     //endregion Txs
 

@@ -31,6 +31,17 @@ class YourPropertiesRecyclerViewAdapter() :
         notifyItemRangeInserted(pos, items.size)
     }
 
+    internal fun remove(bitmarkIds: List<String>) {
+        if (bitmarkIds.isNullOrEmpty()) return
+        val pos = bitmarkIds.map { b -> items.indexOfFirst { i -> i.id == b } }
+        if (pos.isNullOrEmpty()) return
+        pos.forEach { p ->
+            if (p == -1) return@forEach
+            items.removeAt(p)
+            notifyItemRemoved(p)
+        }
+    }
+
     internal fun set(items: List<BitmarkModelView>) {
         this.items.clear()
         this.items.addAll(items)

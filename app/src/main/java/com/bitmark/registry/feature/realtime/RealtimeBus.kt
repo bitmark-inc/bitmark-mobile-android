@@ -24,7 +24,7 @@ class RealtimeBus(bitmarkRepo: BitmarkRepository) :
     private val observerMap = mutableMapOf<KClass<*>, MutableList<Disposable>>()
 
     val bitmarkDeletedPublisher =
-        Publisher(PublishSubject.create<String>())
+        Publisher(PublishSubject.create<List<String>>())
 
     val bitmarkStatusChangedPublisher =
         Publisher(PublishSubject.create<Triple<String, BitmarkData.Status, BitmarkData.Status>>())
@@ -58,8 +58,8 @@ class RealtimeBus(bitmarkRepo: BitmarkRepository) :
         )
     }
 
-    override fun onDeleted(bitmarkId: String) {
-        bitmarkDeletedPublisher.publisher.onNext(bitmarkId)
+    override fun onDeleted(bitmarkIds: List<String>) {
+        bitmarkDeletedPublisher.publisher.onNext(bitmarkIds)
     }
 
     override fun onInserted(bitmarkIds: List<String>) {

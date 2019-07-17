@@ -5,6 +5,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -24,12 +25,14 @@ class YourPropertiesModule {
     fun provideViewModel(
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        realtimeBus: RealtimeBus
     ): YourPropertiesViewModel {
         return YourPropertiesViewModel(
             accountRepo,
             bitmarkRepo,
-            rxLiveDataTransformer
+            rxLiveDataTransformer,
+            realtimeBus
         )
     }
 

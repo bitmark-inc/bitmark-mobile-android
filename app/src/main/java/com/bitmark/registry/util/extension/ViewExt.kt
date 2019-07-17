@@ -1,6 +1,10 @@
 package com.bitmark.registry.util.extension
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.graphics.Rect
 import android.os.Handler
@@ -91,4 +95,11 @@ fun Activity.hideKeyBoard() {
         inputManager?.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
+}
+
+fun Context.copyToClipboard(text: String) {
+    val clipboardManager =
+        getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("", text)
+    clipboardManager.primaryClip = clip
 }

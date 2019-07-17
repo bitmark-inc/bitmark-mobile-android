@@ -28,4 +28,10 @@ abstract class TransactionDao {
         limit: Int
     ): Maybe<List<TransactionData>>
 
+    @Query("DELETE FROM `Transaction` WHERE bitmark_id = :bitmarkId ")
+    abstract fun deleteTxsByBitmarkId(bitmarkId: String): Completable
+
+    @Query("DELETE FROM `Transaction` WHERE bitmark_id IN (:bitmarkIds) ")
+    abstract fun deleteTxsByBitmarkIds(bitmarkIds: List<String>): Completable
+
 }
