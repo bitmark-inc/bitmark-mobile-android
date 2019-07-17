@@ -12,7 +12,6 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
@@ -69,10 +68,14 @@ class YourPropertiesFragment : BaseSupportFragment() {
         (rvProperties.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
             false
 
-        adapter.setOnItemClickListener {
-            val bundle = PropertyDetailActivity.getBundle(it)
-            navigator.anim(RIGHT_LEFT)
-                .startActivity(PropertyDetailActivity::class.java, bundle)
+        adapter.setOnItemClickListener { bitmark ->
+            viewModel.markSeen(bitmark.id)
+            val bundle = PropertyDetailActivity.getBundle(bitmark)
+            navigator.anim(Navigator.RIGHT_LEFT)
+                .startActivity(
+                    PropertyDetailActivity::class.java,
+                    bundle
+                )
         }
 
         endlessScrollListener =
@@ -143,6 +146,21 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 res.isError() -> {
                     // silence fetching, do nothing when error
                     layoutSwipeRefresh.isRefreshing = false
+                    // TODO remove
+                    if (BuildConfig.DEBUG) throw res.throwable()!!
+                }
+            }
+        })
+
+        viewModel.markSeenLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val id = res.data()
+                    if (id != null)
+                        adapter.markSeen(id)
+                }
+
+                res.isError() -> {
                     // TODO remove
                     if (BuildConfig.DEBUG) throw res.throwable()!!
                 }

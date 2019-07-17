@@ -52,4 +52,7 @@ abstract class BitmarkDao {
     @Query("DELETE FROM Bitmark WHERE id = :bitmarkId")
     abstract fun deleteById(bitmarkId: String): Completable
 
+    @Query("UPDATE Bitmark SET seen = 1 WHERE id = :bitmarkId")
+    abstract fun markSeen(bitmarkId: String): Completable
+
 }

@@ -168,6 +168,9 @@ class BitmarkRepository(
     fun minStoredBitmarkOffset(): Single<Long> =
         localDataSource.minBitmarkOffset()
 
+    fun markBitmarkSeen(bitmarkId: String): Single<String> =
+        localDataSource.markBitmarkSeen(bitmarkId)
+
     fun checkAssetFile(
         accountNumber: String,
         assetId: String

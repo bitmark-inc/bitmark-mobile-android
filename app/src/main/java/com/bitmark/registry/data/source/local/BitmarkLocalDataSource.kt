@@ -104,6 +104,11 @@ class BitmarkLocalDataSource @Inject constructor(
         db.bitmarkDao().count()
     }.onErrorResumeNext { Single.just(0) }
 
+    fun markBitmarkSeen(bitmarkId: String): Single<String> =
+        databaseApi.rxCompletable { db ->
+            db.bitmarkDao().markSeen(bitmarkId)
+        }.toSingleDefault(bitmarkId)
+
     //endregion Bitmark
 
     //region Asset

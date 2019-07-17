@@ -46,6 +46,16 @@ class YourPropertiesRecyclerViewAdapter() :
         this.itemClickListener = clickListener
     }
 
+    internal fun markSeen(bitmarkId: String) {
+        val item = this.items.find { b -> b.id == bitmarkId }
+        if (item != null) {
+            val pos = this.items.indexOf(item)
+            item.seen = true
+            notifyItemChanged(pos)
+        }
+
+    }
+
     internal fun isEmpty() = items.isEmpty()
 
     override fun onCreateViewHolder(

@@ -39,6 +39,8 @@ class YourPropertiesViewModel(
     private val fetchBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
 
+    private val markSeenLiveData = CompositeLiveData<String>()
+
     private var currentOffset = -1L
 
     fun reset() {
@@ -49,8 +51,16 @@ class YourPropertiesViewModel(
 
     internal fun fetchBitmarksLiveData() = fetchBitmarksLiveData.asLiveData()
 
+    internal fun markSeenLiveData() = markSeenLiveData.asLiveData()
+
     internal fun listBitmark() =
         listBitmarksLiveData.add(rxLiveDataTransformer.maybe(listBitmarkStream()))
+
+    internal fun markSeen(bitmarkId: String) = markSeenLiveData.add(
+        rxLiveDataTransformer.single(
+            bitmarkRepo.markBitmarkSeen(bitmarkId)
+        )
+    )
 
     private fun listBitmarkStream(): Maybe<List<BitmarkModelView>> {
 
