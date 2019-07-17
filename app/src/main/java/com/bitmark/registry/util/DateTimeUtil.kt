@@ -16,6 +16,8 @@ class DateTimeUtil {
 
         val ISO8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
 
+        val ISO8601_SIMPLE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+
         val OFFICIAL_DATE_TIME_FORMAT = "yyyy MMM dd HH:mm:ss"
 
         fun stringToString(date: String) =

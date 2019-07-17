@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/dp_8"
+    android:paddingTop="@dimen/dp_8"
+    >
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvConfirmedAt"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.5"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      tools:text="2017 NOV 30 18:08:09"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvOwner"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.5"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      tools:text="[1rB45...4g6dD]"
+      />
+
+
+</LinearLayout>

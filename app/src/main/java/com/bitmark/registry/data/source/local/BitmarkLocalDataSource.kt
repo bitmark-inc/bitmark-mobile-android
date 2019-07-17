@@ -2,6 +2,10 @@ package com.bitmark.registry.data.source.local
 
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.BlockData
+import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.TransactionData.Status.CONFIRMED
+import com.bitmark.registry.data.model.TransactionData.Status.PENDING
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
@@ -42,6 +46,8 @@ class BitmarkLocalDataSource @Inject constructor(
         this.bitmarkInsertedListener = listener
     }
 
+    //region Bitmark
+
     fun listBitmarksByOffsetLimitDesc(
         offset: Long,
         limit: Int
@@ -52,10 +58,6 @@ class BitmarkLocalDataSource @Inject constructor(
     fun listBitmarksByStatus(status: BitmarkData.Status): Maybe<List<BitmarkData>> =
         databaseApi.rxMaybe { db -> db.bitmarkDao().listByStatusDesc(status) }
 
-    fun getAssetById(id: String): Maybe<AssetData> = databaseApi.rxMaybe { db ->
-        db.assetDao().getById(id)
-    }
-
     fun saveBitmarks(bitmarks: List<BitmarkData>): Completable =
         if (bitmarks.isEmpty()) Completable.complete()
         else databaseApi.rxCompletable { db ->
@@ -63,12 +65,6 @@ class BitmarkLocalDataSource @Inject constructor(
                 val insertedIds = bitmarks.map { b -> b.id }
                 bitmarkInsertedListener?.onInserted(insertedIds)
             }
-        }
-
-    fun saveAssets(assets: List<AssetData>): Completable =
-        if (assets.isEmpty()) Completable.complete()
-        else databaseApi.rxCompletable { db ->
-            db.assetDao().save(assets)
         }
 
     fun updateBitmarkStatus(
@@ -108,6 +104,20 @@ class BitmarkLocalDataSource @Inject constructor(
         db.bitmarkDao().count()
     }.onErrorResumeNext { Single.just(0) }
 
+    //endregion Bitmark
+
+    //region Asset
+
+    fun getAssetById(id: String): Maybe<AssetData> = databaseApi.rxMaybe { db ->
+        db.assetDao().getById(id)
+    }
+
+    fun saveAssets(assets: List<AssetData>): Completable =
+        if (assets.isEmpty()) Completable.complete()
+        else databaseApi.rxCompletable { db ->
+            db.assetDao().save(assets)
+        }
+
     fun checkAssetFile(
         accountNumber: String,
         assetId: String
@@ -125,4 +135,79 @@ class BitmarkLocalDataSource @Inject constructor(
             )
         }
     }
+
+    //endregion Asset
+
+    //region Block
+
+    fun getBlockByNumber(blockNumber: Long): Maybe<BlockData> =
+        databaseApi.rxMaybe { db -> db.blockDao().getByNumber(blockNumber) }
+
+    fun saveBlocks(blocks: List<BlockData>): Completable {
+        return if (blocks.isEmpty()) Completable.complete()
+        else databaseApi.rxCompletable { db -> db.blockDao().save(blocks) }
+    }
+
+    //endregion Block
+
+    //region Txs
+
+    fun saveTxs(txs: List<TransactionData>): Completable {
+        return if (txs.isEmpty()) Completable.complete()
+        else databaseApi.rxCompletable { db -> db.transactionDao().save(txs) }
+    }
+
+    fun listTxs(
+        bitmarkId: String,
+        loadAsset: Boolean = false,
+        isPending: Boolean = false,
+        loadBlock: Boolean = false,
+        limit: Int = 100
+    ): Maybe<List<TransactionData>> {
+        val status =
+            if (isPending) arrayOf(PENDING, CONFIRMED) else arrayOf(CONFIRMED)
+        return databaseApi.rxMaybe { db ->
+            db.transactionDao()
+                .listByBitmarkIdStatusLimitDesc(bitmarkId, status, limit)
+        }.flatMap { txs ->
+            if (loadAsset && txs.isNotEmpty()) {
+                val assetIds =
+                    txs.distinctBy { tx -> tx.assetId }.map { tx -> tx.assetId }
+
+                val assetStreams = mutableListOf<Maybe<AssetData>>()
+                for (id in assetIds) {
+                    val assetStream = getAssetById(id)
+                    assetStreams.add(assetStream)
+                }
+
+                Maybe.merge(assetStreams).doOnNext { asset ->
+                    txs.filter { tx -> tx.assetId == asset.id }
+                        .forEach { tx -> tx.asset = asset }
+                }.lastOrError().flatMapMaybe { Maybe.just(txs) }
+
+            } else Maybe.just(txs)
+
+        }.flatMap { txs ->
+            if (loadBlock && txs.isNotEmpty()) {
+                val blockNumbers = txs.distinctBy { tx -> tx.blockNumber }
+                    .map { tx -> tx.blockNumber }
+
+                val blockStreams = mutableListOf<Maybe<BlockData>>()
+                for (blkNo in blockNumbers) {
+                    val blockStream = getBlockByNumber(blkNo)
+                    blockStreams.add(blockStream)
+                }
+
+                Maybe.merge(blockStreams).doOnNext { block ->
+                    txs.filter { tx ->
+                        tx.blockNumber == block.number
+                    }.forEach { tx -> tx.block = block }
+                }.lastOrError().flatMapMaybe { Maybe.just(txs) }
+
+            } else Maybe.just(txs)
+        }
+    }
+
+    //endregion Txs
+
 }

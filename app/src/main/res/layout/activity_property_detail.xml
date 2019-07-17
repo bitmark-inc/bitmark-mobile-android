@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    >
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/layoutToolbar"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:background="@color/wild_sand"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingEnd="@dimen/dp_20"
+      android:paddingStart="@dimen/dp_20"
+      app:layout_constraintTop_toTopOf="parent"
+      >
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivBack"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_back"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="end"
+        android:fontFamily="@font/avenir_bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="@string/your_properties"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivAction"
+        android:layout_width="@dimen/dp_44"
+        android:layout_height="match_parent"
+        android:layout_gravity="end|center_vertical"
+        android:adjustViewBounds="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/dp_10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_more_action_stateful"
+        />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivAssetType"
+      android:layout_width="@dimen/dp_77"
+      android:layout_height="@dimen/dp_77"
+      android:layout_marginStart="@dimen/dp_20"
+      android:layout_marginTop="@dimen/dp_36"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
+      tools:src="@drawable/ic_asset_doc"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvAssetName"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_20"
+      android:fontFamily="@font/avenir_bold"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_17"
+      app:layout_constraintStart_toStartOf="@id/ivAssetType"
+      app:layout_constraintTop_toBottomOf="@id/ivAssetType"
+      tools:text="Asset Name"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvIssuedOn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_4"
+      android:fontFamily="@font/andale_mono"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_12"
+      android:textAllCaps="true"
+      app:layout_constraintStart_toStartOf="@id/tvAssetName"
+      app:layout_constraintTop_toBottomOf="@id/tvAssetName"
+      tools:text="ISSUED ON 2019 JUL 14"
+      />
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/rvMetadata"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_marginBottom="@dimen/dp_20"
+      android:layout_marginTop="@dimen/dp_20"
+      android:paddingEnd="@dimen/dp_20"
+      android:paddingStart="@dimen/dp_20"
+      app:layout_constraintBottom_toTopOf="@+id/tvProvenance"
+      app:layout_constraintStart_toStartOf="@id/tvProvenance"
+      app:layout_constraintTop_toBottomOf="@id/tvIssuedOn"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvProvenance"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/dp_12"
+      android:layout_marginTop="@dimen/dp_20"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/provenance"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintBottom_toTopOf="@id/layoutProvenance"
+      app:layout_constraintStart_toStartOf="@id/layoutProvenance"
+      />
+
+  <LinearLayout
+      android:id="@+id/layoutProvenance"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_18"
+      android:layout_marginBottom="@dimen/dp_4"
+      android:layout_marginEnd="@dimen/dp_20"
+      android:layout_marginStart="@dimen/dp_20"
+      android:layout_marginTop="@dimen/dp_4"
+      android:background="@color/wild_sand"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toTopOf="@id/rvProvenance"
+      app:layout_constraintStart_toStartOf="@id/tvProvenance"
+      >
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTimestamp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:fontFamily="@font/andale_mono"
+        android:text="@string/timestamp"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sp_13"
+
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvOwner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:fontFamily="@font/andale_mono"
+        android:text="@string/owner"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sp_13"
+        />
+
+  </LinearLayout>
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/rvProvenance"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_240"
+      android:layout_marginTop="@dimen/dp_4"
+      android:paddingEnd="@dimen/dp_20"
+      android:paddingStart="@dimen/dp_20"
+      app:layout_constraintBottom_toBottomOf="parent"
+      />
+
+  <ProgressBar
+      android:id="@+id/progressBar"
+      android:layout_width="@dimen/dp_36"
+      android:layout_height="@dimen/dp_36"
+      android:layout_marginEnd="@dimen/dp_20"
+      android:layout_marginStart="@dimen/dp_20"
+      android:visibility="invisible"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/layoutProvenance"
+      app:layout_constraintStart_toStartOf="@id/layoutProvenance"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:visibility="visible"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

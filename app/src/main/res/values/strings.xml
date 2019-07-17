@@ -41,5 +41,18 @@
   <string name="you">You</string>
   <string name="incoming">Incoming</string>
   <string name="registering">Registering</string>
+  <string name="your_properties">Your Properties</string>
+  <string name="provenance">Provenance</string>
+  <string name="share">Share</string>
+  <string name="copy_bitmark_id">Copy Bitmark Id</string>
+  <string name="transfer">Transfer</string>
+  <string name="download">Download</string>
+  <string name="delete">Delete</string>
+  <string name="pending">Pending</string>
+  <string name="wait_to_be_confirmed">Wait to be confirmed</string>
+  <string name="timestamp">Timestamp</string>
+  <string name="owner">Owner</string>
+  <string name="copied_to_clipboard">Copied to clipboard!</string>
+  <string name="issued_on">Issued on</string>
 
 </resources>

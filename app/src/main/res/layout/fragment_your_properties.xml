@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutSwipeRefresh"
     android:layout_width="match_parent"
@@ -50,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_44"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/blue_ribbon_clickable"
+        android:background="@drawable/bg_blue_ribbon_stateful"
         android:fontFamily="@font/avenir_bold"
         android:text="@string/create_your_first_property"
         android:textColor="@android:color/white"

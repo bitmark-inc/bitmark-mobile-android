@@ -7,9 +7,13 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -28,6 +32,9 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
     @Inject
     internal lateinit var viewModel: YourPropertiesViewModel
+
+    @Inject
+    lateinit var navigator: Navigator<YourPropertiesFragment>
 
     private val adapter = YourPropertiesRecyclerViewAdapter()
 
@@ -61,6 +68,12 @@ class YourPropertiesFragment : BaseSupportFragment() {
         rvProperties.setHasFixedSize(true)
         (rvProperties.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
             false
+
+        adapter.setOnItemClickListener {
+            val bundle = PropertyDetailActivity.getBundle(it)
+            navigator.anim(RIGHT_LEFT)
+                .startActivity(PropertyDetailActivity::class.java, bundle)
+        }
 
         endlessScrollListener =
             object : EndlessScrollListener(layoutManager) {
@@ -107,6 +120,8 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
                 res.isError() -> {
                     progressBar.gone()
+                    // TODO remove
+                    if (BuildConfig.DEBUG) throw res.throwable()!!
                 }
 
                 res.isLoading() -> {
@@ -128,6 +143,8 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 res.isError() -> {
                     // silence fetching, do nothing when error
                     layoutSwipeRefresh.isRefreshing = false
+                    // TODO remove
+                    if (BuildConfig.DEBUG) throw res.throwable()!!
                 }
             }
         })

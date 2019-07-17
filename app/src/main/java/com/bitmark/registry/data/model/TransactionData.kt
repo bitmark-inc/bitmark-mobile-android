@@ -14,19 +14,12 @@ import com.google.gson.annotations.SerializedName
  */
 @Entity(
     tableName = "Transaction",
-    indices = [(Index(value = ["id"])), Index(value = ["bitmark_id"]), (Index(
+    indices = [(Index(
+        value = ["id"],
+        unique = true
+    )), Index(value = ["bitmark_id"]), (Index(
         value = ["asset_id"]
-    ))],
-    foreignKeys = [(ForeignKey(
-        entity = AssetData::class,
-        parentColumns = ["id"],
-        childColumns = ["asset_id"]
-    )),
-        ForeignKey(
-            entity = BitmarkData::class,
-            parentColumns = ["id"],
-            childColumns = ["bitmark_id"]
-        )]
+    )), (Index(value = ["block_number"]))]
 )
 data class TransactionData(
     @Expose
@@ -42,7 +35,7 @@ data class TransactionData(
     val assetId: String,
 
     @Expose
-    val head: Head,
+    val head: Head?,
 
     @Expose
     val status: Status,
@@ -63,7 +56,7 @@ data class TransactionData(
     @Expose
     @ColumnInfo(name = "expiresAt")
     @SerializedName("expiresAt")
-    val expiresAt: String,
+    val expiresAt: String?,
 
     @Expose
     @ColumnInfo(name = "pay_id")
@@ -86,6 +79,12 @@ data class TransactionData(
     val counterSig: Boolean
 
 ) {
+
+    @Ignore
+    var asset: AssetData? = null
+
+    @Ignore
+    var block: BlockData? = null
 
     enum class Status(val value: String) {
         CONFIRMED("confirmed"), PENDING("pending");

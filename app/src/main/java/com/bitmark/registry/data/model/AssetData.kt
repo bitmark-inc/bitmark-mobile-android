@@ -13,7 +13,13 @@ import java.io.File
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-@Entity(tableName = "Asset", indices = [(Index(value = ["id"]))])
+@Entity(
+    tableName = "Asset",
+    indices = [(Index(
+        value = ["id"],
+        unique = true
+    )), (Index(value = ["block_number"]))]
+)
 data class AssetData(
     @Expose
     @PrimaryKey

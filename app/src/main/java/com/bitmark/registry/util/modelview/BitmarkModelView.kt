@@ -1,8 +1,11 @@
 package com.bitmark.registry.util.modelview
 
+import android.os.Parcelable
 import android.webkit.MimeTypeMap
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.util.DateTimeUtil
+import kotlinx.android.parcel.Parcelize
+import java.io.File
 
 
 /**
@@ -11,16 +14,21 @@ import com.bitmark.registry.util.DateTimeUtil
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class BitmarkModelView private constructor(
+@Parcelize
+class BitmarkModelView constructor(
+    val id: String,
     val name: String?,
     private val confirmedAt: String?,
+    private val issuedAt: String? = null,
     val issuer: String,
     val metadata: Map<String, String>?,
     var accountNumber: String,
     var seen: Boolean = false,
     val assetType: AssetType = AssetType.UNKNOWN,
-    val status: BitmarkData.Status
-) {
+    val status: BitmarkData.Status,
+    val provenance: List<TransactionModelView>? = null,
+    val assetFile: File? = null
+) : Parcelable {
 
     companion object {
         fun newInstance(
@@ -115,12 +123,14 @@ class BitmarkModelView private constructor(
 
             }
             return BitmarkModelView(
+                bitmark.id,
                 bitmark.asset?.name ?: "",
                 bitmark.confirmedAt,
+                bitmark.issuedAt,
                 bitmark.issuer,
                 bitmark.asset?.metadata ?: mapOf(),
                 accountNumber,
-                bitmark.seen, assetType, bitmark.status
+                bitmark.seen, assetType, bitmark.status, assetFile = assetFile
             )
         }
     }
@@ -142,4 +152,9 @@ class BitmarkModelView private constructor(
         if (!confirmedAt.isNullOrEmpty()) DateTimeUtil.stringToString(
             confirmedAt
         ) else null
+
+    fun issuedAt() =
+        if (!issuedAt.isNullOrEmpty()) DateTimeUtil.stringToString(issuedAt) else null
+
+    fun isSettled() = status == BitmarkData.Status.SETTLED
 }

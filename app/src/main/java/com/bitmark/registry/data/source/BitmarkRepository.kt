@@ -1,8 +1,6 @@
 package com.bitmark.registry.data.source
 
-import com.bitmark.registry.data.model.AssetData
-import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.data.model.mapHead
+import com.bitmark.registry.data.model.*
 import com.bitmark.registry.data.source.local.BitmarkDeletedListener
 import com.bitmark.registry.data.source.local.BitmarkInsertedListener
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
@@ -57,7 +55,7 @@ class BitmarkRepository(
             issuer = issuer,
             refAssetId = refAssetId,
             loadAsset = true
-        ).observeOn(Schedulers.io()).map { p ->
+        ).observeOn(Schedulers.computation()).map { p ->
             val bitmarks = p.first.map { b ->
                 BitmarkData(
                     b.id,
@@ -177,5 +175,98 @@ class BitmarkRepository(
         localDataSource.checkAssetFile(accountNumber, assetId)
 
     fun countStoredBitmark(): Single<Long> = localDataSource.countBitmark()
+
+    fun syncTxs(
+        bitmarkId: String,
+        loadAsset: Boolean = false,
+        isPending: Boolean = false,
+        loadBlock: Boolean = false,
+        limit: Int = 100
+    ): Single<List<TransactionData>> =
+        remoteDataSource.listTxs(
+            bitmarkId = bitmarkId,
+            loadAsset = loadAsset,
+            isPending = isPending,
+            loadBlock = loadBlock,
+            limit = limit
+        ).observeOn(Schedulers.computation()).map { t ->
+            val txs = t.first.map { tx ->
+                TransactionData(
+                    tx.id,
+                    tx.owner,
+                    tx.assetId,
+                    mapHead(tx.head),
+                    TransactionData.map(tx.status),
+                    tx.blockNumber,
+                    tx.blockOffset,
+                    tx.offset,
+                    tx.expiredAt,
+                    tx.payId,
+                    tx.previousId,
+                    tx.bitmarkId,
+                    tx.isCounterSignature
+                )
+            }
+
+            val assets = t.second.map { a ->
+                AssetData(
+                    a.id,
+                    a.blockNumber,
+                    a.blockOffset,
+                    a.createdAt,
+                    a.expiredAt,
+                    a.fingerprint,
+                    a.metadata,
+                    a.name,
+                    a.offset,
+                    a.registrant,
+                    AssetData.map(a.status)
+                )
+            }
+
+            val blocks = t.third.map { b ->
+                BlockData(b.number, b.hash, b.bitmarkId, b.createdAt)
+            }
+
+            Triple(txs, assets, blocks)
+
+        }.flatMap { t ->
+            localDataSource.saveBlocks(t.third)
+                .andThen(localDataSource.saveAssets(t.second))
+                .andThen(localDataSource.saveTxs(t.first))
+                .andThen(Single.just(t))
+        }.map { t ->
+            val txs = t.first
+            val assets = t.second
+            val blocks = t.third
+
+            assets.forEach { asset ->
+                txs.filter { tx -> tx.assetId == asset.id }
+                    .forEach { tx -> tx.asset = asset }
+            }
+
+            blocks.forEach { block ->
+                txs.filter { tx -> tx.blockNumber == block.number }
+                    .forEach { tx -> tx.block = block }
+            }
+
+            txs
+        }
+
+    fun listTxs(
+        bitmarkId: String,
+        loadAsset: Boolean = false,
+        isPending: Boolean = false,
+        loadBlock: Boolean = false,
+        limit: Int = 100
+    ): Maybe<List<TransactionData>> {
+        return localDataSource.listTxs(
+            bitmarkId,
+            loadAsset,
+            isPending,
+            loadBlock,
+            limit
+        )
+    }
 
 }

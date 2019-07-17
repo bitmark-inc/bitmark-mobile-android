@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a9895e64b379cfb62798c2d13dbcc7f4",
+    "identityHash": "5e5251fa1656d3c0b5f986be3f73c742",
     "entities": [
       {
         "tableName": "Transaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `owner` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `head` TEXT NOT NULL, `status` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `offset` INTEGER NOT NULL, `expiresAt` TEXT NOT NULL, `pay_id` TEXT NOT NULL, `previous_id` TEXT, `bitmark_id` TEXT NOT NULL, `countersign` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`asset_id`) REFERENCES `Asset`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`bitmark_id`) REFERENCES `Bitmark`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `owner` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `head` TEXT, `status` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `offset` INTEGER NOT NULL, `expiresAt` TEXT, `pay_id` TEXT NOT NULL, `previous_id` TEXT, `bitmark_id` TEXT NOT NULL, `countersign` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -30,7 +30,7 @@
             "fieldPath": "head",
             "columnName": "head",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "status",
@@ -60,7 +60,7 @@
             "fieldPath": "expiresAt",
             "columnName": "expiresAt",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "payId",
@@ -96,11 +96,11 @@
         "indices": [
           {
             "name": "index_Transaction_id",
-            "unique": false,
+            "unique": true,
             "columnNames": [
               "id"
             ],
-            "createSql": "CREATE  INDEX `index_Transaction_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX `index_Transaction_id` ON `${TABLE_NAME}` (`id`)"
           },
           {
             "name": "index_Transaction_bitmark_id",
@@ -117,32 +117,17 @@
               "asset_id"
             ],
             "createSql": "CREATE  INDEX `index_Transaction_asset_id` ON `${TABLE_NAME}` (`asset_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "Asset",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "asset_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
           },
           {
-            "table": "Bitmark",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "bitmark_id"
+            "name": "index_Transaction_block_number",
+            "unique": false,
+            "columnNames": [
+              "block_number"
             ],
-            "referencedColumns": [
-              "id"
-            ]
+            "createSql": "CREATE  INDEX `index_Transaction_block_number` ON `${TABLE_NAME}` (`block_number`)"
           }
-        ]
+        ],
+        "foreignKeys": []
       },
       {
         "tableName": "Asset",
@@ -224,18 +209,26 @@
         "indices": [
           {
             "name": "index_Asset_id",
-            "unique": false,
+            "unique": true,
             "columnNames": [
               "id"
             ],
-            "createSql": "CREATE  INDEX `index_Asset_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX `index_Asset_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Asset_block_number",
+            "unique": false,
+            "columnNames": [
+              "block_number"
+            ],
+            "createSql": "CREATE  INDEX `index_Asset_block_number` ON `${TABLE_NAME}` (`block_number`)"
           }
         ],
         "foreignKeys": []
       },
       {
         "tableName": "Bitmark",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `confirmed_at` TEXT, `created_at` TEXT, `head` TEXT, `head_id` TEXT NOT NULL, `issued_at` TEXT, `issuer` TEXT NOT NULL, `offset` INTEGER NOT NULL, `owner` TEXT NOT NULL, `status` TEXT NOT NULL, `seen` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`asset_id`) REFERENCES `Asset`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `confirmed_at` TEXT, `created_at` TEXT, `head` TEXT, `head_id` TEXT NOT NULL, `issued_at` TEXT, `issuer` TEXT NOT NULL, `offset` INTEGER NOT NULL, `owner` TEXT NOT NULL, `status` TEXT NOT NULL, `seen` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -325,11 +318,11 @@
         "indices": [
           {
             "name": "index_Bitmark_id",
-            "unique": false,
+            "unique": true,
             "columnNames": [
               "id"
             ],
-            "createSql": "CREATE  INDEX `index_Bitmark_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX `index_Bitmark_id` ON `${TABLE_NAME}` (`id`)"
           },
           {
             "name": "index_Bitmark_confirmed_at",
@@ -346,27 +339,86 @@
               "asset_id"
             ],
             "createSql": "CREATE  INDEX `index_Bitmark_asset_id` ON `${TABLE_NAME}` (`asset_id`)"
+          },
+          {
+            "name": "index_Bitmark_block_number",
+            "unique": false,
+            "columnNames": [
+              "block_number"
+            ],
+            "createSql": "CREATE  INDEX `index_Bitmark_block_number` ON `${TABLE_NAME}` (`block_number`)"
           }
         ],
-        "foreignKeys": [
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Block",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`number` INTEGER NOT NULL, `hash` TEXT NOT NULL, `bitmark_id` TEXT NOT NULL, `created_at` TEXT NOT NULL, PRIMARY KEY(`hash`))",
+        "fields": [
           {
-            "table": "Asset",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "asset_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
+            "fieldPath": "number",
+            "columnName": "number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bitmarkId",
+            "columnName": "bitmark_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "TEXT",
+            "notNull": true
           }
-        ]
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "hash"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Block_hash",
+            "unique": true,
+            "columnNames": [
+              "hash"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_Block_hash` ON `${TABLE_NAME}` (`hash`)"
+          },
+          {
+            "name": "index_Block_bitmark_id",
+            "unique": false,
+            "columnNames": [
+              "bitmark_id"
+            ],
+            "createSql": "CREATE  INDEX `index_Block_bitmark_id` ON `${TABLE_NAME}` (`bitmark_id`)"
+          },
+          {
+            "name": "index_Block_number",
+            "unique": true,
+            "columnNames": [
+              "number"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_Block_number` ON `${TABLE_NAME}` (`number`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a9895e64b379cfb62798c2d13dbcc7f4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5e5251fa1656d3c0b5f986be3f73c742')"
     ]
   }
 }

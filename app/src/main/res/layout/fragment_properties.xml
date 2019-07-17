@@ -55,7 +55,7 @@
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_40"
       app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
-      app:tabBackground="@drawable/wild_sand_stateful"
+      app:tabBackground="@drawable/bg_wild_sand_stateful"
       app:tabGravity="fill"
       app:tabIndicatorColor="@color/blue_ribbon"
       app:tabIndicatorGravity="top"

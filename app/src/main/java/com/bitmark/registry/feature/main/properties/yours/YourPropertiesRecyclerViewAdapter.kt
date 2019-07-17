@@ -23,6 +23,8 @@ class YourPropertiesRecyclerViewAdapter() :
 
     private val items = mutableListOf<BitmarkModelView>()
 
+    private var itemClickListener: ((BitmarkModelView) -> Unit)? = null
+
     internal fun add(items: List<BitmarkModelView>) {
         val pos = this.items.size
         this.items.addAll(items)
@@ -40,6 +42,10 @@ class YourPropertiesRecyclerViewAdapter() :
         notifyDataSetChanged()
     }
 
+    internal fun setOnItemClickListener(clickListener: (BitmarkModelView) -> Unit) {
+        this.itemClickListener = clickListener
+    }
+
     internal fun isEmpty() = items.isEmpty()
 
     override fun onCreateViewHolder(
@@ -48,7 +54,7 @@ class YourPropertiesRecyclerViewAdapter() :
     ): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_your_properties, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(view, itemClickListener)
     }
 
     override fun getItemCount(): Int = items.size
@@ -57,10 +63,20 @@ class YourPropertiesRecyclerViewAdapter() :
         holder.bind(items[position])
     }
 
-    class ViewHolder(view: View) :
+    class ViewHolder(
+        view: View,
+        itemClickListener: ((BitmarkModelView) -> Unit)?
+    ) :
         RecyclerView.ViewHolder(view) {
 
+        private lateinit var item: BitmarkModelView
+
+        init {
+            itemView.setOnClickListener { itemClickListener?.invoke(item) }
+        }
+
         fun bind(item: BitmarkModelView) {
+            this.item = item
             with(itemView) {
                 if (item.seen) {
                     tvConfirmedAt.setTextColor(

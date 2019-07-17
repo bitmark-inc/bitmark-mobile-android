@@ -14,14 +14,12 @@ import com.google.gson.annotations.SerializedName
  */
 @Entity(
     tableName = "Bitmark",
-    indices = [(Index(value = ["id"])), (Index(value = ["confirmed_at"])), (Index(
+    indices = [(Index(
+        value = ["id"],
+        unique = true
+    )), (Index(value = ["confirmed_at"])), (Index(
         value = ["asset_id"]
-    ))],
-    foreignKeys = [ForeignKey(
-        entity = AssetData::class,
-        parentColumns = ["id"],
-        childColumns = ["asset_id"]
-    )]
+    )), (Index(value = ["block_number"]))]
 )
 data class BitmarkData(
     @Expose
