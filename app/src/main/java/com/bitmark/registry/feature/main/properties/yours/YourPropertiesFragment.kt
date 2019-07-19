@@ -170,6 +170,19 @@ class YourPropertiesFragment : BaseSupportFragment() {
         viewModel.deletedBitmarkLiveData.observe(this, Observer { bitmarkIds ->
             adapter.remove(bitmarkIds)
         })
+
+        viewModel.refreshedBitmarkLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val bitmarks = res.data() ?: return@Observer
+                    adapter.update(bitmarks)
+                }
+
+                else -> {
+                    // silence update so do nothing
+                }
+            }
+        })
     }
 
     override fun refresh() {

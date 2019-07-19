@@ -34,6 +34,8 @@ class BitmarkLocalDataSource @Inject constructor(
 
     private var bitmarkInsertedListener: BitmarkInsertedListener? = null
 
+    private var assetFileSavedListener: AssetFileSavedListener? = null
+
     fun setBitmarkDeletedListener(listener: BitmarkDeletedListener?) {
         this.bitmarkDeletedListener = listener
     }
@@ -44,6 +46,10 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun setBitmarkInsertedListener(listener: BitmarkInsertedListener?) {
         this.bitmarkInsertedListener = listener
+    }
+
+    fun setAssetFileSavedListener(listener: AssetFileSavedListener?) {
+        this.assetFileSavedListener = listener
     }
 
     //region Bitmark
@@ -103,10 +109,6 @@ class BitmarkLocalDataSource @Inject constructor(
                 .onErrorResumeNext { Single.just(-1) }
         }
 
-    fun minBitmarkOffset(): Single<Long> = databaseApi.rxSingle { db ->
-        db.bitmarkDao().minOffset().onErrorResumeNext { Single.just(-1) }
-    }
-
     fun countBitmarks(): Single<Long> = databaseApi.rxSingle { db ->
         db.bitmarkDao().count()
     }.onErrorResumeNext { Single.just(0) }
@@ -124,6 +126,10 @@ class BitmarkLocalDataSource @Inject constructor(
     fun countBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
         db.bitmarkDao().countBitmarkRefSameAsset(assetId)
     }.onErrorResumeNext { Single.just(0) }
+
+    fun listBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
+        db.bitmarkDao().listBitmarkRefSameAsset(assetId)
+    }.onErrorResumeNext { Single.just(listOf()) }
 
     //endregion Bitmark
 
@@ -170,6 +176,8 @@ class BitmarkLocalDataSource @Inject constructor(
             assetId
         )
         fileGateway.save(path, fileName, content)
+    }.doOnSuccess {
+        assetFileSavedListener?.onSaved(assetId)
     }
 
     fun checkRedundantAsset(assetId: String) =

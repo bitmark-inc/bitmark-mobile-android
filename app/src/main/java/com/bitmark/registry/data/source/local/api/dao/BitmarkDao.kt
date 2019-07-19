@@ -31,9 +31,6 @@ abstract class BitmarkDao {
     @Query("SELECT MAX(`offset`) FROM Bitmark")
     abstract fun maxOffset(): Single<Long>
 
-    @Query("SELECT MIN(`offset`) FROM Bitmark")
-    abstract fun minOffset(): Single<Long>
-
     @Query("SELECT COUNT(*) FROM Bitmark")
     abstract fun count(): Single<Long>
 
@@ -63,5 +60,8 @@ abstract class BitmarkDao {
 
     @Query("SELECT COUNT(*) FROM Bitmark WHERE asset_id = :assetId")
     abstract fun countBitmarkRefSameAsset(assetId: String): Single<Long>
+
+    @Query("SELECT * FROM Bitmark WHERE asset_id = :assetId")
+    abstract fun listBitmarkRefSameAsset(assetId: String): Single<List<BitmarkData>>
 
 }

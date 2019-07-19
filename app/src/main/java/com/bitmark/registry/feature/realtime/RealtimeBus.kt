@@ -2,6 +2,7 @@ package com.bitmark.registry.feature.realtime
 
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.source.BitmarkRepository
+import com.bitmark.registry.data.source.local.AssetFileSavedListener
 import com.bitmark.registry.data.source.local.BitmarkDeletedListener
 import com.bitmark.registry.data.source.local.BitmarkInsertedListener
 import com.bitmark.registry.data.source.local.BitmarkStatusChangedListener
@@ -19,7 +20,7 @@ import kotlin.reflect.KClass
  */
 class RealtimeBus(bitmarkRepo: BitmarkRepository) :
     BitmarkInsertedListener, BitmarkDeletedListener,
-    BitmarkStatusChangedListener {
+    BitmarkStatusChangedListener, AssetFileSavedListener {
 
     private val observerMap = mutableMapOf<KClass<*>, MutableList<Disposable>>()
 
@@ -32,10 +33,13 @@ class RealtimeBus(bitmarkRepo: BitmarkRepository) :
     val bitmarkInsertedPublisher =
         Publisher(PublishSubject.create<List<String>>())
 
+    val assetFileSavedPublisher = Publisher(PublishSubject.create<String>())
+
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
         bitmarkRepo.setBitmarkInsertedListener(this)
         bitmarkRepo.setBitmarkStatusChangedListener(this)
+        bitmarkRepo.setAssetFileSavedListener(this)
     }
 
     fun <H : Any> unsubscribe(host: H) {
@@ -64,6 +68,10 @@ class RealtimeBus(bitmarkRepo: BitmarkRepository) :
 
     override fun onInserted(bitmarkIds: List<String>) {
         bitmarkInsertedPublisher.publisher.onNext(bitmarkIds)
+    }
+
+    override fun onSaved(assetId: String) {
+        assetFileSavedPublisher.publisher.onNext(assetId)
     }
 
     inner class Publisher<T>(internal val publisher: PublishSubject<T>) {

@@ -46,6 +46,9 @@ class YourPropertiesViewModel(
 
     private val markSeenLiveData = CompositeLiveData<String>()
 
+    private val refreshedBitmarksLiveData =
+        CompositeLiveData<List<BitmarkModelView>>()
+
     private var currentOffset = -1L
 
     fun reset() {
@@ -57,6 +60,9 @@ class YourPropertiesViewModel(
     internal fun fetchBitmarksLiveData() = fetchBitmarksLiveData.asLiveData()
 
     internal fun markSeenLiveData() = markSeenLiveData.asLiveData()
+
+    internal fun refreshedBitmarkLiveData() =
+        refreshedBitmarksLiveData.asLiveData()
 
     internal fun listBitmark() =
         listBitmarksLiveData.add(rxLiveDataTransformer.maybe(listBitmarkStream()))
@@ -196,10 +202,29 @@ class YourPropertiesViewModel(
             }
         }
 
+    private fun refreshBitmarks(assetId: String) {
+        refreshedBitmarksLiveData.add(
+            rxLiveDataTransformer.single(
+                Maybe.zip(
+                    bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
+                    accountRepo.getAccountInfo().toMaybe(),
+                    BiFunction<List<BitmarkData>, Pair<String, Boolean>, Pair<String, List<BitmarkData>>> { bitmarks, account ->
+                        Pair(
+                            account.first,
+                            bitmarks
+                        )
+                    }).flatMapSingle(checkAssetFileStream()).map(bitmarkMapFunc())
+            )
+        )
+    }
+
     override fun onCreate() {
         super.onCreate()
         realtimeBus.bitmarkDeletedPublisher.subscribe(this) { bitmarkIds ->
             deletedBitmarkLiveData.value = bitmarkIds
+        }
+        realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
+            refreshBitmarks(assetId)
         }
     }
 

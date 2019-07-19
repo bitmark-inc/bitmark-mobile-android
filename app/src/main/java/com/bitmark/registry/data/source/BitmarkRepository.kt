@@ -5,10 +5,7 @@ import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_DELETED
 import com.bitmark.registry.data.model.TransactionData
-import com.bitmark.registry.data.source.local.BitmarkDeletedListener
-import com.bitmark.registry.data.source.local.BitmarkInsertedListener
-import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
-import com.bitmark.registry.data.source.local.BitmarkStatusChangedListener
+import com.bitmark.registry.data.source.local.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import com.bitmark.registry.util.extension.append
 import io.reactivex.Completable
@@ -40,6 +37,10 @@ class BitmarkRepository(
 
     fun setBitmarkInsertedListener(listener: BitmarkInsertedListener?) {
         localDataSource.setBitmarkInsertedListener(listener)
+    }
+
+    fun setAssetFileSavedListener(listener: AssetFileSavedListener?) {
+        localDataSource.setAssetFileSavedListener(listener)
     }
 
     // sync bitmarks from server and save to local db
@@ -190,9 +191,6 @@ class BitmarkRepository(
     fun maxStoredBitmarkOffset(): Single<Long> =
         localDataSource.maxBitmarkOffset()
 
-    fun minStoredBitmarkOffset(): Single<Long> =
-        localDataSource.minBitmarkOffset()
-
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
         localDataSource.markBitmarkSeen(bitmarkId)
 
@@ -257,6 +255,9 @@ class BitmarkRepository(
         )
     }
 
+    // try to update bitmark status to temporary status that mark is will be deleted
+    // then transfer it to zero address then delete this bitmark in local db and related txs as well
+    // try to clean up redundant asset file if no related bitmark is available
     fun deleteBitmark(
         params: TransferParams,
         bitmarkId: String,
@@ -298,5 +299,10 @@ class BitmarkRepository(
         receiver: String
     ) =
         remoteDataSource.deleteAssetFile(assetId, sender, receiver)
+
+    fun listStoredBitmarkRefSameAsset(assetId: String) =
+        localDataSource.listBitmarkRefSameAsset(assetId).flatMapMaybe(
+            attachAssetFunc()
+        )
 
 }
