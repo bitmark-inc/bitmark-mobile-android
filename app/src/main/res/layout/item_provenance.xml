@@ -26,7 +26,7 @@
       android:layout_height="wrap_content"
       android:layout_weight="0.5"
       android:fontFamily="@font/andale_regular_mono"
-      android:textColor="@android:color/black"
+      android:textColor="@color/blue_ribbon"
       android:textSize="@dimen/sp_13"
       tools:text="[1rB45...4g6dD]"
       />

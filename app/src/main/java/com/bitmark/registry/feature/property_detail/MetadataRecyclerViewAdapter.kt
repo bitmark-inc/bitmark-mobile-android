@@ -21,12 +21,13 @@ class MetadataRecyclerViewAdapter(@ColorInt private var textColor: Int) :
 
     private val items = mutableListOf<Pair<String, String>>()
 
-    internal fun add(metadata: Map<String, String>) {
-        val pos = items.size
+    internal fun set(metadata: Map<String, String>) {
+        items.clear()
         for (m in metadata) {
             items.add(Pair(m.key, m.value))
         }
-        notifyItemRangeInserted(pos, pos + metadata.size)
+        items.sortWith(Comparator { o1, o2 -> o1.first.compareTo(o2.first) })
+        notifyDataSetChanged()
     }
 
     internal fun changeTextColor(@ColorRes color: Int) {

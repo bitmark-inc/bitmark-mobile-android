@@ -78,10 +78,18 @@ class ProvenanceRecyclerViewAdapter :
                     tvConfirmedAt.text =
                         context.getString(R.string.wait_to_be_confirmed)
                 } else {
-                    val color =
-                        ContextCompat.getColor(context, R.color.blue_ribbon)
-                    tvConfirmedAt.setTextColor(color)
-                    tvOwner.setTextColor(color)
+                    tvConfirmedAt.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.black
+                        )
+                    )
+                    tvOwner.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            R.color.blue_ribbon
+                        )
+                    )
                     tvConfirmedAt.text = item.confirmedAt
                 }
                 tvOwner.text =

@@ -44,7 +44,7 @@
   <string name="your_properties">Your Properties</string>
   <string name="provenance">Provenance</string>
   <string name="share">Share</string>
-  <string name="copy_bitmark_id">Copy Bitmark Id</string>
+  <string name="copy_bitmark_id">Copy Id</string>
   <string name="transfer">Transfer</string>
   <string name="download">Download</string>
   <string name="delete">Delete</string>

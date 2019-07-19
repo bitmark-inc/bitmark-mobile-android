@@ -34,6 +34,7 @@
         />
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvToolbarTitle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
@@ -41,12 +42,15 @@
         android:fontFamily="@font/avenir_bold"
         android:gravity="center"
         android:maxLines="1"
+        android:paddingEnd="@dimen/dp_36"
+        android:paddingStart="@dimen/dp_36"
         android:text="@string/your_properties"
         android:textAllCaps="true"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_18"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/ivAction"
+        app:layout_constraintStart_toEndOf="@id/ivBack"
+        tools:text="This is very very long toolbar title"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -69,9 +73,11 @@
   <androidx.appcompat.widget.AppCompatImageView
       android:id="@+id/ivAssetType"
       android:layout_width="@dimen/dp_77"
-      android:layout_height="@dimen/dp_77"
+      android:layout_height="wrap_content"
       android:layout_marginStart="@dimen/dp_20"
       android:layout_marginTop="@dimen/dp_36"
+      android:adjustViewBounds="true"
+      android:scaleType="fitXY"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
       tools:src="@drawable/ic_asset_doc"
@@ -81,10 +87,10 @@
       android:id="@+id/tvAssetName"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/dp_20"
+      android:layout_marginTop="@dimen/dp_36"
       android:fontFamily="@font/avenir_bold"
       android:textColor="@android:color/black"
-      android:textSize="@dimen/sp_17"
+      android:textSize="@dimen/sp_18"
       app:layout_constraintStart_toStartOf="@id/ivAssetType"
       app:layout_constraintTop_toBottomOf="@id/ivAssetType"
       tools:text="Asset Name"
@@ -94,11 +100,11 @@
       android:id="@+id/tvIssuedOn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/dp_4"
+      android:layout_marginTop="@dimen/dp_8"
       android:fontFamily="@font/andale_mono"
-      android:textColor="@android:color/black"
-      android:textSize="@dimen/sp_12"
       android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
       app:layout_constraintStart_toStartOf="@id/tvAssetName"
       app:layout_constraintTop_toBottomOf="@id/tvAssetName"
       tools:text="ISSUED ON 2019 JUL 14"
@@ -112,6 +118,7 @@
       android:layout_marginTop="@dimen/dp_20"
       android:paddingEnd="@dimen/dp_20"
       android:paddingStart="@dimen/dp_20"
+      android:scrollbars="vertical"
       app:layout_constraintBottom_toTopOf="@+id/tvProvenance"
       app:layout_constraintStart_toStartOf="@id/tvProvenance"
       app:layout_constraintTop_toBottomOf="@id/tvIssuedOn"
@@ -127,7 +134,7 @@
       android:text="@string/provenance"
       android:textAllCaps="true"
       android:textColor="@android:color/black"
-      android:textSize="@dimen/sp_13"
+      android:textSize="@dimen/sp_14"
       app:layout_constraintBottom_toTopOf="@id/layoutProvenance"
       app:layout_constraintStart_toStartOf="@id/layoutProvenance"
       />
@@ -176,10 +183,11 @@
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/rvProvenance"
       android:layout_width="match_parent"
-      android:layout_height="@dimen/dp_240"
+      android:layout_height="@dimen/dp_200"
       android:layout_marginTop="@dimen/dp_4"
       android:paddingEnd="@dimen/dp_20"
       android:paddingStart="@dimen/dp_20"
+      android:scrollbars="vertical"
       app:layout_constraintBottom_toBottomOf="parent"
       />
 

@@ -6,10 +6,10 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_white_stateful"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/dp_18"
-    android:paddingEnd="@dimen/dp_24"
-    android:paddingStart="@dimen/dp_24"
-    android:paddingTop="@dimen/dp_18"
+    android:paddingBottom="@dimen/dp_32"
+    android:paddingEnd="@dimen/dp_26"
+    android:paddingStart="@dimen/dp_26"
+    android:paddingTop="@dimen/dp_32"
     >
 
   <androidx.appcompat.widget.AppCompatTextView
@@ -17,7 +17,6 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:fontFamily="@font/andale_regular_mono"
-      android:includeFontPadding="false"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_13"
       tools:text="YYYY MMM DD HH:MM:SS"
@@ -30,12 +29,11 @@
       android:layout_height="wrap_content"
       android:layout_below="@id/tvConfirmedAt"
       android:layout_marginEnd="@dimen/dp_8"
-      android:layout_marginTop="@dimen/dp_8"
+      android:layout_marginTop="@dimen/dp_10"
       android:layout_toStartOf="@id/ivAssetType"
       android:ellipsize="end"
       android:fontFamily="@font/avenir_bold"
       android:gravity="start"
-      android:includeFontPadding="false"
       android:maxLines="1"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_14"
@@ -48,9 +46,8 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_below="@id/tvName"
-      android:layout_marginTop="@dimen/dp_8"
+      android:layout_marginTop="@dimen/dp_10"
       android:fontFamily="@font/andale_regular_mono"
-      android:includeFontPadding="false"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_13"
       tools:text="[FCNY...SGQO]"
@@ -59,11 +56,13 @@
 
   <androidx.appcompat.widget.AppCompatImageView
       android:id="@+id/ivAssetType"
-      android:layout_width="@dimen/dp_44"
-      android:layout_height="@dimen/dp_44"
+      android:layout_width="@dimen/dp_62"
+      android:layout_height="wrap_content"
       android:layout_alignParentEnd="true"
       android:layout_centerVertical="true"
-      tools:src="@drawable/bg_border_blue_ribbon"
+      android:adjustViewBounds="true"
+      android:scaleType="fitXY"
+      tools:src="@drawable/ic_asset_health_data"
       />
 
 </RelativeLayout>

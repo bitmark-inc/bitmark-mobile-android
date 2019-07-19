@@ -91,6 +91,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
         showAssetType(bitmark.assetType)
 
+        tvToolbarTitle.text = bitmark.name
         tvAssetName.text = bitmark.name
         tvIssuedOn.text =
             if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.confirmedAt() else getString(
@@ -111,7 +112,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             MetadataRecyclerViewAdapter(color)
         rvMetadata.layoutManager = rvMetadataLayoutManager
         rvMetadata.adapter = metadataAdapter
-        metadataAdapter.add(bitmark.metadata ?: mapOf())
+        metadataAdapter.set(bitmark.metadata ?: mapOf())
 
         val rvProvenanceLayoutManager =
             LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -162,16 +163,16 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 context,
                 R.color.blue_ribbon
             ) else ContextCompat.getColor(context, R.color.silver)
-            tvItem1.setTextColor(color)
+            tvItem2.setTextColor(color)
             tvItem3.setTextColor(color)
             tvItem4.setTextColor(color)
 
             if (isSettled) {
-                item1.enable()
+                item2.enable()
                 item3.enable()
                 item4.enable()
             } else {
-                item1.disable()
+                item2.disable()
                 item3.disable()
                 item4.disable()
             }
@@ -180,12 +181,22 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 bitmark.assetFile == null && isSettled
 
             if (downloadable) {
-                tvItem1.text = getString(R.string.download)
+                tvItem2.text = getString(R.string.download)
             } else {
-                tvItem1.text = getString(R.string.share)
+                tvItem2.text = getString(R.string.share)
             }
 
             item1.setOnClickListener {
+                // copy bitmark
+                tvSubItem1.visible()
+                copyToClipboard(bitmark.id)
+                Handler().postDelayed({
+                    tvSubItem1.invisible()
+                    popupWindow.dismiss()
+                }, 1000)
+            }
+
+            item2.setOnClickListener {
                 popupWindow.dismiss()
                 if (blocked) return@setOnClickListener
                 if (downloadable) {
@@ -198,16 +209,6 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                         bitmark.assetId
                     )
                 }
-            }
-
-            item2.setOnClickListener {
-                // copy bitmark
-                tvSubItem2.visible()
-                copyToClipboard(bitmark.id)
-                Handler().postDelayed({
-                    tvSubItem2.invisible()
-                    popupWindow.dismiss()
-                }, 1000)
             }
 
             item3.setOnClickListener {

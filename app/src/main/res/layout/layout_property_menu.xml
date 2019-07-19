@@ -9,8 +9,52 @@
     android:paddingTop="@dimen/dp_1"
     >
 
-  <LinearLayout
+  <RelativeLayout
       android:id="@+id/item1"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_48"
+      android:background="@drawable/bg_wild_sand_stateful"
+      android:clickable="true"
+      android:focusable="true"
+      android:paddingEnd="@dimen/dp_20"
+      android:paddingStart="@dimen/dp_20"
+      >
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvItem1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:fontFamily="@font/avenir_bold"
+        android:includeFontPadding="false"
+        android:text="@string/copy_bitmark_id"
+        android:textAllCaps="true"
+        android:textColor="@color/blue_ribbon"
+        android:textSize="@dimen/sp_16"
+        tools:text="COPY ID"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvSubItem1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/tvItem1"
+        android:layout_below="@id/tvItem1"
+        android:fontFamily="@font/avenir_medium"
+        android:includeFontPadding="false"
+        android:text="@string/copied_to_clipboard"
+        android:textColor="@color/blue_ribbon"
+        android:textSize="@dimen/sp_8"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        />
+
+
+  </RelativeLayout>
+
+  <LinearLayout
+      android:id="@+id/item2"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_48"
       android:background="@drawable/bg_wild_sand_stateful"
@@ -23,7 +67,7 @@
       >
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvItem1"
+        android:id="@+id/tvItem2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/avenir_bold"
@@ -35,50 +79,6 @@
         />
 
   </LinearLayout>
-
-  <RelativeLayout
-      android:id="@+id/item2"
-      android:layout_width="match_parent"
-      android:layout_height="@dimen/dp_48"
-      android:background="@drawable/bg_wild_sand_stateful"
-      android:clickable="true"
-      android:focusable="true"
-      android:paddingEnd="@dimen/dp_20"
-      android:paddingStart="@dimen/dp_20"
-      >
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvItem2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:fontFamily="@font/avenir_bold"
-        android:includeFontPadding="false"
-        android:text="@string/copy_bitmark_id"
-        android:textAllCaps="true"
-        android:textColor="@color/blue_ribbon"
-        android:textSize="@dimen/sp_16"
-        tools:text="COPY BITMARK ID"
-        />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvSubItem2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/tvItem2"
-        android:layout_below="@id/tvItem2"
-        android:fontFamily="@font/avenir_medium"
-        android:includeFontPadding="false"
-        android:text="@string/copied_to_clipboard"
-        android:textColor="@color/blue_ribbon"
-        android:textSize="@dimen/sp_8"
-        android:visibility="invisible"
-        tools:visibility="visible"
-        />
-
-
-  </RelativeLayout>
 
   <LinearLayout
       android:id="@+id/item3"

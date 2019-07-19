@@ -3,6 +3,7 @@ package com.bitmark.registry.feature
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -86,6 +87,7 @@ class WebViewFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (isLoaded) return
-        webview.loadUrl(url)
+        // a bit delay for better performance
+        Handler().postDelayed({ webview.loadUrl(url) }, 100)
     }
 }
