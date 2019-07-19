@@ -61,5 +61,7 @@
   <string name="downloading">Downloading</string>
   <string name="please_sign_to_delete_bitmark">Please sign to delete bitmark.</string>
   <string name="please_sign_to_transfer_bitmark">Please sign to transfer bitmark</string>
+  <string name="the_asset_is_not_available">The asset is not available to download.</string>
+  <string name="could_not_download_asset">Could not download asset. Please try again later.</string>
 
 </resources>

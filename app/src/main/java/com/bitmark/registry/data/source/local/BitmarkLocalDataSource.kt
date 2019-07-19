@@ -121,6 +121,10 @@ class BitmarkLocalDataSource @Inject constructor(
             db.bitmarkDao().markSeen(bitmarkId)
         }.toSingleDefault(bitmarkId)
 
+    fun countBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
+        db.bitmarkDao().countBitmarkRefSameAsset(assetId)
+    }.onErrorResumeNext { Single.just(0) }
+
     //endregion Bitmark
 
     //region Asset
@@ -167,6 +171,22 @@ class BitmarkLocalDataSource @Inject constructor(
         )
         fileGateway.save(path, fileName, content)
     }
+
+    fun checkRedundantAsset(assetId: String) =
+        countBitmarkRefSameAsset(assetId).map { count ->
+            count == 0L
+        }
+
+    fun deleteAssetFile(accountNumber: String, assetId: String) =
+        fileStorageApi.rxCompletable { fileGateway ->
+            val path = String.format(
+                "%s/%s/assets/%s",
+                fileStorageApi.filesDir(),
+                accountNumber,
+                assetId
+            )
+            fileGateway.delete(path)
+        }
 
     //endregion Asset
 

@@ -61,4 +61,7 @@ abstract class BitmarkDao {
     @Query("UPDATE Bitmark SET seen = 1 WHERE id = :bitmarkId")
     abstract fun markSeen(bitmarkId: String): Completable
 
+    @Query("SELECT COUNT(*) FROM Bitmark WHERE asset_id = :assetId")
+    abstract fun countBitmarkRefSameAsset(assetId: String): Single<Long>
+
 }

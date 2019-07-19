@@ -43,4 +43,11 @@ class FileStorageGateway internal constructor(private val context: Context) {
         val files = file.listFiles() ?: return null
         return if (files.isEmpty()) null else files[0]
     }
+
+    fun delete(path: String) {
+        val file = File(path)
+        if (!file.exists()) throw IllegalArgumentException("file does not existed")
+        if (file.isDirectory) file.deleteRecursively()
+        else file.delete()
+    }
 }

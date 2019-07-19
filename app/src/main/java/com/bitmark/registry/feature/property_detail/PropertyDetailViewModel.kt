@@ -127,16 +127,26 @@ class PropertyDetailViewModel(
             })
     }
 
-    internal fun deleteBitmark(params: TransferParams, bitmarkId: String) {
+    internal fun deleteBitmark(
+        params: TransferParams,
+        bitmarkId: String,
+        assetId: String,
+        accountNumber: String
+    ) {
         deleteBitmarkLiveData.add(
             rxLiveDataTransformer.completable(
-                deleteBitmarkStream(params, bitmarkId)
+                deleteBitmarkStream(params, bitmarkId, assetId, accountNumber)
             )
         )
     }
 
-    private fun deleteBitmarkStream(params: TransferParams, bitmarkId: String) =
-        bitmarkRepo.deleteBitmark(params, bitmarkId)
+    private fun deleteBitmarkStream(
+        params: TransferParams,
+        bitmarkId: String,
+        assetId: String,
+        accountNumber: String
+    ) =
+        bitmarkRepo.deleteBitmark(params, bitmarkId, assetId, accountNumber)
 
     internal fun downloadAssetFile(
         assetId: String,

@@ -250,8 +250,20 @@ class BitmarkRepository(
         )
     }
 
-    fun deleteBitmark(params: TransferParams, bitmarkId: String): Completable =
-        localDataSource.updateBitmarkStatus(
+    fun deleteBitmark(
+        params: TransferParams,
+        bitmarkId: String,
+        assetId: String,
+        accountNumber: String
+    ): Completable {
+        val deletedRedundantAssetFile =
+            localDataSource.checkRedundantAsset(assetId)
+                .flatMapCompletable { redundant ->
+                    if (redundant) {
+                        localDataSource.deleteAssetFile(accountNumber, assetId)
+                    } else Completable.complete()
+                }
+        return localDataSource.updateBitmarkStatus(
             bitmarkId,
             TO_BE_DELETED
         ).andThen(remoteDataSource.transfer(params)).flatMapCompletable {
@@ -259,7 +271,9 @@ class BitmarkRepository(
                 localDataSource.deleteBitmarkById(bitmarkId),
                 localDataSource.deleteTxsByBitmarkId(bitmarkId)
             )
-        }
+        }.andThen(deletedRedundantAssetFile)
+    }
+
 
     fun downloadAssetFile(assetId: String, sender: String, receiver: String) =
         remoteDataSource.downloadAssetFile(assetId, sender, receiver)

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
 import com.bitmark.apiservice.utils.callback.Callback1
+import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
@@ -313,7 +314,14 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
                 res.isError() -> {
                     progressDialog.dismiss()
-                    if (BuildConfig.DEBUG) throw res.throwable()!!
+                    val e = res.throwable()
+                    val message =
+                        if (e is HttpException && e.statusCode == 404) {
+                            R.string.the_asset_is_not_available
+                        } else {
+                            R.string.could_not_download_asset
+                        }
+                    dialogController.alert(R.string.error, message, R.string.ok)
                 }
 
                 res.isLoading() -> {
@@ -348,7 +356,12 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             val zeroAddr = Address.fromAccountNumber(BuildConfig.ZERO_ADDRESS)
             val transferParams = TransferParams(zeroAddr, bitmark.headId)
             transferParams.sign(account.keyPair)
-            viewModel.deleteBitmark(transferParams, bitmark.id)
+            viewModel.deleteBitmark(
+                transferParams,
+                bitmark.id,
+                bitmark.assetId,
+                bitmark.accountNumber
+            )
         }
     }
 
