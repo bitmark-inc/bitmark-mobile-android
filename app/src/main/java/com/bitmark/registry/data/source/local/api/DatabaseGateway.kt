@@ -4,15 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.bitmark.registry.BuildConfig
-import com.bitmark.registry.data.model.AssetData
-import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.data.model.BlockData
-import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.*
 import com.bitmark.registry.data.source.local.api.converter.*
-import com.bitmark.registry.data.source.local.api.dao.AssetDao
-import com.bitmark.registry.data.source.local.api.dao.BitmarkDao
-import com.bitmark.registry.data.source.local.api.dao.BlockDao
-import com.bitmark.registry.data.source.local.api.dao.TransactionDao
+import com.bitmark.registry.data.source.local.api.dao.*
 
 
 /**
@@ -22,7 +16,7 @@ import com.bitmark.registry.data.source.local.api.dao.TransactionDao
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 @Database(
-    entities = [TransactionData::class, AssetData::class, BitmarkData::class, BlockData::class],
+    entities = [TransactionData::class, AssetData::class, BitmarkData::class, BlockData::class, AccountData::class],
     version = 1
 )
 @TypeConverters(
@@ -45,5 +39,7 @@ abstract class DatabaseGateway : RoomDatabase() {
     abstract fun bitmarkDao(): BitmarkDao
 
     abstract fun blockDao(): BlockDao
+
+    abstract fun accountDao(): AccountDao
 
 }

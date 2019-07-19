@@ -261,4 +261,21 @@ class BitmarkRepository(
             )
         }
 
+    fun downloadAssetFile(assetId: String, sender: String, receiver: String) =
+        remoteDataSource.downloadAssetFile(assetId, sender, receiver)
+
+    fun saveAssetFile(
+        accountNumber: String,
+        assetId: String,
+        fileName: String,
+        content: ByteArray
+    ) = localDataSource.saveAssetFile(accountNumber, assetId, fileName, content)
+
+    fun deleteServerAssetFile(
+        assetId: String,
+        sender: String,
+        receiver: String
+    ) =
+        remoteDataSource.deleteAssetFile(assetId, sender, receiver)
+
 }

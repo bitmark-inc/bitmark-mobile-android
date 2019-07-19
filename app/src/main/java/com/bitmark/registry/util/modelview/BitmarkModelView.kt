@@ -25,24 +25,48 @@ class BitmarkModelView constructor(
     val metadata: Map<String, String>?,
     val accountNumber: String,
     var seen: Boolean = false,
-    val assetType: AssetType = AssetType.UNKNOWN,
+    var assetType: AssetType = AssetType.UNKNOWN,
     val status: BitmarkData.Status,
-    val assetFile: File? = null
+    var assetFile: File? = null,
+    val assetId: String,
+    var previousOwner: String? = null
 ) : Parcelable {
 
     companion object {
         fun newInstance(
-            bitmark: BitmarkData, accountNumber: String
+            bitmark: BitmarkData,
+            accountNumber: String
         ): BitmarkModelView {
             val metadata = bitmark.asset?.metadata
-            var assetType: AssetType = AssetType.UNKNOWN
             val assetFile = bitmark.asset?.file
+            val assetType = determineAssetType(metadata, assetFile)
 
+            return BitmarkModelView(
+                id = bitmark.id,
+                name = bitmark.asset?.name ?: "",
+                confirmedAt = bitmark.confirmedAt,
+                issuedAt = bitmark.issuedAt,
+                issuer = bitmark.issuer,
+                headId = bitmark.headId,
+                metadata = bitmark.asset?.metadata ?: mapOf(),
+                accountNumber = accountNumber,
+                seen = bitmark.seen,
+                assetType = assetType,
+                status = bitmark.status,
+                assetFile = assetFile,
+                assetId = bitmark.assetId
+            )
+        }
+
+        fun determineAssetType(
+            metadata: Map<String, String>? = null,
+            assetFile: File? = null
+        ): AssetType {
             if (metadata != null && (metadata.containsKey("source") || metadata.containsKey(
                     "Source"
                 ))
             ) {
-                assetType = when (metadata["source"] ?: metadata["Source"]) {
+                return when (metadata["source"] ?: metadata["Source"]) {
                     "Health Records" -> AssetType.MEDICAL
                     "Health Kit" -> AssetType.HEALTH
                     "Health" -> AssetType.HEALTH
@@ -50,9 +74,10 @@ class BitmarkModelView constructor(
                 }
             } else if (null != assetFile) {
                 val mime =
-                    MimeTypeMap.getFileExtensionFromUrl(assetFile.absolutePath)
+                    MimeTypeMap.getSingleton()
+                        .getMimeTypeFromExtension(assetFile.extension)
                 if (null != mime) {
-                    assetType = when {
+                    return when {
                         mime.contains("image/") -> AssetType.IMAGE
                         mime.contains("video/") -> AssetType.VIDEO
                         mime == "application/zip" || mime == "application/x-7z-compressed" || mime == "application/x-bzip" || mime == "application/x-bzip2" -> AssetType.ZIP
@@ -63,8 +88,7 @@ class BitmarkModelView constructor(
                         else -> AssetType.UNKNOWN
                     }
                 } else {
-                    val ext = assetFile.extension
-                    assetType = when (ext) {
+                    return when (assetFile.extension) {
                         in arrayOf(
                             "ai",
                             "bmp",
@@ -120,22 +144,8 @@ class BitmarkModelView constructor(
                         else -> AssetType.UNKNOWN
                     }
                 }
-
             }
-            return BitmarkModelView(
-                bitmark.id,
-                bitmark.asset?.name ?: "",
-                bitmark.confirmedAt,
-                bitmark.issuedAt,
-                bitmark.issuer,
-                bitmark.headId,
-                bitmark.asset?.metadata ?: mapOf(),
-                accountNumber,
-                bitmark.seen,
-                assetType,
-                bitmark.status,
-                assetFile = assetFile
-            )
+            return AssetType.UNKNOWN
         }
     }
 

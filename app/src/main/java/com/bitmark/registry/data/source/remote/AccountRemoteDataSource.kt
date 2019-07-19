@@ -5,6 +5,7 @@ import com.bitmark.registry.data.source.remote.api.request.RegisterEncKeyRequest
 import com.bitmark.registry.data.source.remote.api.request.RegisterJwtRequest
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
+import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
 import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -19,10 +20,17 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class AccountRemoteDataSource @Inject constructor(
-    coreApi: CoreApi, mobileServerApi: MobileServerApi,
-    fileCourierServerApi: FileCourierServerApi, converter: Converter
+    coreApi: CoreApi,
+    mobileServerApi: MobileServerApi,
+    fileCourierServerApi: FileCourierServerApi,
+    keyAccountServerApi: KeyAccountServerApi,
+    converter: Converter
 ) : RemoteDataSource(
-    coreApi, mobileServerApi, fileCourierServerApi, converter
+    coreApi,
+    mobileServerApi,
+    fileCourierServerApi,
+    keyAccountServerApi,
+    converter
 ) {
 
     fun registerMobileServerJwt(
@@ -55,4 +63,9 @@ class AccountRemoteDataSource @Inject constructor(
             RegisterEncKeyRequest(encPubKey, signature)
         ).subscribeOn(Schedulers.io())
     }
+
+    fun getEncPubKey(accountNumber: String): Single<String> =
+        keyAccountServerApi.getEncPubKey(accountNumber).subscribeOn(
+            Schedulers.io()
+        ).map { res -> res["encryption_pubkey"] }
 }

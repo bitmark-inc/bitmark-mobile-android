@@ -1,5 +1,6 @@
 package com.bitmark.registry.data.source
 
+import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.registry.data.source.local.AccountLocalDataSource
 import com.bitmark.registry.data.source.remote.AccountRemoteDataSource
 import com.bitmark.registry.data.source.remote.api.middleware.Cache
@@ -64,4 +65,14 @@ class AccountRepository(
             signature
         )
     }
+
+    fun getEncPubKey(accountNumber: String): Single<ByteArray> =
+        localDataSource.getEncPubKey(accountNumber).onErrorResumeNext {
+            remoteDataSource.getEncPubKey(accountNumber).flatMap { key ->
+                localDataSource.saveEncPubKey(
+                    accountNumber,
+                    key
+                ).andThen(Single.just(key))
+            }.map { key -> HEX.decode(key) }
+        }
 }

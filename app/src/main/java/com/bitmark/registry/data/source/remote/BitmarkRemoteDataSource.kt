@@ -6,17 +6,22 @@ import com.bitmark.apiservice.params.query.TransactionQueryBuilder
 import com.bitmark.apiservice.response.GetBitmarksResponse
 import com.bitmark.apiservice.response.GetTransactionsResponse
 import com.bitmark.apiservice.utils.callback.Callback1
+import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.apiservice.utils.error.UnexpectedException
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
+import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
 import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.sdk.features.Bitmark
 import com.bitmark.sdk.features.Transaction
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleOnSubscribe
 import io.reactivex.schedulers.Schedulers
@@ -30,12 +35,20 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class BitmarkRemoteDataSource @Inject constructor(
-    coreApi: CoreApi, mobileServerApi: MobileServerApi,
-    fileCourierServerApi: FileCourierServerApi, converter: Converter
+    coreApi: CoreApi,
+    mobileServerApi: MobileServerApi,
+    fileCourierServerApi: FileCourierServerApi,
+    keyAccountServerApi: KeyAccountServerApi,
+    converter: Converter
 ) : RemoteDataSource(
-    coreApi, mobileServerApi, fileCourierServerApi, converter
+    coreApi,
+    mobileServerApi,
+    fileCourierServerApi,
+    keyAccountServerApi,
+    converter
 ) {
 
+    //region Bitmark
     fun listBitmarks(
         owner: String? = null,
         bitmarkIds: List<String>? = null,
@@ -78,6 +91,26 @@ class BitmarkRemoteDataSource @Inject constructor(
         }).subscribeOn(Schedulers.io())
     }
 
+    fun transfer(params: TransferParams): Single<String> = Single.create(
+        SingleOnSubscribe<String> { emt ->
+            Bitmark.transfer(params, object : Callback1<String> {
+                override fun onSuccess(data: String?) {
+                    if (data == null) emt.onError(UnexpectedException("response is null"))
+                    else emt.onSuccess(data)
+                }
+
+                override fun onError(throwable: Throwable?) {
+                    emt.onError(throwable!!)
+                }
+
+            })
+        }).subscribeOn(Schedulers.io())
+
+
+    //endregion Bitmark
+
+
+    //region Tx
     fun listTxs(
         owner: String? = null,
         assetId: String? = null,
@@ -140,18 +173,62 @@ class BitmarkRemoteDataSource @Inject constructor(
 
             }).subscribeOn(Schedulers.io())
 
-    fun transfer(params: TransferParams): Single<String> = Single.create(
-        SingleOnSubscribe<String> { emt ->
-            Bitmark.transfer(params, object : Callback1<String> {
-                override fun onSuccess(data: String?) {
-                    if (data == null) emt.onError(UnexpectedException("response is null"))
-                    else emt.onSuccess(data)
-                }
+    //endregion Tx
 
-                override fun onError(throwable: Throwable?) {
-                    emt.onError(throwable!!)
-                }
+    //region Asset
 
-            })
-        }).subscribeOn(Schedulers.io())
+    fun downloadAssetFile(
+        assetId: String,
+        sender: String,
+        receiver: String
+    ): Single<DownloadAssetFileResponse> =
+        fileCourierServerApi.downloadAssetFile(
+            assetId,
+            sender,
+            receiver
+        ).flatMap { res ->
+            if (!res.isSuccessful) {
+                val code = res.code()
+                val rawBodyString = res.raw().toString()
+                Single.error<DownloadAssetFileResponse>(
+                    HttpException(
+                        code,
+                        String.format(
+                            "could not download file. the message is: %s",
+                            rawBodyString
+                        )
+                    )
+                )
+            } else {
+                val headers = res.headers()
+                val algorithm = headers["data-key-alg"]
+                val encDataKey = headers["enc-data-key"]
+                val fileName = headers["file-name"]
+                val fileContent = res.body()?.bytes()
+                Single.just(
+                    DownloadAssetFileResponse(
+                        SessionData(encDataKey!!, algorithm!!),
+                        fileName!!,
+                        fileContent!!
+                    )
+                )
+            }
+        }.subscribeOn(Schedulers.io())
+
+    fun deleteAssetFile(
+        assetId: String,
+        sender: String,
+        receiver: String
+    ): Completable =
+        fileCourierServerApi.deleteAssetFile(
+            assetId,
+            sender,
+            receiver
+        ).subscribeOn(
+            Schedulers.io()
+        )
+
+    //endregion Asset
+
+
 }

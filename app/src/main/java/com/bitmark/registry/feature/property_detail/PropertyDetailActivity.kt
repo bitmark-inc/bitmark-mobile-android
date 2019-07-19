@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,12 +25,14 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
+import com.bitmark.registry.util.view.ProgressAppCompatDialogFragment
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.authentication.error.AuthenticationException
 import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.activity_property_detail.*
 import kotlinx.android.synthetic.main.layout_property_menu.view.*
+import java.io.File
 import javax.inject.Inject
 
 
@@ -52,7 +55,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         }
     }
 
-    private var bitmark: BitmarkModelView? = null
+    private lateinit var bitmark: BitmarkModelView
 
     @Inject
     lateinit var viewModel: PropertyDetailViewModel
@@ -67,14 +70,16 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     private val provenanceAdapter = ProvenanceRecyclerViewAdapter()
 
+    private lateinit var progressDialog: ProgressAppCompatDialogFragment
+
     override fun layoutRes(): Int = R.layout.activity_property_detail
 
     override fun viewModel(): BaseViewModel? = viewModel
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        viewModel.getProvenance(bitmark!!.id)
-        viewModel.syncProvenance(bitmark!!.id)
+        viewModel.getProvenance(bitmark.id)
+        viewModel.syncProvenance(bitmark.id)
     }
 
     override fun initComponents() {
@@ -83,31 +88,29 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         val bundle = intent.extras
         bitmark = bundle?.getParcelable(BITMARK)!!
 
-        ivAssetType.setImageResource(
-            when (bitmark?.assetType) {
-                BitmarkModelView.AssetType.IMAGE -> R.drawable.ic_asset_image
-                BitmarkModelView.AssetType.VIDEO -> R.drawable.ic_asset_video
-                BitmarkModelView.AssetType.HEALTH -> R.drawable.ic_asset_health_data
-                BitmarkModelView.AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
-                BitmarkModelView.AssetType.ZIP -> R.drawable.ic_asset_zip
-                BitmarkModelView.AssetType.DOC -> R.drawable.ic_asset_doc
-                BitmarkModelView.AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
-                else -> R.drawable.ic_asset_unknow
-            }
-        )
+        showAssetType(bitmark.assetType)
 
-        tvAssetName.text = bitmark?.name
+        tvAssetName.text = bitmark.name
         tvIssuedOn.text =
-            if (bitmark?.isSettled() != false) getString(R.string.issued_on) + " " + bitmark?.confirmedAt() else getString(
+            if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.confirmedAt() else getString(
                 R.string.pending
             ) + "...."
 
+        // display with corresponding status
+        val color = if (bitmark.isSettled()) ContextCompat.getColor(
+            this,
+            android.R.color.black
+        ) else ContextCompat.getColor(this, R.color.silver)
+        tvAssetName.setTextColor(color)
+        tvIssuedOn.setTextColor(color)
+
         val rvMetadataLayoutManager =
             LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        val metadataAdapter = MetadataRecyclerViewAdapter()
+        val metadataAdapter =
+            MetadataRecyclerViewAdapter(color)
         rvMetadata.layoutManager = rvMetadataLayoutManager
         rvMetadata.adapter = metadataAdapter
-        metadataAdapter.add(bitmark?.metadata ?: mapOf())
+        metadataAdapter.add(bitmark.metadata ?: mapOf())
 
         val rvProvenanceLayoutManager =
             LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -125,7 +128,21 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     }
 
-    private fun showPopupMenu(bitmark: BitmarkModelView?) {
+    private fun showAssetType(type: BitmarkModelView.AssetType) {
+        ivAssetType.setImageResource(
+            when (type) {
+                BitmarkModelView.AssetType.IMAGE -> R.drawable.ic_asset_image
+                BitmarkModelView.AssetType.VIDEO -> R.drawable.ic_asset_video
+                BitmarkModelView.AssetType.HEALTH -> R.drawable.ic_asset_health_data
+                BitmarkModelView.AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
+                BitmarkModelView.AssetType.ZIP -> R.drawable.ic_asset_zip
+                BitmarkModelView.AssetType.DOC -> R.drawable.ic_asset_doc
+                BitmarkModelView.AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
+            }
+        )
+    }
+
+    private fun showPopupMenu(bitmark: BitmarkModelView) {
         val inflater =
             applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.layout_property_menu, null)
@@ -139,49 +156,49 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
         with(view) {
 
-            if (bitmark?.isSettled() != false) {
+            val isSettled = bitmark.isSettled()
+            val color = if (isSettled) ContextCompat.getColor(
+                context,
+                R.color.blue_ribbon
+            ) else ContextCompat.getColor(context, R.color.silver)
+            tvItem1.setTextColor(color)
+            tvItem3.setTextColor(color)
+            tvItem4.setTextColor(color)
+
+            if (isSettled) {
+                item1.enable()
                 item3.enable()
                 item4.enable()
-                tvItem3.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.blue_ribbon
-                    )
-                )
-                tvItem4.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.blue_ribbon
-                    )
-                )
             } else {
+                item1.disable()
                 item3.disable()
                 item4.disable()
-                tvItem3.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.silver
-                    )
-                )
-                tvItem4.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        R.color.silver
-                    )
-                )
             }
 
-            if (bitmark?.assetFile != null || !bitmark?.isSettled()!!) {
-                tvItem1.text = getString(R.string.share)
-            } else {
+            val downloadable =
+                bitmark.assetFile == null && isSettled
+
+            if (downloadable) {
                 tvItem1.text = getString(R.string.download)
+            } else {
+                tvItem1.text = getString(R.string.share)
             }
 
             item1.setOnClickListener {
-                // download or share
                 popupWindow.dismiss()
                 if (blocked) return@setOnClickListener
+                if (downloadable) {
+                    // download file
+                    downloadAssetFile()
+                } else {
+                    // share bitmark
+                    viewModel.getExistingAsset(
+                        bitmark.accountNumber,
+                        bitmark.assetId
+                    )
+                }
             }
+
             item2.setOnClickListener {
                 // copy bitmark
                 tvSubItem2.visible()
@@ -191,11 +208,13 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     popupWindow.dismiss()
                 }, 1000)
             }
+
             item3.setOnClickListener {
                 // transfer
                 popupWindow.dismiss()
                 if (blocked) return@setOnClickListener
             }
+
             item4.setOnClickListener {
                 // delete
                 popupWindow.dismiss()
@@ -222,8 +241,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             when {
                 res.isSuccess() -> {
                     val p = res.data()
-                    if (p == null || p.second.isEmpty()) return@Observer
-                    provenanceAdapter.set(p.first, p.second)
+                    val txs = p?.second
+                    if (txs == null || txs.isEmpty()) return@Observer
+                    // TODO update SDK to get the previous owner directly from first tx
+                    if (txs.size > 1) bitmark.previousOwner = txs[1].owner
+                    provenanceAdapter.set(p.first, txs)
                 }
             }
         })
@@ -236,8 +258,12 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
                 res.isSuccess() -> {
                     progressBar.gone()
-                    val p = res.data() ?: return@Observer
-                    provenanceAdapter.set(p.first, p.second)
+                    val p = res.data()
+                    val txs = p?.second
+                    if (txs == null || txs.isEmpty()) return@Observer
+                    // TODO update SDK to get the previous owner directly from first tx
+                    if (txs.size > 1) bitmark.previousOwner = txs[1].owner
+                    provenanceAdapter.set(p.first, txs)
                 }
 
                 res.isError() -> {
@@ -269,21 +295,94 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
             }
         })
+
+        viewModel.downloadAssetFileLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    progressDialog.dismiss()
+                    val file = res.data()
+                    if (file != null) {
+                        bitmark.assetFile = file
+                        bitmark.assetType =
+                            BitmarkModelView.determineAssetType(assetFile = bitmark.assetFile)
+                        showAssetType(bitmark.assetType)
+                        shareFile(bitmark.name ?: "", file)
+                    }
+
+                }
+
+                res.isError() -> {
+                    progressDialog.dismiss()
+                    if (BuildConfig.DEBUG) throw res.throwable()!!
+                }
+
+                res.isLoading() -> {
+                    val message = String.format(
+                        "%s \"%s\"...",
+                        getString(R.string.downloading),
+                        bitmark.name ?: ""
+                    )
+                    progressDialog =
+                        ProgressAppCompatDialogFragment(
+                            this,
+                            title = getString(R.string.preparing_to_export),
+                            message = message
+                        )
+                    progressDialog.show()
+                }
+            }
+        })
+
+        viewModel.getExistingAssetFileLiveData().observe(this, Observer { res ->
+            if (res.isSuccess()) {
+                val file = res.data()
+                if (file != null) {
+                    shareFile(bitmark.name ?: "", file)
+                }
+            }
+        })
     }
 
     private fun deleteBitmark() {
-        loadAccount { account ->
+        loadAccount(getString(R.string.please_sign_to_delete_bitmark)) { account ->
             val zeroAddr = Address.fromAccountNumber(BuildConfig.ZERO_ADDRESS)
-            val transferParams = TransferParams(zeroAddr, bitmark!!.headId)
+            val transferParams = TransferParams(zeroAddr, bitmark.headId)
             transferParams.sign(account.keyPair)
-            viewModel.deleteBitmark(transferParams, bitmark!!.id)
+            viewModel.deleteBitmark(transferParams, bitmark.id)
         }
     }
 
-    private fun loadAccount(action: (Account) -> Unit) {
-        val accountNumber = bitmark?.accountNumber ?: return
+    private fun downloadAssetFile() {
+        if (bitmark.previousOwner == null) return
+        loadAccount(getString(R.string.please_sign_to_download_asset)) { account ->
+            viewModel.downloadAssetFile(
+                bitmark.assetId,
+                bitmark.previousOwner!!,
+                bitmark.accountNumber,
+                account.encryptionKey
+            )
+        }
+    }
+
+    private fun shareFile(assetName: String, file: File) {
+        val uri = FileProvider.getUriForFile(
+            this,
+            BuildConfig.APPLICATION_ID + ".file_provider",
+            file
+        )
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "*/*"
+        intent.putExtra(Intent.EXTRA_SUBJECT, assetName)
+        intent.putExtra(Intent.EXTRA_TEXT, assetName)
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        navigator.startActivity(Intent.createChooser(intent, assetName))
+    }
+
+    private fun loadAccount(message: String, action: (Account) -> Unit) {
+        val accountNumber = bitmark.accountNumber
         val spec =
             KeyAuthenticationSpec.Builder(this).setKeyAlias(accountNumber)
+                .setAuthenticationDescription(message)
                 .build()
         Account.loadFromKeyStore(
             this,
@@ -303,10 +402,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                             when (throwable.type) {
                                 // action cancel authentication
                                 AuthenticationException.Type.CANCELLED -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.authentication_required
-                                    )
+                                    // ignore
                                 }
 
                                 // other cases include error

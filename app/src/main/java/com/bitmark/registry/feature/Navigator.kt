@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.IdRes
@@ -68,8 +69,11 @@ class Navigator<T>(host: T) {
     }
 
     fun startActivity(intent: Intent) {
-        activity?.startActivity(intent)
-        startTransactionAnim(activity)
+        try {
+            activity?.startActivity(intent)
+            startTransactionAnim(activity)
+        } catch (ignore: ActivityNotFoundException) {
+        }
     }
 
     fun startActivityAsRoot(intent: Intent) {

@@ -148,9 +148,24 @@ class BitmarkLocalDataSource @Inject constructor(
         return fileStorageApi.rxSingle { fileGateway ->
             Pair(
                 assetId,
-                if (fileGateway.isExisting(path)) File(path) else null
+                if (fileGateway.isExisting(path)) fileGateway.firstFile(path) else null
             )
         }
+    }
+
+    fun saveAssetFile(
+        accountNumber: String,
+        assetId: String,
+        fileName: String,
+        content: ByteArray
+    ): Single<File> = fileStorageApi.rxSingle { fileGateway ->
+        val path = String.format(
+            "%s/%s/assets/%s/downloaded",
+            fileStorageApi.filesDir(),
+            accountNumber,
+            assetId
+        )
+        fileGateway.save(path, fileName, content)
     }
 
     //endregion Asset

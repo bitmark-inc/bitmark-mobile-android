@@ -166,9 +166,8 @@ class SplashActivity : BaseAppCompatActivity() {
                                         })
                                 }
 
-                                // other cases include error
                                 else -> {
-                                    exitWithAlert(throwable.message!!)
+                                    // do nothing
                                 }
                             }
                         }

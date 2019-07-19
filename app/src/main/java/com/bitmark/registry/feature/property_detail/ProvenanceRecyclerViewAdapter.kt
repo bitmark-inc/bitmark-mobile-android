@@ -72,27 +72,16 @@ class ProvenanceRecyclerViewAdapter :
         fun bind(item: Item) {
             with(itemView) {
                 if (item.isPending) {
-                    tvConfirmedAt.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.silver
-                        )
-                    )
+                    val color = ContextCompat.getColor(context, R.color.silver)
+                    tvConfirmedAt.setTextColor(color)
+                    tvOwner.setTextColor(color)
                     tvConfirmedAt.text =
                         context.getString(R.string.wait_to_be_confirmed)
                 } else {
-                    tvConfirmedAt.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.blue_ribbon
-                        )
-                    )
-                    tvOwner.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.blue_ribbon
-                        )
-                    )
+                    val color =
+                        ContextCompat.getColor(context, R.color.blue_ribbon)
+                    tvConfirmedAt.setTextColor(color)
+                    tvOwner.setTextColor(color)
                     tvConfirmedAt.text = item.confirmedAt
                 }
                 tvOwner.text =

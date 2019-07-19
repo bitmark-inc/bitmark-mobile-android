@@ -56,5 +56,10 @@
   <string name="issued_on">Issued on</string>
   <string name="this_bitmark_will_be_deleted">This bitmark will be deleted</string>
   <string name="cancel">Cancel</string>
+  <string name="please_sign_to_download_asset">Please sign to download asset.</string>
+  <string name="preparing_to_export">Preparing to export…</string>
+  <string name="downloading">Downloading</string>
+  <string name="please_sign_to_delete_bitmark">Please sign to delete bitmark.</string>
+  <string name="please_sign_to_transfer_bitmark">Please sign to transfer bitmark</string>
 
 </resources>

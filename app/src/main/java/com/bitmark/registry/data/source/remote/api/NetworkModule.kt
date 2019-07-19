@@ -4,10 +4,7 @@ import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.remote.api.middleware.CoreApiInterceptor
 import com.bitmark.registry.data.source.remote.api.middleware.FileCourierServerInterceptor
 import com.bitmark.registry.data.source.remote.api.middleware.MobileServerApiInterceptor
-import com.bitmark.registry.data.source.remote.api.service.CoreApi
-import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
-import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
-import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
+import com.bitmark.registry.data.source.remote.api.service.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -27,7 +24,8 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideGson(): Gson {
-        return GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+        return GsonBuilder().excludeFieldsWithoutExposeAnnotation().setLenient()
+            .create()
     }
 
     @Singleton
@@ -79,5 +77,15 @@ class NetworkModule {
     @Provides
     fun provideFileCourierApiInterceptor(): FileCourierServerInterceptor {
         return FileCourierServerInterceptor()
+    }
+
+    @Singleton
+    @Provides
+    fun provideKeyAccountServerApi(gson: Gson): KeyAccountServerApi {
+        return ServiceGenerator.createService(
+            BuildConfig.KEY_ACCOUNT_SERVER_ENDPOINT,
+            KeyAccountServerApi::class.java,
+            gson, null
+        )
     }
 }

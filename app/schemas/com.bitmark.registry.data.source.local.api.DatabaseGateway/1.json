@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5e5251fa1656d3c0b5f986be3f73c742",
+    "identityHash": "61c6b9f9f329c7bf1f8e43e16c600cae",
     "entities": [
       {
         "tableName": "Transaction",
@@ -413,12 +413,47 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "Account",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`account_number` TEXT NOT NULL, `enc_pub_key` TEXT NOT NULL, PRIMARY KEY(`account_number`))",
+        "fields": [
+          {
+            "fieldPath": "accountNumber",
+            "columnName": "account_number",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encPubKey",
+            "columnName": "enc_pub_key",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "account_number"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Account_account_number",
+            "unique": true,
+            "columnNames": [
+              "account_number"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_Account_account_number` ON `${TABLE_NAME}` (`account_number`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5e5251fa1656d3c0b5f986be3f73c742')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '61c6b9f9f329c7bf1f8e43e16c600cae')"
     ]
   }
 }

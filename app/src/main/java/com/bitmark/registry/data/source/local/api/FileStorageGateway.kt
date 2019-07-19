@@ -12,10 +12,17 @@ import java.io.File
  */
 class FileStorageGateway internal constructor(private val context: Context) {
 
-    fun save(path: String, data: ByteArray) = File(path).writeBytes(data)
+    fun save(path: String, name: String, data: ByteArray): File {
+        val dir = File(path)
+        if (!dir.exists()) dir.mkdirs()
+        val file = File(dir, name)
+        if (!file.exists()) file.createNewFile()
+        file.writeBytes(data)
+        return file
+    }
 
     fun saveOnFilesDir(name: String, data: ByteArray) =
-        save(File(context.filesDir, name).absolutePath, data)
+        save(context.filesDir.absolutePath, name, data)
 
     fun isExistingOnFilesDir(name: String): Boolean =
         File(context.filesDir, name).exists()
@@ -29,4 +36,11 @@ class FileStorageGateway internal constructor(private val context: Context) {
 
     fun filesDir() = context.filesDir
 
+    fun firstFile(path: String): File? {
+        val file = File(path)
+        if (!file.exists()) return null
+        if (file.isFile) return file
+        val files = file.listFiles() ?: return null
+        return if (files.isEmpty()) null else files[0]
+    }
 }

@@ -125,7 +125,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
             Account.fromRecoveryPhrase(*phrase)
         }
         val spec = KeyAuthenticationSpec.Builder(this)
-            .setAuthenticationValidityDuration(15)
+            //.setAuthenticationValidityDuration(BuildConfig.KEY_VALIDITY_DURATION)
             .setKeyAlias(account.accountNumber)
             .setAuthenticationRequired(authRequired).build()
         account.saveToKeyStore(this, spec, object : Callback0 {
