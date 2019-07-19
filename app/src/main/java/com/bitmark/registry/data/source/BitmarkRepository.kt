@@ -42,6 +42,7 @@ class BitmarkRepository(
         localDataSource.setBitmarkInsertedListener(listener)
     }
 
+    // sync bitmarks from server and save to local db
     fun syncBitmarks(
         owner: String? = null,
         at: Long = 0,
@@ -75,6 +76,9 @@ class BitmarkRepository(
         }
     }
 
+    // fetch bitmarks from local db first then fetch from server if no bitmark is available in local db
+    // also try to clean up bitmark in local db
+    // also try to map corresponding asset file
     fun listBitmarks(
         owner: String,
         at: Long,
@@ -108,6 +112,8 @@ class BitmarkRepository(
         }
     }
 
+    // clean up bitmark is deleted from server side but not be reflected in local db
+    // also update bitmarks to latest state if the previous delete action could not be sent to server
     private fun cleanupBitmark(owner: String): Completable =
         localDataSource.listBitmarksByStatus(TO_BE_DELETED).flatMapCompletable { bitmarks ->
             if (bitmarks.isNullOrEmpty()) Completable.complete()
@@ -150,6 +156,7 @@ class BitmarkRepository(
             }
         }
 
+    // find out all pending bitmarks in local db
     fun listStoredPendingBitmarks(): Maybe<List<BitmarkData>> = Maybe.zip(
         localDataSource.listBitmarksByStatus(BitmarkData.Status.TRANSFERRING),
         localDataSource.listBitmarksByStatus(BitmarkData.Status.ISSUING),
