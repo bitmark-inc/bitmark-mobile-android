@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.main.properties
 
+import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.Navigator
@@ -29,8 +30,14 @@ class PropertiesModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         realtimeBus: RealtimeBus
-    ) = PropertiesViewModel(bitmarkRepo, rxLiveDataTransformer, realtimeBus)
+    ) = PropertiesViewModel(
+        accountRepo,
+        bitmarkRepo,
+        rxLiveDataTransformer,
+        realtimeBus
+    )
 }

@@ -130,12 +130,11 @@ class PropertyDetailViewModel(
     internal fun deleteBitmark(
         params: TransferParams,
         bitmarkId: String,
-        assetId: String,
-        accountNumber: String
+        assetId: String
     ) {
         deleteBitmarkLiveData.add(
             rxLiveDataTransformer.completable(
-                deleteBitmarkStream(params, bitmarkId, assetId, accountNumber)
+                deleteBitmarkStream(params, bitmarkId, assetId)
             )
         )
     }
@@ -143,10 +142,9 @@ class PropertyDetailViewModel(
     private fun deleteBitmarkStream(
         params: TransferParams,
         bitmarkId: String,
-        assetId: String,
-        accountNumber: String
+        assetId: String
     ) =
-        bitmarkRepo.deleteBitmark(params, bitmarkId, assetId, accountNumber)
+        bitmarkRepo.deleteBitmark(params, bitmarkId, assetId)
 
     internal fun downloadAssetFile(
         assetId: String,
@@ -202,7 +200,7 @@ class PropertyDetailViewModel(
                 rawContent
             )
         }.flatMap { file ->
-            bitmarkRepo.deleteServerAssetFile(assetId, sender, receiver)
+            bitmarkRepo.deleteRemoteAssetFile(assetId, sender, receiver)
                 .andThen(Single.just(file))
         }
     }

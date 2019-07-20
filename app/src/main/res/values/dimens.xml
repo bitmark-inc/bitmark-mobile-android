@@ -32,6 +32,9 @@
   <dimen name="dp_240">240dp</dimen>
   <dimen name="dp_320">320dp</dimen>
 
+  <dimen name="dp_neg_3">-3dp</dimen>
+  <dimen name="dp_neg_4">-4dp</dimen>
+
 
   <dimen name="sp_8">8sp</dimen>
   <dimen name="sp_10">10sp</dimen>

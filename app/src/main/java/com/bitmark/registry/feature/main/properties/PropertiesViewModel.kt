@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.main.properties
 
+import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
@@ -14,6 +15,7 @@ import com.bitmark.registry.util.livedata.RxLiveDataTransformer
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class PropertiesViewModel(
+    private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val realtimeBus: RealtimeBus
@@ -37,5 +39,9 @@ class PropertiesViewModel(
         getBitmarkCountLiveData.asLiveData()
 
     internal fun getBitmarkCount() =
-        getBitmarkCountLiveData.add(rxLiveDataTransformer.single(bitmarkRepo.countUsableBitmarks()))
+        getBitmarkCountLiveData.add(rxLiveDataTransformer.single(accountRepo.getAccountInfo().map { a -> a.first }.flatMap { accountNumber ->
+            bitmarkRepo.countUsableBitmarks(
+                accountNumber
+            )
+        }))
 }

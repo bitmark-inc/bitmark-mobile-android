@@ -56,6 +56,7 @@ class YourPropertiesRecyclerViewAdapter() :
     internal fun update(items: List<BitmarkModelView>) {
         items.forEach { i ->
             val index = this.items.indexOfFirst { b -> b.id == i.id }
+            if (index == -1) return
             this.items.removeAt(index)
             this.items.add(index, i)
             notifyItemChanged(index)

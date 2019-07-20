@@ -44,7 +44,8 @@
 
     <activity
         android:name=".feature.property_detail.PropertyDetailContainerActivity"
-        android:screenOrientation="portrait"/>
+        android:screenOrientation="portrait"
+        android:windowSoftInputMode="adjustResize"/>
 
     <!-- Firebase message service -->
     <service

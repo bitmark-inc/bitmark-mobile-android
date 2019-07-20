@@ -10,6 +10,8 @@ import com.bitmark.registry.feature.main.transactions.TransactionsFragment
 import com.bitmark.registry.feature.main.transactions.TransactionsModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
+import com.bitmark.registry.feature.transfer.TransferFragment
+import com.bitmark.registry.feature.transfer.TransferModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -42,4 +44,8 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [PropertyDetailModule::class])
     @FragmentScope
     internal abstract fun bindPropertyDetailFragment(): PropertyDetailFragment
+
+    @ContributesAndroidInjector(modules = [TransferModule::class])
+    @FragmentScope
+    internal abstract fun bindTransferFragment(): TransferFragment
 }

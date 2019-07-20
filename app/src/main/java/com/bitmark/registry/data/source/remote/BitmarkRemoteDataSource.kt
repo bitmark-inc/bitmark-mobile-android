@@ -13,6 +13,7 @@ import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
@@ -25,6 +26,10 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleOnSubscribe
 import io.reactivex.schedulers.Schedulers
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import javax.inject.Inject
 
 
@@ -227,6 +232,93 @@ class BitmarkRemoteDataSource @Inject constructor(
         ).subscribeOn(
             Schedulers.io()
         )
+
+    fun uploadAssetFile(
+        assetId: String,
+        sender: String,
+        sessionData: SessionData,
+        access: String,
+        file: File
+    ): Completable {
+        val fileReqBody = file.asRequestBody()
+        val filePart =
+            MultipartBody.Part.createFormData("file", file.name, fileReqBody)
+        val keyAlgorithmReqBody = sessionData.algorithm.toRequestBody()
+        val encKeyReqBody = sessionData.encryptedKey.toRequestBody()
+        val orgContentTypeReqBody = "*".toRequestBody()
+        val accessReqBody = access.toRequestBody()
+        return fileCourierServerApi.uploadAssetFile(
+            assetId,
+            sender,
+            keyAlgorithmReqBody,
+            encKeyReqBody,
+            orgContentTypeReqBody,
+            accessReqBody,
+            filePart
+        ).subscribeOn(Schedulers.io())
+    }
+
+    fun checkExistingAssetFile(
+        assetId: String,
+        sender: String
+    ): Single<AssetFileInfoResponse> {
+        return fileCourierServerApi.checkExistingAssetFile(
+            assetId,
+            sender
+        )
+            .flatMap { res ->
+                if (!res.isSuccessful) {
+                    val code = res.code()
+                    val rawBodyString = res.raw().toString()
+                    Single.error<AssetFileInfoResponse>(
+                        HttpException(
+                            code,
+                            String.format(
+                                "could not check asset file. the message is: %s",
+                                rawBodyString
+                            )
+                        )
+                    )
+                } else {
+                    val headers = res.headers()
+                    val keyAlgorithm = headers["data-key-alg"]
+                    val encKey = headers["enc-data-key"]
+                    val orgContentType = headers["orig-content-type"]
+                    val expiration = headers["expiration"]
+                    val name = headers["file-name"]
+                    val date = headers["date"]
+                    Single.just(
+                        AssetFileInfoResponse(
+                            if (keyAlgorithm != null && encKey != null) SessionData(
+                                encKey,
+                                keyAlgorithm
+                            ) else null,
+                            orgContentType,
+                            expiration,
+                            name,
+                            date
+                        )
+                    )
+                }
+            }.onErrorResumeNext { e ->
+                if (e is HttpException && (e.statusCode >= 400 || e.statusCode < 500)) {
+                    Single.just(AssetFileInfoResponse.newInstance())
+                } else Single.error<AssetFileInfoResponse>(e)
+            }.subscribeOn(Schedulers.io())
+    }
+
+    fun grantAccessAssetFile(
+        assetId: String,
+        sender: String,
+        access: String
+    ): Completable {
+        val accessReqBody = access.toRequestBody()
+        return fileCourierServerApi.grantAccessAssetFile(
+            assetId,
+            sender,
+            accessReqBody
+        ).subscribeOn(Schedulers.io())
+    }
 
     //endregion Asset
 

@@ -25,6 +25,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.transfer.TransferFragment
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.ProgressAppCompatDialogFragment
@@ -32,7 +33,7 @@ import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.authentication.error.AuthenticationException
 import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
-import kotlinx.android.synthetic.main.activity_property_detail.*
+import kotlinx.android.synthetic.main.fragment_property_detail.*
 import kotlinx.android.synthetic.main.layout_property_menu.view.*
 import java.io.File
 import javax.inject.Inject
@@ -76,7 +77,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private lateinit var progressDialog: ProgressAppCompatDialogFragment
 
-    override fun layoutRes(): Int = R.layout.activity_property_detail
+    override fun layoutRes(): Int = R.layout.fragment_property_detail
 
     override fun viewModel(): BaseViewModel? = viewModel
 
@@ -94,8 +95,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
         showAssetType(bitmark.assetType)
 
-        tvToolbarTitle.text = bitmark.name
-        tvAssetName.text = bitmark.name
+        tvToolbarTitle.text =
+            if (bitmark.name.isNullOrBlank()) getString(R.string.your_properties) else bitmark.name
+        tvAssetName.text =
+            if (bitmark.name.isNullOrBlank()) "" else bitmark.name
         tvIssuedOn.text =
             if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.confirmedAt() else getString(
                 R.string.pending
@@ -218,6 +221,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 // transfer
                 popupWindow.dismiss()
                 if (blocked) return@setOnClickListener
+                navigator.anim(RIGHT_LEFT).replaceFragment(
+                    R.id.layoutContainer,
+                    TransferFragment.newInstance(bitmark)
+                )
             }
 
             item4.setOnClickListener {
@@ -363,8 +370,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
             viewModel.deleteBitmark(
                 transferParams,
                 bitmark.id,
-                bitmark.assetId,
-                bitmark.accountNumber
+                bitmark.assetId
             )
         }
     }
@@ -416,20 +422,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
                         // authentication error
                         is AuthenticationException -> {
-                            when (throwable.type) {
-                                // action cancel authentication
-                                AuthenticationException.Type.CANCELLED -> {
-                                    // ignore
-                                }
-
-                                // other cases include error
-                                else -> {
-                                    dialogController.alert(
-                                        getString(R.string.error),
-                                        throwable.message!!
-                                    )
-                                }
-                            }
+                            // do nothing
                         }
 
                         // missing security requirement

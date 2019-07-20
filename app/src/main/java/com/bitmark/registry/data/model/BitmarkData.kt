@@ -84,7 +84,7 @@ data class BitmarkData(
         ISSUING("issuing"), TRANSFERRING("transferring"), OFFERING("offering"), SETTLED(
             "settled"
         ),
-        TO_BE_DELETED("to_be_deleted");
+        TO_BE_DELETED("to_be_deleted"), TO_BE_TRANSFERRED("to_be_transferred");
 
         companion object {
             fun from(value: String): Status? = when (value) {
@@ -93,6 +93,7 @@ data class BitmarkData(
                 "offering" -> OFFERING
                 "settled" -> SETTLED
                 "to_be_deleted" -> TO_BE_DELETED
+                "to_be_transferred" -> TO_BE_TRANSFERRED
                 else -> null
             }
         }

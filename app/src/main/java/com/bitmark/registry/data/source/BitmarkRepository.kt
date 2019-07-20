@@ -4,9 +4,11 @@ import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_DELETED
+import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_TRANSFERRED
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.local.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
+import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.registry.util.extension.append
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -91,12 +93,13 @@ class BitmarkRepository(
                 syncBitmarks(owner = owner, limit = limit).toMaybe()
             } else {
                 cleanupBitmark(owner).andThen(
-                    localDataSource.listBitmarksByOffsetLimitDesc(
+                    localDataSource.listBitmarksByOwnerOffsetLimitDesc(
+                        owner,
                         at,
                         limit
                     )
                 )
-                    .map { bitmarks -> bitmarks.filter { b -> b.status != TO_BE_DELETED } }
+                    .map { bitmarks -> bitmarks.filter { b -> b.status != TO_BE_DELETED && b.status != TO_BE_TRANSFERRED } }
                     .flatMap { bitmarks ->
 
                         // if database return empty, sync with remote data
@@ -116,7 +119,10 @@ class BitmarkRepository(
     // clean up bitmark is deleted from server side but not be reflected in local db
     // also update bitmarks to latest state if the previous delete action could not be sent to server
     private fun cleanupBitmark(owner: String): Completable =
-        localDataSource.listBitmarksByStatus(TO_BE_DELETED).flatMapCompletable { bitmarks ->
+        localDataSource.listBitmarksByOwnerStatus(
+            owner,
+            listOf(TO_BE_DELETED, TO_BE_TRANSFERRED)
+        ).flatMapCompletable { bitmarks ->
             if (bitmarks.isNullOrEmpty()) Completable.complete()
             else {
                 val bitmarkIds = bitmarks.map { b -> b.id }
@@ -124,12 +130,12 @@ class BitmarkRepository(
                 remoteDataSource.listBitmarks(bitmarkIds = bitmarkIds)
                     .flatMapCompletable { p ->
 
-                        // the bitmarks're been updated in local to be deleted but not be reflected in server
+                        // the bitmarks're been updated in local but not be reflected in server
                         val usableBitmarks =
                             p.first.filter { b -> b.owner == owner }
 
-                        // the bitmarks're been deleted in server but not be reflected to local
-                        val deletedBitmarkIds =
+                        // the bitmarks're been deleted or transferred in server but not be reflected to local
+                        val unusableBitmarkIds =
                             p.first.filter { b -> b.owner != owner }
                                 .map { b -> b.id }
 
@@ -139,12 +145,12 @@ class BitmarkRepository(
                             )
 
                         val deleteBitmarksStream =
-                            if (deletedBitmarkIds.isNullOrEmpty()) Completable.complete() else Completable.mergeArray(
+                            if (unusableBitmarkIds.isNullOrEmpty()) Completable.complete() else Completable.mergeArray(
                                 localDataSource.deleteTxsByBitmarkIds(
-                                    deletedBitmarkIds
+                                    unusableBitmarkIds
                                 ),
                                 localDataSource.deleteBitmarkByIds(
-                                    deletedBitmarkIds
+                                    unusableBitmarkIds
                                 )
                             )
 
@@ -158,12 +164,19 @@ class BitmarkRepository(
         }
 
     // find out all pending bitmarks in local db
-    fun listStoredPendingBitmarks(): Maybe<List<BitmarkData>> = Maybe.zip(
-        localDataSource.listBitmarksByStatus(BitmarkData.Status.TRANSFERRING),
-        localDataSource.listBitmarksByStatus(BitmarkData.Status.ISSUING),
-        BiFunction<List<BitmarkData>, List<BitmarkData>, List<BitmarkData>> { transferring, issuing ->
-            mutableListOf<BitmarkData>().append(transferring, issuing)
-        }).flatMap(attachAssetFunc())
+    fun listStoredPendingBitmarks(owner: String): Maybe<List<BitmarkData>> =
+        Maybe.zip(
+            localDataSource.listBitmarksByOwnerStatus(
+                owner,
+                BitmarkData.Status.TRANSFERRING
+            ),
+            localDataSource.listBitmarksByOwnerStatus(
+                owner,
+                BitmarkData.Status.ISSUING
+            ),
+            BiFunction<List<BitmarkData>, List<BitmarkData>, List<BitmarkData>> { transferring, issuing ->
+                mutableListOf<BitmarkData>().append(transferring, issuing)
+            }).flatMap(attachAssetFunc())
 
     private fun attachAssetFunc(): (List<BitmarkData>) -> Maybe<List<BitmarkData>> =
         { bitmarks ->
@@ -194,14 +207,63 @@ class BitmarkRepository(
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
         localDataSource.markBitmarkSeen(bitmarkId)
 
-    fun checkAssetFile(
-        accountNumber: String,
-        assetId: String
-    ): Single<Pair<String, File?>> =
-        localDataSource.checkAssetFile(accountNumber, assetId)
+    fun countUsableBitmarks(accountNumber: String): Single<Long> =
+        localDataSource.countUsableBitmarks(accountNumber)
 
-    fun countUsableBitmarks(): Single<Long> =
-        localDataSource.countUsableBitmarks()
+    // try to update bitmark status to temporary status that mark is will be deleted
+    // then transfer it to zero address then delete this bitmark in local db and related txs as well
+    // try to clean up redundant asset file if no related bitmark is available
+    fun deleteBitmark(
+        params: TransferParams,
+        bitmarkId: String,
+        assetId: String
+    ): Completable {
+        return localDataSource.updateBitmarkStatus(
+            bitmarkId,
+            TO_BE_DELETED
+        ).andThen(remoteDataSource.transfer(params))
+            .flatMapCompletable { deleteStoredBitmark(bitmarkId, assetId) }
+    }
+
+    // delete bitmark in local db, also related asset file if needed, txs, asset
+    private fun deleteStoredBitmark(
+        bitmarkId: String,
+        assetId: String
+    ) =
+        localDataSource.getBitmarkById(bitmarkId).map { b -> b.owner }.flatMapCompletable { owner ->
+            Completable.mergeArrayDelayError(
+                localDataSource.deleteBitmarkById(bitmarkId),
+                localDataSource.deleteTxsByBitmarkId(bitmarkId)
+            ).andThen(localDataSource.checkRedundantAsset(assetId)
+                .flatMapCompletable { redundant ->
+                    if (redundant) {
+                        Completable.mergeArrayDelayError(
+                            localDataSource.deleteAssetFile(
+                                owner,
+                                assetId
+                            ), localDataSource.deleteAssetById(assetId)
+                        )
+                    } else Completable.complete()
+                })
+        }
+
+    fun listStoredBitmarkRefSameAsset(assetId: String) =
+        localDataSource.listBitmarkRefSameAsset(assetId).flatMapMaybe(
+            attachAssetFunc()
+        )
+
+    // change local bitmark status to TRANSFERRING and owner to the recipient
+    // then send transfer request to server. Finally clean up corresponding bitmark in local db
+    fun transferBitmark(
+        params: TransferParams,
+        bitmarkId: String,
+        assetId: String
+    ): Completable = localDataSource.updateBitmarkStatus(
+        bitmarkId,
+        TO_BE_TRANSFERRED
+    ).andThen(remoteDataSource.transfer(params)).flatMapCompletable {
+        deleteStoredBitmark(bitmarkId, assetId)
+    }
 
     fun syncTxs(
         bitmarkId: String,
@@ -255,32 +317,11 @@ class BitmarkRepository(
         )
     }
 
-    // try to update bitmark status to temporary status that mark is will be deleted
-    // then transfer it to zero address then delete this bitmark in local db and related txs as well
-    // try to clean up redundant asset file if no related bitmark is available
-    fun deleteBitmark(
-        params: TransferParams,
-        bitmarkId: String,
-        assetId: String,
-        accountNumber: String
-    ): Completable {
-        val deletedRedundantAssetFile =
-            localDataSource.checkRedundantAsset(assetId)
-                .flatMapCompletable { redundant ->
-                    if (redundant) {
-                        localDataSource.deleteAssetFile(accountNumber, assetId)
-                    } else Completable.complete()
-                }
-        return localDataSource.updateBitmarkStatus(
-            bitmarkId,
-            TO_BE_DELETED
-        ).andThen(remoteDataSource.transfer(params)).flatMapCompletable {
-            Completable.mergeArray(
-                localDataSource.deleteBitmarkById(bitmarkId),
-                localDataSource.deleteTxsByBitmarkId(bitmarkId)
-            )
-        }.andThen(deletedRedundantAssetFile)
-    }
+    fun checkAssetFile(
+        accountNumber: String,
+        assetId: String
+    ): Single<Pair<String, File?>> =
+        localDataSource.checkAssetFile(accountNumber, assetId)
 
 
     fun downloadAssetFile(assetId: String, sender: String, receiver: String) =
@@ -293,16 +334,44 @@ class BitmarkRepository(
         content: ByteArray
     ) = localDataSource.saveAssetFile(accountNumber, assetId, fileName, content)
 
-    fun deleteServerAssetFile(
+    fun deleteRemoteAssetFile(
         assetId: String,
         sender: String,
         receiver: String
     ) =
         remoteDataSource.deleteAssetFile(assetId, sender, receiver)
 
-    fun listStoredBitmarkRefSameAsset(assetId: String) =
-        localDataSource.listBitmarkRefSameAsset(assetId).flatMapMaybe(
-            attachAssetFunc()
+    fun checkExistingRemoteAssetFile(
+        assetId: String,
+        sender: String
+    ) =
+        remoteDataSource.checkExistingAssetFile(assetId, sender)
+
+    fun grantAccessAssetFile(assetId: String, sender: String, access: String) =
+        remoteDataSource.grantAccessAssetFile(assetId, sender, access)
+
+    // save byte array need to be uploaded to local storage then upload to server
+    // after that try to clear the encrypted file
+    fun uploadAssetFile(
+        assetId: String,
+        accountNumber: String,
+        sessionData: SessionData,
+        access: String,
+        fileName: String,
+        fileBytes: ByteArray
+    ): Completable = localDataSource.saveEncryptedAssetFile(
+        accountNumber,
+        assetId,
+        fileName,
+        fileBytes
+    ).flatMapCompletable { file ->
+        remoteDataSource.uploadAssetFile(
+            assetId,
+            accountNumber,
+            sessionData,
+            access,
+            file
         )
+    }.andThen(localDataSource.deleteEncryptedAssetFile(accountNumber, assetId))
 
 }

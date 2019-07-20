@@ -54,15 +54,29 @@ class BitmarkLocalDataSource @Inject constructor(
 
     //region Bitmark
 
-    fun listBitmarksByOffsetLimitDesc(
+    fun listBitmarksByOwnerOffsetLimitDesc(
+        owner: String,
         offset: Long,
         limit: Int
     ): Maybe<List<BitmarkData>> = databaseApi.rxMaybe { db ->
-        db.bitmarkDao().listByOffsetLimitDesc(offset, limit)
+        db.bitmarkDao().listByOwnerOffsetLimitDesc(owner, offset, limit)
     }
 
-    fun listBitmarksByStatus(status: BitmarkData.Status): Maybe<List<BitmarkData>> =
-        databaseApi.rxMaybe { db -> db.bitmarkDao().listByStatusDesc(status) }
+    fun listBitmarksByOwnerStatus(
+        owner: String,
+        status: BitmarkData.Status
+    ): Maybe<List<BitmarkData>> =
+        databaseApi.rxMaybe { db ->
+            db.bitmarkDao().listByOwnerStatusDesc(owner, status)
+        }
+
+    fun listBitmarksByOwnerStatus(
+        owner: String,
+        status: List<BitmarkData.Status>
+    ): Maybe<List<BitmarkData>> =
+        databaseApi.rxMaybe { db ->
+            db.bitmarkDao().listByOwnerStatusDesc(owner, status)
+        }
 
     fun saveBitmarks(bitmarks: List<BitmarkData>): Completable =
         if (bitmarks.isEmpty()) Completable.complete()
@@ -113,9 +127,9 @@ class BitmarkLocalDataSource @Inject constructor(
         db.bitmarkDao().count()
     }.onErrorResumeNext { Single.just(0) }
 
-    fun countUsableBitmarks(): Single<Long> =
+    fun countUsableBitmarks(owner: String): Single<Long> =
         databaseApi.rxSingle { db ->
-            db.bitmarkDao().countUsableBitmarks()
+            db.bitmarkDao().countUsableBitmarks(owner)
         }.onErrorResumeNext { Single.just(0) }
 
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
@@ -131,6 +145,9 @@ class BitmarkLocalDataSource @Inject constructor(
         db.bitmarkDao().listBitmarkRefSameAsset(assetId)
     }.onErrorResumeNext { Single.just(listOf()) }
 
+    fun getBitmarkById(id: String) =
+        databaseApi.rxMaybe { db -> db.bitmarkDao().getById(id) }
+
     //endregion Bitmark
 
     //region Asset
@@ -138,6 +155,9 @@ class BitmarkLocalDataSource @Inject constructor(
     fun getAssetById(id: String): Maybe<AssetData> = databaseApi.rxMaybe { db ->
         db.assetDao().getById(id)
     }
+
+    fun deleteAssetById(id: String): Completable =
+        databaseApi.rxCompletable { db -> db.assetDao().delete(id) }
 
     fun saveAssets(assets: List<AssetData>): Completable =
         if (assets.isEmpty()) Completable.complete()
@@ -194,7 +214,33 @@ class BitmarkLocalDataSource @Inject constructor(
                 assetId
             )
             fileGateway.delete(path)
-        }
+        }.onErrorResumeNext { Completable.complete() }
+
+    fun saveEncryptedAssetFile(
+        accountNumber: String,
+        assetId: String,
+        fileName: String,
+        content: ByteArray
+    ): Single<File> = fileStorageApi.rxSingle { fileGateway ->
+        val path = String.format(
+            "%s/%s/assets/%s/encrypted",
+            fileStorageApi.filesDir(),
+            accountNumber,
+            assetId
+        )
+        fileGateway.save(path, fileName, content)
+    }
+
+    fun deleteEncryptedAssetFile(accountNumber: String, assetId: String) =
+        fileStorageApi.rxCompletable { fileGateway ->
+            val path = String.format(
+                "%s/%s/assets/%s/encrypted",
+                fileStorageApi.filesDir(),
+                accountNumber,
+                assetId
+            )
+            fileGateway.delete(path)
+        }.onErrorResumeNext { Completable.complete() }
 
     //endregion Asset
 

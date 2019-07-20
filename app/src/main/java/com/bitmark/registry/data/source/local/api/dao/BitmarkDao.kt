@@ -19,14 +19,24 @@ import io.reactivex.Single
 @Dao
 abstract class BitmarkDao {
 
-    @Query("SELECT * FROM Bitmark WHERE `offset` <= :offset ORDER BY `offset` DESC LIMIT :limit")
-    abstract fun listByOffsetLimitDesc(
+    @Query("SELECT * FROM Bitmark WHERE owner = :owner AND `offset` <= :offset ORDER BY `offset` DESC LIMIT :limit")
+    abstract fun listByOwnerOffsetLimitDesc(
+        owner: String,
         offset: Long,
         limit: Int
     ): Maybe<List<BitmarkData>>
 
-    @Query("SELECT * FROM Bitmark WHERE status == :status ORDER BY `offset` DESC")
-    abstract fun listByStatusDesc(status: BitmarkData.Status): Maybe<List<BitmarkData>>
+    @Query("SELECT * FROM Bitmark WHERE owner = :owner AND status == :status ORDER BY `offset` DESC")
+    abstract fun listByOwnerStatusDesc(
+        owner: String,
+        status: BitmarkData.Status
+    ): Maybe<List<BitmarkData>>
+
+    @Query("SELECT * FROM Bitmark WHERE owner = :owner AND status IN (:status) ORDER BY `offset` DESC")
+    abstract fun listByOwnerStatusDesc(
+        owner: String,
+        status: List<BitmarkData.Status>
+    ): Maybe<List<BitmarkData>>
 
     @Query("SELECT MAX(`offset`) FROM Bitmark")
     abstract fun maxOffset(): Single<Long>
@@ -34,8 +44,8 @@ abstract class BitmarkDao {
     @Query("SELECT COUNT(*) FROM Bitmark")
     abstract fun count(): Single<Long>
 
-    @Query("SELECT COUNT(*) FROM Bitmark WHERE status != 'to_be_deleted'")
-    abstract fun countUsableBitmarks(): Single<Long>
+    @Query("SELECT COUNT(*) FROM Bitmark WHERE owner = :owner AND status NOT IN ('to_be_deleted', 'to_be_transferred')")
+    abstract fun countUsableBitmarks(owner: String): Single<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun save(bitmarks: List<BitmarkData>): Completable

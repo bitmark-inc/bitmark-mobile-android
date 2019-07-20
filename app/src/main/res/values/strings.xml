@@ -63,5 +63,9 @@
   <string name="please_sign_to_transfer_bitmark">Please sign to transfer bitmark</string>
   <string name="the_asset_is_not_available">The asset is not available to download.</string>
   <string name="could_not_download_asset">Could not download asset. Please try again later.</string>
-
+  <string name="transfer_bitmark">Transfer Bitmark</string>
+  <string name="recipient_bitmark_account_number">RECIPIENT BITMARK ACCOUNT NUMBER</string>
+  <string name="enter_the_bitmark_account_number">Enter the Bitmark account number to which you would like to transfer ownership of this property.</string>
+  <string name="could_not_transfer">Could not transfer bitmark. Please try again later</string>
+  <string name="invalid_bitmark_account_number">Invalid bitmark account number</string>
 </resources>

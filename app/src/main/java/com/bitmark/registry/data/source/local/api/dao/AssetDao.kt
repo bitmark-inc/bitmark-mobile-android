@@ -24,4 +24,7 @@ abstract class AssetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun save(assets: List<AssetData>): Completable
 
+    @Query("DELETE FROM Asset WHERE id = :id")
+    abstract fun delete(id: String): Completable
+
 }

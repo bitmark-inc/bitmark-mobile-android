@@ -65,7 +65,15 @@ class YourPropertiesViewModel(
         refreshedBitmarksLiveData.asLiveData()
 
     internal fun listBitmark() =
-        listBitmarksLiveData.add(rxLiveDataTransformer.maybe(listBitmarkStream()))
+        listBitmarksLiveData.add(
+            rxLiveDataTransformer.maybe(
+                accountRepo.getAccountInfo().map { p -> p.first }.flatMapMaybe { accountNumber ->
+                    listBitmarkStream(
+                        accountNumber
+                    )
+                }
+            )
+        )
 
     internal fun markSeen(bitmarkId: String) = markSeenLiveData.add(
         rxLiveDataTransformer.single(
@@ -73,7 +81,7 @@ class YourPropertiesViewModel(
         )
     )
 
-    private fun listBitmarkStream(): Maybe<List<BitmarkModelView>> {
+    private fun listBitmarkStream(accountNumber: String): Maybe<List<BitmarkModelView>> {
 
         val offsetStream =
             if (currentOffset == -1L) bitmarkRepo.maxStoredBitmarkOffset() else Single.just(
@@ -81,7 +89,7 @@ class YourPropertiesViewModel(
             )
 
         val pendingBitmarksStream =
-            bitmarkRepo.listStoredPendingBitmarks().toSingle()
+            bitmarkRepo.listStoredPendingBitmarks(accountNumber).toSingle()
 
         return Single.zip(
             pendingBitmarksStream,
