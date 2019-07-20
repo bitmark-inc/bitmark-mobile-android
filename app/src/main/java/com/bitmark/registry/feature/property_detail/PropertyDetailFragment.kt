@@ -333,8 +333,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 }
 
                 res.isLoading() -> {
-                    val message = String.format(
-                        "%s \"%s\"...",
+                    val message = "%s \"%s\"...".format(
                         getString(R.string.downloading),
                         bitmark.name ?: ""
                     )

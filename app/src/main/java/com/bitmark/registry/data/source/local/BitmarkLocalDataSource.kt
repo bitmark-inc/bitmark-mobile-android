@@ -169,8 +169,7 @@ class BitmarkLocalDataSource @Inject constructor(
         accountNumber: String,
         assetId: String
     ): Single<Pair<String, File?>> {
-        val path = String.format(
-            "%s/%s/assets/%s/downloaded",
+        val path = "%s/%s/assets/%s/downloaded".format(
             fileStorageApi.filesDir(),
             accountNumber,
             assetId
@@ -189,8 +188,7 @@ class BitmarkLocalDataSource @Inject constructor(
         fileName: String,
         content: ByteArray
     ): Single<File> = fileStorageApi.rxSingle { fileGateway ->
-        val path = String.format(
-            "%s/%s/assets/%s/downloaded",
+        val path = "%s/%s/assets/%s/downloaded".format(
             fileStorageApi.filesDir(),
             accountNumber,
             assetId
@@ -207,8 +205,7 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun deleteAssetFile(accountNumber: String, assetId: String) =
         fileStorageApi.rxCompletable { fileGateway ->
-            val path = String.format(
-                "%s/%s/assets/%s",
+            val path = "%s/%s/assets/%s".format(
                 fileStorageApi.filesDir(),
                 accountNumber,
                 assetId
@@ -222,8 +219,7 @@ class BitmarkLocalDataSource @Inject constructor(
         fileName: String,
         content: ByteArray
     ): Single<File> = fileStorageApi.rxSingle { fileGateway ->
-        val path = String.format(
-            "%s/%s/assets/%s/encrypted",
+        val path = "%s/%s/assets/%s/encrypted".format(
             fileStorageApi.filesDir(),
             accountNumber,
             assetId
@@ -233,8 +229,7 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun deleteEncryptedAssetFile(accountNumber: String, assetId: String) =
         fileStorageApi.rxCompletable { fileGateway ->
-            val path = String.format(
-                "%s/%s/assets/%s/encrypted",
+            val path = "%s/%s/assets/%s/encrypted".format(
                 fileStorageApi.filesDir(),
                 accountNumber,
                 assetId

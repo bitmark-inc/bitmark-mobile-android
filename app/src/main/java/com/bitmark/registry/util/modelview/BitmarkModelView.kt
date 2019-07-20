@@ -155,8 +155,7 @@ class BitmarkModelView constructor(
 
     fun shortIssuer(): String {
         val len = issuer.length
-        return String.format(
-            "[%s...%s]",
+        return "[%s...%s]".format(
             issuer.substring(0, 4),
             issuer.substring(len - 4, len)
         )

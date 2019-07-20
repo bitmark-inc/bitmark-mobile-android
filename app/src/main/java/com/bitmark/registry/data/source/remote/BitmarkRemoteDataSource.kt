@@ -198,8 +198,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                 Single.error<DownloadAssetFileResponse>(
                     HttpException(
                         code,
-                        String.format(
-                            "could not download file. the message is: %s",
+                        "could not download file. the message is: %s".format(
                             rawBodyString
                         )
                     )
@@ -273,8 +272,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                     Single.error<AssetFileInfoResponse>(
                         HttpException(
                             code,
-                            String.format(
-                                "could not check asset file. the message is: %s",
+                            "could not check asset file. the message is: %s".format(
                                 rawBodyString
                             )
                         )

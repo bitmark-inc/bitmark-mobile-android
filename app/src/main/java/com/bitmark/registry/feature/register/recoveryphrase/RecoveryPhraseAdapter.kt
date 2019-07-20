@@ -151,7 +151,7 @@ class RecoveryPhraseAdapter(
 
         fun bind(item: Item) {
             this.item = item
-            itemView.tvNo.text = String.format("%d.", item.sequence)
+            itemView.tvNo.text = "%d.".format(item.sequence)
             itemView.edtWord.setText(item.word)
         }
     }

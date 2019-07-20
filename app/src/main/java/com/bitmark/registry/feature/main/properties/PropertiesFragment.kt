@@ -81,8 +81,7 @@ class PropertiesFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     val count = res.data()
-                    val displayCount = String.format(
-                        "%s(%s)",
+                    val displayCount = "%s(%s)".format(
                         getString(R.string.yours).toUpperCase(),
                         if (count!! <= 99) count.toString() else "99+"
                     )

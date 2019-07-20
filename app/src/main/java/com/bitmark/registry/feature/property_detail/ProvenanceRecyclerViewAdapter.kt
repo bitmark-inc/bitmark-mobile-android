@@ -108,8 +108,7 @@ class ProvenanceRecyclerViewAdapter :
     ) {
         fun getShortenOwner(): String {
             val len = owner.length
-            return String.format(
-                "[%s...%s]",
+            return "[%s...%s]".format(
                 owner.substring(0, 4),
                 owner.substring(len - 4, len)
             )
