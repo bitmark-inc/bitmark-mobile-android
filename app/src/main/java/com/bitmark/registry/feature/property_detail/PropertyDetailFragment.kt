@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
-import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
@@ -30,8 +29,6 @@ import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.ProgressAppCompatDialogFragment
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
-import com.bitmark.sdk.authentication.error.AuthenticationException
-import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.fragment_property_detail.*
 import kotlinx.android.synthetic.main.layout_property_menu.view.*
@@ -363,7 +360,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
     }
 
     private fun deleteBitmark() {
-        loadAccount(getString(R.string.please_sign_to_delete_bitmark)) { account ->
+        loadAccount(
+            bitmark.accountNumber,
+            getString(R.string.please_sign_to_delete_bitmark)
+        ) { account ->
             val zeroAddr = Address.fromAccountNumber(BuildConfig.ZERO_ADDRESS)
             val transferParams = TransferParams(zeroAddr, bitmark.headId)
             transferParams.sign(account.keyPair)
@@ -377,7 +377,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private fun downloadAssetFile() {
         if (bitmark.previousOwner == null) return
-        loadAccount(getString(R.string.please_sign_to_download_asset)) { account ->
+        loadAccount(
+            bitmark.accountNumber,
+            getString(R.string.please_sign_to_download_asset)
+        ) { account ->
             viewModel.downloadAssetFile(
                 bitmark.assetId,
                 bitmark.previousOwner!!,
@@ -401,60 +404,27 @@ class PropertyDetailFragment : BaseSupportFragment() {
         navigator.startActivity(Intent.createChooser(intent, assetName))
     }
 
-    private fun loadAccount(message: String, action: (Account) -> Unit) {
-        val accountNumber = bitmark.accountNumber
+    private fun loadAccount(
+        accountNumber: String,
+        message: String,
+        action: (Account) -> Unit
+    ) {
         val spec =
             KeyAuthenticationSpec.Builder(context).setKeyAlias(accountNumber)
                 .setAuthenticationDescription(message)
                 .build()
-        Account.loadFromKeyStore(
-            activity,
+
+        activity?.loadAccount(
             accountNumber,
             spec,
-            object : Callback1<Account> {
-                override fun onSuccess(account: Account?) {
-                    if (account == null) return
-                    action.invoke(account)
-                }
-
-                override fun onError(throwable: Throwable?) {
-                    when (throwable) {
-
-                        // authentication error
-                        is AuthenticationException -> {
-                            // do nothing
-                        }
-
-                        // missing security requirement
-                        is AuthenticationRequiredException -> {
-                            when (throwable.type) {
-
-                                // did not set up fingerprint/biometric
-                                AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.fingerprint_required
-                                    ) { gotoSecuritySetting() }
-                                }
-
-                                // did not set up pass code
-                                else -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.passcode_pin_required
-                                    ) { gotoSecuritySetting() }
-                                }
-                            }
-                        }
-                        else -> {
-                            dialogController.alert(
-                                R.string.error,
-                                R.string.unexpected_error
-                            )
-                        }
-                    }
-                }
-
+            dialogController,
+            successAction = action,
+            setupRequiredAction = { gotoSecuritySetting() },
+            unknownErrorAction = {
+                dialogController.alert(
+                    R.string.error,
+                    R.string.unexpected_error
+                )
             })
     }
 

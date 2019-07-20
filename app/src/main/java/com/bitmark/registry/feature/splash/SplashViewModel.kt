@@ -51,7 +51,7 @@ class SplashViewModel(
                     bitmarkRepo.cleanupBitmark(
                         accountNumber
                     )
-                }
+                }.onErrorResumeNext { Completable.complete() }
 
 
         prepareDataLiveData.add(

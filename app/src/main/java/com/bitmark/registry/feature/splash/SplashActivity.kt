@@ -6,7 +6,6 @@ import android.os.Handler
 import android.provider.Settings
 import android.text.TextUtils
 import androidx.lifecycle.Observer
-import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
@@ -19,13 +18,9 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.register.RegisterActivity
 import com.bitmark.registry.util.extension.gone
+import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.visible
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
-import com.bitmark.sdk.authentication.error.AuthenticationException
-import com.bitmark.sdk.authentication.error.AuthenticationException.Type.CANCELLED
-import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
-import com.bitmark.sdk.authentication.error.AuthenticationRequiredException.BIOMETRIC
-import com.bitmark.sdk.authentication.error.AuthenticationRequiredException.FINGERPRINT
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.activity_splash.*
 import javax.inject.Inject
@@ -138,68 +133,24 @@ class SplashActivity : BaseAppCompatActivity() {
         val spec =
             KeyAuthenticationSpec.Builder(this).setKeyAlias(accountNumber)
                 .setAuthenticationRequired(authenticateRequired).build()
-        Account.loadFromKeyStore(
-            this,
+        loadAccount(
             accountNumber,
             spec,
-            object : Callback1<Account> {
-                override fun onSuccess(account: Account?) {
-                    action.invoke(account!!)
-                }
-
-                override fun onError(throwable: Throwable?) {
-                    when (throwable) {
-
-                        // authentication error
-                        is AuthenticationException -> {
-                            when (throwable.type) {
-                                // action cancel authentication
-                                CANCELLED -> {
-                                    dialogController.confirm(
-                                        R.string.error,
-                                        R.string.authentication_required,
-                                        positiveEvent = {
-                                            viewModel.getExistingAccount()
-                                        },
-                                        negativeEvent = {
-                                            navigator.finishActivity()
-                                        })
-                                }
-
-                                else -> {
-                                    // do nothing
-                                }
-                            }
-                        }
-
-                        // missing security requirement
-                        is AuthenticationRequiredException -> {
-                            when (throwable.type) {
-
-                                // did not set up fingerprint/biometric
-                                FINGERPRINT, BIOMETRIC -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.fingerprint_required
-                                    ) { gotoSecuritySetting() }
-                                }
-
-                                // did not set up pass code
-                                else -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.passcode_pin_required
-                                    ) { gotoSecuritySetting() }
-                                }
-                            }
-                        }
-                        else -> {
-                            exitWithAlert(throwable?.message!!)
-                        }
-                    }
-                }
-
-            })
+            dialogController,
+            successAction = action,
+            canceledAction = {
+                dialogController.confirm(
+                    R.string.error,
+                    R.string.authentication_required,
+                    positiveEvent = {
+                        viewModel.getExistingAccount()
+                    },
+                    negativeEvent = {
+                        navigator.finishActivity()
+                    })
+            },
+            setupRequiredAction = { gotoSecuritySetting() },
+            unknownErrorAction = { e -> exitWithAlert(e?.message!!) })
     }
 
 

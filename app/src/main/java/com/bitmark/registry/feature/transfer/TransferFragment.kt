@@ -7,7 +7,6 @@ import android.provider.Settings
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
-import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
@@ -16,8 +15,6 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
-import com.bitmark.sdk.authentication.error.AuthenticationException
-import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.fragment_transfer.*
 import javax.inject.Inject
@@ -123,7 +120,10 @@ class TransferFragment : BaseSupportFragment() {
     }
 
     private fun transfer(bitmark: BitmarkModelView, recipient: String) {
-        loadAccount(getString(R.string.please_sign_to_transfer_bitmark)) { account ->
+        loadAccount(
+            bitmark.accountNumber,
+            getString(R.string.please_sign_to_transfer_bitmark)
+        ) { account ->
             val encKeyPair = account.encryptionKey
             val params = TransferParams(
                 Address.fromAccountNumber(recipient),
@@ -140,59 +140,25 @@ class TransferFragment : BaseSupportFragment() {
         }
     }
 
-    private fun loadAccount(message: String, action: (Account) -> Unit) {
-        val accountNumber = bitmark.accountNumber
+    private fun loadAccount(
+        accountNumber: String,
+        message: String,
+        action: (Account) -> Unit
+    ) {
         val spec =
             KeyAuthenticationSpec.Builder(context).setKeyAlias(accountNumber)
                 .setAuthenticationDescription(message)
                 .build()
-        Account.loadFromKeyStore(
-            activity,
-            accountNumber,
+        activity?.loadAccount(accountNumber,
             spec,
-            object : Callback1<Account> {
-                override fun onSuccess(account: Account?) {
-                    if (account == null) return
-                    action.invoke(account)
-                }
-
-                override fun onError(throwable: Throwable?) {
-                    when (throwable) {
-
-                        is AuthenticationException -> {
-                            // do nothing
-                        }
-
-                        // missing security requirement
-                        is AuthenticationRequiredException -> {
-                            when (throwable.type) {
-
-                                // did not set up fingerprint/biometric
-                                AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.fingerprint_required
-                                    ) { gotoSecuritySetting() }
-                                }
-
-                                // did not set up pass code
-                                else -> {
-                                    dialogController.alert(
-                                        R.string.error,
-                                        R.string.passcode_pin_required
-                                    ) { gotoSecuritySetting() }
-                                }
-                            }
-                        }
-                        else -> {
-                            dialogController.alert(
-                                R.string.error,
-                                R.string.unexpected_error
-                            )
-                        }
-                    }
-                }
-
+            dialogController,
+            successAction = action,
+            setupRequiredAction = { gotoSecuritySetting() },
+            unknownErrorAction = {
+                dialogController.alert(
+                    R.string.error,
+                    R.string.unexpected_error
+                )
             })
     }
 

@@ -12,6 +12,13 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.StringRes
+import com.bitmark.apiservice.utils.callback.Callback1
+import com.bitmark.registry.R
+import com.bitmark.registry.feature.DialogController
+import com.bitmark.sdk.authentication.KeyAuthenticationSpec
+import com.bitmark.sdk.authentication.error.AuthenticationException
+import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
+import com.bitmark.sdk.features.Account
 
 
 /**
@@ -95,6 +102,71 @@ fun Activity.hideKeyBoard() {
         inputManager?.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
+}
+
+fun Activity.loadAccount(
+    accountNumber: String,
+    spec: KeyAuthenticationSpec,
+    dialogController: DialogController,
+    successAction: (Account) -> Unit,
+    canceledAction: () -> Unit = {},
+    setupRequiredAction: () -> Unit = {},
+    unknownErrorAction: (Throwable?) -> Unit = {}
+) {
+    Account.loadFromKeyStore(
+        this,
+        accountNumber,
+        spec,
+        object : Callback1<Account> {
+            override fun onSuccess(acc: Account?) {
+                successAction.invoke(acc!!)
+            }
+
+            override fun onError(throwable: Throwable?) {
+                when (throwable) {
+
+                    // authentication error
+                    is AuthenticationException -> {
+                        when (throwable.type) {
+                            // action cancel authentication
+                            AuthenticationException.Type.CANCELLED -> {
+                                canceledAction.invoke()
+                            }
+
+                            else -> {
+                                // do nothing
+                            }
+                        }
+                    }
+
+                    // missing security requirement
+                    is AuthenticationRequiredException -> {
+                        when (throwable.type) {
+
+                            // did not set up fingerprint/biometric
+                            AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
+                                dialogController.alert(
+                                    R.string.error,
+                                    R.string.fingerprint_required
+                                ) { setupRequiredAction.invoke() }
+                            }
+
+                            // did not set up pass code
+                            else -> {
+                                dialogController.alert(
+                                    R.string.error,
+                                    R.string.passcode_pin_required
+                                ) { setupRequiredAction.invoke() }
+                            }
+                        }
+                    }
+                    else -> {
+                        unknownErrorAction.invoke(throwable)
+                    }
+                }
+            }
+
+        })
 }
 
 fun Context.copyToClipboard(text: String) {
