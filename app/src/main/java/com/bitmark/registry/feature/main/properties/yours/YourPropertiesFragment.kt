@@ -108,16 +108,10 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
-                        tvWelcome.gone()
-                        tvIntroduce.gone()
-                        btnCreateProperty.gone()
-                        rvProperties.visible()
+                        hideGreeting()
                         adapter.add(data)
                     } else if (adapter.isEmpty()) {
-                        tvWelcome.visible()
-                        tvIntroduce.visible()
-                        btnCreateProperty.visible()
-                        rvProperties.gone()
+                        showGreeting()
                     }
                 }
 
@@ -169,6 +163,9 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
         viewModel.deletedBitmarkLiveData.observe(this, Observer { bitmarkIds ->
             adapter.remove(bitmarkIds)
+            if (adapter.isEmpty()) {
+                showGreeting()
+            }
         })
 
         viewModel.refreshedBitmarkLiveData().observe(this, Observer { res ->
@@ -183,6 +180,20 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 }
             }
         })
+    }
+
+    private fun showGreeting() {
+        tvWelcome.visible()
+        tvIntroduce.visible()
+        btnCreateProperty.visible()
+        rvProperties.gone()
+    }
+
+    private fun hideGreeting() {
+        tvWelcome.gone()
+        tvIntroduce.gone()
+        btnCreateProperty.gone()
+        rvProperties.visible()
     }
 
     override fun refresh() {

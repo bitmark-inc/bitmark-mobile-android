@@ -2,6 +2,7 @@ package com.bitmark.registry.feature.transfer
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
@@ -12,7 +13,6 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
@@ -96,7 +96,9 @@ class TransferFragment : BaseSupportFragment() {
                 res.isSuccess() -> {
                     blocked = false
                     progressBar.gone()
-                    navigator.anim(RIGHT_LEFT).finishActivity()
+                    Handler().postDelayed({
+                        navigator.anim(Navigator.RIGHT_LEFT).finishActivity()
+                    }, 200)
                 }
 
                 res.isError() -> {
