@@ -2,7 +2,7 @@ package com.bitmark.registry.feature.property_detail
 
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
@@ -20,7 +20,7 @@ import dagger.Provides
 class PropertyDetailModule {
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideViewModel(
         bitmarkRepo: BitmarkRepository,
         accountRepo: AccountRepository,
@@ -28,18 +28,18 @@ class PropertyDetailModule {
     ) = PropertyDetailViewModel(bitmarkRepo, accountRepo, rxLiveDataTransformer)
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideNavigator(
-        activity: PropertyDetailActivity
-    ): Navigator<PropertyDetailActivity> {
-        return Navigator(activity)
+        fragment: PropertyDetailFragment
+    ): Navigator<PropertyDetailFragment> {
+        return Navigator(fragment)
     }
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideDialogController(
-        activity: PropertyDetailActivity
+        fragment: PropertyDetailFragment
     ): DialogController {
-        return DialogController(activity)
+        return DialogController(fragment.activity!!)
     }
 }

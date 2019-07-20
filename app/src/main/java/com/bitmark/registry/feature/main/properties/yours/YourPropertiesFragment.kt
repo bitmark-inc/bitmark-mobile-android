@@ -12,7 +12,7 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
+import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -70,10 +70,10 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
         adapter.setOnItemClickListener { bitmark ->
             viewModel.markSeen(bitmark.id)
-            val bundle = PropertyDetailActivity.getBundle(bitmark)
+            val bundle = PropertyDetailContainerActivity.getBundle(bitmark)
             navigator.anim(Navigator.RIGHT_LEFT)
                 .startActivity(
-                    PropertyDetailActivity::class.java,
+                    PropertyDetailContainerActivity::class.java,
                     bundle
                 )
         }

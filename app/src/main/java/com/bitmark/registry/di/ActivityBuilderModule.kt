@@ -2,8 +2,8 @@ package com.bitmark.registry.di
 
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.main.MainModule
-import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
-import com.bitmark.registry.feature.property_detail.PropertyDetailModule
+import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
+import com.bitmark.registry.feature.property_detail.PropertyDetailContainerModule
 import com.bitmark.registry.feature.register.RegisterActivity
 import com.bitmark.registry.feature.register.RegisterModule
 import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
@@ -45,7 +45,7 @@ abstract class ActivityBuilderModule {
     @ActivityScope
     internal abstract fun bindMainActivity(): MainActivity
 
-    @ContributesAndroidInjector(modules = [PropertyDetailModule::class])
+    @ContributesAndroidInjector(modules = [PropertyDetailContainerModule::class])
     @ActivityScope
-    internal abstract fun bindPropertyDetailActivity(): PropertyDetailActivity
+    internal abstract fun bindPropertyDetailContainerActivity(): PropertyDetailContainerActivity
 }

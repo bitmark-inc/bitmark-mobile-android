@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
@@ -19,7 +20,7 @@ import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseAppCompatActivity
+import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
@@ -43,16 +44,18 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class PropertyDetailActivity : BaseAppCompatActivity() {
+class PropertyDetailFragment : BaseSupportFragment() {
 
     companion object {
 
         private const val BITMARK = "bitmark"
 
-        fun getBundle(bitmark: BitmarkModelView): Bundle {
+        fun newInstance(bitmark: BitmarkModelView): PropertyDetailFragment {
             val bundle = Bundle()
             bundle.putParcelable(BITMARK, bitmark)
-            return bundle
+            val fragment = PropertyDetailFragment()
+            fragment.arguments = bundle
+            return fragment
         }
     }
 
@@ -62,7 +65,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
     lateinit var viewModel: PropertyDetailViewModel
 
     @Inject
-    lateinit var navigator: Navigator<PropertyDetailActivity>
+    lateinit var navigator: Navigator<PropertyDetailFragment>
 
     @Inject
     lateinit var dialogController: DialogController
@@ -77,8 +80,8 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     override fun viewModel(): BaseViewModel? = viewModel
 
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         viewModel.getProvenance(bitmark.id)
         viewModel.syncProvenance(bitmark.id)
     }
@@ -86,8 +89,8 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        val bundle = intent.extras
-        bitmark = bundle?.getParcelable(BITMARK)!!
+        bitmark = arguments?.getParcelable(BITMARK)!!
+        val context = this.context!!
 
         showAssetType(bitmark.assetType)
 
@@ -100,14 +103,14 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
         // display with corresponding status
         val color = if (bitmark.isSettled()) ContextCompat.getColor(
-            this,
+            context,
             android.R.color.black
-        ) else ContextCompat.getColor(this, R.color.silver)
+        ) else ContextCompat.getColor(context, R.color.silver)
         tvAssetName.setTextColor(color)
         tvIssuedOn.setTextColor(color)
 
         val rvMetadataLayoutManager =
-            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         val metadataAdapter =
             MetadataRecyclerViewAdapter(color)
         rvMetadata.layoutManager = rvMetadataLayoutManager
@@ -115,7 +118,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         metadataAdapter.set(bitmark.metadata ?: mapOf())
 
         val rvProvenanceLayoutManager =
-            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         rvProvenance.layoutManager = rvProvenanceLayoutManager
         rvProvenance.adapter = provenanceAdapter
 
@@ -146,7 +149,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     private fun showPopupMenu(bitmark: BitmarkModelView) {
         val inflater =
-            applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.layout_property_menu, null)
         val popupWindow = PopupWindow(
             view,
@@ -189,7 +192,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             item1.setOnClickListener {
                 // copy bitmark
                 tvSubItem1.visible()
-                copyToClipboard(bitmark.id)
+                context.copyToClipboard(bitmark.id)
                 Handler().postDelayed({
                     tvSubItem1.invisible()
                     popupWindow.dismiss()
@@ -333,7 +336,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     )
                     progressDialog =
                         ProgressAppCompatDialogFragment(
-                            this,
+                            context!!,
                             title = getString(R.string.preparing_to_export),
                             message = message
                         )
@@ -380,7 +383,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     private fun shareFile(assetName: String, file: File) {
         val uri = FileProvider.getUriForFile(
-            this,
+            context!!,
             BuildConfig.APPLICATION_ID + ".file_provider",
             file
         )
@@ -395,11 +398,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
     private fun loadAccount(message: String, action: (Account) -> Unit) {
         val accountNumber = bitmark.accountNumber
         val spec =
-            KeyAuthenticationSpec.Builder(this).setKeyAlias(accountNumber)
+            KeyAuthenticationSpec.Builder(context).setKeyAlias(accountNumber)
                 .setAuthenticationDescription(message)
                 .build()
         Account.loadFromKeyStore(
-            this,
+            activity,
             accountNumber,
             spec,
             object : Callback1<Account> {
@@ -465,10 +468,5 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
     private fun gotoSecuritySetting() {
         val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
         navigator.startActivity(intent)
-    }
-
-    override fun onBackPressed() {
-        navigator.anim(RIGHT_LEFT).finishActivity()
-        super.onBackPressed()
     }
 }

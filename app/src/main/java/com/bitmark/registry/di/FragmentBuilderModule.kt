@@ -8,6 +8,8 @@ import com.bitmark.registry.feature.main.properties.yours.YourPropertiesFragment
 import com.bitmark.registry.feature.main.properties.yours.YourPropertiesModule
 import com.bitmark.registry.feature.main.transactions.TransactionsFragment
 import com.bitmark.registry.feature.main.transactions.TransactionsModule
+import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
+import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -36,4 +38,8 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [YourPropertiesModule::class])
     @FragmentScope
     internal abstract fun bindYourPropertiesFragment(): YourPropertiesFragment
+
+    @ContributesAndroidInjector(modules = [PropertyDetailModule::class])
+    @FragmentScope
+    internal abstract fun bindPropertyDetailFragment(): PropertyDetailFragment
 }
