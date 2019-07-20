@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.splash
 
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
@@ -22,9 +23,10 @@ class SplashModule {
     @ActivityScope
     fun provideViewModel(
         accountRepo: AccountRepository,
+        bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
     ): SplashViewModel {
-        return SplashViewModel(accountRepo, rxLiveDataTransformer)
+        return SplashViewModel(accountRepo, bitmarkRepo, rxLiveDataTransformer)
     }
 
     @Provides

@@ -1,9 +1,11 @@
 package com.bitmark.registry.feature.splash
 
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
+import io.reactivex.Completable
 
 
 /**
@@ -14,13 +16,15 @@ import com.bitmark.registry.util.livedata.RxLiveDataTransformer
  */
 class SplashViewModel(
     private val accountRepo: AccountRepository,
+    private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) :
     BaseViewModel() {
 
     private val getExistingAccountLiveData =
         CompositeLiveData<Pair<String, Boolean>>()
-    private val registerJwtLiveData = CompositeLiveData<String>()
+
+    private val prepareDataLiveData = CompositeLiveData<Any>()
 
     internal fun getExistingAccount() {
         getExistingAccountLiveData.add(
@@ -30,13 +34,33 @@ class SplashViewModel(
         )
     }
 
-    internal fun registerJwt(timestamp: String, signature: String, requester: String) {
-        registerJwtLiveData.add(
-            rxLiveDataTransformer.single(
-                accountRepo.registerMobileServerJwt(
-                    timestamp,
-                    signature,
-                    requester
+    internal fun prepareData(
+        timestamp: String,
+        signature: String,
+        requester: String
+    ) {
+        val registerJwtStream = accountRepo.registerMobileServerJwt(
+            timestamp,
+            signature,
+            requester
+        ).ignoreElement()
+
+        val cleanupBitmarkStream =
+            accountRepo.getAccountInfo().map { p -> p.first }
+                .flatMapCompletable { accountNumber ->
+                    bitmarkRepo.cleanupBitmark(
+                        accountNumber
+                    )
+                }
+
+
+        prepareDataLiveData.add(
+            rxLiveDataTransformer.completable(
+                Completable.mergeDelayError(
+                    listOf(
+                        registerJwtStream,
+                        cleanupBitmarkStream
+                    )
                 )
             )
         )
@@ -45,7 +69,7 @@ class SplashViewModel(
     internal fun getExistingAccountLiveData() =
         getExistingAccountLiveData.asLiveData()
 
-    internal fun registerJwtLiveData() = registerJwtLiveData.asLiveData()
+    internal fun prepareDataLiveData() = prepareDataLiveData.asLiveData()
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

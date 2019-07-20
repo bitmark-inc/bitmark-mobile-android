@@ -86,7 +86,7 @@ class SplashActivity : BaseAppCompatActivity() {
                                     account.keyPair.privateKey().toBytes()
                                 )
                             )
-                            viewModel.registerJwt(
+                            viewModel.prepareData(
                                 timestamp,
                                 signature,
                                 accountNumber
@@ -109,7 +109,7 @@ class SplashActivity : BaseAppCompatActivity() {
             }
         })
 
-        viewModel.registerJwtLiveData().observe(this, Observer { res ->
+        viewModel.prepareDataLiveData().observe(this, Observer { res ->
             when {
                 res.isLoading() -> progressBar.visible()
                 res.isSuccess() -> {

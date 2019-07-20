@@ -118,9 +118,9 @@ class BitmarkRepository(
 
     // clean up bitmark is deleted from server side but not be reflected in local db
     // also update bitmarks to latest state if the previous delete action could not be sent to server
-    private fun cleanupBitmark(owner: String): Completable =
+    fun cleanupBitmark(accountNumber: String): Completable =
         localDataSource.listBitmarksByOwnerStatus(
-            owner,
+            accountNumber,
             listOf(TO_BE_DELETED, TO_BE_TRANSFERRED)
         ).flatMapCompletable { bitmarks ->
             if (bitmarks.isNullOrEmpty()) Completable.complete()
@@ -128,31 +128,36 @@ class BitmarkRepository(
                 val bitmarkIds = bitmarks.map { b -> b.id }
 
                 remoteDataSource.listBitmarks(bitmarkIds = bitmarkIds)
+                    .observeOn(Schedulers.io())
                     .flatMapCompletable { p ->
 
                         // the bitmarks're been updated in local but not be reflected in server
                         val usableBitmarks =
-                            p.first.filter { b -> b.owner == owner }
+                            p.first.filter { b -> b.owner == accountNumber }
 
                         // the bitmarks're been deleted or transferred in server but not be reflected to local
-                        val unusableBitmarkIds =
-                            p.first.filter { b -> b.owner != owner }
-                                .map { b -> b.id }
+                        val unusableBitmarks =
+                            p.first.filter { b -> b.owner != accountNumber }
 
                         val updateUsableBitmarksStream =
                             if (usableBitmarks.isNullOrEmpty()) Completable.complete() else localDataSource.saveBitmarks(
                                 usableBitmarks
                             )
 
-                        val deleteBitmarksStream =
-                            if (unusableBitmarkIds.isNullOrEmpty()) Completable.complete() else Completable.mergeArray(
-                                localDataSource.deleteTxsByBitmarkIds(
-                                    unusableBitmarkIds
-                                ),
-                                localDataSource.deleteBitmarkByIds(
-                                    unusableBitmarkIds
-                                )
-                            )
+                        val deleteBitmarksStream: Completable =
+                            if (unusableBitmarks.isNullOrEmpty()) {
+                                Completable.complete()
+                            } else {
+                                val deleteBitmarkStreams =
+                                    mutableListOf<Completable>()
+                                unusableBitmarks.forEach { b ->
+                                    deleteBitmarkStreams.add(
+                                        deleteStoredBitmark(b.id, b.assetId)
+                                    )
+                                }
+
+                                Completable.mergeDelayError(deleteBitmarkStreams)
+                            }
 
                         Completable.mergeArray(
                             updateUsableBitmarksStream,
