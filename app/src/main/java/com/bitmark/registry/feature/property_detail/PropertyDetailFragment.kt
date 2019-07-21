@@ -28,7 +28,7 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.transfer.TransferFragment
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
-import com.bitmark.registry.util.view.ProgressAppCompatDialogFragment
+import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.fragment_property_detail.*
@@ -73,7 +73,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private val provenanceAdapter = ProvenanceRecyclerViewAdapter()
 
-    private lateinit var progressDialog: ProgressAppCompatDialogFragment
+    private lateinit var progressDialog: ProgressAppCompatDialog
 
     override fun layoutRes(): Int = R.layout.fragment_property_detail
 
@@ -339,7 +339,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                         bitmark.name ?: ""
                     )
                     progressDialog =
-                        ProgressAppCompatDialogFragment(
+                        ProgressAppCompatDialog(
                             context!!,
                             title = getString(R.string.preparing_to_export),
                             message = message

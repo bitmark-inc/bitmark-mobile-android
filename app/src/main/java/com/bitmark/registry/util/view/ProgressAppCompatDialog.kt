@@ -11,12 +11,12 @@ import kotlinx.android.synthetic.main.layout_progress_dialog.*
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class ProgressAppCompatDialogFragment(
+class ProgressAppCompatDialog(
     context: Context,
     private val title: String? = "",
     private val message: String? = ""
 ) :
-    BaseAppCompatDialogFragment(context) {
+    BaseAppCompatDialog(context) {
 
     override fun layoutRes(): Int = R.layout.layout_progress_dialog
 

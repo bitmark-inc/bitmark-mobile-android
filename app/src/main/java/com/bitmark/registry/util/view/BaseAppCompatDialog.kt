@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatDialog
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-abstract class BaseAppCompatDialogFragment(context: Context) :
+abstract class BaseAppCompatDialog(context: Context) :
     AppCompatDialog(
         context,
         android.R.style.Theme_Translucent_NoTitleBar_Fullscreen

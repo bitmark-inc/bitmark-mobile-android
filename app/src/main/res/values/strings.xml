@@ -69,5 +69,6 @@
   <string name="could_not_transfer">Could not transfer bitmark. Please try again later</string>
   <string name="invalid_bitmark_account_number">Invalid bitmark account number</string>
   <string name="scan_qr_code">Scan QR Code</string>
+  <string name="please_authorize">Please authorize</string>
 
 </resources>
