@@ -49,7 +49,7 @@
         android:windowSoftInputMode="adjustResize"/>
 
     <activity
-        android:name=".feature.main.scan_qr_code.ScanQrCodeActivity"
+        android:name=".feature.scan_qr_code.ScanQrCodeActivity"
         android:screenOrientation="portrait"
         android:stateNotNeeded="true"
         tools:replace="android:screenOrientation"/>

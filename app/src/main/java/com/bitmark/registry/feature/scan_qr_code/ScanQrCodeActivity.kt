@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.main.scan_qr_code
+package com.bitmark.registry.feature.scan_qr_code
 
 import android.app.Activity
 import android.content.Intent

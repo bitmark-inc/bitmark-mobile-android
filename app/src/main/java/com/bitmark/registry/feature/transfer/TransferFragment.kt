@@ -15,7 +15,7 @@ import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.feature.main.scan_qr_code.ScanQrCodeActivity
+import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
