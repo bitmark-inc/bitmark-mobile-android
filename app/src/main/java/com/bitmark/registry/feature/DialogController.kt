@@ -22,6 +22,20 @@ class DialogController(private val activity: Activity) {
 
     fun isShowing() = showingDialog != null
 
+    fun show(dialog: AppCompatDialog) {
+        if (isShowing() && dialog != showingDialog)
+            queue.add(dialog)
+        else dialog.show()
+    }
+
+    fun dismiss(dialog: AppCompatDialog, dismissListener: () -> Unit = {}) {
+        dialog.setOnDismissListener {
+            dismissListener.invoke()
+            showNext()
+        }
+        dialog.dismiss()
+    }
+
     fun alert(
         title: String,
         message: String,
@@ -34,10 +48,7 @@ class DialogController(private val activity: Activity) {
                 .setPositiveButton(text) { d, _ ->
                     d.dismiss()
                     clickEvent.invoke()
-                    if (isQueueing()) {
-                        val dialog = queue.first
-                        dialog.show()
-                    }
+                    showNext()
                 }
                 .setCancelable(cancelable).create()
         if (isShowing())
@@ -55,10 +66,7 @@ class DialogController(private val activity: Activity) {
                 .setPositiveButton(text) { d, _ ->
                     d.dismiss()
                     clickEvent.invoke()
-                    if (isQueueing()) {
-                        val dialog = queue.first
-                        dialog.show()
-                    }
+                    showNext()
                 }
                 .setCancelable(cancelable).create()
         if (isShowing())
@@ -80,10 +88,7 @@ class DialogController(private val activity: Activity) {
                 .setPositiveButton(positive) { d, _ ->
                     d.dismiss()
                     positiveEvent.invoke()
-                    if (isQueueing()) {
-                        val dialog = queue.first
-                        dialog.show()
-                    }
+                    showNext()
                 }.setNegativeButton(negative) { d, _ ->
                     d.dismiss()
                     negativeEvent.invoke()
@@ -112,17 +117,11 @@ class DialogController(private val activity: Activity) {
                 .setPositiveButton(positive) { d, _ ->
                     d.dismiss()
                     positiveEvent.invoke()
-                    if (isQueueing()) {
-                        val dialog = queue.first
-                        dialog.show()
-                    }
+                    showNext()
                 }.setNegativeButton(negative) { d, _ ->
                     d.dismiss()
                     negativeEvent.invoke()
-                    if (isQueueing()) {
-                        val dialog = queue.first
-                        dialog.show()
-                    }
+                    showNext()
                 }
                 .setCancelable(cancelable).create()
         if (isShowing())
@@ -142,4 +141,11 @@ class DialogController(private val activity: Activity) {
     }
 
     private fun isQueueing() = !queue.isEmpty()
+
+    private fun showNext() {
+        if (isQueueing()) {
+            val dialog = queue.first
+            dialog.show()
+        }
+    }
 }

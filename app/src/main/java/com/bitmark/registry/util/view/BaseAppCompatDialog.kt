@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatDialog
 abstract class BaseAppCompatDialog(context: Context) :
     AppCompatDialog(
         context,
-        android.R.style.Theme_Translucent_NoTitleBar_Fullscreen
+        android.R.style.Theme_Translucent_NoTitleBar
     ) {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -21,6 +21,7 @@ import com.bitmark.registry.feature.register.RegisterActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.view.AuthorizationRequiredDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.activity_splash.*
@@ -44,19 +45,30 @@ class SplashActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var navigator: Navigator<SplashActivity>
 
+    private lateinit var authorizationDialog: AuthorizationRequiredDialog
+
     override fun layoutRes(): Int = R.layout.activity_splash
 
     override fun viewModel(): BaseViewModel? = viewModel
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        viewModel.getExistingAccount()
+        process()
     }
 
     override fun onDestroy() {
         dialogController.dismiss()
         super.onDestroy()
     }
+
+    override fun initComponents() {
+        super.initComponents()
+        authorizationDialog = AuthorizationRequiredDialog(this) {
+            process()
+        }
+    }
+
+    private fun process() = viewModel.getExistingAccount()
 
     override fun observe() {
         super.observe()
@@ -138,17 +150,12 @@ class SplashActivity : BaseAppCompatActivity() {
             accountNumber,
             spec,
             dialogController,
-            successAction = action,
+            successAction = { account ->
+                dialogController.dismiss(authorizationDialog)
+                action.invoke(account)
+            },
             canceledAction = {
-                dialogController.confirm(
-                    R.string.error,
-                    R.string.authentication_required,
-                    positiveEvent = {
-                        viewModel.getExistingAccount()
-                    },
-                    negativeEvent = {
-                        navigator.finishActivity()
-                    })
+                dialogController.show(authorizationDialog)
             },
             setupRequiredAction = { gotoSecuritySetting() },
             unknownErrorAction = { e -> exitWithAlert(e?.message!!) })
