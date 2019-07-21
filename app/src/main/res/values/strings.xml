@@ -68,4 +68,6 @@
   <string name="enter_the_bitmark_account_number">Enter the Bitmark account number to which you would like to transfer ownership of this property.</string>
   <string name="could_not_transfer">Could not transfer bitmark. Please try again later</string>
   <string name="invalid_bitmark_account_number">Invalid bitmark account number</string>
+  <string name="scan_qr_code">Scan QR Code</string>
+
 </resources>

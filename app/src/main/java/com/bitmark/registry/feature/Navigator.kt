@@ -47,7 +47,11 @@ class Navigator<T>(host: T) {
     ) {
         val transaction = activity?.supportFragmentManager?.beginTransaction()
         transactionAnim(transaction)
-        transaction?.replace(container, fragment)
+        transaction?.replace(
+            container,
+            fragment,
+            fragment::class.java.simpleName
+        )
         if (addToBackStack) transaction?.addToBackStack(null)
         transaction?.commitAllowingStateLoss()
     }
@@ -59,7 +63,7 @@ class Navigator<T>(host: T) {
         val transaction = activity?.supportFragmentManager?.beginTransaction()
         transactionAnim(transaction)
         if (addToBackStack) transaction?.addToBackStack(null)
-        transaction?.add(container, fragment)
+        transaction?.add(container, fragment, fragment::class.java.simpleName)
         transaction?.commitAllowingStateLoss()
     }
 
@@ -86,6 +90,21 @@ class Navigator<T>(host: T) {
         val intent = Intent(activity, clazz)
         if (null != bundle) intent.putExtras(bundle)
         activity?.startActivity(intent)
+        startTransactionAnim(activity)
+    }
+
+    fun startActivityForResult(
+        clazz: Class<*>,
+        requestCode: Int,
+        bundle: Bundle? = null
+    ) {
+        val intent = Intent(activity, clazz)
+        if (null != bundle) intent.putExtras(bundle)
+        if (fragment != null) {
+            fragment?.startActivityForResult(intent, requestCode)
+        } else {
+            activity?.startActivityForResult(intent, requestCode)
+        }
         startTransactionAnim(activity)
     }
 

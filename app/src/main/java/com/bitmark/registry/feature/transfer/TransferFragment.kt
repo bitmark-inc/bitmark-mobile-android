@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.transfer
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +13,9 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.main.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
@@ -78,7 +82,12 @@ class TransferFragment : BaseSupportFragment() {
 
         }
 
-        ivQrCode.setSafetyOnclickListener { }
+        ivQrCode.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT).startActivityForResult(
+                ScanQrCodeActivity::class.java,
+                ScanQrCodeActivity.REQUEST_CODE
+            )
+        }
 
         ivClear.setOnClickListener { etRecipient.text?.clear() }
 
@@ -94,7 +103,7 @@ class TransferFragment : BaseSupportFragment() {
                     blocked = false
                     progressBar.gone()
                     Handler().postDelayed({
-                        navigator.anim(Navigator.RIGHT_LEFT).finishActivity()
+                        navigator.anim(RIGHT_LEFT).finishActivity()
                     }, 200)
                 }
 
@@ -164,6 +173,30 @@ class TransferFragment : BaseSupportFragment() {
 
     private fun gotoSecuritySetting() {
         val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.startActivity(intent)
+        navigator.anim(BOTTOM_UP).startActivity(intent)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        when (requestCode) {
+            ScanQrCodeActivity.REQUEST_CODE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val text = data?.getStringExtra(ScanQrCodeActivity.RESULT)
+                        ?: return
+                    etRecipient.setText(text)
+                }
+            }
+            else -> {
+                super.onActivityResult(requestCode, resultCode, data)
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigator.popFragment()
     }
 }

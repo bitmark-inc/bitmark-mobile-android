@@ -2,6 +2,8 @@ package com.bitmark.registry.di
 
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.main.MainModule
+import com.bitmark.registry.feature.main.scan_qr_code.ScanQrCodeActivity
+import com.bitmark.registry.feature.main.scan_qr_code.ScanQrCodeModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerModule
 import com.bitmark.registry.feature.register.RegisterActivity
@@ -48,4 +50,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [PropertyDetailContainerModule::class])
     @ActivityScope
     internal abstract fun bindPropertyDetailContainerActivity(): PropertyDetailContainerActivity
+
+    @ContributesAndroidInjector(modules = [ScanQrCodeModule::class])
+    @ActivityScope
+    internal abstract fun bindScanQrCodeActivity(): ScanQrCodeActivity
 }

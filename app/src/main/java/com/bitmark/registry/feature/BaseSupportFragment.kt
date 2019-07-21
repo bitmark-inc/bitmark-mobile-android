@@ -93,4 +93,6 @@ abstract class BaseSupportFragment : DaggerFragment() {
      * Refresh stuff like view, data or something
      */
     open fun refresh() {}
+
+    open fun onBackPressed() {}
 }

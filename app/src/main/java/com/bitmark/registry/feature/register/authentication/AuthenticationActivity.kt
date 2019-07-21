@@ -14,6 +14,7 @@ import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.gone
@@ -211,7 +212,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
 
     private fun gotoSecuritySetting() {
         val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.startActivity(intent)
+        navigator.anim(BOTTOM_UP).startActivity(intent)
     }
 
     override fun onBackPressed() {

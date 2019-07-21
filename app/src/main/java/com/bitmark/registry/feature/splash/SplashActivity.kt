@@ -14,6 +14,7 @@ import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.register.RegisterActivity
@@ -156,7 +157,7 @@ class SplashActivity : BaseAppCompatActivity() {
 
     private fun gotoSecuritySetting() {
         val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.startActivityAsRoot(intent)
+        navigator.anim(BOTTOM_UP).startActivityAsRoot(intent)
     }
 
     private fun exitWithAlert(message: String) {

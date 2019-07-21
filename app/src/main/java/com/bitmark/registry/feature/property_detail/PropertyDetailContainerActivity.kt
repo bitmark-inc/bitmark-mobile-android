@@ -3,9 +3,9 @@ package com.bitmark.registry.feature.property_detail
 import android.os.Bundle
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
+import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import javax.inject.Inject
 
@@ -45,8 +45,15 @@ class PropertyDetailContainerActivity : BaseAppCompatActivity() {
 
     override fun viewModel(): BaseViewModel? = null
 
+    override fun layoutContainerId(): Int = R.id.layoutContainer
+
     override fun onBackPressed() {
-        navigator.anim(RIGHT_LEFT).finishActivity()
-        super.onBackPressed()
+        val currentFragment = currentFragment()
+        if (currentFragment as? PropertyDetailFragment != null) {
+            navigator.anim(Navigator.RIGHT_LEFT).finishActivity()
+            super.onBackPressed()
+        } else {
+            (currentFragment as? BaseSupportFragment)?.onBackPressed()
+        }
     }
 }

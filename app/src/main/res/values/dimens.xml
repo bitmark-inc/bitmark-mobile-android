@@ -31,6 +31,7 @@
   <dimen name="dp_220">220dp</dimen>
   <dimen name="dp_240">240dp</dimen>
   <dimen name="dp_320">320dp</dimen>
+  <dimen name="dp_375">375dp</dimen>
 
   <dimen name="dp_neg_3">-3dp</dimen>
   <dimen name="dp_neg_4">-4dp</dimen>

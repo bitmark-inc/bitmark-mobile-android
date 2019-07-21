@@ -23,6 +23,7 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.transfer.TransferFragment
 import com.bitmark.registry.util.extension.*
@@ -400,7 +401,8 @@ class PropertyDetailFragment : BaseSupportFragment() {
         intent.putExtra(Intent.EXTRA_SUBJECT, assetName)
         intent.putExtra(Intent.EXTRA_TEXT, assetName)
         intent.putExtra(Intent.EXTRA_STREAM, uri)
-        navigator.startActivity(Intent.createChooser(intent, assetName))
+        navigator.anim(BOTTOM_UP)
+            .startActivity(Intent.createChooser(intent, assetName))
     }
 
     private fun loadAccount(
@@ -429,6 +431,6 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private fun gotoSecuritySetting() {
         val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.startActivity(intent)
+        navigator.anim(BOTTOM_UP).startActivity(intent)
     }
 }
