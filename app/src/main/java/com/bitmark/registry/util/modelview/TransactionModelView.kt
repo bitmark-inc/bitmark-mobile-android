@@ -16,6 +16,7 @@ import kotlinx.android.parcel.Parcelize
  */
 @Parcelize
 data class TransactionModelView(
+    val id: String,
     val confirmedAt: String?,
     val owner: String,
     val previousOwner: String? = null,

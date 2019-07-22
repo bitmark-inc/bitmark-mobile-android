@@ -108,6 +108,7 @@ class TransactionHistoryViewModel(
         { owner, txs ->
             txs.map { tx ->
                 TransactionModelView(
+                    tx.id,
                     tx.block?.createdAt,
                     tx.owner,
                     tx.previousOwner,

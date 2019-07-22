@@ -79,7 +79,8 @@ class PropertyDetailViewModel(
         ).map { txs ->
             txs.map { tx ->
                 TransactionModelView(
-                    tx.block?.createdAt ?: "",
+                    id = tx.id,
+                    confirmedAt = tx.block?.createdAt ?: "",
                     owner = tx.owner,
                     status = tx.status
                 )
@@ -108,7 +109,8 @@ class PropertyDetailViewModel(
         ).map { txs ->
             txs.map { tx ->
                 TransactionModelView(
-                    tx.block?.createdAt ?: "",
+                    id = tx.id,
+                    confirmedAt = tx.block?.createdAt ?: "",
                     owner = tx.owner,
                     status = tx.status
                 )

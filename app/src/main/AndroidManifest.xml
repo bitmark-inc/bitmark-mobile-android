@@ -54,6 +54,10 @@
         android:stateNotNeeded="true"
         tools:replace="android:screenOrientation"/>
 
+    <activity
+        android:name=".feature.WebViewActivity"
+        android:screenOrientation="portrait"/>
+
     <!-- Firebase message service -->
     <service
         android:name=".feature.notification.AppFirebaseMessageService"

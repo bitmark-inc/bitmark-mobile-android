@@ -79,5 +79,6 @@
   <string name="to">To</string>
   <string name="type">Type</string>
   <string name="property">Property</string>
+  <string name="registry">Registry</string>
 
 </resources>

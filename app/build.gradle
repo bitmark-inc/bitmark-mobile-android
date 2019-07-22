@@ -149,6 +149,8 @@ android {
           "\"dw9MQXcC5rJZb3QE1nz86PiQAheMP1dx9M3dr52tT8NNs14m33\""
       buildConfigField "String", "KEY_ACCOUNT_SERVER_ENDPOINT",
           "\"https://key.test.bitmarkaccountassets.com\""
+      buildConfigField "String", "REGISTRY_WEB_ENDPOINT",
+          "\"https://registry.test.bitmark.com\""
     }
 
     prd {
@@ -177,6 +179,8 @@ android {
           "\"a3ezwdYVEVrHwszQrYzDTCAZwUD3yKtNsCq9YhEu97bPaGAKy1\""
       buildConfigField "String", "KEY_ACCOUNT_SERVER_ENDPOINT",
           "\"https://key.bitmarkaccountassets.com\""
+      buildConfigField "String", "REGISTRY_WEB_ENDPOINT",
+          "\"https://registry.bitmark.com\""
     }
   }
 

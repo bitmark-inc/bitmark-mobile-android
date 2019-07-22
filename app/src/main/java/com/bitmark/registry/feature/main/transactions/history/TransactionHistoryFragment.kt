@@ -5,11 +5,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseSupportFragment
-import com.bitmark.registry.feature.BaseViewModel
-import com.bitmark.registry.feature.DialogController
-import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.*
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.visible
@@ -71,7 +70,16 @@ class TransactionHistoryFragment : BaseSupportFragment() {
         (rvTxs.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
             false
 
-        adapter.setItemClickListener { }
+        adapter.setItemClickListener { item ->
+            val url = "%s/transaction/%s".format(
+                BuildConfig.REGISTRY_WEBSITE,
+                item.id
+            )
+            val bundle =
+                WebViewActivity.getBundle(url, getString(R.string.registry))
+            navigator.anim(RIGHT_LEFT)
+                .startActivity(WebViewActivity::class.java, bundle)
+        }
 
         endlessScrollListener =
             object : EndlessScrollListener(layoutManager) {

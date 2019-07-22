@@ -3,12 +3,9 @@ package com.bitmark.registry.feature
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.util.extension.gone
@@ -18,11 +15,11 @@ import kotlinx.android.synthetic.main.layout_webview.*
 
 /**
  * @author Hieu Pham
- * @since 2019-07-09
+ * @since 2019-07-22
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class WebViewFragment : Fragment() {
+class WebViewActivity : AppCompatActivity() {
 
     companion object {
 
@@ -30,36 +27,29 @@ class WebViewFragment : Fragment() {
 
         private const val TITLE = "title"
 
-        fun newInstance(url: String, title: String? = null): WebViewFragment {
-            val fragment = WebViewFragment()
+        fun getBundle(url: String, title: String? = null): Bundle {
             val bundle = Bundle()
             bundle.putString(URL, url)
             if (title != null) bundle.putString(TITLE, title)
-            fragment.arguments = bundle
-            return fragment
+            return bundle
         }
     }
 
-    private var url: String? = null
+    private val navigator = Navigator(this)
 
-    private var visibled = false
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.layout_webview, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.layout_webview)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
         initComponents()
     }
 
     private fun initComponents() {
-        url = arguments?.getString(URL)
-        val title = arguments?.getString(TITLE)
+        val url = intent?.extras?.getString(URL)
+        val title = intent?.extras?.getString(TITLE)
         if (title != null) {
             tvToolbarTitle.text = title
             layoutToolbar.visible()
@@ -71,7 +61,6 @@ class WebViewFragment : Fragment() {
         webview.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                visibled = true
                 progressBar.gone()
             }
 
@@ -90,14 +79,15 @@ class WebViewFragment : Fragment() {
         ivNext.setOnClickListener { webview.goForward() }
 
         ivToolbarBack.setOnClickListener {
-            Navigator(this).anim(RIGHT_LEFT).popFragment()
+            navigator.anim(RIGHT_LEFT).finishActivity()
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        if (visibled) return
         // a bit delay for better performance
         Handler().postDelayed({ webview.loadUrl(url) }, 200)
+    }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
     }
 }
