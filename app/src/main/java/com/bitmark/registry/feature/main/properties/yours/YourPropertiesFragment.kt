@@ -108,10 +108,10 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
-                        hideGreeting()
+                        hideEmptyView()
                         adapter.add(data)
                     } else if (adapter.isEmpty()) {
-                        showGreeting()
+                        showEmptyView()
                     }
                 }
 
@@ -160,7 +160,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
         viewModel.deletedBitmarkLiveData.observe(this, Observer { bitmarkIds ->
             adapter.remove(bitmarkIds)
             if (adapter.isEmpty()) {
-                showGreeting()
+                showEmptyView()
             }
         })
 
@@ -178,14 +178,14 @@ class YourPropertiesFragment : BaseSupportFragment() {
         })
     }
 
-    private fun showGreeting() {
+    private fun showEmptyView() {
         tvWelcome.visible()
         tvIntroduce.visible()
         btnCreateProperty.visible()
         rvProperties.gone()
     }
 
-    private fun hideGreeting() {
+    private fun hideEmptyView() {
         tvWelcome.gone()
         tvIntroduce.gone()
         btnCreateProperty.gone()

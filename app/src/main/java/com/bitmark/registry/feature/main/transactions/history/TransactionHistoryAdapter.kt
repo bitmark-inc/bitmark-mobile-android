@@ -42,6 +42,8 @@ class TransactionHistoryAdapter :
         notifyDataSetChanged()
     }
 
+    fun isEmpty() = items.isEmpty()
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int

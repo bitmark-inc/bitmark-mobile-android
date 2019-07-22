@@ -13,6 +13,40 @@
       android:orientation="vertical"
       >
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvNoTxs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_24"
+        android:fontFamily="@font/avenir_bold"
+        android:text="@string/no_transaction_history"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/sp_16"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvNoTxsDes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_24"
+        android:fontFamily="@font/avenir_light"
+        android:text="@string/your_transaction_history_will_be_available"
+        android:textColor="@android:color/secondary_text_light"
+        android:textSize="@dimen/sp_16"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvNoTxs"
+        tools:visibility="visible"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTxs"
         android:layout_width="match_parent"

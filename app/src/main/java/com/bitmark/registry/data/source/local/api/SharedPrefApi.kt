@@ -24,6 +24,7 @@ class SharedPrefApi @Inject constructor(
     companion object {
         const val ACCOUNT_NUMBER = "account_number"
         const val AUTH_REQUIRED = "auth_required"
+        const val ACTION_REQUIRED = "action_required"
     }
 
     fun <T> rxSingle(action: (SharePrefGateway) -> T): Single<T> {

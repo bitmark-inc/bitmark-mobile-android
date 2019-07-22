@@ -245,8 +245,8 @@ class BitmarkRepository(
         loadAsset: Boolean = true,
         isPending: Boolean = false,
         loadBlock: Boolean = true,
-        at: Long? = null,
-        to: String? = null,
+        at: Long = 0,
+        to: String = "earlier",
         limit: Int = 100
     ): Single<List<TransactionData>> =
         remoteDataSource.listTxs(

@@ -2,9 +2,14 @@ package com.bitmark.registry.data.source.local
 
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.registry.data.model.AccountData
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
+import com.bitmark.registry.util.extension.append
+import com.bitmark.registry.util.extension.fromJson
+import com.bitmark.registry.util.extension.toJson
+import com.google.gson.GsonBuilder
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -24,11 +29,10 @@ class AccountLocalDataSource @Inject constructor(
     fun saveAccountInfo(
         accountNumber: String,
         authRequired: Boolean
-    ): Single<Pair<String, Boolean>> {
-        return sharedPrefApi.rxSingle { sharePrefGateway ->
+    ): Completable {
+        return sharedPrefApi.rxCompletable { sharePrefGateway ->
             sharePrefGateway.put(SharedPrefApi.ACCOUNT_NUMBER, accountNumber)
             sharePrefGateway.put(SharedPrefApi.AUTH_REQUIRED, authRequired)
-            Pair(accountNumber, authRequired)
         }
     }
 
@@ -56,4 +60,49 @@ class AccountLocalDataSource @Inject constructor(
         databaseApi.rxSingle { db ->
             db.accountDao().getEncPubKey(accountNumber)
         }.map { hexKey -> HEX.decode(hexKey) }
+
+    fun addActionRequired(actions: List<ActionRequired>) =
+        getActionRequired().flatMapCompletable { existingActions ->
+            sharedPrefApi.rxCompletable { sharePrefGateway ->
+                val persistActions =
+                    if (existingActions.isEmpty()) actions else mutableListOf<ActionRequired>().append(
+                        existingActions,
+                        actions
+                    )
+
+                sharePrefGateway.put(
+                    SharedPrefApi.ACTION_REQUIRED,
+                    gson().toJson<List<ActionRequired>>(persistActions)
+                )
+            }
+        }
+
+
+    fun getActionRequired(): Single<List<ActionRequired>> =
+        sharedPrefApi.rxSingle { sharePrefGateway ->
+            gson().fromJson<List<ActionRequired>>(
+                sharePrefGateway.get(
+                    SharedPrefApi.ACTION_REQUIRED,
+                    String::class
+                )
+            ) ?: listOf()
+        }
+
+    fun deleteActionRequired(action: ActionRequired) =
+        getActionRequired().flatMapCompletable { existingActions ->
+            val persistActions =
+                existingActions.filterNot { a -> a.id == action.id }
+            if (persistActions.isEmpty()) Completable.complete()
+            else
+                sharedPrefApi.rxCompletable { sharePrefGateway ->
+                    sharePrefGateway.put(
+                        SharedPrefApi.ACTION_REQUIRED,
+                        persistActions
+                    )
+                }
+        }
+
+    private fun gson() = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+        .setLenient()
+        .create()
 }

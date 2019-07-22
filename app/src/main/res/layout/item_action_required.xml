@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_white_stateful"
+    android:padding="@dimen/dp_20"
+    >
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvType"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textAllCaps="true"
+      android:textColor="@color/blue_ribbon"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="SECURITY ALERT"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvDate"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/dp_8"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintEnd_toStartOf="@id/ivAccess"
+      app:layout_constraintTop_toTopOf="@id/tvType"
+      tools:text="2018 MAR 08"
+      />
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivAccess"
+      android:layout_width="@dimen/dp_12"
+      android:layout_height="@dimen/dp_12"
+      app:layout_constraintBottom_toBottomOf="@id/tvType"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@id/tvType"
+      app:srcCompat="@drawable/ic_arrow_access"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvTitle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_12"
+      android:ellipsize="end"
+      android:fontFamily="@font/avenir_bold"
+      android:maxLines="1"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="@id/tvType"
+      app:layout_constraintTop_toBottomOf="@id/tvType"
+      tools:text="Write Down Your Recovery Phrase"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvDescription"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:fontFamily="@font/avenir_light"
+      android:maxLines="1"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="@id/tvTitle"
+      app:layout_constraintTop_toBottomOf="@id/tvTitle"
+      tools:text="Protect your Bitmark account. "
+      />
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivAlert"
+      android:layout_width="@dimen/dp_28"
+      android:layout_height="@dimen/dp_28"
+      app:layout_constraintBottom_toBottomOf="@id/tvDescription"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@id/tvTitle"
+      app:srcCompat="@drawable/ic_alert_red"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

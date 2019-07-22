@@ -20,6 +20,8 @@ class DateTimeUtil {
 
         val OFFICIAL_DATE_TIME_FORMAT = "yyyy MMM dd HH:mm:ss"
 
+        val OFFICIAL_DATE_FORMAT = "yyyy MMM dd"
+
         fun stringToString(date: String) =
             stringToString(date, OFFICIAL_DATE_TIME_FORMAT)
 
@@ -30,7 +32,7 @@ class DateTimeUtil {
             date: String,
             oldFormat: String,
             newFormat: String,
-            timezone : String = "UTC"
+            timezone: String = "UTC"
         ): String {
             return try {
                 var formatter = SimpleDateFormat(oldFormat, Locale.getDefault())
@@ -42,6 +44,23 @@ class DateTimeUtil {
                 ""
             }
 
+        }
+
+        fun dateToString(date: Date): String =
+            dateToString(date, ISO8601_FORMAT)
+
+        fun dateToString(
+            date: Date,
+            format: String,
+            timezone: String = "UTC"
+        ): String {
+            return try {
+                val formatter = SimpleDateFormat(format, Locale.getDefault())
+                formatter.timeZone = TimeZone.getTimeZone(timezone)
+                formatter.format(date)
+            } catch (e: Throwable) {
+                ""
+            }
         }
     }
 }

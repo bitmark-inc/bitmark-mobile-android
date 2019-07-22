@@ -80,5 +80,12 @@
   <string name="type">Type</string>
   <string name="property">Property</string>
   <string name="registry">Registry</string>
+  <string name="no_action_required">No Action Required</string>
+  <string name="this_is_where_you_will_receive">This is where you will receive authorization requests.</string>
+  <string name="no_transaction_history">No Transaction History</string>
+  <string name="your_transaction_history_will_be_available">Your transaction history will be available here.</string>
+  <string name="security_alert">Security Alert</string>
+  <string name="write_down_your_recovery_phrase">Write Down Your Recovery Phrase</string>
+  <string name="protect_your_bitmark_account">Protect your Bitmark account.</string>
 
 </resources>

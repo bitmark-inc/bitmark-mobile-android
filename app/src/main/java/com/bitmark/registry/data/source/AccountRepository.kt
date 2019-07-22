@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source
 
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.local.AccountLocalDataSource
 import com.bitmark.registry.data.source.remote.AccountRemoteDataSource
 import com.bitmark.registry.data.source.remote.api.middleware.Cache
@@ -26,7 +27,7 @@ class AccountRepository(
     fun saveAccountInfo(
         accountNumber: String,
         authRequired: Boolean
-    ): Single<Pair<String, Boolean>> {
+    ): Completable {
         return localDataSource.saveAccountInfo(accountNumber, authRequired)
     }
 
@@ -75,4 +76,14 @@ class AccountRepository(
                 ).andThen(Single.just(key))
             }.map { key -> HEX.decode(key) }
         }
+
+    fun getActionRequired(): Single<List<ActionRequired>> =
+        localDataSource.getActionRequired()
+
+    fun addActionRequired(actions: List<ActionRequired>) =
+        localDataSource.addActionRequired(actions)
+
+    fun deleteActionRequired(action: ActionRequired) =
+        localDataSource.deleteActionRequired(action)
+
 }

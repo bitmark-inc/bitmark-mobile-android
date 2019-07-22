@@ -124,8 +124,8 @@ class BitmarkRemoteDataSource @Inject constructor(
         blockNumber: Long? = null,
         isPending: Boolean? = false,
         sent: Boolean = false,
-        at: Long? = null,
-        to: String? = null,
+        at: Long = 0,
+        to: String = "ealier",
         limit: Int = 100,
         loadBlock: Boolean = false
     ): Single<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> =
@@ -148,7 +148,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                 if (blockNumber != null) queryBuilder.referencedBlockNumber(
                     blockNumber
                 )
-                if (at != null && to != null) queryBuilder.at(at).to(to)
+                if (at > 0) queryBuilder.at(at).to(to)
 
                 Transaction.list(
                     queryBuilder,

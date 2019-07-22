@@ -1,13 +1,17 @@
 package com.bitmark.registry.feature.register.authentication
 
 import androidx.lifecycle.MutableLiveData
+import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.ActionRequired.Id.RECOVERY_PHRASE
+import com.bitmark.registry.data.model.ActionRequired.Type.SECURITY_ALERT
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.util.DateTimeUtil
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
-import io.reactivex.Single
+import java.util.*
 
 
 /**
@@ -21,8 +25,7 @@ class AuthenticationViewModel(
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel() {
 
-    private val registerAccountLiveData =
-        CompositeLiveData<Pair<String, Boolean>>()
+    private val registerAccountLiveData = CompositeLiveData<Any>()
 
     internal val progressLiveData = MutableLiveData<Int>()
 
@@ -35,7 +38,7 @@ class AuthenticationViewModel(
         authRequired: Boolean
     ) {
         registerAccountLiveData.add(
-            rxLiveDataTransformer.single(
+            rxLiveDataTransformer.completable(
                 registerAccountStream(
                     timestamp,
                     jwtSig,
@@ -58,7 +61,7 @@ class AuthenticationViewModel(
         encPubKeyHex: String? = null,
         requester: String,
         authRequired: Boolean
-    ): Single<Pair<String, Boolean>> {
+    ): Completable {
         val streamCount =
             if (null != encPubKeyHex && null != encPubKeySig) 3 else 2
         var progress = 0
@@ -81,17 +84,29 @@ class AuthenticationViewModel(
                 progressLiveData.set(++progress * 100 / streamCount)
             } else Completable.complete()
 
-        return Completable.merge(
-            listOf(registerMobileServerAccStream, registerEncKeyStream)
-        ).andThen(
+        val saveAccountStream = Completable.mergeArrayDelayError(
             accountRepo.saveAccountInfo(
                 requester,
                 authRequired
-            ).doOnSuccess {
-                progressLiveData.set(++progress * 100 / streamCount)
-            }
-        )
+            ), accountRepo.addActionRequired(buildActionRequired())
+        ).doOnComplete {
+            progressLiveData.set(++progress * 100 / streamCount)
+        }
+
+        return Completable.merge(
+            listOf(registerMobileServerAccStream, registerEncKeyStream)
+        ).andThen(saveAccountStream)
     }
+
+    private fun buildActionRequired() = listOf(
+        ActionRequired(
+            RECOVERY_PHRASE,
+            SECURITY_ALERT,
+            "write_down_your_recovery_phrase",
+            "protect_your_bitmark_account",
+            DateTimeUtil.dateToString(Date())
+        )
+    )
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

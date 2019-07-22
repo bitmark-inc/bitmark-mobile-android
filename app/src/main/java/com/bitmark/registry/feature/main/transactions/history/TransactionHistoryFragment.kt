@@ -113,7 +113,10 @@ class TransactionHistoryFragment : BaseSupportFragment() {
 
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
+                        hideEmptyView()
                         adapter.add(data)
+                    } else if (adapter.isEmpty()) {
+                        showEmptyView()
                     }
                 }
 
@@ -142,6 +145,16 @@ class TransactionHistoryFragment : BaseSupportFragment() {
                 }
             }
         })
+    }
+
+    private fun showEmptyView() {
+        tvNoTxs.visible()
+        tvNoTxsDes.visible()
+    }
+
+    private fun hideEmptyView() {
+        tvNoTxs.gone()
+        tvNoTxsDes.gone()
     }
 
     override fun refresh() {
