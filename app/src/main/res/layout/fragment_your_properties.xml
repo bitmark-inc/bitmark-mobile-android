@@ -37,7 +37,7 @@
         android:layout_marginStart="@dimen/dp_20"
         android:layout_marginTop="@dimen/dp_24"
         android:fontFamily="@font/avenir_light"
-        android:text="@string/register_track_trade"
+        android:text="@string/bitmark_is_the_property_system_for_establishing"
         android:textColor="@android:color/secondary_text_light"
         android:textSize="@dimen/sp_16"
         android:visibility="gone"
