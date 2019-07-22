@@ -108,7 +108,8 @@ class TransactionHistoryAdapter :
                     tvTxType.text = context.getString(R.string.issuance)
                     tvTo.invisible()
                     tvReceiver.invisible()
-                    tvSender.text = context.getString(R.string.you)
+                    tvSender.text =
+                        context.getString(R.string.you).toUpperCase()
                 } else {
                     tvTxType.text = context.getString(R.string.p2p_transfer)
                     tvTo.visible()
