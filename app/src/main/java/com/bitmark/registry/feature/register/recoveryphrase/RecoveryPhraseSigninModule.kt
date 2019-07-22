@@ -1,7 +1,6 @@
 package com.bitmark.registry.feature.register.recoveryphrase
 
 import com.bitmark.registry.di.ActivityScope
-import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import dagger.Module
 import dagger.Provides
@@ -22,13 +21,5 @@ class RecoveryPhraseSigninModule {
         activity: RecoveryPhraseSigninActivity
     ): Navigator<RecoveryPhraseSigninActivity> {
         return Navigator(activity)
-    }
-
-    @Provides
-    @ActivityScope
-    fun provideDialogController(
-        activity: RecoveryPhraseSigninActivity
-    ): DialogController {
-        return DialogController(activity)
     }
 }

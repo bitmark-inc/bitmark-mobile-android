@@ -56,16 +56,16 @@ class SplashActivity : BaseAppCompatActivity() {
         process()
     }
 
-    override fun onDestroy() {
-        dialogController.dismiss()
-        super.onDestroy()
-    }
-
     override fun initComponents() {
         super.initComponents()
         authorizationDialog = AuthorizationRequiredDialog(this) {
             process()
         }
+    }
+
+    override fun deinitComponents() {
+        dialogController.dismiss()
+        super.deinitComponents()
     }
 
     private fun process() = viewModel.getExistingAccount()

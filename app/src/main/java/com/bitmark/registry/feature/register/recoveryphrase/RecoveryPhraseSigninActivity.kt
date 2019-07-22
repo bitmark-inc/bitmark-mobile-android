@@ -5,7 +5,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
-import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
@@ -22,9 +21,6 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
-
-    @Inject
-    internal lateinit var dialogController: DialogController
 
     @Inject
     internal lateinit var navigator: Navigator<RecoveryPhraseSigninActivity>

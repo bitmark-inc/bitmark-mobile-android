@@ -95,6 +95,11 @@ class TransferFragment : BaseSupportFragment() {
 
     }
 
+    override fun deinitComponents() {
+        dialogController.dismiss()
+        super.deinitComponents()
+    }
+
     override fun observe() {
         super.observe()
         viewModel.transferLiveData().observe(this, Observer { res ->

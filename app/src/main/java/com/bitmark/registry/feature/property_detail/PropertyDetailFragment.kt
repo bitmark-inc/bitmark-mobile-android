@@ -134,6 +134,11 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     }
 
+    override fun deinitComponents() {
+        dialogController.dismiss()
+        super.deinitComponents()
+    }
+
     private fun showAssetType(type: BitmarkModelView.AssetType) {
         ivAssetType.setImageResource(
             when (type) {

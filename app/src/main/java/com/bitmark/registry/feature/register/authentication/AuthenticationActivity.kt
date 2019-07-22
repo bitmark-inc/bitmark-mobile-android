@@ -59,11 +59,6 @@ class AuthenticationActivity : BaseAppCompatActivity() {
 
     override fun viewModel(): BaseViewModel? = viewModel
 
-    override fun onDestroy() {
-        dialogController.dismiss()
-        super.onDestroy()
-    }
-
     override fun initComponents() {
         super.initComponents()
 
@@ -85,6 +80,11 @@ class AuthenticationActivity : BaseAppCompatActivity() {
                 negative = android.R.string.no
             )
         }
+    }
+
+    override fun deinitComponents() {
+        dialogController.dismiss()
+        super.deinitComponents()
     }
 
     override fun observe() {
