@@ -24,6 +24,18 @@
       app:layout_constraintTop_toTopOf="parent"
       />
 
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivQrCode"
+      android:layout_width="@dimen/dp_20"
+      android:layout_height="@dimen/dp_20"
+      android:clickable="true"
+      android:focusable="true"
+      app:layout_constraintBottom_toBottomOf="@id/tvYourBitmarkAccNo"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@id/tvYourBitmarkAccNo"
+      app:srcCompat="@drawable/ic_qr_code_2"
+      />
+
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvAccountNumber"
       android:layout_width="wrap_content"
@@ -32,6 +44,7 @@
       android:ellipsize="end"
       android:fontFamily="@font/andale_regular_mono"
       android:maxLines="1"
+      android:paddingTop="@dimen/dp_8"
       android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_12"
       app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
@@ -97,7 +110,7 @@
       android:id="@+id/tvLogout"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/dp_4"
+      android:layout_marginTop="@dimen/dp_6"
       android:clickable="true"
       android:focusable="true"
       android:fontFamily="@font/avenir_bold"
@@ -113,7 +126,7 @@
       android:id="@+id/tvDetail"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/dp_4"
+      android:layout_marginTop="@dimen/dp_6"
       android:clickable="true"
       android:focusable="true"
       android:fontFamily="@font/avenir_bold"

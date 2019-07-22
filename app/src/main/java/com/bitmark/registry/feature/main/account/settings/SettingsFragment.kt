@@ -59,6 +59,8 @@ class SettingsFragment : BaseSupportFragment() {
         tvDetail.setSafetyOnclickListener { }
 
         tvNeedHelp.setSafetyOnclickListener { }
+
+        ivQrCode.setSafetyOnclickListener { }
     }
 
     override fun deinitComponents() {
