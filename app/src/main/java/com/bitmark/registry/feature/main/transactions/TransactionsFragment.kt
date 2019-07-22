@@ -3,6 +3,8 @@ package com.bitmark.registry.feature.main.transactions
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.google.android.material.tabs.TabLayout
+import kotlinx.android.synthetic.main.fragment_transactions.*
 
 
 /**
@@ -17,7 +19,36 @@ class TransactionsFragment : BaseSupportFragment() {
         fun newInstance(): TransactionsFragment = TransactionsFragment()
     }
 
+    private lateinit var adapter: TransactionsViewPagerAdapter
+
+    private val tabSelectedListener = object : TabLayout.OnTabSelectedListener {
+
+        override fun onTabReselected(p0: TabLayout.Tab?) {
+            (adapter.currentFragment as? BaseSupportFragment)?.refresh()
+        }
+
+        override fun onTabUnselected(p0: TabLayout.Tab?) {
+        }
+
+        override fun onTabSelected(p0: TabLayout.Tab?) {
+        }
+
+    }
+
     override fun layoutRes(): Int = R.layout.fragment_transactions
 
     override fun viewModel(): BaseViewModel? = null
+
+    override fun initComponents() {
+        super.initComponents()
+        adapter = TransactionsViewPagerAdapter(context, childFragmentManager)
+        viewPager.adapter = adapter
+        tabLayout.setupWithViewPager(viewPager)
+        tabLayout.addOnTabSelectedListener(tabSelectedListener)
+    }
+
+    override fun refresh() {
+        super.refresh()
+        viewPager.currentItem = 0
+    }
 }

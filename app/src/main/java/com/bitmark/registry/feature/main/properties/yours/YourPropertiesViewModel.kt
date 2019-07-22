@@ -15,7 +15,6 @@ import com.bitmark.registry.util.modelview.BitmarkModelView
 import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Function3
 import java.io.File
 
 
@@ -67,11 +66,7 @@ class YourPropertiesViewModel(
     internal fun listBitmark() =
         listBitmarksLiveData.add(
             rxLiveDataTransformer.maybe(
-                accountRepo.getAccountInfo().map { p -> p.first }.flatMapMaybe { accountNumber ->
-                    listBitmarkStream(
-                        accountNumber
-                    )
-                }
+                listBitmarkStream()
             )
         )
 
@@ -81,27 +76,30 @@ class YourPropertiesViewModel(
         )
     )
 
-    private fun listBitmarkStream(accountNumber: String): Maybe<List<BitmarkModelView>> {
+    private fun listBitmarkStream(): Maybe<List<BitmarkModelView>> {
 
         val offsetStream =
             if (currentOffset == -1L) bitmarkRepo.maxStoredBitmarkOffset() else Single.just(
                 currentOffset - 1
             )
 
-        val pendingBitmarksStream =
-            bitmarkRepo.listStoredPendingBitmarks(accountNumber).toSingle()
+        val pendingBitmarksStream = accountRepo.getAccountInfo()
+            .flatMap { account ->
+                val accountNumber = account.first
+                bitmarkRepo.listStoredPendingBitmarks(accountNumber)
+                    .map { bitmarks -> Pair(accountNumber, bitmarks) }
+            }
 
         return Single.zip(
             pendingBitmarksStream,
-            accountRepo.getAccountInfo(),
             offsetStream,
-            Function3<List<BitmarkData>, Pair<String, Boolean>, Long, Triple<List<BitmarkData>, String, Long>> { storedPendingBitmarks, account, offset ->
-                Triple(storedPendingBitmarks, account.first, offset)
+            BiFunction<Pair<String, List<BitmarkData>>, Long, Triple<String, List<BitmarkData>, Long>> { p, offset ->
+                Triple(p.first, p.second, offset)
 
-            }).flatMapMaybe { t ->
+            }).flatMap { t ->
 
-            val storedPendingBitmarks = t.first // all stored pending bitmark
-            val accountNumber = t.second
+            val accountNumber = t.first
+            val storedPendingBitmarks = t.second // all stored pending bitmark
             val offset = t.third // offset to query
             val needDedupPendingBitmarks = storedPendingBitmarks.isNotEmpty()
 
@@ -111,12 +109,13 @@ class YourPropertiesViewModel(
                         if (needDedupPendingBitmarks) bitmarks.filter { b -> b.status != TRANSFERRING && b.status != ISSUING } else bitmarks
                     if (currentOffset == -1L) {
                         // append all pending bitmark at the first page
-                        mutableListOf<BitmarkData>().append(
-                            storedPendingBitmarks, dedupBitmarks
-                        )
-                    } else dedupBitmarks
+                        val pendingBitmarks =
+                            mutableListOf<BitmarkData>().append(
+                                storedPendingBitmarks, dedupBitmarks
+                            )
+                        Pair(accountNumber, pendingBitmarks)
+                    } else Pair(accountNumber, dedupBitmarks)
                 }
-                .map { bitmarks -> Pair(accountNumber, bitmarks) }
                 .doOnSuccess { p ->
                     val bitmarks = p.second
                     val nonPendingBitmarks =
@@ -130,7 +129,13 @@ class YourPropertiesViewModel(
                     }
                 }
 
-        }.flatMapSingle(checkAssetFileStream()).map(bitmarkMapFunc()).toMaybe()
+        }.flatMap { p ->
+            checkAssetFileStream().invoke(
+                p.first,
+                p.second
+            )
+        }
+            .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }.toMaybe()
 
     }
 
@@ -166,14 +171,12 @@ class YourPropertiesViewModel(
                     currentOffset = bitmarks.minBy { b -> b.offset }!!.offset
             }.map { bitmarks -> Pair(accountNumber, bitmarks) }
 
-        }.flatMap(checkAssetFileStream()).map(bitmarkMapFunc()).toMaybe()
+        }.flatMap { p -> checkAssetFileStream().invoke(p.first, p.second) }
+            .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }.toMaybe()
     }
 
-    private fun checkAssetFileStream(): (Pair<String, List<BitmarkData>>) -> Single<Pair<String, List<BitmarkData>>> =
-        { p ->
-            // go to storage and check file corresponding to asset
-            val accountNumber = p.first
-            val bitmarks = p.second
+    private fun checkAssetFileStream(): (String, List<BitmarkData>) -> Single<Pair<String, List<BitmarkData>>> =
+        { accountNumber, bitmarks ->
 
             if (bitmarks.isNullOrEmpty()) {
                 Single.just(Pair(accountNumber, listOf()))
@@ -201,10 +204,8 @@ class YourPropertiesViewModel(
             }
         }
 
-    private fun bitmarkMapFunc(): (Pair<String, List<BitmarkData>>) -> List<BitmarkModelView> =
-        { p ->
-            val accountNumber = p.first
-            val bitmarks = p.second
+    private fun bitmarkMapFunc(): (String, List<BitmarkData>) -> List<BitmarkModelView> =
+        { accountNumber, bitmarks ->
             bitmarks.map { b ->
                 BitmarkModelView.newInstance(b, accountNumber)
             }
@@ -213,15 +214,21 @@ class YourPropertiesViewModel(
     private fun refreshBitmarks(assetId: String) {
         refreshedBitmarksLiveData.add(
             rxLiveDataTransformer.single(
-                Maybe.zip(
+                Single.zip(
                     bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
-                    accountRepo.getAccountInfo().toMaybe(),
+                    accountRepo.getAccountInfo(),
                     BiFunction<List<BitmarkData>, Pair<String, Boolean>, Pair<String, List<BitmarkData>>> { bitmarks, account ->
                         Pair(
                             account.first,
                             bitmarks
                         )
-                    }).flatMapSingle(checkAssetFileStream()).map(bitmarkMapFunc())
+                    }).flatMap { p ->
+                    checkAssetFileStream().invoke(
+                        p.first,
+                        p.second
+                    )
+                }
+                    .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }
             )
         )
     }

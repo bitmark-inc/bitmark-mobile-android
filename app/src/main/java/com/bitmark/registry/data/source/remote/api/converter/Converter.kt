@@ -63,7 +63,9 @@ open class Converter @Inject constructor() {
             tx.payId,
             tx.previousId,
             tx.bitmarkId,
-            tx.isCounterSignature
+            tx.isCounterSignature,
+            tx.previousOwner,
+            tx.confirmation
         )
     }
 

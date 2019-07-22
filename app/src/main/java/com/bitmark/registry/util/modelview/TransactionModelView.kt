@@ -16,16 +16,24 @@ import kotlinx.android.parcel.Parcelize
  */
 @Parcelize
 data class TransactionModelView(
-    val confirmedAt: String,
+    val confirmedAt: String?,
     val owner: String,
-    val status: TransactionData.Status? = null
+    val previousOwner: String? = null,
+    val assetName: String? = null,
+    val status: TransactionData.Status? = null,
+    val accountNumber: String? = null
 ) : Parcelable {
 
     fun isPending() = status == TransactionData.Status.PENDING
 
-    fun confirmedAt() = DateTimeUtil.stringToString(
-        confirmedAt,
-        ISO8601_SIMPLE_FORMAT,
-        OFFICIAL_DATE_TIME_FORMAT
-    )
+    fun confirmedAt() =
+        if (confirmedAt == null) "" else DateTimeUtil.stringToString(
+            confirmedAt,
+            ISO8601_SIMPLE_FORMAT,
+            OFFICIAL_DATE_TIME_FORMAT
+        )
+
+    fun isIssuance() = previousOwner == null
+
+    fun isOwning() = owner == accountNumber
 }

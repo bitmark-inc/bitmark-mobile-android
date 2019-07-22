@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.util.extension.shortenAccountNumber
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.modelview.BitmarkModelView.AssetType.*
 import kotlinx.android.synthetic.main.item_your_properties.view.*
@@ -151,7 +152,7 @@ class YourPropertiesRecyclerViewAdapter() :
 
                 tvName.text = item.name
                 tvIssuer.text =
-                    if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.shortIssuer()
+                    if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.issuer.shortenAccountNumber()
                 tvConfirmedAt.text = when (item.status) {
                     BitmarkData.Status.ISSUING -> context.getString(R.string.registering).toUpperCase()
                     BitmarkData.Status.TRANSFERRING -> context.getString(R.string.incoming).toUpperCase()

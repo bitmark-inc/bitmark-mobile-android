@@ -117,8 +117,6 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
                 res.isError() -> {
                     progressBar.gone()
-                    // TODO remove
-                    if (BuildConfig.DEBUG) throw res.throwable()!!
                 }
 
                 res.isLoading() -> {
@@ -140,8 +138,6 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 res.isError() -> {
                     // silence fetching, do nothing when error
                     layoutSwipeRefresh.isRefreshing = false
-                    // TODO remove
-                    if (BuildConfig.DEBUG) throw res.throwable()!!
                 }
             }
         })

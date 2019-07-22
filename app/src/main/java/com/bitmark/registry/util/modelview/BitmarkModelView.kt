@@ -153,14 +153,6 @@ class BitmarkModelView constructor(
         IMAGE, VIDEO, HEALTH, DOC, MEDICAL, ZIP, UNKNOWN
     }
 
-    fun shortIssuer(): String {
-        val len = issuer.length
-        return "[%s...%s]".format(
-            issuer.substring(0, 4),
-            issuer.substring(len - 4, len)
-        )
-    }
-
     fun confirmedAt() =
         if (!confirmedAt.isNullOrEmpty()) DateTimeUtil.stringToString(
             confirmedAt

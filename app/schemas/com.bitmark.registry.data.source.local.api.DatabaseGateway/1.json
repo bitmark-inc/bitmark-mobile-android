@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "61c6b9f9f329c7bf1f8e43e16c600cae",
+    "identityHash": "a00510123fff2df6ca554fc068d757b9",
     "entities": [
       {
         "tableName": "Transaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `owner` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `head` TEXT, `status` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `offset` INTEGER NOT NULL, `expiresAt` TEXT, `pay_id` TEXT NOT NULL, `previous_id` TEXT, `bitmark_id` TEXT NOT NULL, `countersign` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `owner` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `head` TEXT, `status` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `offset` INTEGER NOT NULL, `expiresAt` TEXT, `pay_id` TEXT NOT NULL, `previous_id` TEXT, `bitmark_id` TEXT NOT NULL, `countersign` INTEGER NOT NULL, `previous_owner` TEXT, `confirmation` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -83,6 +83,18 @@
           {
             "fieldPath": "counterSig",
             "columnName": "countersign",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previousOwner",
+            "columnName": "previous_owner",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirmation",
+            "columnName": "confirmation",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -453,7 +465,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '61c6b9f9f329c7bf1f8e43e16c600cae')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a00510123fff2df6ca554fc068d757b9')"
     ]
   }
 }

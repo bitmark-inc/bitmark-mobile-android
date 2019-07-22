@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_white_stateful"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/dp_20"
+    android:paddingTop="@dimen/dp_20"
+    >
+
+  <RelativeLayout
+      android:id="@+id/layoutMilestone"
+      android:layout_width="@dimen/dp_72"
+      android:layout_height="wrap_content"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      >
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTxTypeShort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/andale_regular_mono"
+        android:textAllCaps="true"
+        android:textColor="@color/silver"
+        android:textSize="@dimen/sp_13"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="ISSUANCE"
+        tools:visibility="gone"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivConfirmed"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_check"
+        tools:visibility="visible"
+        />
+
+  </RelativeLayout>
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvConfirmedAt"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/dp_56"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintStart_toEndOf="@id/layoutMilestone"
+      app:layout_constraintTop_toTopOf="@id/layoutMilestone"
+      tools:text="PENDING"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvProperty"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_12"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/property"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintStart_toStartOf="@id/layoutMilestone"
+      app:layout_constraintTop_toBottomOf="@id/layoutMilestone"
+      tools:text="PROPERTY"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvName"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_12"
+      android:ellipsize="end"
+      android:fontFamily="@font/avenir_bold"
+      android:maxLines="1"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintBottom_toBottomOf="@id/tvProperty"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="@id/tvConfirmedAt"
+      tools:text="This is very very very long property name"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvType"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_12"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/type"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintStart_toStartOf="@id/tvProperty"
+      app:layout_constraintTop_toBottomOf="@id/tvProperty"
+      tools:text="TYPE"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvTxType"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_12"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintBottom_toBottomOf="@id/tvType"
+      app:layout_constraintStart_toStartOf="@id/tvName"
+      tools:text="P2P TRANSFER"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvFrom"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_4"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/from"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintStart_toStartOf="@id/tvType"
+      app:layout_constraintTop_toBottomOf="@id/tvType"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvSender"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintBottom_toBottomOf="@id/tvFrom"
+      app:layout_constraintStart_toStartOf="@id/tvTxType"
+      tools:text="YOU"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvTo"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_4"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/to"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintStart_toStartOf="@id/tvFrom"
+      app:layout_constraintTop_toBottomOf="@id/tvFrom"
+      tools:text="TO"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvReceiver"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="@font/andale_regular_mono"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintBottom_toBottomOf="@id/tvTo"
+      app:layout_constraintStart_toStartOf="@id/tvSender"
+      tools:text="[abcd...dcba]"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

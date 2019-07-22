@@ -8,6 +8,10 @@ import com.bitmark.registry.feature.main.properties.yours.YourPropertiesFragment
 import com.bitmark.registry.feature.main.properties.yours.YourPropertiesModule
 import com.bitmark.registry.feature.main.transactions.TransactionsFragment
 import com.bitmark.registry.feature.main.transactions.TransactionsModule
+import com.bitmark.registry.feature.main.transactions.action_required.ActionRequiredFragment
+import com.bitmark.registry.feature.main.transactions.action_required.ActionRequiredModule
+import com.bitmark.registry.feature.main.transactions.history.TransactionHistoryFragment
+import com.bitmark.registry.feature.main.transactions.history.TransactionHistoryModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import com.bitmark.registry.feature.transfer.TransferFragment
@@ -48,4 +52,12 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [TransferModule::class])
     @FragmentScope
     internal abstract fun bindTransferFragment(): TransferFragment
+
+    @ContributesAndroidInjector(modules = [ActionRequiredModule::class])
+    @FragmentScope
+    internal abstract fun bindActionRequiredFragment(): ActionRequiredFragment
+
+    @ContributesAndroidInjector(modules = [TransactionHistoryModule::class])
+    @FragmentScope
+    internal abstract fun bindTransactionHistoryFragment(): TransactionHistoryFragment
 }

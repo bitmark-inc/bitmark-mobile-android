@@ -11,6 +11,7 @@
   <style name="TabLayout" parent="@android:style/TextAppearance.Widget.TabWidget">
     <item name="android:fontFamily">@font/avenir_bold</item>
     <item name="android:textSize">@dimen/sp_14</item>
+    <item name="android:textAllCaps">true</item>
   </style>
 
 </resources>

@@ -24,19 +24,19 @@ abstract class BitmarkDao {
         owner: String,
         offset: Long,
         limit: Int
-    ): Maybe<List<BitmarkData>>
+    ): Single<List<BitmarkData>>
 
     @Query("SELECT * FROM Bitmark WHERE owner = :owner AND status == :status ORDER BY `offset` DESC")
     abstract fun listByOwnerStatusDesc(
         owner: String,
         status: BitmarkData.Status
-    ): Maybe<List<BitmarkData>>
+    ): Single<List<BitmarkData>>
 
     @Query("SELECT * FROM Bitmark WHERE owner = :owner AND status IN (:status) ORDER BY `offset` DESC")
     abstract fun listByOwnerStatusDesc(
         owner: String,
         status: List<BitmarkData.Status>
-    ): Maybe<List<BitmarkData>>
+    ): Single<List<BitmarkData>>
 
     @Query("SELECT MAX(`offset`) FROM Bitmark")
     abstract fun maxOffset(): Single<Long>

@@ -76,7 +76,15 @@ data class TransactionData(
     @Expose
     @ColumnInfo(name = "countersign")
     @SerializedName("countersign")
-    val counterSig: Boolean
+    val counterSig: Boolean,
+
+    @Expose
+    @ColumnInfo(name = "previous_owner")
+    @SerializedName("previous_owner")
+    val previousOwner: String?,
+
+    @Expose
+    val confirmation: Int
 
 ) {
 

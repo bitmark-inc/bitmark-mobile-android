@@ -11,7 +11,6 @@ import com.bitmark.registry.util.encryption.BoxEncryption
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.TransactionModelView
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import java.io.File
@@ -56,7 +55,7 @@ class PropertyDetailViewModel(
 
     internal fun getProvenance(bitmarkId: String) {
         getProvenanceLiveData.add(
-            rxLiveDataTransformer.maybe(
+            rxLiveDataTransformer.single(
                 getProvenanceStream(bitmarkId)
             )
         )
@@ -70,9 +69,9 @@ class PropertyDetailViewModel(
         )
     }
 
-    private fun getProvenanceStream(bitmarkId: String): Maybe<Pair<String, List<TransactionModelView>>> {
+    private fun getProvenanceStream(bitmarkId: String): Single<Pair<String, List<TransactionModelView>>> {
         val accountStream =
-            accountRepo.getAccountInfo().map { a -> a.first }.toMaybe()
+            accountRepo.getAccountInfo().map { a -> a.first }
         val txsStream = bitmarkRepo.listTxs(
             bitmarkId = bitmarkId,
             loadBlock = true,
@@ -81,13 +80,13 @@ class PropertyDetailViewModel(
             txs.map { tx ->
                 TransactionModelView(
                     tx.block?.createdAt ?: "",
-                    tx.owner,
-                    tx.status
+                    owner = tx.owner,
+                    status = tx.status
                 )
             }
         }
 
-        return Maybe.zip(
+        return Single.zip(
             accountStream,
             txsStream,
             BiFunction { accountNumber, txs ->
@@ -110,8 +109,8 @@ class PropertyDetailViewModel(
             txs.map { tx ->
                 TransactionModelView(
                     tx.block?.createdAt ?: "",
-                    tx.owner,
-                    tx.status
+                    owner = tx.owner,
+                    status = tx.status
                 )
             }
         }

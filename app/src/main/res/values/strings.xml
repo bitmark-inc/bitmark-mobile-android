@@ -70,5 +70,14 @@
   <string name="invalid_bitmark_account_number">Invalid bitmark account number</string>
   <string name="scan_qr_code">Scan QR Code</string>
   <string name="please_authorize">Please authorize</string>
+  <string name="actions_required">Actions Required</string>
+  <string name="history">History</string>
+  <string name="issuance">Issuance</string>
+  <string name="property_issuance">Property Issuance</string>
+  <string name="p2p_transfer">P2P Transfer</string>
+  <string name="from">From</string>
+  <string name="to">To</string>
+  <string name="type">Type</string>
+  <string name="property">Property</string>
 
 </resources>
