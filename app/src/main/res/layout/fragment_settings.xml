@@ -1,8 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/dp_16"
+    android:paddingEnd="@dimen/dp_20"
+    android:paddingStart="@dimen/dp_20"
+    android:paddingTop="@dimen/dp_20"
     >
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvYourBitmarkAccNo"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="@font/avenir_light"
+      android:text="@string/your_bitmark_account_number"
+      android:textAllCaps="true"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvAccountNumber"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_16"
+      android:ellipsize="end"
+      android:fontFamily="@font/andale_regular_mono"
+      android:maxLines="1"
+      android:textColor="@drawable/blue_ribbon_stateful"
+      android:textSize="@dimen/sp_12"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
+      app:layout_constraintTop_toBottomOf="@id/tvYourBitmarkAccNo"
+      tools:text="e4RheyRoYTT42RXfRadj3hZ5wNasP5CBBywVy76SLJS6no8ABo"
+      />
+
+  <View
+      android:id="@+id/viewDivider1"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_1"
+      android:layout_marginTop="@dimen/dp_4"
+      android:background="@color/blue_ribbon"
+      app:layout_constraintTop_toBottomOf="@id/tvAccountNumber"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvCopyClipboard"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="@font/avenir_medium"
+      android:includeFontPadding="false"
+      android:text="@string/copied_to_clipboard"
+      android:textColor="@color/blue_ribbon"
+      android:textSize="@dimen/sp_8"
+      android:visibility="invisible"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/viewDivider1"
+      tools:visibility="visible"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvDes"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_28"
+      android:fontFamily="@font/avenir_light"
+      android:lineSpacingExtra="@dimen/dp_2"
+      android:text="@string/to_protect_your_privacy"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_17"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvCopyClipboard"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvWriteDownPhrase"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_40"
+      android:clickable="true"
+      android:focusable="true"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/write_down_your_recovery_phrase_arrow"
+      android:textAllCaps="true"
+      android:textColor="@drawable/blue_ribbon_stateful"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvDes"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvLogout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_4"
+      android:clickable="true"
+      android:focusable="true"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/log_out_arrow"
+      android:textAllCaps="true"
+      android:textColor="@drawable/blue_ribbon_stateful"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvWriteDownPhrase"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvDetail"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_4"
+      android:clickable="true"
+      android:focusable="true"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/detail_arrow"
+      android:textAllCaps="true"
+      android:textColor="@drawable/blue_ribbon_stateful"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvLogout"
+      />
+
+  <View
+      android:id="@+id/viewDivider2"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_1"
+      android:layout_marginBottom="@dimen/dp_12"
+      android:layout_marginTop="@dimen/dp_4"
+      android:background="@color/silver"
+      app:layout_constraintBottom_toTopOf="@id/tvNeedHelp"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvNeedHelp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_2"
+      android:clickable="true"
+      android:focusable="true"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/need_help_question"
+      android:textAllCaps="true"
+      android:textColor="@drawable/blue_ribbon_stateful"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

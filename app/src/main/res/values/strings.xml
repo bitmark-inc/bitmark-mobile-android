@@ -92,5 +92,11 @@
   <string name="your_property_rights_has_been_deleted">Your property rights have been deleted.</string>
   <string name="settings">Settings</string>
   <string name="authorized">Authorized</string>
+  <string name="your_bitmark_account_number">Your Bitmark Account Number</string>
+  <string name="to_protect_your_privacy">To protect your privacy, you are identified in the Bitmark system by a pseudonymous account number. This number is public. You can safely share it with others without compromising your security.</string>
+  <string name="log_out_arrow">Log out »</string>
+  <string name="detail_arrow">Detail »</string>
+  <string name="write_down_your_recovery_phrase_arrow">Write Down Your Recovery Phrase »</string>
+  <string name="need_help_question">Need Help?</string>
 
 </resources>
