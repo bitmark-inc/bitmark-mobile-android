@@ -2,6 +2,10 @@ package com.bitmark.registry.di
 
 import com.bitmark.registry.feature.main.account.AccountFragment
 import com.bitmark.registry.feature.main.account.AccountModule
+import com.bitmark.registry.feature.main.account.authorized.AuthorizedFragment
+import com.bitmark.registry.feature.main.account.authorized.AuthorizedModule
+import com.bitmark.registry.feature.main.account.settings.SettingsFragment
+import com.bitmark.registry.feature.main.account.settings.SettingsModule
 import com.bitmark.registry.feature.main.properties.PropertiesFragment
 import com.bitmark.registry.feature.main.properties.PropertiesModule
 import com.bitmark.registry.feature.main.properties.yours.YourPropertiesFragment
@@ -60,4 +64,12 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [TransactionHistoryModule::class])
     @FragmentScope
     internal abstract fun bindTransactionHistoryFragment(): TransactionHistoryFragment
+
+    @ContributesAndroidInjector(modules = [SettingsModule::class])
+    @FragmentScope
+    internal abstract fun bindAccountSettingsFragment(): SettingsFragment
+
+    @ContributesAndroidInjector(modules = [AuthorizedModule::class])
+    @FragmentScope
+    internal abstract fun bindAccountAuthorizedFragment(): AuthorizedFragment
 }

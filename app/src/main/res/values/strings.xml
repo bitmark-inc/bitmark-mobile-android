@@ -90,5 +90,7 @@
   <string name="bitmark_is_the_property_system_for_establishing">Bitmark is the property system for establishing value and legal control over the world’s data. Our mission is to define digital property, defend it, and make it economically divisible. \n\nRegister, track, and trade property rights for your digital assets.</string>
   <string name="your_property_rights_has_been_transferred">Your property rights has been transferred.</string>
   <string name="your_property_rights_has_been_deleted">Your property rights have been deleted.</string>
+  <string name="settings">Settings</string>
+  <string name="authorized">Authorized</string>
 
 </resources>
