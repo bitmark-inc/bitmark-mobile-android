@@ -18,6 +18,7 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
+import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.fragment_transfer.*
@@ -56,6 +57,8 @@ class TransferFragment : BaseSupportFragment() {
     private lateinit var bitmark: BitmarkModelView
 
     private var blocked = false
+
+    private val handler = Handler()
 
     override fun layoutRes(): Int = R.layout.fragment_transfer
 
@@ -97,6 +100,7 @@ class TransferFragment : BaseSupportFragment() {
 
     override fun deinitComponents() {
         dialogController.dismiss()
+        handler.removeCallbacksAndMessages(null)
         super.deinitComponents()
     }
 
@@ -107,9 +111,19 @@ class TransferFragment : BaseSupportFragment() {
                 res.isSuccess() -> {
                     blocked = false
                     progressBar.gone()
-                    Handler().postDelayed({
-                        navigator.anim(RIGHT_LEFT).finishActivity()
-                    }, 200)
+                    val dialog = InfoAppCompatDialog(
+                        context!!,
+                        getString(R.string.your_property_rights_has_been_transferred)
+                    )
+                    dialogController.show(dialog)
+
+                    handler.postDelayed({
+                        dialogController.dismiss(dialog) {
+                            navigator.anim(
+                                RIGHT_LEFT
+                            ).finishActivity()
+                        }
+                    }, 1500)
                 }
 
                 res.isError() -> {

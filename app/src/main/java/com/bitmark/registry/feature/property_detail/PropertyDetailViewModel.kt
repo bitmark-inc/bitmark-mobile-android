@@ -82,6 +82,7 @@ class PropertyDetailViewModel(
                     id = tx.id,
                     confirmedAt = tx.block?.createdAt ?: "",
                     owner = tx.owner,
+                    previousOwner = tx.previousOwner,
                     status = tx.status
                 )
             }
@@ -111,6 +112,7 @@ class PropertyDetailViewModel(
                 TransactionModelView(
                     id = tx.id,
                     confirmedAt = tx.block?.createdAt ?: "",
+                    previousOwner = tx.previousOwner,
                     owner = tx.owner,
                     status = tx.status
                 )

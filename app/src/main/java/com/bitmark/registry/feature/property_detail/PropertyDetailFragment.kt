@@ -28,6 +28,7 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.transfer.TransferFragment
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
+import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
@@ -72,6 +73,8 @@ class PropertyDetailFragment : BaseSupportFragment() {
     private var blocked = false
 
     private val provenanceAdapter = ProvenanceRecyclerViewAdapter()
+
+    private val handler = Handler()
 
     private lateinit var progressDialog: ProgressAppCompatDialog
 
@@ -136,6 +139,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     override fun deinitComponents() {
         dialogController.dismiss()
+        handler.removeCallbacksAndMessages(null)
         super.deinitComponents()
     }
 
@@ -258,8 +262,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                     val p = res.data()
                     val txs = p?.second
                     if (txs == null || txs.isEmpty()) return@Observer
-                    // TODO update SDK to get the previous owner directly from first tx
-                    if (txs.size > 1) bitmark.previousOwner = txs[1].owner
+                    bitmark.previousOwner = txs[0].previousOwner
                     provenanceAdapter.set(p.first, txs)
                 }
             }
@@ -276,8 +279,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                     val p = res.data()
                     val txs = p?.second
                     if (txs == null || txs.isEmpty()) return@Observer
-                    // TODO update SDK to get the previous owner directly from first tx
-                    if (txs.size > 1) bitmark.previousOwner = txs[1].owner
+                    bitmark.previousOwner = txs[0].previousOwner
                     provenanceAdapter.set(p.first, txs)
                 }
 
@@ -292,7 +294,20 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 res.isSuccess() -> {
                     progressBar.gone()
                     blocked = false
-                    navigator.anim(RIGHT_LEFT).finishActivity()
+
+                    val dialog = InfoAppCompatDialog(
+                        context!!,
+                        getString(R.string.your_property_rights_has_been_deleted)
+                    )
+                    dialogController.show(dialog)
+
+                    handler.postDelayed({
+                        dialogController.dismiss(dialog) {
+                            navigator.anim(
+                                RIGHT_LEFT
+                            ).finishActivity()
+                        }
+                    }, 1500)
                 }
 
                 res.isError() -> {
@@ -312,9 +327,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
         })
 
         viewModel.downloadAssetFileLiveData().observe(this, Observer { res ->
+
             when {
                 res.isSuccess() -> {
-                    progressDialog.dismiss()
+                    dialogController.dismiss(progressDialog)
                     val file = res.data()
                     if (file != null) {
                         bitmark.assetFile = file
@@ -327,15 +343,19 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
-                    progressDialog.dismiss()
+                    dialogController.dismiss(progressDialog)
                     val e = res.throwable()
-                    val message =
+                    val errorMessage =
                         if (e is HttpException && e.statusCode == 404) {
                             R.string.the_asset_is_not_available
                         } else {
                             R.string.could_not_download_asset
                         }
-                    dialogController.alert(R.string.error, message, R.string.ok)
+                    dialogController.alert(
+                        R.string.error,
+                        errorMessage,
+                        R.string.ok
+                    )
                 }
 
                 res.isLoading() -> {
@@ -343,13 +363,12 @@ class PropertyDetailFragment : BaseSupportFragment() {
                         getString(R.string.downloading),
                         bitmark.name ?: ""
                     )
-                    progressDialog =
-                        ProgressAppCompatDialog(
-                            context!!,
-                            title = getString(R.string.preparing_to_export),
-                            message = message
-                        )
-                    progressDialog.show()
+                    progressDialog = ProgressAppCompatDialog(
+                        context!!,
+                        title = getString(R.string.preparing_to_export),
+                        message = message
+                    )
+                    dialogController.show(progressDialog)
                 }
             }
         })
