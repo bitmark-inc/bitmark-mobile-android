@@ -67,6 +67,7 @@ class BitmarkModelView constructor(
                 ))
             ) {
                 return when (metadata["source"] ?: metadata["Source"]) {
+                    "Medical Records" -> AssetType.MEDICAL
                     "Health Records" -> AssetType.MEDICAL
                     "Health Kit" -> AssetType.HEALTH
                     "Health" -> AssetType.HEALTH
