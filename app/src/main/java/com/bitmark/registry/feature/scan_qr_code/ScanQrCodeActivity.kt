@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.scan_qr_code
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Handler
@@ -11,6 +12,8 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.google.zxing.ResultPoint
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
+import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_scan_qr_code.*
 import javax.inject.Inject
 
@@ -32,12 +35,22 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
     @Inject
     lateinit var navigator: Navigator<ScanQrCodeActivity>
 
+    private val compositeDisposable = CompositeDisposable()
+
     override fun layoutRes(): Int = R.layout.activity_scan_qr_code
 
     override fun viewModel(): BaseViewModel? = null
 
     override fun initComponents() {
         super.initComponents()
+
+        // a bit delay for better ux
+        Handler().postDelayed({
+            val rxPermission = RxPermissions(this)
+            compositeDisposable.add(rxPermission.request(Manifest.permission.CAMERA).subscribe { granted ->
+                if (!granted) navigator.anim(RIGHT_LEFT).finishActivity()
+            })
+        }, 250)
 
         ivBack.setOnClickListener {
             navigator.anim(RIGHT_LEFT).finishActivity()
@@ -68,6 +81,11 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
     override fun onPause() {
         viewScanner.pause()
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.dispose()
+        super.onDestroy()
     }
 
     override fun onBackPressed() {

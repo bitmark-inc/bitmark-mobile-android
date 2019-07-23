@@ -240,6 +240,7 @@ dependencies {
   implementation 'com.google.code.gson:gson:2.8.5'
   implementation 'com.google.zxing:core:3.4.0'
   implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
+  implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
 
 
   // Testing
