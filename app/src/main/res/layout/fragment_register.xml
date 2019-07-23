@@ -19,7 +19,7 @@
       android:text="@string/bitmark_registry"
       android:textAllCaps="true"
       android:textColor="@color/colorAccent"
-      android:textSize="@dimen/sp_16"
+      android:textSize="@dimen/sp_17"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
@@ -28,10 +28,11 @@
       android:layout_below="@id/tvAppName"
       android:layout_marginEnd="@dimen/dp_48"
       android:layout_marginStart="@dimen/dp_48"
+      android:layout_marginTop="@dimen/dp_28"
       android:fontFamily="@font/avenir_light"
       android:text="@string/protect_the_legal_rights"
       android:textColor="@android:color/black"
-      android:textSize="@dimen/sp_16"
+      android:textSize="@dimen/sp_17"
       />
 
   <androidx.appcompat.widget.AppCompatImageView

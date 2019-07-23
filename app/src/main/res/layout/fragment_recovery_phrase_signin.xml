@@ -66,7 +66,7 @@
           android:fontFamily="@font/avenir_light"
           android:text="@string/please_type_all_12_word"
           android:textColor="@android:color/black"
-          android:textSize="@dimen/sp_16"
+          android:textSize="@dimen/sp_17"
           />
 
       <androidx.recyclerview.widget.RecyclerView
@@ -128,7 +128,7 @@
       android:gravity="center_horizontal"
       android:text="@string/are_you_using_24_word"
       android:textColor="@drawable/blue_ribbon_stateful"
-      android:textSize="@dimen/sp_12"
+      android:textSize="@dimen/sp_15"
       />
 
   <androidx.appcompat.widget.AppCompatButton

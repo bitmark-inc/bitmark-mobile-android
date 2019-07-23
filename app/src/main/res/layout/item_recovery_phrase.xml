@@ -27,14 +27,14 @@
       android:id="@+id/edtWord"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_marginStart="@dimen/dp_6"
+      android:layout_marginStart="@dimen/dp_8"
       android:background="@drawable/bg_border_blue_ribbon_wild_sand_stateful"
       android:fontFamily="@font/avenir_light"
       android:gravity="center_vertical"
       android:inputType="text"
       android:maxLines="1"
       android:textColor="@color/gray"
-      android:textSize="@dimen/sp_18"
+      android:textSize="@dimen/sp_15"
       tools:text="abandon"
       />
 

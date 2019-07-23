@@ -117,7 +117,7 @@
       app:layout_constraintBottom_toBottomOf="@id/etRecipient"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintTop_toTopOf="@id/etRecipient"
-      app:srcCompat="@drawable/ic_cancel"
+      app:srcCompat="@drawable/ic_round_cancel"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
