@@ -11,6 +11,7 @@ import com.bitmark.registry.util.extension.copyToClipboard
 import com.bitmark.registry.util.extension.invisible
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.view.QrCodeSharingDialog
 import kotlinx.android.synthetic.main.fragment_settings.*
 import javax.inject.Inject
 
@@ -60,7 +61,12 @@ class SettingsFragment : BaseSupportFragment() {
 
         tvNeedHelp.setSafetyOnclickListener { }
 
-        ivQrCode.setSafetyOnclickListener { }
+        ivQrCode.setSafetyOnclickListener {
+            if (accountNumber.isEmpty()) return@setSafetyOnclickListener
+            val dialog = QrCodeSharingDialog(context!!, accountNumber)
+            dialog.ownerActivity = activity
+            dialog.show()
+        }
     }
 
     override fun deinitComponents() {

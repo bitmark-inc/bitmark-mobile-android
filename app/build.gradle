@@ -8,6 +8,8 @@ apply plugin: 'kotlin-kapt'
 
 apply from: 'versioning.gradle'
 
+apply from: '../autodimension.gradle'
+
 def enableSeparateBuildPerCPUArchitecture = false
 
 android {

@@ -11,6 +11,7 @@ import android.os.Handler
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.registry.R
@@ -186,5 +187,21 @@ fun Context.getString(stringResName: String): String {
         getString(id)
     } catch (e: Throwable) {
         ""
+    }
+}
+
+fun Context.getDimensionPixelSize(@DimenRes dimenRes: Int): Int {
+    return try {
+        resources.getDimensionPixelSize(dimenRes)
+    } catch (e: Throwable) {
+        0
+    }
+}
+
+fun Context.getDimension(@DimenRes dimenRes: Int, default: Float = 0f): Float {
+    return try {
+        resources.getDimension(dimenRes)
+    } catch (e: Throwable) {
+        default
     }
 }

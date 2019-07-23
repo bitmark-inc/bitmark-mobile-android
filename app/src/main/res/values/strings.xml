@@ -98,5 +98,6 @@
   <string name="detail_arrow">Detail »</string>
   <string name="write_down_your_recovery_phrase_arrow">Write Down Your Recovery Phrase »</string>
   <string name="need_help_question">Need Help?</string>
+  <string name="receive_property">Receive Property</string>
 
 </resources>

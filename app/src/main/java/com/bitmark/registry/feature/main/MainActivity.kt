@@ -30,7 +30,7 @@ class MainActivity : BaseAppCompatActivity() {
         bottomNav.setTitleTypeface(
             ResourcesCompat.getFont(this, R.font.avenir_next_w1g_bold)
         )
-        bottomNav.setTitleTextSizeInSp(10f, 10f)
+
 
         val adapter =
             ViewPagerAdapter(supportFragmentManager)
