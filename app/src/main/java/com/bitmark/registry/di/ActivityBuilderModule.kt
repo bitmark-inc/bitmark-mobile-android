@@ -2,16 +2,12 @@ package com.bitmark.registry.di
 
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.main.MainModule
-import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
-import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerModule
-import com.bitmark.registry.feature.register.RegisterActivity
-import com.bitmark.registry.feature.register.RegisterModule
-import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
-import com.bitmark.registry.feature.register.authentication.AuthenticationModule
-import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninActivity
-import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninModule
+import com.bitmark.registry.feature.register.RegisterContainerActivity
+import com.bitmark.registry.feature.register.RegisterContainerModule
+import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
+import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeModule
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.feature.splash.SplashModule
 import dagger.Module
@@ -31,17 +27,9 @@ abstract class ActivityBuilderModule {
     @ActivityScope
     internal abstract fun bindSplashActivity(): SplashActivity
 
-    @ContributesAndroidInjector(modules = [AuthenticationModule::class])
+    @ContributesAndroidInjector(modules = [RegisterContainerModule::class])
     @ActivityScope
-    internal abstract fun bindAuthenticationActivity(): AuthenticationActivity
-
-    @ContributesAndroidInjector(modules = [RegisterModule::class])
-    @ActivityScope
-    internal abstract fun bindRegisterActivity(): RegisterActivity
-
-    @ContributesAndroidInjector(modules = [RecoveryPhraseSigninModule::class])
-    @ActivityScope
-    internal abstract fun bindRecoveryPhraseActivity(): RecoveryPhraseSigninActivity
+    internal abstract fun bindRegisterContainerActivity(): RegisterContainerActivity
 
     @ContributesAndroidInjector(modules = [MainModule::class])
     @ActivityScope

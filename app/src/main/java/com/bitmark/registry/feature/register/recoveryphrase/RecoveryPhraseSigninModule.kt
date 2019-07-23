@@ -1,6 +1,6 @@
 package com.bitmark.registry.feature.register.recoveryphrase
 
-import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.Navigator
 import dagger.Module
 import dagger.Provides
@@ -16,10 +16,10 @@ import dagger.Provides
 class RecoveryPhraseSigninModule {
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideNavigator(
-        activity: RecoveryPhraseSigninActivity
-    ): Navigator<RecoveryPhraseSigninActivity> {
-        return Navigator(activity)
+        fragment: RecoveryPhraseSigninFragment
+    ): Navigator<RecoveryPhraseSigninFragment> {
+        return Navigator(fragment)
     }
 }

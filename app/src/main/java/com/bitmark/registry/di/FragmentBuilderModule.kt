@@ -18,6 +18,12 @@ import com.bitmark.registry.feature.main.transactions.history.TransactionHistory
 import com.bitmark.registry.feature.main.transactions.history.TransactionHistoryModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
+import com.bitmark.registry.feature.register.RegisterFragment
+import com.bitmark.registry.feature.register.RegisterModule
+import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
+import com.bitmark.registry.feature.register.authentication.AuthenticationModule
+import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninFragment
+import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninModule
 import com.bitmark.registry.feature.transfer.TransferFragment
 import com.bitmark.registry.feature.transfer.TransferModule
 import dagger.Module
@@ -72,4 +78,16 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [AuthorizedModule::class])
     @FragmentScope
     internal abstract fun bindAccountAuthorizedFragment(): AuthorizedFragment
+
+    @ContributesAndroidInjector(modules = [RecoveryPhraseSigninModule::class])
+    @FragmentScope
+    internal abstract fun bindRecoverySigninFragment(): RecoveryPhraseSigninFragment
+
+    @ContributesAndroidInjector(modules = [AuthenticationModule::class])
+    @FragmentScope
+    internal abstract fun bindAuthenticationFragment(): AuthenticationFragment
+
+    @ContributesAndroidInjector(modules = [RegisterModule::class])
+    @FragmentScope
+    internal abstract fun bindRegisterFragment(): RegisterFragment
 }

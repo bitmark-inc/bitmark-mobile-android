@@ -1,7 +1,7 @@
 package com.bitmark.registry.feature.register.authentication
 
 import com.bitmark.registry.data.source.AccountRepository
-import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
@@ -19,7 +19,7 @@ import dagger.Provides
 class AuthenticationModule {
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideViewModel(
         accountRepo: AccountRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
@@ -28,18 +28,18 @@ class AuthenticationModule {
     }
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideNavigator(
-        activity: AuthenticationActivity
-    ): Navigator<AuthenticationActivity> {
-        return Navigator(activity)
+        fragment: AuthenticationFragment
+    ): Navigator<AuthenticationFragment> {
+        return Navigator(fragment)
     }
 
     @Provides
-    @ActivityScope
+    @FragmentScope
     fun provideDialogController(
-        activity: AuthenticationActivity
+        fragment: AuthenticationFragment
     ): DialogController {
-        return DialogController(activity)
+        return DialogController(fragment.activity!!)
     }
 }

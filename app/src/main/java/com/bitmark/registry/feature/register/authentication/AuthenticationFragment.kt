@@ -10,7 +10,7 @@ import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseAppCompatActivity
+import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
@@ -24,7 +24,7 @@ import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.authentication.error.AuthenticationException
 import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
-import kotlinx.android.synthetic.main.activity_authentication.*
+import kotlinx.android.synthetic.main.fragment_authentication.*
 import javax.inject.Inject
 
 
@@ -34,15 +34,17 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class AuthenticationActivity : BaseAppCompatActivity() {
+class AuthenticationFragment : BaseSupportFragment() {
 
     companion object {
         private const val RECOVERY_PHRASE = "recovery_phrase"
 
-        fun getBundle(phrase: Array<String?>? = null): Bundle {
+        fun newInstance(phrase: Array<String?>? = null): AuthenticationFragment {
+            val fragment = AuthenticationFragment()
             val bundle = Bundle()
             if (null != phrase) bundle.putStringArray(RECOVERY_PHRASE, phrase)
-            return bundle
+            fragment.arguments = bundle
+            return fragment
         }
     }
 
@@ -53,16 +55,16 @@ class AuthenticationActivity : BaseAppCompatActivity() {
     internal lateinit var dialogController: DialogController
 
     @Inject
-    internal lateinit var navigator: Navigator<AuthenticationActivity>
+    internal lateinit var navigator: Navigator<AuthenticationFragment>
 
-    override fun layoutRes(): Int = R.layout.activity_authentication
+    override fun layoutRes(): Int = R.layout.fragment_authentication
 
     override fun viewModel(): BaseViewModel? = viewModel
 
     override fun initComponents() {
         super.initComponents()
 
-        val phrase = intent.extras?.getStringArray(RECOVERY_PHRASE)
+        val phrase = arguments?.getStringArray(RECOVERY_PHRASE)
 
         btnEnableTouchId.setSafetyOnclickListener {
             createAccount(
@@ -125,11 +127,11 @@ class AuthenticationActivity : BaseAppCompatActivity() {
         } else {
             Account.fromRecoveryPhrase(*phrase)
         }
-        val spec = KeyAuthenticationSpec.Builder(this)
+        val spec = KeyAuthenticationSpec.Builder(context)
             //.setAuthenticationValidityDuration(BuildConfig.KEY_VALIDITY_DURATION)
             .setKeyAlias(account.accountNumber)
             .setAuthenticationRequired(authRequired).build()
-        account.saveToKeyStore(this, spec, object : Callback0 {
+        account.saveToKeyStore(activity, spec, object : Callback0 {
             override fun onSuccess() {
 
                 val requester = account.accountNumber
@@ -216,7 +218,7 @@ class AuthenticationActivity : BaseAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        navigator.anim(RIGHT_LEFT).finishActivity()
+        navigator.popFragment()
         super.onBackPressed()
     }
 

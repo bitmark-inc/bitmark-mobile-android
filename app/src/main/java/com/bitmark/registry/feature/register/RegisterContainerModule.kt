@@ -1,6 +1,6 @@
 package com.bitmark.registry.feature.register
 
-import com.bitmark.registry.di.FragmentScope
+import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.Navigator
 import dagger.Module
 import dagger.Provides
@@ -8,19 +8,18 @@ import dagger.Provides
 
 /**
  * @author Hieu Pham
- * @since 7/4/19
+ * @since 2019-07-23
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 @Module
-class RegisterModule {
+class RegisterContainerModule {
 
     @Provides
-    @FragmentScope
+    @ActivityScope
     fun provideNavigator(
-        fragment: RegisterFragment
-    ): Navigator<RegisterFragment> {
-        return Navigator(fragment)
+        activity: RegisterContainerActivity
+    ): Navigator<RegisterContainerActivity> {
+        return Navigator(activity)
     }
-
 }

@@ -31,19 +31,6 @@
         />
 
     <activity
-        android:name=".feature.register.RegisterActivity"
-        android:screenOrientation="portrait"/>
-
-    <activity
-        android:name=".feature.register.authentication.AuthenticationActivity"
-        android:screenOrientation="portrait"/>
-
-    <activity
-        android:name=".feature.register.recoveryphrase.RecoveryPhraseSigninActivity"
-        android:screenOrientation="portrait"
-        android:windowSoftInputMode="adjustResize"/>
-
-    <activity
         android:name=".feature.property_detail.PropertyDetailContainerActivity"
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustResize"/>
@@ -56,6 +43,10 @@
 
     <activity
         android:name=".feature.WebViewActivity"
+        android:screenOrientation="portrait"/>
+
+    <activity
+        android:name=".feature.register.RegisterContainerActivity"
         android:screenOrientation="portrait"/>
 
     <!-- Firebase message service -->

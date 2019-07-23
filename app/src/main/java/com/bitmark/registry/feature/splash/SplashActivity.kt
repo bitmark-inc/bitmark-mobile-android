@@ -17,7 +17,7 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
-import com.bitmark.registry.feature.register.RegisterActivity
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.visible
@@ -103,7 +103,7 @@ class SplashActivity : BaseAppCompatActivity() {
                     } else {
                         Handler().postDelayed({
                             navigator.anim(RIGHT_LEFT)
-                                .startActivityAsRoot(RegisterActivity::class.java)
+                                .startActivityAsRoot(RegisterContainerActivity::class.java)
                         }, 1000)
                     }
 

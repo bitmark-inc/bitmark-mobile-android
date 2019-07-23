@@ -3,14 +3,14 @@ package com.bitmark.registry.feature.register.recoveryphrase
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseAppCompatActivity
+import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.feature.register.authentication.AuthenticationActivity
+import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
 import com.bitmark.registry.util.extension.*
 import com.bitmark.sdk.features.Account
-import kotlinx.android.synthetic.main.activity_recovery_phrase_signin.*
+import kotlinx.android.synthetic.main.fragment_recovery_phrase_signin.*
 import javax.inject.Inject
 
 
@@ -20,12 +20,16 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
+class RecoveryPhraseSigninFragment : BaseSupportFragment() {
+
+    companion object {
+        fun newInstance() = RecoveryPhraseSigninFragment()
+    }
 
     @Inject
-    internal lateinit var navigator: Navigator<RecoveryPhraseSigninActivity>
+    internal lateinit var navigator: Navigator<RecoveryPhraseSigninFragment>
 
-    override fun layoutRes(): Int = R.layout.activity_recovery_phrase_signin
+    override fun layoutRes(): Int = R.layout.fragment_recovery_phrase_signin
 
     override fun viewModel(): BaseViewModel? = null
 
@@ -34,13 +38,14 @@ class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
 
         val adapter = RecoveryPhraseAdapter(textColor = R.color.blue_ribbon)
         val layoutManager =
-            GridLayoutManager(this, 2, RecyclerView.VERTICAL, false)
+            GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
         rvRecoveryPhrase.layoutManager = layoutManager
         rvRecoveryPhrase.isNestedScrollingEnabled = false
         rvRecoveryPhrase.adapter = adapter
         adapter.setDefault()
 
-        detectKeyBoardState { showing ->
+        activity?.detectKeyBoardState { showing ->
+            if (view == null) return@detectKeyBoardState
             if (showing) {
                 tvSwitchWord.gone()
             } else {
@@ -49,7 +54,7 @@ class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
         }
 
         btnSubmit.setSafetyOnclickListener {
-            hideKeyBoard()
+            activity?.hideKeyBoard()
             val phrase = adapter.getPhrase()
             val isValid = try {
                 Account.fromRecoveryPhrase(*phrase)
@@ -61,9 +66,9 @@ class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
             if (isValid) {
                 tvError.gone()
                 tvTryAgain.gone()
-                navigator.anim(Navigator.RIGHT_LEFT).startActivityAsRoot(
-                    AuthenticationActivity::class.java,
-                    AuthenticationActivity.getBundle(phrase)
+                navigator.anim(RIGHT_LEFT).replaceFragment(
+                    R.id.layoutContainer,
+                    AuthenticationFragment.newInstance(phrase)
                 )
             } else {
                 tvError.visible()
@@ -85,7 +90,7 @@ class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
         }
 
         tvBack.setSafetyOnclickListener {
-            navigator.anim(RIGHT_LEFT).finishActivity()
+            navigator.popFragment()
         }
 
         adapter.setListener(object : OnTextChangeListener {
@@ -101,7 +106,7 @@ class RecoveryPhraseSigninActivity : BaseAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        navigator.anim(RIGHT_LEFT).finishActivity()
+        navigator.popFragment()
         super.onBackPressed()
     }
 }
