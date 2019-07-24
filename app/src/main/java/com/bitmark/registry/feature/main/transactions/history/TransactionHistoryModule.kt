@@ -40,9 +40,7 @@ class TransactionHistoryModule {
     @FragmentScope
     fun provideNavigator(
         fragment: TransactionHistoryFragment
-    ): Navigator<TransactionHistoryFragment> {
-        return Navigator(fragment)
-    }
+    ) = Navigator(fragment)
 
     @Provides
     @FragmentScope

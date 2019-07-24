@@ -33,7 +33,7 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
     }
 
     @Inject
-    lateinit var navigator: Navigator<ScanQrCodeActivity>
+    lateinit var navigator: Navigator
 
     private val compositeDisposable = CompositeDisposable()
 

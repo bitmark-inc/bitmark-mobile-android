@@ -31,9 +31,7 @@ class AuthenticationModule {
     @FragmentScope
     fun provideNavigator(
         fragment: AuthenticationFragment
-    ): Navigator<AuthenticationFragment> {
-        return Navigator(fragment)
-    }
+    ) = Navigator(fragment)
 
     @Provides
     @FragmentScope

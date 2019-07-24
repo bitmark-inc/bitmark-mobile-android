@@ -1,9 +1,7 @@
 package com.bitmark.registry.feature
 
 import android.os.Bundle
-import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.fragment.app.Fragment
 import com.bitmark.registry.di.DaggerAppCompatActivity
 
 /**
@@ -32,9 +30,6 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
         }
         super.onDestroy()
     }
-
-    protected fun currentFragment(): Fragment? =
-        supportFragmentManager.findFragmentById(layoutContainerId())
 
     /**
      * Define the layout res id can be used to [Activity.setContentView]
@@ -73,9 +68,4 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
      */
     protected open fun unobserve() {}
 
-    /**
-     * denote the id of container/root layout
-     */
-    @IdRes
-    protected open fun layoutContainerId() = -1
 }

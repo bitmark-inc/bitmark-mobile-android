@@ -7,6 +7,9 @@ import androidx.lifecycle.Observer
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
 import com.bitmark.registry.util.extension.copyToClipboard
 import com.bitmark.registry.util.extension.invisible
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -31,6 +34,9 @@ class SettingsFragment : BaseSupportFragment() {
     @Inject
     lateinit var viewModel: SettingsViewModel
 
+    @Inject
+    lateinit var navigator: Navigator
+
     override fun layoutRes(): Int = R.layout.fragment_settings
 
     override fun viewModel(): BaseViewModel? = viewModel
@@ -53,7 +59,15 @@ class SettingsFragment : BaseSupportFragment() {
             handler.postDelayed({ tvCopyClipboard.invisible() }, 1000)
         }
 
-        tvWriteDownPhrase.setSafetyOnclickListener { }
+        tvWriteDownPhrase.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT).replaceChildFragment(
+                R.id.layoutContainer,
+                RecoveryPhraseWarningFragment.newInstance(
+                    getString(R.string.recovery_phrase),
+                    getString(R.string.your_recovery_phrase_is_the_only)
+                )
+            )
+        }
 
         tvLogout.setSafetyOnclickListener { }
 

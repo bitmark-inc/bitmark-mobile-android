@@ -27,7 +27,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
     }
 
     @Inject
-    internal lateinit var navigator: Navigator<RecoveryPhraseSigninFragment>
+    internal lateinit var navigator: Navigator
 
     override fun layoutRes(): Int = R.layout.fragment_recovery_phrase_signin
 
@@ -105,8 +105,5 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         })
     }
 
-    override fun onBackPressed() {
-        navigator.popFragment()
-        super.onBackPressed()
-    }
+    override fun onBackPressed() = navigator.popFragment() ?: false
 }

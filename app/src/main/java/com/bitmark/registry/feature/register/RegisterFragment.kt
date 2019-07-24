@@ -25,7 +25,7 @@ class RegisterFragment : BaseSupportFragment() {
     }
 
     @Inject
-    internal lateinit var navigator: Navigator<RegisterFragment>
+    internal lateinit var navigator: Navigator
 
     override fun layoutRes(): Int = R.layout.fragment_register
 

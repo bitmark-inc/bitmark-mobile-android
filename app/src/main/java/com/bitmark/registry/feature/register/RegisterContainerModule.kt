@@ -19,7 +19,5 @@ class RegisterContainerModule {
     @ActivityScope
     fun provideNavigator(
         activity: RegisterContainerActivity
-    ): Navigator<RegisterContainerActivity> {
-        return Navigator(activity)
-    }
+    ) = Navigator(activity)
 }

@@ -21,7 +21,8 @@ class AccountViewPagerAdapter(
 ) : ViewPagerAdapter(fm) {
     init {
         super.add(
-            SettingsFragment.newInstance(), AuthorizedFragment.newInstance()
+            SettingsFragment.newInstance(),
+            AuthorizedFragment.newInstance()
         )
     }
 

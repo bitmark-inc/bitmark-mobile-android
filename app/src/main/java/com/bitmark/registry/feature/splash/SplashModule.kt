@@ -31,9 +31,7 @@ class SplashModule {
 
     @Provides
     @ActivityScope
-    fun provideNavigator(activity: SplashActivity): Navigator<SplashActivity> {
-        return Navigator(activity)
-    }
+    fun provideNavigator(activity: SplashActivity) = Navigator(activity)
 
     @Provides
     @ActivityScope

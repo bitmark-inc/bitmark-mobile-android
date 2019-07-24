@@ -31,9 +31,7 @@ class PropertyDetailModule {
     @FragmentScope
     fun provideNavigator(
         fragment: PropertyDetailFragment
-    ): Navigator<PropertyDetailFragment> {
-        return Navigator(fragment)
-    }
+    ) = Navigator(fragment)
 
     @Provides
     @FragmentScope

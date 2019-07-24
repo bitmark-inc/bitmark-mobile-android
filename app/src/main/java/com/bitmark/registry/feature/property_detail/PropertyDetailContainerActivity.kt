@@ -29,7 +29,7 @@ class PropertyDetailContainerActivity : BaseAppCompatActivity() {
     }
 
     @Inject
-    lateinit var navigator: Navigator<PropertyDetailContainerActivity>
+    lateinit var navigator: Navigator
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -45,10 +45,8 @@ class PropertyDetailContainerActivity : BaseAppCompatActivity() {
 
     override fun viewModel(): BaseViewModel? = null
 
-    override fun layoutContainerId(): Int = R.id.layoutContainer
-
     override fun onBackPressed() {
-        val currentFragment = currentFragment()
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.layoutContainer)
         if (currentFragment as? PropertyDetailFragment != null) {
             navigator.anim(Navigator.RIGHT_LEFT).finishActivity()
             super.onBackPressed()

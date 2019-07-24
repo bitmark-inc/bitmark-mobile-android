@@ -48,9 +48,9 @@ class RecoveryPhraseAdapter(
         if (words.size % 2 != 0) throw RuntimeException("must be even number")
         items.clear()
         val loop = words.size / 2
-        for (sequence in 1..loop) {
-            items.add(Item(sequence, ""))
-            items.add(Item(sequence + loop, ""))
+        for (index in 0 until loop) {
+            items.add(Item(index + 1, words[index]))
+            items.add(Item(index + loop + 1, words[index + loop]))
         }
         notifyDataSetChanged()
     }

@@ -17,7 +17,7 @@ import javax.inject.Inject
 class RegisterContainerActivity : BaseAppCompatActivity() {
 
     @Inject
-    lateinit var navigator: Navigator<RegisterContainerActivity>
+    lateinit var navigator: Navigator
 
     override fun layoutRes(): Int = R.layout.activity_register_container
 

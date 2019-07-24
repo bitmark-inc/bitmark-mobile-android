@@ -7,13 +7,12 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
-import com.bitmark.registry.feature.ViewPagerAdapter
-import com.bitmark.registry.feature.main.account.AccountFragment
 import com.bitmark.registry.feature.main.properties.PropertiesFragment
-import com.bitmark.registry.feature.main.transactions.TransactionsFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseAppCompatActivity() {
+
+    private lateinit var adapter: MainViewPagerAdapter
 
     override fun layoutRes(): Int = R.layout.activity_main
 
@@ -32,13 +31,7 @@ class MainActivity : BaseAppCompatActivity() {
         )
 
 
-        val adapter =
-            ViewPagerAdapter(supportFragmentManager)
-        adapter.add(
-            PropertiesFragment.newInstance(),
-            TransactionsFragment.newInstance(),
-            AccountFragment.newInstance()
-        )
+        adapter = MainViewPagerAdapter(supportFragmentManager)
         viewPager.offscreenPageLimit = adapter.count
         viewPager.adapter = adapter
         viewPager.setCurrentItem(0, false)
@@ -54,5 +47,15 @@ class MainActivity : BaseAppCompatActivity() {
             true
         }
 
+    }
+
+    override fun onBackPressed() {
+        val currentFragment = adapter.currentFragment as? BaseSupportFragment
+        if (currentFragment is PropertiesFragment)
+            super.onBackPressed()
+        else if (currentFragment?.onBackPressed() == false) {
+            bottomNav.currentItem = 0
+            viewPager.setCurrentItem(0, false)
+        }
     }
 }

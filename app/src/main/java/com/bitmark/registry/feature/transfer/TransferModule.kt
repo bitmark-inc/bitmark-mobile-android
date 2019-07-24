@@ -36,9 +36,7 @@ class TransferModule {
     @FragmentScope
     fun provideNavigator(
         fragment: TransferFragment
-    ): Navigator<TransferFragment> {
-        return Navigator(fragment)
-    }
+    ) = Navigator(fragment)
 
     @Provides
     @FragmentScope

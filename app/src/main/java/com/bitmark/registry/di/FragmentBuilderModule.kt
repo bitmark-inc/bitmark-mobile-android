@@ -1,5 +1,7 @@
 package com.bitmark.registry.di
 
+import com.bitmark.registry.feature.main.account.AccountContainerFragment
+import com.bitmark.registry.feature.main.account.AccountContainerModule
 import com.bitmark.registry.feature.main.account.AccountFragment
 import com.bitmark.registry.feature.main.account.AccountModule
 import com.bitmark.registry.feature.main.account.authorized.AuthorizedFragment
@@ -18,6 +20,10 @@ import com.bitmark.registry.feature.main.transactions.history.TransactionHistory
 import com.bitmark.registry.feature.main.transactions.history.TransactionHistoryModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingFragment
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingModule
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningModule
 import com.bitmark.registry.feature.register.RegisterFragment
 import com.bitmark.registry.feature.register.RegisterModule
 import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
@@ -46,10 +52,6 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [TransactionsModule::class])
     @FragmentScope
     internal abstract fun bindTransactionsFragment(): TransactionsFragment
-
-    @ContributesAndroidInjector(modules = [AccountModule::class])
-    @FragmentScope
-    internal abstract fun bindAccountFragment(): AccountFragment
 
     @ContributesAndroidInjector(modules = [YourPropertiesModule::class])
     @FragmentScope
@@ -90,4 +92,20 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [RegisterModule::class])
     @FragmentScope
     internal abstract fun bindRegisterFragment(): RegisterFragment
+
+    @ContributesAndroidInjector(modules = [RecoveryPhraseWarningModule::class])
+    @FragmentScope
+    internal abstract fun bindRecoveryPhraseWarningFragment(): RecoveryPhraseWarningFragment
+
+    @ContributesAndroidInjector(modules = [RecoveryPhraseShowingModule::class])
+    @FragmentScope
+    internal abstract fun bindRecoveryPhraseShowingFragment(): RecoveryPhraseShowingFragment
+
+    @ContributesAndroidInjector(modules = [AccountContainerModule::class])
+    @FragmentScope
+    internal abstract fun bindAccountContainerFragment(): AccountContainerFragment
+
+    @ContributesAndroidInjector(modules = [AccountModule::class])
+    @FragmentScope
+    internal abstract fun bindAccountFragment(): AccountFragment
 }

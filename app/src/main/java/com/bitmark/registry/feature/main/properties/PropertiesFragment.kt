@@ -27,7 +27,7 @@ class PropertiesFragment : BaseSupportFragment() {
     internal lateinit var viewModel: PropertiesViewModel
 
     @Inject
-    internal lateinit var navigator: Navigator<PropertiesFragment>
+    internal lateinit var navigator: Navigator
 
     private lateinit var adapter: PropertiesViewPagerAdapter
 

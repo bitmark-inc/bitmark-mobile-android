@@ -16,7 +16,7 @@ import com.bitmark.registry.R
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class Navigator<T>(host: T) {
+class Navigator(host: Any) {
 
     companion object {
         const val NONE = 0x00
@@ -36,7 +36,7 @@ class Navigator<T>(host: T) {
         }
     }
 
-    fun anim(anim: Int): Navigator<T> {
+    fun anim(anim: Int): Navigator {
         this.anim = anim
         return this
     }
@@ -46,6 +46,22 @@ class Navigator<T>(host: T) {
         addToBackStack: Boolean = true
     ) {
         val transaction = activity?.supportFragmentManager?.beginTransaction()
+        transactionAnim(transaction)
+        transaction?.replace(
+            container,
+            fragment,
+            fragment::class.java.simpleName
+        )
+        if (addToBackStack) transaction?.addToBackStack(null)
+        transaction?.commitAllowingStateLoss()
+    }
+
+    fun replaceChildFragment(
+        @IdRes container: Int, fragment: Fragment,
+        addToBackStack: Boolean = true
+    ) {
+        val transaction =
+            this.fragment?.childFragmentManager?.beginTransaction()
         transactionAnim(transaction)
         transaction?.replace(
             container,
@@ -67,9 +83,22 @@ class Navigator<T>(host: T) {
         transaction?.commitAllowingStateLoss()
     }
 
-    fun popFragment() {
-        val fragManager = activity?.supportFragmentManager
-        fragManager?.popBackStackImmediate()
+    fun popFragment() =
+        activity?.supportFragmentManager?.popBackStackImmediate()
+
+    fun popChildFragment() =
+        fragment?.childFragmentManager?.popBackStackImmediate()
+
+    fun popChildFragmentToRoot(): Boolean {
+        val fragmentManager = fragment?.childFragmentManager
+        val count = fragmentManager?.backStackEntryCount ?: return false
+        var popped = false
+
+        for (i in 0 until count) {
+            popped = fragmentManager.popBackStackImmediate() || popped
+        }
+
+        return popped
     }
 
     fun startActivity(intent: Intent) {

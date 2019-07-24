@@ -26,5 +26,9 @@ class SettingsModule {
 
     @Provides
     @FragmentScope
-    fun provideNavigator(fragment: SettingsFragment) = Navigator(fragment)
+    fun provideNavigator(fragment: SettingsFragment): Navigator {
+        // link to AccountContainerFragment
+        return Navigator(fragment.parentFragment?.parentFragment!!)
+    }
+
 }

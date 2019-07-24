@@ -28,7 +28,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
     internal lateinit var viewModel: TransactionHistoryViewModel
 
     @Inject
-    internal lateinit var navigator: Navigator<TransactionHistoryFragment>
+    internal lateinit var navigator: Navigator
 
     @Inject
     internal lateinit var dialogController: DialogController

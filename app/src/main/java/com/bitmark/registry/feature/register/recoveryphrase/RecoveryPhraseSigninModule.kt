@@ -19,7 +19,5 @@ class RecoveryPhraseSigninModule {
     @FragmentScope
     fun provideNavigator(
         fragment: RecoveryPhraseSigninFragment
-    ): Navigator<RecoveryPhraseSigninFragment> {
-        return Navigator(fragment)
-    }
+    ) = Navigator(fragment)
 }

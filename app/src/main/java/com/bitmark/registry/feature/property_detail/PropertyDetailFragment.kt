@@ -65,7 +65,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
     lateinit var viewModel: PropertyDetailViewModel
 
     @Inject
-    lateinit var navigator: Navigator<PropertyDetailFragment>
+    lateinit var navigator: Navigator
 
     @Inject
     lateinit var dialogController: DialogController

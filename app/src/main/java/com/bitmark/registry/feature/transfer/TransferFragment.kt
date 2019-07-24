@@ -52,7 +52,7 @@ class TransferFragment : BaseSupportFragment() {
     lateinit var dialogController: DialogController
 
     @Inject
-    lateinit var navigator: Navigator<TransferFragment>
+    lateinit var navigator: Navigator
 
     private lateinit var bitmark: BitmarkModelView
 
@@ -214,8 +214,5 @@ class TransferFragment : BaseSupportFragment() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        navigator.popFragment()
-    }
+    override fun onBackPressed() = navigator.popFragment() ?: false
 }

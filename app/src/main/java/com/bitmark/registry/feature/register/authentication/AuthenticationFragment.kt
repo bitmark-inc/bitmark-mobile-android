@@ -55,7 +55,7 @@ class AuthenticationFragment : BaseSupportFragment() {
     internal lateinit var dialogController: DialogController
 
     @Inject
-    internal lateinit var navigator: Navigator<AuthenticationFragment>
+    internal lateinit var navigator: Navigator
 
     override fun layoutRes(): Int = R.layout.fragment_authentication
 
@@ -217,9 +217,6 @@ class AuthenticationFragment : BaseSupportFragment() {
         navigator.anim(BOTTOM_UP).startActivity(intent)
     }
 
-    override fun onBackPressed() {
-        navigator.popFragment()
-        super.onBackPressed()
-    }
+    override fun onBackPressed() = navigator.popFragment() ?: false
 
 }

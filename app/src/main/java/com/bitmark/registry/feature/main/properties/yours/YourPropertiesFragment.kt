@@ -33,7 +33,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
     internal lateinit var viewModel: YourPropertiesViewModel
 
     @Inject
-    lateinit var navigator: Navigator<YourPropertiesFragment>
+    lateinit var navigator: Navigator
 
     private val adapter = YourPropertiesRecyclerViewAdapter()
 

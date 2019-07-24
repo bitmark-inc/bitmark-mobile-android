@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/layoutToolbar"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:background="@color/wild_sand"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingEnd="@dimen/dp_20"
+      android:paddingStart="@dimen/dp_20"
+      app:layout_constraintTop_toTopOf="parent"
+      >
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivBack"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_back"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvToolbarTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="end"
+        android:fontFamily="@font/avenir_bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingEnd="@dimen/dp_36"
+        android:paddingStart="@dimen/dp_36"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivBack"
+        tools:text="This is very very long toolbar title"
+        />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <LinearLayout
+      android:id="@+id/layoutWarning"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_36"
+      android:gravity="center"
+      android:orientation="horizontal"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
+      >
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivWarning"
+        android:layout_width="@dimen/dp_36"
+        android:layout_height="@dimen/dp_36"
+        app:srcCompat="@drawable/ic_alert_red"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvWarning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_4"
+        android:fontFamily="@font/avenir_bold"
+        android:text="@string/warning_exclamation"
+        android:textAllCaps="true"
+        android:textColor="@color/torch_red"
+        android:textSize="@dimen/sp_17"
+        />
+
+  </LinearLayout>
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvWarningContent"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/dp_20"
+      android:layout_marginStart="@dimen/dp_20"
+      android:layout_marginTop="@dimen/dp_20"
+      android:fontFamily="@font/avenir_light"
+      android:lineSpacingExtra="@dimen/dp_2"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_17"
+      app:layout_constraintStart_toStartOf="@id/layoutWarning"
+      app:layout_constraintTop_toBottomOf="@id/layoutWarning"
+      tools:text="@string/your_recovery_phrase_is_the_only"
+      />
+
+  <androidx.appcompat.widget.AppCompatButton
+      android:id="@+id/btnWriteDownRecoveryPhrase"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:background="@drawable/bg_blue_ribbon_stateful"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/write_down_your_recovery_phrase"
+      android:textColor="@android:color/white"
+      android:textSize="@dimen/sp_16"
+      app:layout_constraintBottom_toBottomOf="parent"
+      tools:visibility="visible"
+      style="?android:attr/borderlessButtonStyle"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

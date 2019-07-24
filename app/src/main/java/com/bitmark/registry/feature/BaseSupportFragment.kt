@@ -94,5 +94,5 @@ abstract class BaseSupportFragment : DaggerFragment() {
      */
     open fun refresh() {}
 
-    open fun onBackPressed() {}
+    open fun onBackPressed(): Boolean = false
 }

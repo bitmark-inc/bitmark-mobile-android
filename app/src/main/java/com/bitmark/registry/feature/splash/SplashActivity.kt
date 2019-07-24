@@ -43,7 +43,7 @@ class SplashActivity : BaseAppCompatActivity() {
     internal lateinit var dialogController: DialogController
 
     @Inject
-    internal lateinit var navigator: Navigator<SplashActivity>
+    internal lateinit var navigator: Navigator
 
     private lateinit var authorizationDialog: AuthorizationRequiredDialog
 
