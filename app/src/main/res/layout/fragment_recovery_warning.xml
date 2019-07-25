@@ -52,38 +52,31 @@
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 
-  <LinearLayout
-      android:id="@+id/layoutWarning"
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivWarning"
+      android:layout_width="@dimen/dp_36"
+      android:layout_height="@dimen/dp_36"
+      android:layout_marginTop="@dimen/dp_6"
+      app:layout_constraintBottom_toBottomOf="@id/tvWarning"
+      app:layout_constraintEnd_toStartOf="@id/tvWarning"
+      app:layout_constraintTop_toTopOf="@id/tvWarning"
+      app:srcCompat="@drawable/ic_alert_red"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvWarning"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_36"
-      android:gravity="center"
-      android:orientation="horizontal"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/warning_exclamation"
+      android:textAllCaps="true"
+      android:textColor="@color/torch_red"
+      android:textSize="@dimen/sp_17"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
-      >
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivWarning"
-        android:layout_width="@dimen/dp_36"
-        android:layout_height="@dimen/dp_36"
-        app:srcCompat="@drawable/ic_alert_red"
-        />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvWarning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dp_4"
-        android:fontFamily="@font/avenir_bold"
-        android:text="@string/warning_exclamation"
-        android:textAllCaps="true"
-        android:textColor="@color/torch_red"
-        android:textSize="@dimen/sp_17"
-        />
-
-  </LinearLayout>
+      />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvWarningContent"
@@ -96,8 +89,8 @@
       android:lineSpacingExtra="@dimen/dp_2"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_17"
-      app:layout_constraintStart_toStartOf="@id/layoutWarning"
-      app:layout_constraintTop_toBottomOf="@id/layoutWarning"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvWarning"
       tools:text="@string/your_recovery_phrase_is_the_only"
       />
 
