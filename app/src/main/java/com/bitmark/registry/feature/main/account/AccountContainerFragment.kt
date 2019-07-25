@@ -4,6 +4,9 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingFragment
+import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
+import com.bitmark.registry.feature.recoveryphrase.test.RecoveryPhraseTestFragment
 import javax.inject.Inject
 
 
@@ -36,9 +39,32 @@ class AccountContainerFragment : BaseSupportFragment() {
 
     override fun onBackPressed(): Boolean {
         super.onBackPressed()
-        val currentFragment =
-            childFragmentManager.findFragmentById(R.id.layoutContainer) as? BaseSupportFragment
-                ?: return false
+        val currentFragment = currentFragment() as? BaseSupportFragment
+            ?: return false
         return currentFragment.onBackPressed()
     }
+
+    fun gotoRecoveryPhraseWarning() {
+        val currentFragment = currentFragment()
+
+
+        if (currentFragment !is RecoveryPhraseWarningFragment
+            && currentFragment !is RecoveryPhraseShowingFragment
+            && currentFragment !is RecoveryPhraseTestFragment
+        ) {
+            if (currentFragment !is AccountFragment) navigator.popChildFragmentToRoot()
+
+            navigator.anim(Navigator.RIGHT_LEFT).replaceChildFragment(
+                R.id.layoutContainer,
+                RecoveryPhraseWarningFragment.newInstance(
+                    getString(R.string.recovery_phrase),
+                    getString(R.string.your_recovery_phrase_is_the_only)
+                )
+            )
+        }
+
+    }
+
+    private fun currentFragment() =
+        childFragmentManager.findFragmentById(R.id.layoutContainer)
 }

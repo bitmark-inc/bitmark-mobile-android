@@ -26,6 +26,13 @@ class AccountLocalDataSource @Inject constructor(
     sharedPrefApi: SharedPrefApi, fileStorageApi: FileStorageApi
 ) : LocalDataSource(databaseApi, sharedPrefApi, fileStorageApi) {
 
+    private var actionRequiredDeleteListener: ActionRequiredDeletedListener? =
+        null
+
+    fun setActionRequiredDeletedListener(listener: ActionRequiredDeletedListener) {
+        this.actionRequiredDeleteListener = listener
+    }
+
     fun saveAccountInfo(
         accountNumber: String,
         authRequired: Boolean
@@ -88,18 +95,20 @@ class AccountLocalDataSource @Inject constructor(
             ) ?: listOf()
         }
 
-    fun deleteActionRequired(action: ActionRequired) =
+    fun deleteActionRequired(actionId: ActionRequired.Id) =
         getActionRequired().flatMapCompletable { existingActions ->
             val persistActions =
-                existingActions.filterNot { a -> a.id == action.id }
-            if (persistActions.isEmpty()) Completable.complete()
-            else
-                sharedPrefApi.rxCompletable { sharePrefGateway ->
-                    sharePrefGateway.put(
-                        SharedPrefApi.ACTION_REQUIRED,
-                        persistActions
-                    )
-                }
+                existingActions.filterNot { a -> a.id == actionId }
+            sharedPrefApi.rxCompletable { sharePrefGateway ->
+                sharePrefGateway.put(
+                    SharedPrefApi.ACTION_REQUIRED,
+                    persistActions
+                )
+            }.doOnComplete {
+                actionRequiredDeleteListener?.onDeleted(
+                    actionId
+                )
+            }
         }
 
     private fun gson() = GsonBuilder().excludeFieldsWithoutExposeAnnotation()

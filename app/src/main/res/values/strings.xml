@@ -106,5 +106,11 @@
   <string name="done">Done</string>
   <string name="recovery_phrase">Recovery Phrase</string>
   <string name="please_sign_to_access_recovery_phrase">Please sign to access your recovery phrase.</string>
+  <string name="tap_the_word_to_put_them">Tap the words to put them in the correct order for your recovery phrase:</string>
+  <string name="recovery_phrase_test">Recovery Phrase Test</string>
+  <string name="retry">Retry</string>
+  <string name="error_exclamation">Error!</string>
+  <string name="success_exclamation">Success!</string>
+  <string name="keep_your_written_copy_private">Keep your written copy private in a secure and safe location.</string>
 
 </resources>

@@ -11,8 +11,10 @@ import android.os.Handler
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.DialogController
@@ -71,6 +73,10 @@ fun View.disable() {
 
 fun TextView.setText(@StringRes id: Int) {
     this.text = context.getString(id)
+}
+
+fun TextView.setTextColorRes(@ColorRes id: Int) {
+    this.setTextColor(ContextCompat.getColor(context, id))
 }
 
 fun Activity.detectKeyBoardState(action: (Boolean) -> Unit) {

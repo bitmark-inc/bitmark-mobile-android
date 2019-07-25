@@ -24,6 +24,8 @@ import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingFra
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingModule
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningModule
+import com.bitmark.registry.feature.recoveryphrase.test.RecoveryPhraseTestFragment
+import com.bitmark.registry.feature.recoveryphrase.test.RecoveryPhraseTestModule
 import com.bitmark.registry.feature.register.RegisterFragment
 import com.bitmark.registry.feature.register.RegisterModule
 import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
@@ -100,6 +102,10 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [RecoveryPhraseShowingModule::class])
     @FragmentScope
     internal abstract fun bindRecoveryPhraseShowingFragment(): RecoveryPhraseShowingFragment
+
+    @ContributesAndroidInjector(modules = [RecoveryPhraseTestModule::class])
+    @FragmentScope
+    internal abstract fun bindRecoveryPhraseTestFragment(): RecoveryPhraseTestFragment
 
     @ContributesAndroidInjector(modules = [AccountContainerModule::class])
     @FragmentScope

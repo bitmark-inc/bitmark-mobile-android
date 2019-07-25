@@ -7,6 +7,7 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.main.account.AccountContainerFragment
 import com.bitmark.registry.feature.main.properties.PropertiesFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -57,5 +58,17 @@ class MainActivity : BaseAppCompatActivity() {
             bottomNav.currentItem = 0
             viewPager.setCurrentItem(0, false)
         }
+    }
+
+    fun switchTab(pos: Int) {
+        bottomNav.currentItem = pos
+        viewPager.setCurrentItem(pos, false)
+    }
+
+    fun gotoRecoveryPhraseWarning() {
+        switchTab(MainViewPagerAdapter.TAB_ACCOUNT)
+        val accountFragment =
+            adapter.currentFragment as? AccountContainerFragment
+        accountFragment?.gotoRecoveryPhraseWarning()
     }
 }

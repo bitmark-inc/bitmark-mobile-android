@@ -16,6 +16,12 @@ import com.bitmark.registry.feature.main.transactions.TransactionsFragment
  */
 class MainViewPagerAdapter(fm: FragmentManager) : ViewPagerAdapter(fm) {
 
+    companion object {
+        const val TAB_PROPERTIES = 0x00
+        const val TAB_TXS = 0x01
+        const val TAB_ACCOUNT = 0x02
+    }
+
     init {
         super.add(
             PropertiesFragment.newInstance(),

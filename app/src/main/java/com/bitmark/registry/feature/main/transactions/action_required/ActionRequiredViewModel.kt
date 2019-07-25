@@ -1,7 +1,11 @@
 package com.bitmark.registry.feature.main.transactions.action_required
 
+import androidx.lifecycle.MutableLiveData
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
+import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.ActionRequiredModelView
@@ -15,11 +19,14 @@ import com.bitmark.registry.util.modelview.ActionRequiredModelView
  */
 class ActionRequiredViewModel(
     private val accountRepo: AccountRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val realtimeBus: RealtimeBus
 ) : BaseViewModel() {
 
     private val getActionRequiredLiveData =
         CompositeLiveData<List<ActionRequiredModelView>>()
+
+    internal val actionDeletedLiveData = MutableLiveData<ActionRequired.Id>()
 
     internal fun getActionRequiredLiveData() =
         getActionRequiredLiveData.asLiveData()
@@ -47,7 +54,17 @@ class ActionRequiredViewModel(
                 }
         }
 
+    override fun onCreate() {
+        super.onCreate()
+        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) { actionId ->
+            actionDeletedLiveData.set(
+                actionId
+            )
+        }
+    }
+
     override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
         rxLiveDataTransformer.dispose()
         super.onDestroy()
     }

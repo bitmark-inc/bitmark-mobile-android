@@ -2,6 +2,7 @@ package com.bitmark.registry
 
 import android.app.Application
 import android.content.Context
+import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import dagger.Module
@@ -24,6 +25,9 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideRealtimeBus(bitmarkRepo: BitmarkRepository): RealtimeBus =
-        RealtimeBus(bitmarkRepo)
+    fun provideRealtimeBus(
+        bitmarkRepo: BitmarkRepository,
+        accountRepo: AccountRepository
+    ): RealtimeBus =
+        RealtimeBus(bitmarkRepo, accountRepo)
 }

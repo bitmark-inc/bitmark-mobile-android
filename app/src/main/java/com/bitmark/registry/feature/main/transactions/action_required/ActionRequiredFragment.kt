@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.visible
 import kotlinx.android.synthetic.main.fragment_action_required.*
@@ -54,7 +56,14 @@ class ActionRequiredFragment : BaseSupportFragment() {
         rvActionRequired.setHasFixedSize(true)
         rvActionRequired.adapter = adapter
 
-        adapter.setItemClickListener { action -> }
+        adapter.setItemClickListener { action ->
+            when (action.id) {
+                ActionRequired.Id.RECOVERY_PHRASE -> {
+                    val activity = this.activity as? MainActivity
+                    activity?.gotoRecoveryPhraseWarning()
+                }
+            }
+        }
 
     }
 
@@ -72,6 +81,14 @@ class ActionRequiredFragment : BaseSupportFragment() {
                         showEmptyView()
                     }
                 }
+            }
+        })
+
+        viewModel.actionDeletedLiveData.observe(this, Observer { actionId ->
+            adapter.remove(actionId)
+
+            if (adapter.isEmpty()) {
+                showEmptyView()
             }
         })
     }

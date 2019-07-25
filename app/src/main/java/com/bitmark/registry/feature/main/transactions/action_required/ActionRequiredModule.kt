@@ -2,6 +2,7 @@ package com.bitmark.registry.feature.main.transactions.action_required
 
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.di.FragmentScope
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -20,6 +21,7 @@ class ActionRequiredModule {
     @FragmentScope
     fun provideViewModel(
         accountRepo: AccountRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
-    ) = ActionRequiredViewModel(accountRepo, rxLiveDataTransformer)
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        realtimeBus: RealtimeBus
+    ) = ActionRequiredViewModel(accountRepo, rxLiveDataTransformer, realtimeBus)
 }

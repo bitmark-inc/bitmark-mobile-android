@@ -1,11 +1,10 @@
 package com.bitmark.registry.feature.realtime
 
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.data.source.local.AssetFileSavedListener
-import com.bitmark.registry.data.source.local.BitmarkDeletedListener
-import com.bitmark.registry.data.source.local.BitmarkInsertedListener
-import com.bitmark.registry.data.source.local.BitmarkStatusChangedListener
+import com.bitmark.registry.data.source.local.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
@@ -18,9 +17,13 @@ import kotlin.reflect.KClass
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class RealtimeBus(bitmarkRepo: BitmarkRepository) :
+class RealtimeBus(
+    bitmarkRepo: BitmarkRepository,
+    accountRepo: AccountRepository
+) :
     BitmarkInsertedListener, BitmarkDeletedListener,
-    BitmarkStatusChangedListener, AssetFileSavedListener {
+    BitmarkStatusChangedListener, AssetFileSavedListener,
+    ActionRequiredDeletedListener {
 
     private val observerMap = mutableMapOf<KClass<*>, MutableList<Disposable>>()
 
@@ -35,11 +38,15 @@ class RealtimeBus(bitmarkRepo: BitmarkRepository) :
 
     val assetFileSavedPublisher = Publisher(PublishSubject.create<String>())
 
+    val actionRequiredDeletedPublisher =
+        Publisher(PublishSubject.create<ActionRequired.Id>())
+
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
         bitmarkRepo.setBitmarkInsertedListener(this)
         bitmarkRepo.setBitmarkStatusChangedListener(this)
         bitmarkRepo.setAssetFileSavedListener(this)
+        accountRepo.setActionRequiredDeletedListener(this)
     }
 
     fun <H : Any> unsubscribe(host: H) {
@@ -72,6 +79,10 @@ class RealtimeBus(bitmarkRepo: BitmarkRepository) :
 
     override fun onSaved(assetId: String) {
         assetFileSavedPublisher.publisher.onNext(assetId)
+    }
+
+    override fun onDeleted(actionId: ActionRequired.Id) {
+        actionRequiredDeletedPublisher.publisher.onNext(actionId)
     }
 
     inner class Publisher<T>(internal val publisher: PublishSubject<T>) {

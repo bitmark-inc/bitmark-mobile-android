@@ -38,27 +38,73 @@ class RecoveryPhraseAdapter(
         val loop = length / 2
         items.clear()
         for (sequence in 1..loop) {
-            items.add(Item(sequence, ""))
-            items.add(Item(sequence + loop, ""))
+            items.add(Item(sequence, "", textColor = textColor))
+            items.add(Item(sequence + loop, "", textColor = textColor))
         }
         notifyDataSetChanged()
     }
 
     fun set(words: Array<String>) {
+        set(words, null)
+    }
+
+    fun set(words: Array<String>, hiddenValues: Array<String>? = null) {
         if (words.size % 2 != 0) throw RuntimeException("must be even number")
         items.clear()
         val loop = words.size / 2
         for (index in 0 until loop) {
-            items.add(Item(index + 1, words[index]))
-            items.add(Item(index + loop + 1, words[index + loop]))
+            val sequence1 = index + 1
+            val sequence2 = sequence1 + loop
+            val word1 = words[sequence1 - 1]
+            val word2 = words[sequence2 - 1]
+
+            items.add(
+                Item(
+                    sequence1,
+                    word1,
+                    hiddenValues?.contains(word1) ?: false,
+                    textColor = textColor
+                )
+            )
+            items.add(
+                Item(
+                    sequence2,
+                    word2,
+                    hiddenValues?.contains(word2) ?: false,
+                    textColor = textColor
+                )
+            )
         }
         notifyDataSetChanged()
     }
 
-    fun set(words: Array<Item>) {
-        if (words.size % 2 != 0) throw RuntimeException("must be even number")
-        items.clear()
-        items.addAll(words)
+    fun showHiddenSequentially(word: String) {
+        val items = ArrayList<Item>(this.items)
+        items.sortWith(Comparator { o1, o2 -> o1.sequence.compareTo(o2.sequence) })
+        val item = items.find { i -> i.hidden }
+
+        if (item != null) {
+            item.hidden = false
+            item.word = word
+            item.textColor = R.color.blue_ribbon
+            val pos = this.items.indexOf(item)
+            notifyItemChanged(pos)
+        }
+    }
+
+    fun isItemsVisible() = this.items.find { i -> i.hidden } == null
+
+    fun compare(words: Array<String>): Boolean {
+        if (words.size != items.size) return false
+        for (index in 0 until words.size) {
+            val item = items.find { i -> i.word == words[index] }
+            if (item == null || item.sequence != index + 1) return false
+        }
+        return true
+    }
+
+    fun setColors(@ColorRes color: Int) {
+        this.items.forEach { i -> i.textColor = color }
         notifyDataSetChanged()
     }
 
@@ -88,7 +134,7 @@ class RecoveryPhraseAdapter(
     ): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_recovery_phrase, parent, false)
-        return ViewHolder(view, editable, textColor, this)
+        return ViewHolder(view, editable, this)
     }
 
     override fun getItemCount(): Int = items.size
@@ -100,7 +146,6 @@ class RecoveryPhraseAdapter(
     class ViewHolder(
         view: View,
         editable: Boolean,
-        textColor: Int,
         private val listener: OnTextChangeListener
     ) :
         RecyclerView.ViewHolder(view) {
@@ -112,13 +157,6 @@ class RecoveryPhraseAdapter(
                 if (!editable) {
                     edtWord.isFocusable = false
                 }
-
-                edtWord.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        textColor
-                    )
-                )
 
                 edtWord.doOnTextChanged { text, _, _, _ ->
                     item.word = text.toString()
@@ -151,8 +189,17 @@ class RecoveryPhraseAdapter(
 
         fun bind(item: Item) {
             this.item = item
-            itemView.tvNo.text = "%d.".format(item.sequence)
-            itemView.edtWord.setText(item.word)
+            with(itemView) {
+                tvNo.text = "%d.".format(item.sequence)
+                edtWord.setText(if (item.hidden) "" else item.word)
+                edtWord.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        item.textColor
+                    )
+                )
+            }
+
         }
     }
 }
@@ -164,7 +211,12 @@ interface OnTextChangeListener {
     fun afterTextChanged(item: Item)
 }
 
-class Item(internal val sequence: Int, internal var word: String)
+class Item(
+    internal val sequence: Int,
+    internal var word: String,
+    internal var hidden: Boolean = false,
+    internal var textColor: Int = R.color.gray
+)
 
 enum class Version(val value: Int) {
     TWELVE(12), TWENTY_FOUR(24)

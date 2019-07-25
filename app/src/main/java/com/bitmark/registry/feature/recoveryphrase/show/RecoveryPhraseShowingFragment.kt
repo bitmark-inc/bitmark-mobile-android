@@ -7,6 +7,8 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.recoveryphrase.test.RecoveryPhraseTestFragment
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseAdapter
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import kotlinx.android.synthetic.main.fragment_recovery_phrase_signin.rvRecoveryPhrase
@@ -60,7 +62,14 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
 
         btnDone.setSafetyOnclickListener { navigator.popChildFragmentToRoot() }
 
-        btnTestRecoveryPhrase.setSafetyOnclickListener { }
+        btnTestRecoveryPhrase.setSafetyOnclickListener {
+            navigator.anim(
+                RIGHT_LEFT
+            ).replaceChildFragment(
+                R.id.layoutContainer,
+                RecoveryPhraseTestFragment.newInstance(recoveryPhrase)
+            )
+        }
 
         ivBack.setOnClickListener { navigator.popChildFragmentToRoot() }
 
