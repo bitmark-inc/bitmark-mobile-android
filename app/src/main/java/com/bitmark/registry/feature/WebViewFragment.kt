@@ -94,10 +94,12 @@ class WebViewFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (visibled) return
-        // a bit delay for better performance
-        Handler().postDelayed({ webview.loadUrl(url) }, 200)
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser && !visibled) {
+            // a bit delay for better performance
+            Handler().postDelayed({ webview.loadUrl(url) }, 200)
+            visibled = true
+        }
     }
 }

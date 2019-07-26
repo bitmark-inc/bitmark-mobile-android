@@ -15,6 +15,7 @@ import com.bitmark.registry.util.extension.invisible
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.extension.visible
 import com.bitmark.registry.util.view.QrCodeSharingDialog
+import io.intercom.android.sdk.Intercom
 import kotlinx.android.synthetic.main.fragment_settings.*
 import javax.inject.Inject
 
@@ -82,7 +83,9 @@ class SettingsFragment : BaseSupportFragment() {
 
         tvDetail.setSafetyOnclickListener { }
 
-        tvNeedHelp.setSafetyOnclickListener { }
+        tvNeedHelp.setSafetyOnclickListener {
+            Intercom.client().displayMessenger();
+        }
 
         ivQrCode.setSafetyOnclickListener {
             if (accountNumber.isEmpty()) return@setSafetyOnclickListener

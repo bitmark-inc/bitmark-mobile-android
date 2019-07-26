@@ -4,6 +4,7 @@ import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGE
 import com.bitmark.sdk.features.BitmarkSDK
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
+import io.intercom.android.sdk.Intercom
 
 
 /**
@@ -29,6 +30,6 @@ class RegistryApplication : DaggerApplication() {
         } else {
             BitmarkSDK.init("bmk-lljpzkhqdkzmblhg")
         }
-
+        Intercom.initialize(this, API_KEY_MANAGER.intercomApiKey, "ejkeunzw")
     }
 }

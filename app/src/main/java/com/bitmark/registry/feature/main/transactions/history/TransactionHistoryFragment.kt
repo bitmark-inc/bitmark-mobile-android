@@ -47,13 +47,6 @@ class TransactionHistoryFragment : BaseSupportFragment() {
 
     override fun viewModel(): BaseViewModel? = viewModel
 
-    override fun onResume() {
-        super.onResume()
-        if (visibled) return
-        visibled = true
-        viewModel.listTxs()
-    }
-
     override fun initComponents() {
         super.initComponents()
 
@@ -160,5 +153,13 @@ class TransactionHistoryFragment : BaseSupportFragment() {
     override fun refresh() {
         super.refresh()
         rvTxs.smoothScrollToPosition(0)
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser && !visibled) {
+            visibled = true
+            viewModel.listTxs()
+        }
     }
 }

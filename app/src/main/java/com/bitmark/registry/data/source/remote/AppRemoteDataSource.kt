@@ -1,6 +1,8 @@
 package com.bitmark.registry.data.source.remote
 
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.request.RegisterDeviceTokenRequest
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
 import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
@@ -31,5 +33,23 @@ class AppRemoteDataSource @Inject constructor(
 
     fun deleteDeviceToken(deviceToken: String) =
         mobileServerApi.deleteDeviceToken(deviceToken).subscribeOn(Schedulers.io())
+
+    fun registerDeviceToken(
+        requester: String,
+        timestamp: String,
+        signature: String,
+        token: String,
+        intercomId: String?
+    ) = mobileServerApi.registerDeviceToken(
+        requester,
+        timestamp,
+        signature,
+        RegisterDeviceTokenRequest(
+            "android",
+            token,
+            BuildConfig.NOTIFICATION_CLIENT,
+            intercomId
+        )
+    ).subscribeOn(Schedulers.io())
 
 }

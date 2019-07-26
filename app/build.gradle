@@ -153,6 +153,8 @@ android {
           "\"https://key.test.bitmarkaccountassets.com\""
       buildConfigField "String", "REGISTRY_WEB_ENDPOINT",
           "\"https://registry.test.bitmark.com\""
+      buildConfigField "String", "NOTIFICATION_CLIENT",
+          "\"registryinhouse\""
     }
 
     prd {
@@ -183,6 +185,8 @@ android {
           "\"https://key.bitmarkaccountassets.com\""
       buildConfigField "String", "REGISTRY_WEB_ENDPOINT",
           "\"https://registry.bitmark.com\""
+      buildConfigField "String", "NOTIFICATION_CLIENT",
+          "\"registry\""
     }
   }
 
@@ -202,7 +206,11 @@ dependencies {
   // Basic
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-  implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
+
+  // temporarily use this version of appcompat to avoid crashing in IntercomMessengerActivity
+  // @see https://community.intercom.com/t/intercom-android-sdk-crashing-with-android-appcompat-1-1-0-alpha03/1095
+  implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
+
   implementation 'androidx.core:core-ktx:1.2.0-alpha02'
   implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
@@ -241,6 +249,7 @@ dependencies {
   implementation 'com.google.zxing:core:3.4.0'
   implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
   implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
+  implementation 'io.intercom.android:intercom-sdk:5.4.0'
 
 
   // Testing
@@ -262,6 +271,15 @@ task fillSecretKey << {
           keyProperties['api.key.intercom'])
   apiKeyFile.bytes = []
   apiKeyFile.text = content
+}
+
+configurations.all {
+  resolutionStrategy.eachDependency { details ->
+    def requested = details.requested
+    if (requested.group == 'androidx.appcompat') {
+      details.useVersion '1.1.0-alpha02'
+    }
+  }
 }
 
 apply plugin: 'com.google.gms.google-services'

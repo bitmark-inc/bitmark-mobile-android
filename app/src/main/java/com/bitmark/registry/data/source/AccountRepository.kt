@@ -102,4 +102,7 @@ class AccountRepository(
     fun deleteActionRequired(actionId: ActionRequired.Id) =
         localDataSource.deleteActionRequired(actionId)
 
+    fun registerIntercomUser(id: String) =
+        remoteDataSource.registerIntercomUser(id)
+
 }

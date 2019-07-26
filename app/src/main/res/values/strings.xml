@@ -118,5 +118,6 @@
   <string name="could_not_remove_access_due_to_unexpected_problem">Could not remove access due to unexpected problem. Please try again later.</string>
   <string name="removing_access_three_dot">Removing access…</string>
   <string name="removing_access_for_account">Removing access for account</string>
+  <string name="please_sign_to_register_account">Please sign to register account.</string>
 
 </resources>

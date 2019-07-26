@@ -30,6 +30,20 @@ class AppRepository(
 
     fun deleteDatabase() = localDataSource.deleteDatabase()
 
+    fun registerDeviceToken(
+        requester: String,
+        timestamp: String,
+        signature: String,
+        token: String,
+        intercomId: String?
+    ) = remoteDataSource.registerDeviceToken(
+        requester,
+        timestamp,
+        signature,
+        token,
+        intercomId
+    )
+
     fun deleteDeviceToken(deviceToken: String) =
         remoteDataSource.deleteDeviceToken(deviceToken).onErrorResumeNext { e ->
             if (e is HttpException && e.code() == 404) Completable.complete() else Completable.error(

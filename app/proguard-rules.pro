@@ -43,3 +43,7 @@
 -dontwarn java.nio.file.*
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 -dontwarn okio.**
+
+# intercom
+-keep class io.intercom.android.** { *; }
+-keep class com.intercom.** { *; }

@@ -1,12 +1,10 @@
 package com.bitmark.registry.data.source.remote.api.service
 
+import com.bitmark.registry.data.source.remote.api.request.RegisterDeviceTokenRequest
 import com.bitmark.registry.data.source.remote.api.request.RegisterJwtRequest
 import io.reactivex.Completable
 import io.reactivex.Single
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 
 /**
@@ -25,5 +23,13 @@ interface MobileServerApi {
 
     @DELETE("api/push_uuids/{device_token}")
     fun deleteDeviceToken(@Path("device_token") deviceToken: String): Completable
+
+    @POST("api/push_uuids")
+    fun registerDeviceToken(
+        @Header("requester") requester: String,
+        @Header("timestamp") timestamp: String,
+        @Header("signature") signature: String,
+        @Body request: RegisterDeviceTokenRequest
+    ): Completable
 
 }

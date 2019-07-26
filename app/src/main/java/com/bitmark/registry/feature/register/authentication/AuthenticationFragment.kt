@@ -24,6 +24,7 @@ import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.authentication.error.AuthenticationException
 import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
+import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.fragment_authentication.*
 import javax.inject.Inject
 
@@ -135,6 +136,7 @@ class AuthenticationFragment : BaseSupportFragment() {
         val spec = KeyAuthenticationSpec.Builder(context)
             //.setAuthenticationValidityDuration(BuildConfig.KEY_VALIDITY_DURATION)
             .setKeyAlias(keyAlias)
+            .setAuthenticationDescription(getString(R.string.please_sign_to_register_account))
             .setAuthenticationRequired(authRequired).build()
         account.saveToKeyStore(activity, spec, object : Callback0 {
             override fun onSuccess() {
@@ -158,22 +160,25 @@ class AuthenticationFragment : BaseSupportFragment() {
                 }
 
                 val timestamp = System.currentTimeMillis().toString()
-                val jwtSig = HEX.encode(
+                val mobileServerSig = HEX.encode(
                     Ed25519.sign(
                         RAW.decode(timestamp),
                         signingPrivateKey
                     )
                 )
 
-                viewModel.registerAccount(
-                    timestamp,
-                    jwtSig,
-                    encPubKeySig,
-                    encPubKeyHex,
-                    requester,
-                    authRequired,
-                    keyAlias
-                )
+                getFirebaseToken { token ->
+                    viewModel.registerAccount(
+                        timestamp,
+                        mobileServerSig,
+                        encPubKeySig,
+                        encPubKeyHex,
+                        requester,
+                        authRequired,
+                        keyAlias,
+                        token
+                    )
+                }
             }
 
             override fun onError(throwable: Throwable?) {
@@ -224,5 +229,13 @@ class AuthenticationFragment : BaseSupportFragment() {
     }
 
     override fun onBackPressed() = navigator.popFragment() ?: false
+
+    private fun getFirebaseToken(action: (String?) -> Unit) {
+        FirebaseInstanceId.getInstance()
+            .instanceId.addOnCompleteListener { task ->
+            if (!task.isSuccessful) action.invoke(null)
+            else action.invoke(task.result?.token)
+        }
+    }
 
 }

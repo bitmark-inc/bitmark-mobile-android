@@ -1,10 +1,13 @@
 package com.bitmark.registry.feature.register.authentication
 
 import androidx.lifecycle.MutableLiveData
+import com.bitmark.cryptography.crypto.Sha3256
+import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.model.ActionRequired.Id.RECOVERY_PHRASE
 import com.bitmark.registry.data.model.ActionRequired.Type.SECURITY_ALERT
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.DateTimeUtil
 import com.bitmark.registry.util.extension.set
@@ -22,6 +25,7 @@ import java.util.*
  */
 class AuthenticationViewModel(
     private val accountRepo: AccountRepository,
+    private val appRepo: AppRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel() {
 
@@ -31,23 +35,25 @@ class AuthenticationViewModel(
 
     internal fun registerAccount(
         timestamp: String,
-        jwtSig: String,
+        mobileServerSig: String,
         encPubKeySig: String? = null,
         encPubKeyHex: String? = null,
         requester: String,
         authRequired: Boolean,
-        keyAlias: String
+        keyAlias: String,
+        deviceToken: String?
     ) {
         registerAccountLiveData.add(
             rxLiveDataTransformer.completable(
                 registerAccountStream(
                     timestamp,
-                    jwtSig,
+                    mobileServerSig,
                     encPubKeySig,
                     encPubKeyHex,
                     requester,
                     authRequired,
-                    keyAlias
+                    keyAlias,
+                    deviceToken
                 )
             )
         )
@@ -58,21 +64,22 @@ class AuthenticationViewModel(
 
     private fun registerAccountStream(
         timestamp: String,
-        jwtSig: String,
+        mobileServerSig: String,
         encPubKeySig: String? = null,
         encPubKeyHex: String? = null,
         requester: String,
         authRequired: Boolean,
-        keyAlias: String
+        keyAlias: String,
+        deviceToken: String?
     ): Completable {
         val streamCount =
-            if (null != encPubKeyHex && null != encPubKeySig) 3 else 2
+            if (null != encPubKeyHex && null != encPubKeySig) 4 else 3
         var progress = 0
 
         val registerMobileServerAccStream =
             accountRepo.registerMobileServerAccount(
                 timestamp,
-                jwtSig,
+                mobileServerSig,
                 requester
             ).doOnComplete {
                 progressLiveData.set(++progress * 100 / streamCount)
@@ -87,6 +94,22 @@ class AuthenticationViewModel(
                 progressLiveData.set(++progress * 100 / streamCount)
             } else Completable.complete()
 
+        val intercomId =
+            "Registry_android_%s".format(Sha3256.hash(RAW.decode(requester)))
+        val registerNotifStream =
+            accountRepo.registerIntercomUser(intercomId).andThen(
+                if (deviceToken == null) Completable.complete()
+                else appRepo.registerDeviceToken(
+                    requester,
+                    timestamp,
+                    mobileServerSig,
+                    deviceToken,
+                    intercomId
+                )
+            ).doOnComplete {
+                progressLiveData.set(++progress * 100 / streamCount)
+            }
+
         val saveAccountStream = Completable.mergeArrayDelayError(
             accountRepo.saveAccountInfo(
                 requester,
@@ -97,9 +120,15 @@ class AuthenticationViewModel(
             progressLiveData.set(++progress * 100 / streamCount)
         }
 
-        return Completable.merge(
-            listOf(registerMobileServerAccStream, registerEncKeyStream)
-        ).andThen(saveAccountStream)
+        return Completable.mergeArray(
+            registerMobileServerAccStream,
+            registerEncKeyStream
+        ).andThen(
+            Completable.mergeArrayDelayError(
+                saveAccountStream,
+                registerNotifStream
+            )
+        )
     }
 
     private fun buildActionRequired() = listOf(

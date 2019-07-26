@@ -7,6 +7,8 @@ import com.bitmark.registry.data.source.remote.api.service.CoreApi
 import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
 import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
 import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import io.intercom.android.sdk.Intercom
+import io.intercom.android.sdk.identity.Registration
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -68,4 +70,9 @@ class AccountRemoteDataSource @Inject constructor(
         keyAccountServerApi.getEncPubKey(accountNumber).subscribeOn(
             Schedulers.io()
         ).map { res -> res["encryption_pubkey"] }
+
+    fun registerIntercomUser(id: String) = Completable.fromAction {
+        val registration = Registration.create().withUserId(id)
+        Intercom.client().registerIdentifiedUser(registration)
+    }.subscribeOn(Schedulers.io())
 }

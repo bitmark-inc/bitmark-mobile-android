@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.register.authentication
 
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
@@ -22,10 +23,12 @@ class AuthenticationModule {
     @FragmentScope
     fun provideViewModel(
         accountRepo: AccountRepository,
+        appRepo: AppRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
     ): AuthenticationViewModel {
         return AuthenticationViewModel(
             accountRepo,
+            appRepo,
             rxLiveDataTransformer
         )
     }
