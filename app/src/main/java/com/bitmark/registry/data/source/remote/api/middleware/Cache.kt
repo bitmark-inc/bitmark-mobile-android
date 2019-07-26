@@ -27,4 +27,8 @@ class Cache private constructor() {
     }
 
     var mobileServerJwt: String = ""
+
+    fun clear() {
+        mobileServerJwt = ""
+    }
 }

@@ -127,9 +127,14 @@ class AuthenticationFragment : BaseSupportFragment() {
         } else {
             Account.fromRecoveryPhrase(*phrase)
         }
+        val keyAlias =
+            "%s.%d.encryption_key".format(
+                account.accountNumber,
+                System.currentTimeMillis()
+            )
         val spec = KeyAuthenticationSpec.Builder(context)
             //.setAuthenticationValidityDuration(BuildConfig.KEY_VALIDITY_DURATION)
-            .setKeyAlias(account.accountNumber)
+            .setKeyAlias(keyAlias)
             .setAuthenticationRequired(authRequired).build()
         account.saveToKeyStore(activity, spec, object : Callback0 {
             override fun onSuccess() {
@@ -166,7 +171,8 @@ class AuthenticationFragment : BaseSupportFragment() {
                     encPubKeySig,
                     encPubKeyHex,
                     requester,
-                    authRequired
+                    authRequired,
+                    keyAlias
                 )
             }
 

@@ -1,11 +1,14 @@
 package com.bitmark.registry.feature.splash
 
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
+import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 
 
 /**
@@ -16,22 +19,60 @@ import io.reactivex.Completable
  */
 class SplashViewModel(
     private val accountRepo: AccountRepository,
+    private val appRepo: AppRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) :
     BaseViewModel() {
 
     private val getExistingAccountLiveData =
-        CompositeLiveData<Pair<String, Boolean>>()
+        CompositeLiveData<Triple<String, Boolean, String>>()
 
     private val prepareDataLiveData = CompositeLiveData<Any>()
+
+    private val cleanupAppDataLiveData = CompositeLiveData<Any>()
 
     internal fun getExistingAccount() {
         getExistingAccountLiveData.add(
             rxLiveDataTransformer.single(
-                accountRepo.getAccountInfo()
+                Single.zip(
+                    accountRepo.getAccountInfo(),
+                    accountRepo.getKeyAlias(),
+                    BiFunction { a, k ->
+                        Triple(a.first, a.second, k)
+                    })
             )
         )
+    }
+
+    // clean up previous undone remove access action
+    // this fun will be try to clean up previous account data
+    internal fun cleanupAppData(deviceToken: String?) {
+        cleanupAppDataLiveData.add(
+            rxLiveDataTransformer.completable(
+                cleanupAppDataStream(deviceToken)
+            )
+        )
+    }
+
+    private fun cleanupAppDataStream(deviceToken: String?): Completable {
+        return accountRepo.checkAccessRemoved().flatMapCompletable { removed ->
+            if (!removed) Completable.complete()
+            else {
+                val deleteDeviceToken =
+                    if (deviceToken == null) Completable.complete() else appRepo.deleteDeviceToken(
+                        deviceToken
+                    )
+
+                deleteDeviceToken.andThen(
+                    Completable.mergeArrayDelayError(
+                        appRepo.deleteQrCodeFile(),
+                        appRepo.deleteDatabase(),
+                        appRepo.deleteCache()
+                    )
+                ).andThen(appRepo.deleteSharePref())
+            }
+        }
     }
 
     internal fun prepareData(
@@ -70,6 +111,8 @@ class SplashViewModel(
         getExistingAccountLiveData.asLiveData()
 
     internal fun prepareDataLiveData() = prepareDataLiveData.asLiveData()
+
+    internal fun cleanupAppDataLiveData() = cleanupAppDataLiveData.asLiveData()
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

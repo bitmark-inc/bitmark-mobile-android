@@ -27,4 +27,7 @@ abstract class AssetDao {
     @Query("DELETE FROM Asset WHERE id = :id")
     abstract fun delete(id: String): Completable
 
+    @Query("DELETE FROM Asset")
+    abstract fun delete(): Completable
+
 }

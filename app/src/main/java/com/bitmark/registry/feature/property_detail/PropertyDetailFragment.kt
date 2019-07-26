@@ -61,6 +61,8 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private lateinit var bitmark: BitmarkModelView
 
+    private lateinit var keyAlias: String
+
     @Inject
     lateinit var viewModel: PropertyDetailViewModel
 
@@ -84,6 +86,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.getKeyAlias()
         viewModel.getProvenance(bitmark.id)
         viewModel.syncProvenance(bitmark.id)
     }
@@ -214,7 +217,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 if (blocked) return@setOnClickListener
                 if (downloadable) {
                     // download file
-                    downloadAssetFile()
+                    downloadAssetFile(bitmark, keyAlias)
                 } else {
                     // share bitmark
                     viewModel.getExistingAsset(
@@ -244,7 +247,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                     false,
                     getString(R.string.delete),
                     {
-                        deleteBitmark()
+                        deleteBitmark(bitmark, keyAlias)
                     },
                     getString(R.string.cancel)
                 )
@@ -381,11 +384,28 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 }
             }
         })
+
+        viewModel.getKeyAliasLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    keyAlias = res.data()!!
+                }
+
+                res.isError() -> {
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.unexpected_error,
+                        R.string.ok
+                    ) { navigator.finishActivity() }
+                }
+            }
+        })
     }
 
-    private fun deleteBitmark() {
+    private fun deleteBitmark(bitmark: BitmarkModelView, keyAlias: String) {
         loadAccount(
             bitmark.accountNumber,
+            keyAlias,
             getString(R.string.please_sign_to_delete_bitmark)
         ) { account ->
             val zeroAddr = Address.fromAccountNumber(BuildConfig.ZERO_ADDRESS)
@@ -399,10 +419,11 @@ class PropertyDetailFragment : BaseSupportFragment() {
         }
     }
 
-    private fun downloadAssetFile() {
+    private fun downloadAssetFile(bitmark: BitmarkModelView, keyAlias: String) {
         if (bitmark.previousOwner == null) return
         loadAccount(
             bitmark.accountNumber,
+            keyAlias,
             getString(R.string.please_sign_to_download_asset)
         ) { account ->
             viewModel.downloadAssetFile(
@@ -431,11 +452,12 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private fun loadAccount(
         accountNumber: String,
+        keyAlias: String,
         message: String,
         action: (Account) -> Unit
     ) {
         val spec =
-            KeyAuthenticationSpec.Builder(context).setKeyAlias(accountNumber)
+            KeyAuthenticationSpec.Builder(context).setKeyAlias(keyAlias)
                 .setAuthenticationDescription(message)
                 .build()
 

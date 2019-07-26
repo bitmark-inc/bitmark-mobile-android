@@ -3,10 +3,12 @@ package com.bitmark.registry.data.source
 import android.content.Context
 import androidx.room.Room
 import com.bitmark.registry.data.source.local.AccountLocalDataSource
+import com.bitmark.registry.data.source.local.AppLocalDataSource
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.DatabaseGateway
 import com.bitmark.registry.data.source.remote.AccountRemoteDataSource
+import com.bitmark.registry.data.source.remote.AppRemoteDataSource
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import dagger.Module
 import dagger.Provides
@@ -38,6 +40,15 @@ class RepositoryModule {
         localDataSource: BitmarkLocalDataSource
     ): BitmarkRepository {
         return BitmarkRepository(localDataSource, remoteDataSource)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppRepo(
+        remoteDataSource: AppRemoteDataSource,
+        localDataSource: AppLocalDataSource
+    ): AppRepository {
+        return AppRepository(localDataSource, remoteDataSource)
     }
 
     @Singleton

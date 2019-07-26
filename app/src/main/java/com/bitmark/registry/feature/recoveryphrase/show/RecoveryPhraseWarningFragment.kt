@@ -31,14 +31,17 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
 
         private const val TOOLBAR_TITLE = "toolbar_title"
         private const val WARNING_MESSAGE = "warning_message"
+        private const val REMOVE_ACCESS = "remove_access"
 
         fun newInstance(
             toolBarTitle: String,
-            warningMessage: String
+            warningMessage: String,
+            removeAccess: Boolean = false
         ): RecoveryPhraseWarningFragment {
             val bundle = Bundle()
             bundle.putString(TOOLBAR_TITLE, toolBarTitle)
             bundle.putString(WARNING_MESSAGE, warningMessage)
+            bundle.putBoolean(REMOVE_ACCESS, removeAccess)
             val fragment = RecoveryPhraseWarningFragment()
             fragment.arguments = bundle
             return fragment
@@ -54,6 +57,8 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
     @Inject
     lateinit var dialogController: DialogController
 
+    private var removeAccess = false
+
     override fun layoutRes(): Int = R.layout.fragment_recovery_warning
 
     override fun viewModel(): BaseViewModel? = null
@@ -63,25 +68,28 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
 
         val toolBarTitle = arguments?.getString(TOOLBAR_TITLE) ?: ""
         val warningMessage = arguments?.getString(WARNING_MESSAGE) ?: ""
+        removeAccess = arguments?.getBoolean(REMOVE_ACCESS) ?: false
 
         tvToolbarTitle.text = toolBarTitle
         tvWarningContent.text = warningMessage
 
         ivBack.setOnClickListener { navigator.popChildFragment() }
 
-        btnWriteDownRecoveryPhrase.setSafetyOnclickListener { viewModel.getAccountNumber() }
+        btnWriteDownRecoveryPhrase.setSafetyOnclickListener { viewModel.getAccountInfo() }
 
     }
 
     override fun observe() {
         super.observe()
 
-        viewModel.getAccountNumberLiveData().observe(this, Observer { res ->
+        viewModel.getAccountInfoLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    val accountNumber = res.data()!!
+                    val accountInfo = res.data()!!
+                    val accountNumber = accountInfo.first
+                    val keyAlias = accountInfo.second
 
-                    loadAccount(accountNumber) { account ->
+                    loadAccount(accountNumber, keyAlias) { account ->
 
                         var locale = Locale.getDefault()
                         if (locale != Locale.ENGLISH && locale != Locale.TRADITIONAL_CHINESE) {
@@ -94,20 +102,32 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
                         navigator.anim(RIGHT_LEFT).replaceChildFragment(
                             R.id.layoutContainer,
                             RecoveryPhraseShowingFragment.newInstance(
-                                recoveryPhrase
+                                recoveryPhrase, removeAccess
                             )
                         )
 
                     }
                 }
+
+                res.isError() -> {
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.unexpected_error,
+                        R.string.ok
+                    ) { navigator.popChildFragmentToRoot() }
+                }
             }
         })
     }
 
-    private fun loadAccount(accountNumber: String, action: (Account) -> Unit) {
+    private fun loadAccount(
+        accountNumber: String,
+        keyAlias: String,
+        action: (Account) -> Unit
+    ) {
         val spec = KeyAuthenticationSpec.Builder(context)
             .setAuthenticationDescription(getString(R.string.please_sign_to_access_recovery_phrase))
-            .setKeyAlias(accountNumber).build()
+            .setKeyAlias(keyAlias).build()
         activity?.loadAccount(
             accountNumber,
             spec,

@@ -27,10 +27,15 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
 
     companion object {
         private const val RECOVERY_PHRASE = "recovery_phrase"
+        private const val REMOVE_ACCESS = "remove_access"
 
-        fun newInstance(recoveryPhrase: Array<String>): RecoveryPhraseShowingFragment {
+        fun newInstance(
+            recoveryPhrase: Array<String>,
+            removeAccess: Boolean = false
+        ): RecoveryPhraseShowingFragment {
             val bundle = Bundle()
             bundle.putStringArray(RECOVERY_PHRASE, recoveryPhrase)
+            bundle.putBoolean(REMOVE_ACCESS, removeAccess)
             val fragment = RecoveryPhraseShowingFragment()
             fragment.arguments = bundle
             return fragment
@@ -48,6 +53,7 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
         super.initComponents()
 
         val recoveryPhrase = arguments?.getStringArray(RECOVERY_PHRASE)!!
+        val removeAccess = arguments?.getBoolean(REMOVE_ACCESS) ?: false
 
         val adapter = RecoveryPhraseAdapter(
             editable = false,
@@ -67,7 +73,10 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
                 RIGHT_LEFT
             ).replaceChildFragment(
                 R.id.layoutContainer,
-                RecoveryPhraseTestFragment.newInstance(recoveryPhrase)
+                RecoveryPhraseTestFragment.newInstance(
+                    recoveryPhrase,
+                    removeAccess
+                )
             )
         }
 

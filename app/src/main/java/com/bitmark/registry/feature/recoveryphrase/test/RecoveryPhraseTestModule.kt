@@ -1,7 +1,9 @@
 package com.bitmark.registry.feature.recoveryphrase.test
 
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.di.FragmentScope
+import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
@@ -28,6 +30,12 @@ class RecoveryPhraseTestModule {
     @FragmentScope
     fun provideViewModel(
         accountRepo: AccountRepository,
+        appRepo: AppRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
-    ) = RecoveryPhraseTestViewModel(accountRepo, rxLiveDataTransformer)
+    ) = RecoveryPhraseTestViewModel(accountRepo, appRepo, rxLiveDataTransformer)
+
+    @Provides
+    @FragmentScope
+    fun provideDialogController(fragment: RecoveryPhraseTestFragment) =
+        DialogController(fragment.activity!!)
 }

@@ -16,15 +16,17 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class SharedPrefApi @Inject constructor(
-    context: Context, private val gson: Gson
+    context: Context, gson: Gson
 ) {
 
     private val sharePrefGateway = SharePrefGateway(context, gson)
 
     companion object {
-        const val ACCOUNT_NUMBER = "account_number"
+        const val ACCOUNT_NUMBER = "active_account_number"
         const val AUTH_REQUIRED = "auth_required"
         const val ACTION_REQUIRED = "action_required"
+        const val KEY_ALIAS = "encryption_key_alias"
+        const val ACCESS_REMOVED = "access_removed"
     }
 
     fun <T> rxSingle(action: (SharePrefGateway) -> T): Single<T> {

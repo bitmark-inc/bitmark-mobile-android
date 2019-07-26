@@ -52,4 +52,7 @@ abstract class TransactionDao {
         status: TransactionData.Status
     ): Single<List<TransactionData>>
 
+    @Query("DELETE FROM `Transaction`")
+    abstract fun delete(): Completable
+
 }

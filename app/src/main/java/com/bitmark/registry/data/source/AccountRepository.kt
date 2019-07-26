@@ -31,10 +31,21 @@ class AccountRepository(
 
     fun saveAccountInfo(
         accountNumber: String,
-        authRequired: Boolean
+        authRequired: Boolean,
+        keyAlias: String
     ): Completable {
-        return localDataSource.saveAccountInfo(accountNumber, authRequired)
+        return localDataSource.saveAccountInfo(
+            accountNumber,
+            authRequired,
+            keyAlias
+        )
     }
+
+    fun getKeyAlias() = localDataSource.getKeyAlias()
+
+    fun removeAccess() = localDataSource.removeAccess()
+
+    fun checkAccessRemoved() = localDataSource.checkAccessRemoved()
 
     fun registerMobileServerJwt(
         timestamp: String,

@@ -112,5 +112,11 @@
   <string name="error_exclamation">Error!</string>
   <string name="success_exclamation">Success!</string>
   <string name="keep_your_written_copy_private">Keep your written copy private in a secure and safe location.</string>
+  <string name="remove_access">Remove Access</string>
+  <string name="your_recovery_phrase_is_the_only_way_to_access">Your recovery phrase is the only way to access your Bitmark account after signing out. \n\nIf you have not already written down your recovery phrase, you must do so now or you will be permanently lose access to your account and lose ownership of all your digital properties. \n\nYour recovery phrase is a list of 12 or 24 words to write on a piece of paper and keep safe. Make sure you are in a private location when you write it down. This will completely remove access to your account on this device. Regular data bitmarking and data donations will be paused until you sign back in with your recovery phrase.</string>
+  <string name="please_sign_to_remove_access">Please sign to remove access.</string>
+  <string name="could_not_remove_access_due_to_unexpected_problem">Could not remove access due to unexpected problem. Please try again later.</string>
+  <string name="removing_access_three_dot">Removing access…</string>
+  <string name="removing_access_for_account">Removing access for account</string>
 
 </resources>

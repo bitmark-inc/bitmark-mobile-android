@@ -23,4 +23,7 @@ abstract class AccountDao {
 
     @Query("SELECT (enc_pub_key) FROM Account WHERE account_number = :accountNumber")
     abstract fun getEncPubKey(accountNumber: String): Single<String>
+
+    @Query("DELETE FROM Account")
+    abstract fun delete(): Completable
 }

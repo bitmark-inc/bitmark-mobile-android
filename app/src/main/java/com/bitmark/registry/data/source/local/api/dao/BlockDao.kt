@@ -26,4 +26,7 @@ abstract class BlockDao {
 
     @Query("SELECT * FROM Block WHERE number = :blockNumber")
     abstract fun getByNumber(blockNumber: Long): Maybe<BlockData>
+
+    @Query("DELETE FROM Block")
+    abstract fun delete(): Completable
 }

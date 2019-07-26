@@ -24,7 +24,10 @@ class AuthenticationModule {
         accountRepo: AccountRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
     ): AuthenticationViewModel {
-        return AuthenticationViewModel(accountRepo, rxLiveDataTransformer)
+        return AuthenticationViewModel(
+            accountRepo,
+            rxLiveDataTransformer
+        )
     }
 
     @Provides

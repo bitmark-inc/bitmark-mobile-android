@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
+import android.view.View
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
@@ -58,11 +59,18 @@ class TransferFragment : BaseSupportFragment() {
 
     private var blocked = false
 
+    private lateinit var keyAlias: String
+
     private val handler = Handler()
 
     override fun layoutRes(): Int = R.layout.fragment_transfer
 
     override fun viewModel(): BaseViewModel? = viewModel
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.getKeyAlias()
+    }
 
     override fun initComponents() {
         super.initComponents()
@@ -78,7 +86,7 @@ class TransferFragment : BaseSupportFragment() {
             if (Address.isValidAccountNumber(recipient) && bitmark.accountNumber != recipient) {
                 tvError.invisible()
                 activity?.hideKeyBoard()
-                transfer(bitmark, recipient)
+                transfer(bitmark, keyAlias, recipient)
             } else {
                 tvError.visible()
             }
@@ -145,11 +153,32 @@ class TransferFragment : BaseSupportFragment() {
         viewModel.transferProgressLiveData.observe(this, Observer { progress ->
             progressBar.progress = progress
         })
+
+        viewModel.getKeyAliasLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    keyAlias = res.data()!!
+                }
+
+                res.isError() -> {
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.unexpected_error,
+                        R.string.ok
+                    ) { navigator.finishActivity() }
+                }
+            }
+        })
     }
 
-    private fun transfer(bitmark: BitmarkModelView, recipient: String) {
+    private fun transfer(
+        bitmark: BitmarkModelView,
+        keyAlias: String,
+        recipient: String
+    ) {
         loadAccount(
             bitmark.accountNumber,
+            keyAlias,
             getString(R.string.please_sign_to_transfer_bitmark)
         ) { account ->
             val encKeyPair = account.encryptionKey
@@ -170,11 +199,12 @@ class TransferFragment : BaseSupportFragment() {
 
     private fun loadAccount(
         accountNumber: String,
+        keyAlias: String,
         message: String,
         action: (Account) -> Unit
     ) {
         val spec =
-            KeyAuthenticationSpec.Builder(context).setKeyAlias(accountNumber)
+            KeyAuthenticationSpec.Builder(context).setKeyAlias(keyAlias)
                 .setAuthenticationDescription(message)
                 .build()
         activity?.loadAccount(accountNumber,

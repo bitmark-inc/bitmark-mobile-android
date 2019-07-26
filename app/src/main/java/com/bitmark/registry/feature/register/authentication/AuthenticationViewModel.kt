@@ -35,7 +35,8 @@ class AuthenticationViewModel(
         encPubKeySig: String? = null,
         encPubKeyHex: String? = null,
         requester: String,
-        authRequired: Boolean
+        authRequired: Boolean,
+        keyAlias: String
     ) {
         registerAccountLiveData.add(
             rxLiveDataTransformer.completable(
@@ -45,7 +46,8 @@ class AuthenticationViewModel(
                     encPubKeySig,
                     encPubKeyHex,
                     requester,
-                    authRequired
+                    authRequired,
+                    keyAlias
                 )
             )
         )
@@ -60,7 +62,8 @@ class AuthenticationViewModel(
         encPubKeySig: String? = null,
         encPubKeyHex: String? = null,
         requester: String,
-        authRequired: Boolean
+        authRequired: Boolean,
+        keyAlias: String
     ): Completable {
         val streamCount =
             if (null != encPubKeyHex && null != encPubKeySig) 3 else 2
@@ -87,7 +90,8 @@ class AuthenticationViewModel(
         val saveAccountStream = Completable.mergeArrayDelayError(
             accountRepo.saveAccountInfo(
                 requester,
-                authRequired
+                authRequired,
+                keyAlias
             ), accountRepo.addActionRequired(buildActionRequired())
         ).doOnComplete {
             progressLiveData.set(++progress * 100 / streamCount)

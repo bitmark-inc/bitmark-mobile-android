@@ -15,6 +15,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import com.bitmark.apiservice.utils.callback.Callback0
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.DialogController
@@ -174,6 +175,67 @@ fun Activity.loadAccount(
             }
 
         })
+}
+
+fun Activity.removeAccount(
+    accountNumber: String,
+    spec: KeyAuthenticationSpec,
+    dialogController: DialogController,
+    successAction: () -> Unit,
+    canceledAction: () -> Unit = {},
+    setupRequiredAction: () -> Unit = {},
+    unknownErrorAction: (Throwable?) -> Unit = {}
+) {
+    Account.removeFromKeyStore(this, accountNumber, spec, object : Callback0 {
+        override fun onSuccess() {
+            successAction.invoke()
+        }
+
+        override fun onError(throwable: Throwable?) {
+            when (throwable) {
+
+                // authentication error
+                is AuthenticationException -> {
+                    when (throwable.type) {
+                        // action cancel authentication
+                        AuthenticationException.Type.CANCELLED -> {
+                            canceledAction.invoke()
+                        }
+
+                        else -> {
+                            // do nothing
+                        }
+                    }
+                }
+
+                // missing security requirement
+                is AuthenticationRequiredException -> {
+                    when (throwable.type) {
+
+                        // did not set up fingerprint/biometric
+                        AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
+                            dialogController.alert(
+                                R.string.error,
+                                R.string.fingerprint_required
+                            ) { setupRequiredAction.invoke() }
+                        }
+
+                        // did not set up pass code
+                        else -> {
+                            dialogController.alert(
+                                R.string.error,
+                                R.string.passcode_pin_required
+                            ) { setupRequiredAction.invoke() }
+                        }
+                    }
+                }
+                else -> {
+                    unknownErrorAction.invoke(throwable)
+                }
+            }
+        }
+
+    })
 }
 
 fun Context.copyToClipboard(text: String) {

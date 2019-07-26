@@ -32,7 +32,11 @@ class TransferViewModel(
 
     internal val transferProgressLiveData = MutableLiveData<Int>()
 
+    private val getKeyAliasLiveData = CompositeLiveData<String>()
+
     internal fun transferLiveData() = transferLiveData.asLiveData()
+
+    internal fun getKeyAliasLiveData() = getKeyAliasLiveData.asLiveData()
 
     internal fun transfer(
         params: TransferParams,
@@ -159,6 +163,9 @@ class TransferViewModel(
         }
 
     }
+
+    internal fun getKeyAlias() =
+        getKeyAliasLiveData.add(rxLiveDataTransformer.single(accountRepo.getKeyAlias()))
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

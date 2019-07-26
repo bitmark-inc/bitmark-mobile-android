@@ -35,11 +35,13 @@ class AccountLocalDataSource @Inject constructor(
 
     fun saveAccountInfo(
         accountNumber: String,
-        authRequired: Boolean
+        authRequired: Boolean,
+        keyAlias: String
     ): Completable {
         return sharedPrefApi.rxCompletable { sharePrefGateway ->
             sharePrefGateway.put(SharedPrefApi.ACCOUNT_NUMBER, accountNumber)
             sharePrefGateway.put(SharedPrefApi.AUTH_REQUIRED, authRequired)
+            sharePrefGateway.put(SharedPrefApi.KEY_ALIAS, keyAlias)
         }
     }
 
@@ -54,6 +56,22 @@ class AccountLocalDataSource @Inject constructor(
             )
             Pair(accountNumber, authRequired)
         }
+    }
+
+    fun getKeyAlias() = sharedPrefApi.rxSingle { sharePrefGateway ->
+        var keyAlias =
+            sharePrefGateway.get(SharedPrefApi.KEY_ALIAS, String::class)
+        if (keyAlias.isEmpty()) keyAlias =
+            sharePrefGateway.get(SharedPrefApi.ACCOUNT_NUMBER, String::class)
+        keyAlias
+    }
+
+    fun checkAccessRemoved() = sharedPrefApi.rxSingle { sharePrefGateway ->
+        sharePrefGateway.get(SharedPrefApi.ACCESS_REMOVED, Boolean::class)
+    }
+
+    fun removeAccess() = sharedPrefApi.rxCompletable { sharePrefGateway ->
+        sharePrefGateway.put(SharedPrefApi.ACCESS_REMOVED, true)
     }
 
     fun saveEncPubKey(accountNumber: String, encPubKey: String): Completable =

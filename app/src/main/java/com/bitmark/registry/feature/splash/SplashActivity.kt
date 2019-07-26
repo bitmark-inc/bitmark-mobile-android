@@ -24,6 +24,7 @@ import com.bitmark.registry.util.extension.visible
 import com.bitmark.registry.util.view.AuthorizationRequiredDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
+import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.activity_splash.*
 import javax.inject.Inject
 
@@ -68,7 +69,9 @@ class SplashActivity : BaseAppCompatActivity() {
         super.deinitComponents()
     }
 
-    private fun process() = viewModel.getExistingAccount()
+    private fun process() {
+        getFirebaseToken { token -> viewModel.cleanupAppData(token) }
+    }
 
     override fun observe() {
         super.observe()
@@ -78,11 +81,13 @@ class SplashActivity : BaseAppCompatActivity() {
                     val info = res.data()!!
                     val accountNumber = info.first
                     val authRequired = info.second
+                    val keyAlias = info.third
                     val existing = !TextUtils.isEmpty(accountNumber)
                     if (existing) {
                         getStoredAccount(
                             accountNumber,
-                            authRequired
+                            authRequired,
+                            keyAlias
                         ) { account ->
 
                             // register JWT
@@ -136,15 +141,32 @@ class SplashActivity : BaseAppCompatActivity() {
                 }
             }
         })
+
+        viewModel.cleanupAppDataLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    viewModel.getExistingAccount()
+                }
+
+                res.isError() -> {
+                    // TODO show alert and navigate to recovery phrase signin
+                }
+
+                res.isLoading() -> {
+                    progressBar.visible()
+                }
+            }
+        })
     }
 
     private fun getStoredAccount(
         accountNumber: String,
         authenticateRequired: Boolean,
+        keyAlias: String,
         action: (Account) -> Unit
     ) {
         val spec =
-            KeyAuthenticationSpec.Builder(this).setKeyAlias(accountNumber)
+            KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
                 .setAuthenticationRequired(authenticateRequired).build()
         loadAccount(
             accountNumber,
@@ -172,5 +194,13 @@ class SplashActivity : BaseAppCompatActivity() {
             getString(R.string.error),
             message
         ) { navigator.finishActivity() }
+    }
+
+    private fun getFirebaseToken(action: (String?) -> Unit) {
+        FirebaseInstanceId.getInstance()
+            .instanceId.addOnCompleteListener { task ->
+            if (!task.isSuccessful) action.invoke(null)
+            else action.invoke(task.result?.token)
+        }
     }
 }

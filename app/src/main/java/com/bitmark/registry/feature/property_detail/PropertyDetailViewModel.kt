@@ -41,6 +41,8 @@ class PropertyDetailViewModel(
 
     private val getExistingAssetFileLiveData = CompositeLiveData<File?>()
 
+    private val getKeyAliasLiveData = CompositeLiveData<String>()
+
     internal fun getProvenanceLiveData() = getProvenanceLiveData.asLiveData()
 
     internal fun syncProvenanceLiveData() = syncProvenanceLiveData.asLiveData()
@@ -52,6 +54,8 @@ class PropertyDetailViewModel(
 
     internal fun getExistingAssetFileLiveData() =
         getExistingAssetFileLiveData.asLiveData()
+
+    internal fun getKeyAliasLiveData() = getKeyAliasLiveData.asLiveData()
 
     internal fun getProvenance(bitmarkId: String) {
         getProvenanceLiveData.add(
@@ -217,6 +221,9 @@ class PropertyDetailViewModel(
                 ).map { p -> p.second }
             )
         )
+
+    internal fun getKeyAlias() =
+        getKeyAliasLiveData.add(rxLiveDataTransformer.single(accountRepo.getKeyAlias()))
 
 
     override fun onDestroy() {

@@ -4,6 +4,8 @@ import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
+import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 
 
 /**
@@ -17,13 +19,21 @@ class RecoveryPhraseWarningViewModel(
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel() {
 
-    private val getAccountNumberLiveData = CompositeLiveData<String>()
+    private val getAccountInfoLiveData =
+        CompositeLiveData<Pair<String, String>>()
 
-    internal fun getAccountNumberLiveData() =
-        getAccountNumberLiveData.asLiveData()
+    internal fun getAccountInfoLiveData() =
+        getAccountInfoLiveData.asLiveData()
 
-    internal fun getAccountNumber() =
-        getAccountNumberLiveData.add(rxLiveDataTransformer.single(accountRepo.getAccountInfo().map { a -> a.first }))
+    internal fun getAccountInfo() =
+        getAccountInfoLiveData.add(
+            rxLiveDataTransformer.single(
+                Single.zip(
+                    accountRepo.getAccountInfo(),
+                    accountRepo.getKeyAlias(),
+                    BiFunction { a, k -> Pair(a.first, k) })
+            )
+        )
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

@@ -74,4 +74,7 @@ abstract class BitmarkDao {
     @Query("SELECT * FROM Bitmark WHERE asset_id = :assetId")
     abstract fun listBitmarkRefSameAsset(assetId: String): Single<List<BitmarkData>>
 
+    @Query("DELETE FROM Bitmark")
+    abstract fun delete(): Completable
+
 }

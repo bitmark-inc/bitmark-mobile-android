@@ -69,7 +69,16 @@ class SettingsFragment : BaseSupportFragment() {
             )
         }
 
-        tvLogout.setSafetyOnclickListener { }
+        tvLogout.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT).replaceChildFragment(
+                R.id.layoutContainer,
+                RecoveryPhraseWarningFragment.newInstance(
+                    getString(R.string.remove_access),
+                    getString(R.string.your_recovery_phrase_is_the_only_way_to_access),
+                    true
+                )
+            )
+        }
 
         tvDetail.setSafetyOnclickListener { }
 
