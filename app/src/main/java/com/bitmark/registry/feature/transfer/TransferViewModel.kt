@@ -72,13 +72,15 @@ class TransferViewModel(
             encKeyPair
         ).doOnComplete {
             transferProgressLiveData.set(50)
-        }.andThen(bitmarkRepo.transferBitmark(
-            params,
-            bitmarkId,
-            assetId
-        ).doOnComplete {
-            transferProgressLiveData.set(50)
-        })
+        }.andThen(
+            bitmarkRepo.transferBitmark(
+                params,
+                sender,
+                bitmarkId,
+                assetId
+            ).doOnComplete {
+                transferProgressLiveData.set(50)
+            })
 
     }
 

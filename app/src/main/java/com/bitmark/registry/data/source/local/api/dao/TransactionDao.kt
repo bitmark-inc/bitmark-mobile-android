@@ -29,13 +29,16 @@ abstract class TransactionDao {
     ): Single<List<TransactionData>>
 
     @Query("DELETE FROM `Transaction` WHERE bitmark_id = :bitmarkId ")
-    abstract fun deleteTxsByBitmarkId(bitmarkId: String): Completable
+    abstract fun deleteByBitmarkId(bitmarkId: String): Completable
+
+    @Query("DELETE FROM `Transaction` WHERE bitmark_id = :bitmarkId AND owner != :who AND previous_owner != :who")
+    abstract fun deleteIrrelevantByBitmarkId(who: String, bitmarkId: String) : Completable
 
     @Query("DELETE FROM `Transaction` WHERE bitmark_id IN (:bitmarkIds) ")
-    abstract fun deleteTxsByBitmarkIds(bitmarkIds: List<String>): Completable
+    abstract fun deleteByBitmarkIds(bitmarkIds: List<String>): Completable
 
     @Query("SELECT * FROM `Transaction` WHERE (owner = :owner OR previous_owner = :previousOwner) AND status IN (:status) AND `offset` <= :offset ORDER BY `offset` DESC LIMIT :limit")
-    abstract fun listTxsByOwnerOffsetStatusLimitDesc(
+    abstract fun listByOwnerOffsetStatusLimitDesc(
         owner: String,
         previousOwner: String,
         offset: Long,

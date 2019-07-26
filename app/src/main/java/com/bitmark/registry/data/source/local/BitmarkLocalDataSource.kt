@@ -333,7 +333,7 @@ class BitmarkLocalDataSource @Inject constructor(
             if (isPending) arrayOf(PENDING, CONFIRMED) else arrayOf(CONFIRMED)
         return databaseApi.rxSingle { db ->
             db.transactionDao()
-                .listTxsByOwnerOffsetStatusLimitDesc(
+                .listByOwnerOffsetStatusLimitDesc(
                     owner,
                     owner,
                     offset,
@@ -400,12 +400,18 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun deleteTxsByBitmarkId(bitmarkId: String) =
         databaseApi.rxCompletable { db ->
-            db.transactionDao().deleteTxsByBitmarkId(bitmarkId)
+            db.transactionDao().deleteByBitmarkId(bitmarkId)
+        }
+
+    fun deleteIrrelevantTxsByBitmarkId(who: String, bitmarkId: String) =
+        databaseApi.rxCompletable { databaseGateway ->
+            databaseGateway.transactionDao()
+                .deleteIrrelevantByBitmarkId(who, bitmarkId)
         }
 
     fun deleteTxsByBitmarkIds(bitmarkIds: List<String>) =
         databaseApi.rxCompletable { db ->
-            db.transactionDao().deleteTxsByBitmarkIds(bitmarkIds)
+            db.transactionDao().deleteByBitmarkIds(bitmarkIds)
         }
 
     fun maxRelevantTxOffset(who: String): Single<Long> =

@@ -144,7 +144,11 @@ class BitmarkRepository(
                                     mutableListOf<Completable>()
                                 unusableBitmarks.forEach { b ->
                                     deleteBitmarkStreams.add(
-                                        deleteStoredBitmark(b.id, b.assetId)
+                                        deleteStoredBitmark(
+                                            owner,
+                                            b.id,
+                                            b.assetId
+                                        )
                                     )
                                 }
 
@@ -196,30 +200,37 @@ class BitmarkRepository(
             bitmarkId,
             TO_BE_DELETED
         ).andThen(remoteDataSource.transfer(params))
-            .flatMapCompletable { deleteStoredBitmark(bitmarkId, assetId) }
+            .flatMapCompletable {
+                localDataSource.getBitmarkById(bitmarkId).map { b -> b.owner }
+                    .flatMapCompletable { owner ->
+                        deleteStoredBitmark(
+                            owner,
+                            bitmarkId,
+                            assetId
+                        )
+                    }
+            }
     }
 
     // delete bitmark in local db, also related asset file if needed, txs, asset
     private fun deleteStoredBitmark(
+        owner: String,
         bitmarkId: String,
         assetId: String
-    ) =
-        localDataSource.getBitmarkById(bitmarkId).map { b -> b.owner }.flatMapCompletable { owner ->
-            Completable.mergeArrayDelayError(
-                localDataSource.deleteBitmarkById(bitmarkId),
-                localDataSource.deleteTxsByBitmarkId(bitmarkId)
-            ).andThen(localDataSource.checkRedundantAsset(assetId)
-                .flatMapCompletable { redundant ->
-                    if (redundant) {
-                        Completable.mergeArrayDelayError(
-                            localDataSource.deleteAssetFile(
-                                owner,
-                                assetId
-                            ), localDataSource.deleteAssetById(assetId)
-                        )
-                    } else Completable.complete()
-                })
-        }
+    ) = Completable.mergeArrayDelayError(
+        localDataSource.deleteBitmarkById(bitmarkId),
+        localDataSource.deleteIrrelevantTxsByBitmarkId(owner, bitmarkId)
+    ).andThen(localDataSource.checkRedundantAsset(assetId)
+        .flatMapCompletable { redundant ->
+            if (redundant) {
+                // TODO consider whether need to delete file
+                localDataSource.deleteAssetFile(
+                    owner,
+                    assetId
+                )
+            } else Completable.complete()
+        })
+
 
     fun listStoredBitmarkRefSameAsset(assetId: String) =
         localDataSource.listBitmarkRefSameAsset(assetId)
@@ -228,13 +239,14 @@ class BitmarkRepository(
     // then send transfer request to server. Finally clean up corresponding bitmark in local db
     fun transferBitmark(
         params: TransferParams,
+        owner: String,
         bitmarkId: String,
         assetId: String
     ): Completable = localDataSource.updateBitmarkStatus(
         bitmarkId,
         TO_BE_TRANSFERRED
     ).andThen(remoteDataSource.transfer(params)).flatMapCompletable {
-        deleteStoredBitmark(bitmarkId, assetId)
+        deleteStoredBitmark(owner, bitmarkId, assetId)
     }
 
     // sync txs with remote server and also save to local db
