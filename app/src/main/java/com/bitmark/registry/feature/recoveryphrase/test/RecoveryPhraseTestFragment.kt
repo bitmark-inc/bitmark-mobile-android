@@ -19,6 +19,7 @@ import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.google.firebase.iid.FirebaseInstanceId
+import io.intercom.android.sdk.Intercom
 import kotlinx.android.synthetic.main.fragment_recovery_phrase_test.*
 import kotlinx.android.synthetic.main.layout_recovery_phrase_enter.*
 import javax.inject.Inject
@@ -246,6 +247,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     progressDialog.dismiss()
+                    Intercom.client().logout()
                     navigator.startActivityAsRoot(SplashActivity::class.java)
                 }
 
