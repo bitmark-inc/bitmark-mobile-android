@@ -133,13 +133,8 @@ class YourPropertiesViewModel(
                     }
                 }
 
-        }.flatMap { p ->
-            checkAssetFileStream().invoke(
-                p.first,
-                p.second
-            )
-        }
-            .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }.toMaybe()
+        }.flatMap(checkAssetFileStream())
+            .map(bitmarkMapFunc()).toMaybe()
 
     }
 
@@ -172,12 +167,15 @@ class YourPropertiesViewModel(
                 pending = true
             ).map { bitmarks -> Pair(accountNumber, bitmarks) }
 
-        }.flatMap { p -> checkAssetFileStream().invoke(p.first, p.second) }
-            .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }.toMaybe()
+        }.flatMap(checkAssetFileStream())
+            .map(bitmarkMapFunc()).toMaybe()
     }
 
-    private fun checkAssetFileStream(): (String, List<BitmarkData>) -> Single<Pair<String, List<BitmarkData>>> =
-        { accountNumber, bitmarks ->
+    private fun checkAssetFileStream(): (Pair<String, List<BitmarkData>>) -> Single<Pair<String, List<BitmarkData>>> =
+        { p ->
+
+            val accountNumber = p.first
+            val bitmarks = p.second
 
             if (bitmarks.isNullOrEmpty()) {
                 Single.just(Pair(accountNumber, listOf()))
@@ -205,8 +203,11 @@ class YourPropertiesViewModel(
             }
         }
 
-    private fun bitmarkMapFunc(): (String, List<BitmarkData>) -> List<BitmarkModelView> =
-        { accountNumber, bitmarks ->
+    private fun bitmarkMapFunc(): (Pair<String, List<BitmarkData>>) -> List<BitmarkModelView> =
+        { p ->
+            val accountNumber = p.first
+            val bitmarks = p.second
+
             bitmarks.map { b ->
                 BitmarkModelView.newInstance(b, accountNumber)
             }
@@ -223,13 +224,8 @@ class YourPropertiesViewModel(
                             account.first,
                             bitmarks
                         )
-                    }).flatMap { p ->
-                    checkAssetFileStream().invoke(
-                        p.first,
-                        p.second
-                    )
-                }
-                    .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }
+                    }).flatMap(checkAssetFileStream())
+                    .map(bitmarkMapFunc())
             )
         )
     }
@@ -250,16 +246,11 @@ class YourPropertiesViewModel(
                     a.first,
                     bitmark
                 )
-            }.flatMap { p ->
-                checkAssetFileStream().invoke(p.first, p.second)
-            }.map { p ->
+            }.flatMap(checkAssetFileStream()).map { p ->
                 val minOffset = p.second.minBy { b -> b.offset }?.offset ?: -1L
                 currentOffset =
                     if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
-                bitmarkMapFunc().invoke(
-                    p.first,
-                    p.second
-                )
+                bitmarkMapFunc().invoke(p)
             }.subscribe { b, e ->
                 if (e == null) {
                     bitmarkSavedLiveData.set(b)

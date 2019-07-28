@@ -105,11 +105,14 @@ class TransactionHistoryViewModel(
                     }
                 }
 
-        }.map { p -> mapTxs().invoke(p.first, p.second) }
+        }.map(mapTxs())
     }
 
-    private fun mapTxs(): (String, List<TransactionData>) -> List<TransactionModelView> =
-        { owner, txs ->
+    private fun mapTxs(): (Pair<String, List<TransactionData>>) -> List<TransactionModelView> =
+        { p ->
+            val owner = p.first
+            val txs = p.second
+
             txs.map { tx ->
                 TransactionModelView(
                     tx.id,
@@ -152,7 +155,7 @@ class TransactionHistoryViewModel(
                 isPending = true
             ).map { bitmarks -> Pair(accountNumber, bitmarks) }
 
-        }.map { p -> mapTxs().invoke(p.first, p.second) }
+        }.map(mapTxs())
     }
 
     private fun getAccountNumber() =
@@ -176,10 +179,7 @@ class TransactionHistoryViewModel(
                         p.second.minBy { t -> t.offset }?.offset ?: -1L
                     currentOffset =
                         if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
-                    mapTxs().invoke(
-                        p.first,
-                        p.second
-                    )
+                    mapTxs().invoke(p)
                 }.subscribe { ts, e ->
                     if (e == null) {
                         txsSavedLiveData.set(ts)
