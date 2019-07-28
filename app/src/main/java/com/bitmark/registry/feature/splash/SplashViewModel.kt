@@ -33,7 +33,7 @@ class SplashViewModel(
 
     private val prepareDataLiveData = CompositeLiveData<Any>()
 
-    private val cleanupAppDataLiveData = CompositeLiveData<Any>()
+    private val cleanupAppDataLiveData = CompositeLiveData<Boolean>()
 
     internal fun getExistingAccount() {
         getExistingAccountLiveData.add(
@@ -52,28 +52,34 @@ class SplashViewModel(
     // this fun will be try to clean up previous account data
     internal fun cleanupAppData(deviceToken: String?) {
         cleanupAppDataLiveData.add(
-            rxLiveDataTransformer.completable(
+            rxLiveDataTransformer.single(
                 cleanupAppDataStream(deviceToken)
             )
         )
     }
 
-    private fun cleanupAppDataStream(deviceToken: String?): Completable {
-        return accountRepo.checkAccessRemoved().flatMapCompletable { removed ->
-            if (!removed) Completable.complete()
+    private fun cleanupAppDataStream(deviceToken: String?): Single<Boolean> {
+        return accountRepo.checkAccessRemoved().flatMap { removed ->
+            if (!removed) Single.just(false)
             else {
-                val deleteDeviceToken =
+                val deleteDeviceTokenStream =
                     if (deviceToken == null) Completable.complete() else appRepo.deleteDeviceToken(
                         deviceToken
-                    )
+                    ).onErrorResumeNext {
+                        Completable.complete() // ignore error since it's not important
+                    }
 
-                deleteDeviceToken.andThen(
-                    Completable.mergeArrayDelayError(
-                        appRepo.deleteQrCodeFile(),
-                        appRepo.deleteDatabase(),
-                        appRepo.deleteCache()
-                    )
+                val deleteDataStream = Completable.mergeArrayDelayError(
+                    appRepo.deleteQrCodeFile(),
+                    appRepo.deleteDatabase(),
+                    appRepo.deleteCache()
                 ).andThen(appRepo.deleteSharePref())
+
+                Completable.mergeArrayDelayError(
+                    deleteDeviceTokenStream,
+                    deleteDataStream
+                ).andThen(Single.just(true))
+
             }
         }
     }

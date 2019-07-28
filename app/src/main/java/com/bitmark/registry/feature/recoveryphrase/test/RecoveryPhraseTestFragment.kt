@@ -247,6 +247,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     progressDialog.dismiss()
+                    FirebaseInstanceId.getInstance().deleteInstanceId()
                     Intercom.client().logout()
                     navigator.startActivityAsRoot(SplashActivity::class.java)
                 }

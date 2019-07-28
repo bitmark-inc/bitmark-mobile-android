@@ -147,6 +147,11 @@ class SplashActivity : BaseAppCompatActivity() {
         viewModel.cleanupAppDataLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
+                    progressBar.gone()
+                    val dataDeleted = res.data()!!
+                    if (dataDeleted) {
+                        FirebaseInstanceId.getInstance().deleteInstanceId()
+                    }
                     viewModel.getExistingAccount()
                 }
 
