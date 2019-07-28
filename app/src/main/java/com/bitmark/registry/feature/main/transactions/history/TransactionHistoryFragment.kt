@@ -67,6 +67,8 @@ class TransactionHistoryFragment : BaseSupportFragment() {
             false
 
         adapter.setItemClickListener { item ->
+            if (item.isPending()) return@setItemClickListener
+
             val url = "%s/transaction/%s".format(
                 BuildConfig.REGISTRY_WEBSITE,
                 item.id
