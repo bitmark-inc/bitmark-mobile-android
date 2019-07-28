@@ -22,7 +22,8 @@ data class TransactionModelView(
     val previousOwner: String? = null,
     val assetName: String? = null,
     val status: TransactionData.Status? = null,
-    val accountNumber: String? = null
+    val accountNumber: String? = null,
+    val offset: Long
 ) : Parcelable {
 
     fun isPending() = status == TransactionData.Status.PENDING

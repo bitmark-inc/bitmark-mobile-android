@@ -29,7 +29,8 @@ class BitmarkModelView constructor(
     val status: BitmarkData.Status,
     var assetFile: File? = null,
     val assetId: String,
-    var previousOwner: String? = null
+    var previousOwner: String? = null,
+    val offset: Long
 ) : Parcelable {
 
     companion object {
@@ -54,7 +55,8 @@ class BitmarkModelView constructor(
                 assetType = assetType,
                 status = bitmark.status,
                 assetFile = assetFile,
-                assetId = bitmark.assetId
+                assetId = bitmark.assetId,
+                offset = bitmark.offset
             )
         }
 
@@ -163,4 +165,7 @@ class BitmarkModelView constructor(
         if (!issuedAt.isNullOrEmpty()) DateTimeUtil.stringToString(issuedAt) else null
 
     fun isSettled() = status == BitmarkData.Status.SETTLED
+
+    fun isPending() =
+        status == BitmarkData.Status.TRANSFERRING || status == BitmarkData.Status.ISSUING
 }

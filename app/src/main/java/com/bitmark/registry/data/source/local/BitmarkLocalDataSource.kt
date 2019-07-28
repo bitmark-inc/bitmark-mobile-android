@@ -32,9 +32,11 @@ class BitmarkLocalDataSource @Inject constructor(
     private var bitmarkStatusChangedListener: BitmarkStatusChangedListener? =
         null
 
-    private var bitmarkInsertedListener: BitmarkInsertedListener? = null
+    private var bitmarkSavedListener: BitmarkSavedListener? = null
 
     private var assetFileSavedListener: AssetFileSavedListener? = null
+
+    private var txsSavedListener: TxsSavedListener? = null
 
     fun setBitmarkDeletedListener(listener: BitmarkDeletedListener?) {
         this.bitmarkDeletedListener = listener
@@ -44,12 +46,16 @@ class BitmarkLocalDataSource @Inject constructor(
         this.bitmarkStatusChangedListener = listener
     }
 
-    fun setBitmarkInsertedListener(listener: BitmarkInsertedListener?) {
-        this.bitmarkInsertedListener = listener
+    fun setBitmarkSavedListener(listener: BitmarkSavedListener?) {
+        this.bitmarkSavedListener = listener
     }
 
     fun setAssetFileSavedListener(listener: AssetFileSavedListener?) {
         this.assetFileSavedListener = listener
+    }
+
+    fun setTxsSavedListener(listener: TxsSavedListener?) {
+        this.txsSavedListener = listener
     }
 
     //region Bitmark
@@ -117,11 +123,21 @@ class BitmarkLocalDataSource @Inject constructor(
     fun saveBitmarks(bitmarks: List<BitmarkData>): Completable =
         if (bitmarks.isEmpty()) Completable.complete()
         else databaseApi.rxCompletable { db ->
-            db.bitmarkDao().save(bitmarks).doOnComplete {
-                val insertedIds = bitmarks.map { b -> b.id }
-                bitmarkInsertedListener?.onInserted(insertedIds)
-            }
-        }
+            db.bitmarkDao().save(bitmarks)
+        }.andThen(attachAssetToBitmark().invoke(bitmarks)).doOnSuccess { b ->
+            bitmarkSavedListener?.onBitmarksSaved(
+                b
+            )
+        }.ignoreElement()
+
+    fun saveBitmark(bitmark: BitmarkData): Completable =
+        databaseApi.rxCompletable { db ->
+            db.bitmarkDao().save(bitmark)
+        }.andThen(getAssetById(bitmark.assetId).map { asset ->
+            bitmark.asset = asset
+            bitmark
+        }).doOnSuccess { b -> bitmarkSavedListener?.onBitmarksSaved(listOf(b)) }
+            .ignoreElement()
 
     fun updateBitmarkStatus(
         bitmarkId: String,
@@ -202,6 +218,10 @@ class BitmarkLocalDataSource @Inject constructor(
         else databaseApi.rxCompletable { db ->
             db.assetDao().save(assets)
         }
+
+    fun saveAsset(asset: AssetData) = databaseApi.rxCompletable { db ->
+        db.assetDao().save(asset)
+    }
 
     fun checkAssetFile(
         accountNumber: String,
@@ -293,7 +313,16 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun saveTxs(txs: List<TransactionData>): Completable {
         return if (txs.isEmpty()) Completable.complete()
-        else databaseApi.rxCompletable { db -> db.transactionDao().save(txs) }
+        else databaseApi.rxCompletable { db ->
+            db.transactionDao().save(txs)
+        }.andThen(
+            Completable.mergeArray(
+                attachAssetToTx().invoke(txs).ignoreElement(),
+                attachBlkToTx().invoke(txs).ignoreElement()
+            ).doOnComplete {
+                txsSavedListener?.onTxsSaved(txs)
+            }
+        )
     }
 
     fun listTxs(
@@ -324,9 +353,9 @@ class BitmarkLocalDataSource @Inject constructor(
     fun listRelevantTxs(
         owner: String,
         offset: Long,
-        loadAsset: Boolean = false,
+        loadAsset: Boolean = true,
         isPending: Boolean = false,
-        loadBlock: Boolean = false,
+        loadBlock: Boolean = true,
         limit: Int = 100
     ): Single<List<TransactionData>> {
         val status =
@@ -367,7 +396,8 @@ class BitmarkLocalDataSource @Inject constructor(
                 Maybe.merge(assetStreams).doOnNext { asset ->
                     txs.filter { tx -> tx.assetId == asset.id }
                         .forEach { tx -> tx.asset = asset }
-                }.lastOrError().flatMap { Single.just(txs) }
+                }.collectInto(txs, { _, _ -> }).flatMap { Single.just(txs) }
+
 
             } else Single.just(txs)
 
@@ -392,7 +422,7 @@ class BitmarkLocalDataSource @Inject constructor(
                         txs.filter { tx ->
                             tx.blockNumber == block.number
                         }.forEach { tx -> tx.block = block }
-                    }.lastOrError().flatMap { Single.just(txs) }
+                    }.collectInto(txs, { _, _ -> }).flatMap { Single.just(txs) }
                 }
 
             } else Single.just(txs)
@@ -422,7 +452,9 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun listTxsByOwnerStatus(
         owner: String,
-        status: TransactionData.Status
+        status: TransactionData.Status,
+        loadAsset: Boolean = true,
+        loadBlock: Boolean = true
     ): Single<List<TransactionData>> =
         databaseApi.rxSingle { db ->
             db.transactionDao().listByOwnerStatusDesc(owner, status)
@@ -431,7 +463,15 @@ class BitmarkLocalDataSource @Inject constructor(
                         listOf()
                     )
                 }
-        }.flatMap(attachAssetToTx()).flatMap(attachBlkToTx())
+        }.flatMap { txs ->
+            if (loadAsset) attachAssetToTx().invoke(txs) else Single.just(
+                txs
+            )
+        }.flatMap { txs ->
+            if (loadBlock) attachBlkToTx().invoke(txs) else Single.just(
+                txs
+            )
+        }
 
     //endregion Txs
 

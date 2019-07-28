@@ -87,7 +87,8 @@ class PropertyDetailViewModel(
                     confirmedAt = tx.block?.createdAt ?: "",
                     owner = tx.owner,
                     previousOwner = tx.previousOwner,
-                    status = tx.status
+                    status = tx.status,
+                    offset = tx.offset
                 )
             }
         }
@@ -118,7 +119,8 @@ class PropertyDetailViewModel(
                     confirmedAt = tx.block?.createdAt ?: "",
                     previousOwner = tx.previousOwner,
                     owner = tx.owner,
-                    status = tx.status
+                    status = tx.status,
+                    offset = tx.offset
                 )
             }
         }

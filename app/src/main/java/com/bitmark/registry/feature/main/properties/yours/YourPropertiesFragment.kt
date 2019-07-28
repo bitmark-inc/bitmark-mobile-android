@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
@@ -36,6 +35,9 @@ class YourPropertiesFragment : BaseSupportFragment() {
     lateinit var navigator: Navigator
 
     private val adapter = YourPropertiesRecyclerViewAdapter()
+
+    // FIXME : optimize the deduplication when adding new items to the adapter
+    private var needDeduplication: Boolean = false
 
     private lateinit var endlessScrollListener: EndlessScrollListener
 
@@ -85,6 +87,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
                     totalItemsCount: Int,
                     view: RecyclerView
                 ) {
+                    needDeduplication = false
                     viewModel.listBitmark()
                 }
 
@@ -94,6 +97,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
         btnCreateProperty.setSafetyOnclickListener { }
 
         layoutSwipeRefresh.setOnRefreshListener {
+            needDeduplication = true
             viewModel.fetchBitmarks()
         }
 
@@ -109,7 +113,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
                         hideEmptyView()
-                        adapter.add(data)
+                        adapter.add(data, needDeduplication)
                     } else if (adapter.isEmpty()) {
                         showEmptyView()
                     }
@@ -151,8 +155,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
-                    // TODO remove
-                    if (BuildConfig.DEBUG) throw res.throwable()!!
+                    // ignore error
                 }
             }
         })
@@ -174,6 +177,15 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 else -> {
                     // silence update so do nothing
                 }
+            }
+        })
+
+        viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmarks ->
+            adapter.update(bitmarks)
+            if (adapter.isEmpty()) {
+                showEmptyView()
+            } else {
+                hideEmptyView()
             }
         })
     }

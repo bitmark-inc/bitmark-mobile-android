@@ -26,7 +26,7 @@ class PropertiesViewModel(
     override fun onCreate() {
         super.onCreate()
         realtimeBus.bitmarkDeletedPublisher.subscribe(this) { getBitmarkCount() }
-        realtimeBus.bitmarkInsertedPublisher.subscribe(this) { getBitmarkCount() }
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { getBitmarkCount() }
     }
 
     override fun onDestroy() {

@@ -3,6 +3,7 @@ package com.bitmark.registry.data.source.remote
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.params.query.BitmarkQueryBuilder
 import com.bitmark.apiservice.params.query.TransactionQueryBuilder
+import com.bitmark.apiservice.response.GetBitmarkResponse
 import com.bitmark.apiservice.response.GetBitmarksResponse
 import com.bitmark.apiservice.response.GetTransactionsResponse
 import com.bitmark.apiservice.utils.callback.Callback1
@@ -110,6 +111,32 @@ class BitmarkRemoteDataSource @Inject constructor(
 
             })
         }).subscribeOn(Schedulers.io())
+
+    fun getBitmark(bitmarkId: String, loadAsset: Boolean = false) =
+        Single.create(
+            SingleOnSubscribe<Pair<BitmarkData?, AssetData?>> { emt ->
+                Bitmark.get(
+                    bitmarkId,
+                    loadAsset,
+                    object : Callback1<GetBitmarkResponse> {
+                        override fun onSuccess(data: GetBitmarkResponse?) {
+                            val bitmark =
+                                if (data?.bitmark == null) null else converter.mapBitmark(
+                                    data.bitmark
+                                )
+                            val asset =
+                                if (data?.asset == null) null else converter.mapAsset(
+                                    data.asset
+                                )
+                            emt.onSuccess(Pair(bitmark, asset))
+                        }
+
+                        override fun onError(throwable: Throwable?) {
+                            emt.onError(throwable!!)
+                        }
+                    })
+            }
+        ).subscribeOn(Schedulers.io())
 
 
     //endregion Bitmark

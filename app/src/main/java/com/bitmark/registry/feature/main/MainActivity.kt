@@ -10,14 +10,18 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.main.account.AccountContainerFragment
 import com.bitmark.registry.feature.main.properties.PropertiesFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 class MainActivity : BaseAppCompatActivity() {
+
+    @Inject
+    lateinit var viewModel: MainViewModel
 
     private lateinit var adapter: MainViewPagerAdapter
 
     override fun layoutRes(): Int = R.layout.activity_main
 
-    override fun viewModel(): BaseViewModel? = null
+    override fun viewModel(): BaseViewModel? = viewModel
 
     override fun initComponents() {
         super.initComponents()

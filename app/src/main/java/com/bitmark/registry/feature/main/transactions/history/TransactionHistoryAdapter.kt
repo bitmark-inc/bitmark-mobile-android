@@ -31,7 +31,20 @@ class TransactionHistoryAdapter :
         this.itemClickListener = listener
     }
 
-    fun add(items: List<TransactionModelView>) {
+    fun add(
+        items: List<TransactionModelView>,
+        needDeduplication: Boolean = false
+    ) {
+        if (needDeduplication) {
+            items.forEach { item ->
+                val duplicatedItemIndex =
+                    this.items.indexOfFirst { i -> i.id == item.id }
+                if (duplicatedItemIndex != -1) {
+                    this.items.removeAt(duplicatedItemIndex)
+                    notifyItemRemoved(duplicatedItemIndex)
+                }
+            }
+        }
         val pos = this.items.size
         this.items.addAll(items)
         notifyItemRangeInserted(pos, items.size)
@@ -40,6 +53,32 @@ class TransactionHistoryAdapter :
     fun clear() {
         items.clear()
         notifyDataSetChanged()
+    }
+
+    fun update(items: List<TransactionModelView>) {
+        items.forEach { i ->
+            val existingIndex = this.items.indexOfFirst { t -> t.id == i.id }
+            if (existingIndex != -1) {
+                this.items.removeAt(existingIndex)
+                notifyItemRemoved(existingIndex)
+            }
+
+            val lastPendingIndex = this.items.indexOfLast { t -> t.isPending() }
+            val firstPendingIndex =
+                this.items.indexOfFirst { t -> t.isPending() }
+            val newIndex =
+                if ((existingIndex == -1 && firstPendingIndex == -1)
+                    || (i.isPending() && this.items[firstPendingIndex].offset <= i.offset)
+                ) 0
+                else if (existingIndex != -1 && !i.isPending()) {
+                    existingIndex
+                } else {
+                    lastPendingIndex + 1
+                }
+
+            this.items.add(newIndex, i)
+            notifyItemInserted(newIndex)
+        }
     }
 
     fun isEmpty() = items.isEmpty()

@@ -5,6 +5,7 @@ import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -24,12 +25,14 @@ class AuthenticationModule {
     fun provideViewModel(
         accountRepo: AccountRepository,
         appRepo: AppRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        wsEventBus: WebSocketEventBus
     ): AuthenticationViewModel {
         return AuthenticationViewModel(
             accountRepo,
             appRepo,
-            rxLiveDataTransformer
+            rxLiveDataTransformer,
+            wsEventBus
         )
     }
 

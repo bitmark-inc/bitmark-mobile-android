@@ -2,13 +2,11 @@ package com.bitmark.registry.feature.realtime
 
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.local.*
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
-import kotlin.reflect.KClass
 
 
 /**
@@ -20,12 +18,11 @@ import kotlin.reflect.KClass
 class RealtimeBus(
     bitmarkRepo: BitmarkRepository,
     accountRepo: AccountRepository
-) :
-    BitmarkInsertedListener, BitmarkDeletedListener,
+) : Bus(),
+    BitmarkSavedListener, BitmarkDeletedListener,
     BitmarkStatusChangedListener, AssetFileSavedListener,
-    ActionRequiredDeletedListener {
+    ActionRequiredDeletedListener, TxsSavedListener {
 
-    private val observerMap = mutableMapOf<KClass<*>, MutableList<Disposable>>()
 
     val bitmarkDeletedPublisher =
         Publisher(PublishSubject.create<List<String>>())
@@ -33,26 +30,24 @@ class RealtimeBus(
     val bitmarkStatusChangedPublisher =
         Publisher(PublishSubject.create<Triple<String, BitmarkData.Status, BitmarkData.Status>>())
 
-    val bitmarkInsertedPublisher =
-        Publisher(PublishSubject.create<List<String>>())
+    val bitmarkSavedPublisher =
+        Publisher(PublishSubject.create<List<BitmarkData>>())
 
     val assetFileSavedPublisher = Publisher(PublishSubject.create<String>())
 
     val actionRequiredDeletedPublisher =
         Publisher(PublishSubject.create<ActionRequired.Id>())
 
+    val txsSavedPublisher =
+        Publisher(PublishSubject.create<List<TransactionData>>())
+
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
-        bitmarkRepo.setBitmarkInsertedListener(this)
+        bitmarkRepo.setBitmarkSavedListener(this)
         bitmarkRepo.setBitmarkStatusChangedListener(this)
         bitmarkRepo.setAssetFileSavedListener(this)
+        bitmarkRepo.setTxsSavedListener(this)
         accountRepo.setActionRequiredDeletedListener(this)
-    }
-
-    fun <H : Any> unsubscribe(host: H) {
-        val observers = observerMap[host::class]
-        if (observers.isNullOrEmpty()) return
-        observers.forEach { o -> o.dispose() }
     }
 
     override fun onChanged(
@@ -73,8 +68,8 @@ class RealtimeBus(
         bitmarkDeletedPublisher.publisher.onNext(bitmarkIds)
     }
 
-    override fun onInserted(bitmarkIds: List<String>) {
-        bitmarkInsertedPublisher.publisher.onNext(bitmarkIds)
+    override fun onBitmarksSaved(bitmarks: List<BitmarkData>) {
+        bitmarkSavedPublisher.publisher.onNext(bitmarks)
     }
 
     override fun onSaved(assetId: String) {
@@ -85,16 +80,7 @@ class RealtimeBus(
         actionRequiredDeletedPublisher.publisher.onNext(actionId)
     }
 
-    inner class Publisher<T>(internal val publisher: PublishSubject<T>) {
-
-        fun <H : Any> subscribe(host: H, consumer: (T) -> Unit) {
-            val disposable = publisher.observeOn(AndroidSchedulers.mainThread())
-                .subscribe(consumer)
-            val kclass = host::class
-            if (observerMap[kclass] == null) {
-                observerMap[kclass] = mutableListOf()
-            }
-            observerMap[kclass]?.add(disposable)
-        }
+    override fun onTxsSaved(txs: List<TransactionData>) {
+        txsSavedPublisher.publisher.onNext(txs)
     }
 }

@@ -1,9 +1,11 @@
 package com.bitmark.registry.feature.splash
 
+import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
@@ -21,7 +23,8 @@ class SplashViewModel(
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
     private val bitmarkRepo: BitmarkRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val wsEventBus: WebSocketEventBus
 ) :
     BaseViewModel() {
 
@@ -76,6 +79,7 @@ class SplashViewModel(
     }
 
     internal fun prepareData(
+        keyPair: KeyPair,
         timestamp: String,
         signature: String,
         requester: String
@@ -97,12 +101,13 @@ class SplashViewModel(
 
         prepareDataLiveData.add(
             rxLiveDataTransformer.completable(
-                Completable.mergeDelayError(
-                    listOf(
-                        registerJwtStream,
-                        cleanupBitmarkStream
-                    )
-                )
+                Completable.mergeArrayDelayError(
+                    registerJwtStream,
+                    cleanupBitmarkStream
+                ).doOnComplete {
+                    // connect no matter it's successful or failed
+                    wsEventBus.connect(keyPair)
+                }
             )
         )
     }

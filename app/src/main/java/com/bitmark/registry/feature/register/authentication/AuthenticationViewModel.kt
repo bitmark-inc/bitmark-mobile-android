@@ -3,12 +3,14 @@ package com.bitmark.registry.feature.register.authentication
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.cryptography.crypto.Sha3256
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
+import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.model.ActionRequired.Id.RECOVERY_PHRASE
 import com.bitmark.registry.data.model.ActionRequired.Type.SECURITY_ALERT
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.DateTimeUtil
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -26,7 +28,8 @@ import java.util.*
 class AuthenticationViewModel(
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val wsEventBus: WebSocketEventBus
 ) : BaseViewModel() {
 
     private val registerAccountLiveData = CompositeLiveData<Any>()
@@ -41,7 +44,8 @@ class AuthenticationViewModel(
         requester: String,
         authRequired: Boolean,
         keyAlias: String,
-        deviceToken: String?
+        deviceToken: String?,
+        keyPair: KeyPair
     ) {
         registerAccountLiveData.add(
             rxLiveDataTransformer.completable(
@@ -53,7 +57,8 @@ class AuthenticationViewModel(
                     requester,
                     authRequired,
                     keyAlias,
-                    deviceToken
+                    deviceToken,
+                    keyPair
                 )
             )
         )
@@ -70,7 +75,8 @@ class AuthenticationViewModel(
         requester: String,
         authRequired: Boolean,
         keyAlias: String,
-        deviceToken: String?
+        deviceToken: String?,
+        keyPair: KeyPair
     ): Completable {
         val streamCount =
             if (null != encPubKeyHex && null != encPubKeySig) 4 else 3
@@ -124,11 +130,13 @@ class AuthenticationViewModel(
             registerMobileServerAccStream,
             registerEncKeyStream
         ).andThen(
-            Completable.mergeArrayDelayError(
+            Completable.mergeArray(
                 saveAccountStream,
                 registerNotifStream
             )
-        )
+        ).doOnComplete {
+            wsEventBus.connect(keyPair)
+        }
     }
 
     private fun buildActionRequired() = listOf(

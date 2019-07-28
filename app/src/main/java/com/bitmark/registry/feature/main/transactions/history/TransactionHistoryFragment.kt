@@ -39,6 +39,9 @@ class TransactionHistoryFragment : BaseSupportFragment() {
 
     private var visibled = false
 
+    // FIXME : optimize the deduplication when adding new items to the adapter
+    private var needDeduplication: Boolean = false
+
     companion object {
         fun newInstance() = TransactionHistoryFragment()
     }
@@ -81,6 +84,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
                     totalItemsCount: Int,
                     view: RecyclerView
                 ) {
+                    needDeduplication = false
                     viewModel.listTxs()
                 }
 
@@ -88,6 +92,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
         rvTxs.addOnScrollListener(endlessScrollListener)
 
         layoutSwipeRefresh.setOnRefreshListener {
+            needDeduplication = true
             viewModel.fetchTxs()
         }
     }
@@ -107,7 +112,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
                         hideEmptyView()
-                        adapter.add(data)
+                        adapter.add(data, needDeduplication)
                     } else if (adapter.isEmpty()) {
                         showEmptyView()
                     }
@@ -115,6 +120,9 @@ class TransactionHistoryFragment : BaseSupportFragment() {
 
                 res.isError() -> {
                     progressBar.gone()
+                    if (adapter.isEmpty()) {
+                        showEmptyView()
+                    }
                 }
 
                 res.isLoading() -> {
@@ -136,6 +144,15 @@ class TransactionHistoryFragment : BaseSupportFragment() {
                 res.isError() -> {
                     progressBar.gone()
                 }
+            }
+        })
+
+        viewModel.txsSavedLiveData.observe(this, Observer { txs ->
+            adapter.update(txs)
+            if (adapter.isEmpty()) {
+                showEmptyView()
+            } else {
+                hideEmptyView()
             }
         })
     }

@@ -50,6 +50,9 @@ abstract class BitmarkDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun save(bitmarks: List<BitmarkData>): Completable
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun save(bitmark: BitmarkData): Completable
+
     @Query("UPDATE Bitmark SET status = :status WHERE id = :bitmarkId")
     abstract fun updateStatus(
         bitmarkId: String,

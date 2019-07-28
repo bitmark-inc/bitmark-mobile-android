@@ -142,7 +142,8 @@ class AuthenticationFragment : BaseSupportFragment() {
             override fun onSuccess() {
 
                 val requester = account.accountNumber
-                val signingPrivateKey = account.keyPair.privateKey().toBytes()
+                val signingKeyPair = account.keyPair
+                val signingPrivateKey = signingKeyPair.privateKey().toBytes()
 
                 // ignore register encryption key in case of recover account
                 var encPubKeyHex: String? = null
@@ -176,7 +177,8 @@ class AuthenticationFragment : BaseSupportFragment() {
                         requester,
                         authRequired,
                         keyAlias,
-                        token
+                        token,
+                        signingKeyPair
                     )
                 }
             }

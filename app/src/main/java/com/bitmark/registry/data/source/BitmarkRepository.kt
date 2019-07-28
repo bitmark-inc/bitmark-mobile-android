@@ -35,12 +35,16 @@ class BitmarkRepository(
         localDataSource.setBitmarkStatusChangedListener(listener)
     }
 
-    fun setBitmarkInsertedListener(listener: BitmarkInsertedListener?) {
-        localDataSource.setBitmarkInsertedListener(listener)
+    fun setBitmarkSavedListener(listener: BitmarkSavedListener?) {
+        localDataSource.setBitmarkSavedListener(listener)
     }
 
     fun setAssetFileSavedListener(listener: AssetFileSavedListener?) {
         localDataSource.setAssetFileSavedListener(listener)
+    }
+
+    fun setTxsSavedListener(listener: TxsSavedListener?) {
+        localDataSource.setTxsSavedListener(listener)
     }
 
     // sync bitmarks from server and save to local db
@@ -107,6 +111,24 @@ class BitmarkRepository(
                 }
             }
     }
+
+    // sync bitmark with remote server then save to local db
+    fun syncBitmark(bitmarkId: String, loadAsset: Boolean = false) =
+        remoteDataSource.getBitmark(bitmarkId, loadAsset).flatMap { p ->
+            val bitmark = p.first
+            val asset = p.second
+            bitmark?.asset = asset
+            val saveBitmarkStream =
+                if (bitmark == null) Completable.complete() else localDataSource.saveBitmark(
+                    bitmark
+                )
+            val saveAssetStream =
+                if (asset == null) Completable.complete() else localDataSource.saveAsset(
+                    asset
+                )
+            saveAssetStream.andThen(saveBitmarkStream)
+                .andThen(Single.just(bitmark))
+        }
 
     // clean up bitmark is deleted from server side but not be reflected in local db
     // also update bitmarks to latest state if the previous delete/transfer action could not be sent to server
@@ -272,9 +294,10 @@ class BitmarkRepository(
             to = to,
             limit = limit
         ).observeOn(Schedulers.computation()).flatMap { t ->
-            localDataSource.saveBlocks(t.third)
-                .andThen(localDataSource.saveAssets(t.second))
-                .andThen(localDataSource.saveTxs(t.first))
+            Completable.mergeArrayDelayError(
+                localDataSource.saveAssets(t.second),
+                localDataSource.saveBlocks(t.third)
+            ).andThen(localDataSource.saveTxs(t.first))
                 .andThen(Single.just(t))
         }.map { t ->
             val txs = t.first

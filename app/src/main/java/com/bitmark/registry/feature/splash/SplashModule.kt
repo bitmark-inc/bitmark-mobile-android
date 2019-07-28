@@ -6,6 +6,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -26,13 +27,15 @@ class SplashModule {
         accountRepo: AccountRepository,
         appRepo: AppRepository,
         bitmarkRepo: BitmarkRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        wsEventBus: WebSocketEventBus
     ): SplashViewModel {
         return SplashViewModel(
             accountRepo,
             appRepo,
             bitmarkRepo,
-            rxLiveDataTransformer
+            rxLiveDataTransformer,
+            wsEventBus
         )
     }
 

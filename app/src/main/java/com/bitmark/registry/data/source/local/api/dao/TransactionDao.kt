@@ -32,7 +32,10 @@ abstract class TransactionDao {
     abstract fun deleteByBitmarkId(bitmarkId: String): Completable
 
     @Query("DELETE FROM `Transaction` WHERE bitmark_id = :bitmarkId AND owner != :who AND previous_owner != :who")
-    abstract fun deleteIrrelevantByBitmarkId(who: String, bitmarkId: String) : Completable
+    abstract fun deleteIrrelevantByBitmarkId(
+        who: String,
+        bitmarkId: String
+    ): Completable
 
     @Query("DELETE FROM `Transaction` WHERE bitmark_id IN (:bitmarkIds) ")
     abstract fun deleteByBitmarkIds(bitmarkIds: List<String>): Completable

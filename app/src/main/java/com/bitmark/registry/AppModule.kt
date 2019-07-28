@@ -5,6 +5,7 @@ import android.content.Context
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.realtime.RealtimeBus
+import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -30,4 +31,9 @@ class AppModule {
         accountRepo: AccountRepository
     ): RealtimeBus =
         RealtimeBus(bitmarkRepo, accountRepo)
+
+    @Provides
+    @Singleton
+    fun provideWebSocketEventBus(accountRepo: AccountRepository) =
+        WebSocketEventBus(accountRepo)
 }

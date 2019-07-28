@@ -90,16 +90,18 @@ class SplashActivity : BaseAppCompatActivity() {
                             keyAlias
                         ) { account ->
 
-                            // register JWT
+                            // prepare data
+                            val keyPair = account.keyPair
                             val timestamp =
                                 System.currentTimeMillis().toString()
                             val signature = HEX.encode(
                                 Ed25519.sign(
                                     RAW.decode(timestamp),
-                                    account.keyPair.privateKey().toBytes()
+                                    keyPair.privateKey().toBytes()
                                 )
                             )
                             viewModel.prepareData(
+                                keyPair,
                                 timestamp,
                                 signature,
                                 accountNumber

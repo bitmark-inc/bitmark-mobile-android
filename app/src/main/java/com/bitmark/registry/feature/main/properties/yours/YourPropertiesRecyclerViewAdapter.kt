@@ -26,7 +26,20 @@ class YourPropertiesRecyclerViewAdapter() :
 
     private var itemClickListener: ((BitmarkModelView) -> Unit)? = null
 
-    internal fun add(items: List<BitmarkModelView>) {
+    internal fun add(
+        items: List<BitmarkModelView>,
+        needDeduplication: Boolean = false
+    ) {
+        if (needDeduplication) {
+            items.forEach { item ->
+                val duplicatedItemIndex =
+                    this.items.indexOfFirst { i -> i.id == item.id }
+                if (duplicatedItemIndex != -1) {
+                    this.items.removeAt(duplicatedItemIndex)
+                    notifyItemRemoved(duplicatedItemIndex)
+                }
+            }
+        }
         val pos = this.items.size
         this.items.addAll(items)
         notifyItemRangeInserted(pos, items.size)
@@ -56,11 +69,28 @@ class YourPropertiesRecyclerViewAdapter() :
 
     internal fun update(items: List<BitmarkModelView>) {
         items.forEach { i ->
-            val index = this.items.indexOfFirst { b -> b.id == i.id }
-            if (index == -1) return
-            this.items.removeAt(index)
-            this.items.add(index, i)
-            notifyItemChanged(index)
+            val existingIndex = this.items.indexOfFirst { b -> b.id == i.id }
+            if (existingIndex != -1) {
+                this.items.removeAt(existingIndex)
+                notifyItemRemoved(existingIndex)
+            }
+
+            val lastPendingIndex = this.items.indexOfLast { b -> b.isPending() }
+            val firstPendingIndex =
+                this.items.indexOfFirst { b -> b.isPending() }
+            val newIndex =
+                if ((existingIndex == -1 && firstPendingIndex == -1)
+                    || (i.isPending() && this.items[firstPendingIndex].offset <= i.offset)
+                ) 0
+                else if (existingIndex != -1 && !i.isPending()) {
+                    existingIndex
+                } else {
+                    lastPendingIndex + 1
+                }
+
+
+            this.items.add(newIndex, i)
+            notifyItemInserted(newIndex)
         }
     }
 

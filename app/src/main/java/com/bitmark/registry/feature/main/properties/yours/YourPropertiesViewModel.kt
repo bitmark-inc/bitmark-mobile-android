@@ -9,6 +9,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.extension.append
+import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.BitmarkModelView
@@ -32,10 +33,13 @@ class YourPropertiesViewModel(
 ) : BaseViewModel() {
 
     companion object {
-        private const val PAGE_SIZE = 50
+        private const val PAGE_SIZE = 20
     }
 
     internal val deletedBitmarkLiveData = MutableLiveData<List<String>>()
+
+    internal val bitmarkSavedLiveData =
+        MutableLiveData<List<BitmarkModelView>>()
 
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -166,10 +170,7 @@ class YourPropertiesViewModel(
                 to = "later",
                 limit = PAGE_SIZE,
                 pending = true
-            ).doOnSuccess { bitmarks ->
-                if (bitmarks.isNotEmpty())
-                    currentOffset = bitmarks.minBy { b -> b.offset }!!.offset
-            }.map { bitmarks -> Pair(accountNumber, bitmarks) }
+            ).map { bitmarks -> Pair(accountNumber, bitmarks) }
 
         }.flatMap { p -> checkAssetFileStream().invoke(p.first, p.second) }
             .map { p -> bitmarkMapFunc().invoke(p.first, p.second) }.toMaybe()
@@ -236,10 +237,34 @@ class YourPropertiesViewModel(
     override fun onCreate() {
         super.onCreate()
         realtimeBus.bitmarkDeletedPublisher.subscribe(this) { bitmarkIds ->
-            deletedBitmarkLiveData.value = bitmarkIds
+            deletedBitmarkLiveData.set(bitmarkIds)
         }
+
         realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
             refreshBitmarks(assetId)
+        }
+
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
+            subscribe(accountRepo.getAccountInfo().map { a ->
+                Pair(
+                    a.first,
+                    bitmark
+                )
+            }.flatMap { p ->
+                checkAssetFileStream().invoke(p.first, p.second)
+            }.map { p ->
+                val minOffset = p.second.minBy { b -> b.offset }?.offset ?: -1L
+                currentOffset =
+                    if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
+                bitmarkMapFunc().invoke(
+                    p.first,
+                    p.second
+                )
+            }.subscribe { b, e ->
+                if (e == null) {
+                    bitmarkSavedLiveData.set(b)
+                }
+            })
         }
     }
 
