@@ -47,16 +47,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_32"
-        android:layout_marginEnd="@dimen/dp_40"
-        android:layout_marginStart="@dimen/dp_40"
+        android:layout_marginEnd="@dimen/dp_12"
+        android:layout_marginStart="@dimen/dp_12"
         android:layout_marginTop="@dimen/dp_8"
         android:ellipsize="end"
         android:fontFamily="@font/avenir_medium"
         android:gravity="center"
-        android:maxLines="3"
+        android:maxLines="4"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_12"
-        tools:text="Your authorization has been sent to..."
+        tools:text="Your rights to this property have been permanently removed from your account."
         />
   </LinearLayout>
 

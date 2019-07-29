@@ -153,8 +153,8 @@
   <ProgressBar
       android:id="@+id/progressBar"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/dp_neg_4"
+      android:layout_height="@dimen/dp_3"
+      android:layout_marginBottom="@dimen/dp_1"
       android:visibility="gone"
       app:layout_constraintBottom_toTopOf="@id/btnTransfer"
       tools:progress="50"

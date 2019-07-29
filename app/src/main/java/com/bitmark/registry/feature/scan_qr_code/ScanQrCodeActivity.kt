@@ -4,6 +4,9 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Handler
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ImageSpan
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
@@ -43,6 +46,20 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
 
     override fun initComponents() {
         super.initComponents()
+
+        val imageSpan =
+            ImageSpan(this, R.drawable.ic_qr_code_2, ImageSpan.ALIGN_BOTTOM)
+        val text = getString(R.string.you_can_transfer_rights_to_another)
+        val startSpanIndex = text.indexOf("@")
+        val endSpanIndex = startSpanIndex + 1
+        val spanStringBuilder = SpannableStringBuilder(text)
+        spanStringBuilder.setSpan(
+            imageSpan,
+            startSpanIndex,
+            endSpanIndex,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        tvMessage.text = spanStringBuilder
 
         // a bit delay for better ux
         Handler().postDelayed({

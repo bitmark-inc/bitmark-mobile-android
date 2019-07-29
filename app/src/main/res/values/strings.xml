@@ -88,8 +88,8 @@
   <string name="write_down_your_recovery_phrase">Write Down Your Recovery Phrase</string>
   <string name="protect_your_bitmark_account">Protect your Bitmark account.</string>
   <string name="bitmark_is_the_property_system_for_establishing">Bitmark is the property system for establishing value and legal control over the world’s data. Our mission is to define digital property, defend it, and make it economically divisible. \n\nRegister, track, and trade property rights for your digital assets.</string>
-  <string name="your_property_rights_has_been_transferred">Your property rights has been transferred.</string>
-  <string name="your_property_rights_has_been_deleted">Your property rights have been deleted.</string>
+  <string name="your_property_rights_has_been_transferred">Your rights to this property have been transferred.</string>
+  <string name="your_property_rights_has_been_deleted">Your rights to this property have been permanently removed from your account.</string>
   <string name="settings">Settings</string>
   <string name="authorized">Authorized</string>
   <string name="your_bitmark_account_number">Your Bitmark Account Number</string>
@@ -119,5 +119,6 @@
   <string name="removing_access_three_dot">Removing access…</string>
   <string name="removing_access_for_account">Removing access for account</string>
   <string name="please_sign_to_register_account">Please sign to register account.</string>
+  <string name="you_can_transfer_rights_to_another">You can transfer rights to another Bitmark account by scanning the receiving account\&apos;s QR code. You can view your account QR code by tapping @  at the top of the Account screen. </string>
 
 </resources>
