@@ -58,6 +58,8 @@ class AuthenticationFragment : BaseSupportFragment() {
     @Inject
     internal lateinit var navigator: Navigator
 
+    private var blocked = false
+
     override fun layoutRes(): Int = R.layout.fragment_authentication
 
     override fun viewModel(): BaseViewModel? = viewModel
@@ -68,6 +70,7 @@ class AuthenticationFragment : BaseSupportFragment() {
         val phrase = arguments?.getStringArray(RECOVERY_PHRASE)
 
         btnEnableTouchId.setSafetyOnclickListener {
+            if (blocked) return@setSafetyOnclickListener
             createAccount(
                 phrase,
                 true
@@ -75,6 +78,7 @@ class AuthenticationFragment : BaseSupportFragment() {
         }
 
         btnSkip.setSafetyOnclickListener {
+            if (blocked) return@setSafetyOnclickListener
             dialogController.confirm(
                 title = R.string.warning,
                 message = R.string.are_you_sure_you_dont_to_protect,
@@ -95,6 +99,7 @@ class AuthenticationFragment : BaseSupportFragment() {
         viewModel.registerAccountLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
+                    blocked = false
                     Handler().postDelayed({
                         navigator.anim(RIGHT_LEFT).startActivityAsRoot(
                             MainActivity::class.java
@@ -102,6 +107,7 @@ class AuthenticationFragment : BaseSupportFragment() {
                     }, 250)
                 }
                 res.isError() -> {
+                    blocked = false
                     progressBar.gone()
                     dialogController.alert(
                         getString(R.string.error),
@@ -109,6 +115,7 @@ class AuthenticationFragment : BaseSupportFragment() {
                     )
                 }
                 res.isLoading() -> {
+                    blocked = true
                     progressBar.visible()
                 }
             }
