@@ -3,9 +3,9 @@ package com.bitmark.registry.feature.main
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bitmark.registry.feature.ViewPagerAdapter
-import com.bitmark.registry.feature.main.account.AccountContainerFragment
-import com.bitmark.registry.feature.main.properties.PropertiesFragment
-import com.bitmark.registry.feature.main.transactions.TransactionsFragment
+import com.bitmark.registry.feature.account.AccountContainerFragment
+import com.bitmark.registry.feature.properties.PropertiesFragment
+import com.bitmark.registry.feature.transactions.TransactionsFragment
 
 
 /**

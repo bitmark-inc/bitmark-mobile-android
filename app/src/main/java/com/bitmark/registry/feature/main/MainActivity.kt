@@ -7,8 +7,8 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
-import com.bitmark.registry.feature.main.account.AccountContainerFragment
-import com.bitmark.registry.feature.main.properties.PropertiesFragment
+import com.bitmark.registry.feature.account.AccountContainerFragment
+import com.bitmark.registry.feature.properties.PropertiesFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
