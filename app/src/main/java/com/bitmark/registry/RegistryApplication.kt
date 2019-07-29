@@ -2,9 +2,13 @@ package com.bitmark.registry
 
 import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGER
 import com.bitmark.sdk.features.BitmarkSDK
+import com.crashlytics.android.Crashlytics
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
+import io.fabric.sdk.android.Fabric
 import io.intercom.android.sdk.Intercom
+
+
 
 
 /**
@@ -30,6 +34,7 @@ class RegistryApplication : DaggerApplication() {
         } else {
             BitmarkSDK.init("bmk-lljpzkhqdkzmblhg")
         }
+        Fabric.with(this, Crashlytics())
         Intercom.initialize(this, API_KEY_MANAGER.intercomApiKey, "ejkeunzw")
     }
 }

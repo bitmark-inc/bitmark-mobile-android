@@ -10,6 +10,8 @@ apply from: 'versioning.gradle'
 
 apply from: '../autodimension.gradle'
 
+apply plugin: 'io.fabric'
+
 def enableSeparateBuildPerCPUArchitecture = false
 
 android {
@@ -250,6 +252,9 @@ dependencies {
   implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
   implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
   implementation 'io.intercom.android:intercom-sdk:5.4.0'
+  implementation('com.crashlytics.sdk.android:crashlytics:2.9.8@aar') {
+    transitive = true
+  }
 
 
   // Testing
