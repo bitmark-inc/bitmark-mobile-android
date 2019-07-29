@@ -52,6 +52,10 @@
         android:name=".feature.register.RegisterContainerActivity"
         android:screenOrientation="portrait"/>
 
+    <activity
+        android:name=".feature.account.settings.details.WhatsNewActivity"
+        android:screenOrientation="portrait"/>
+
     <!-- Firebase message service -->
     <service
         android:name=".feature.notification.AppFirebaseMessageService"

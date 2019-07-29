@@ -15,7 +15,7 @@ import dagger.android.support.DaggerFragment
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-abstract class BaseSupportFragment : DaggerFragment() {
+abstract class BaseSupportFragment : DaggerFragment(), BehaviorComponent {
 
     protected var rootView: View? = null
 
@@ -88,11 +88,4 @@ abstract class BaseSupportFragment : DaggerFragment() {
      * Unobserve data change from ViewModel
      */
     protected open fun unobserve() {}
-
-    /**
-     * Refresh stuff like view, data or something
-     */
-    open fun refresh() {}
-
-    open fun onBackPressed(): Boolean = false
 }

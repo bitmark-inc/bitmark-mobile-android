@@ -8,16 +8,12 @@ import com.bitmark.registry.feature.account.authorized.AuthorizedFragment
 import com.bitmark.registry.feature.account.authorized.AuthorizedModule
 import com.bitmark.registry.feature.account.settings.SettingsFragment
 import com.bitmark.registry.feature.account.settings.SettingsModule
+import com.bitmark.registry.feature.account.settings.details.SettingsDetailsFragment
+import com.bitmark.registry.feature.account.settings.details.SettingsDetailsModule
 import com.bitmark.registry.feature.properties.PropertiesFragment
 import com.bitmark.registry.feature.properties.PropertiesModule
 import com.bitmark.registry.feature.properties.yours.YourPropertiesFragment
 import com.bitmark.registry.feature.properties.yours.YourPropertiesModule
-import com.bitmark.registry.feature.transactions.TransactionsFragment
-import com.bitmark.registry.feature.transactions.TransactionsModule
-import com.bitmark.registry.feature.transactions.action_required.ActionRequiredFragment
-import com.bitmark.registry.feature.transactions.action_required.ActionRequiredModule
-import com.bitmark.registry.feature.transactions.history.TransactionHistoryFragment
-import com.bitmark.registry.feature.transactions.history.TransactionHistoryModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingFragment
@@ -32,6 +28,12 @@ import com.bitmark.registry.feature.register.authentication.AuthenticationFragme
 import com.bitmark.registry.feature.register.authentication.AuthenticationModule
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninFragment
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninModule
+import com.bitmark.registry.feature.transactions.TransactionsFragment
+import com.bitmark.registry.feature.transactions.TransactionsModule
+import com.bitmark.registry.feature.transactions.action_required.ActionRequiredFragment
+import com.bitmark.registry.feature.transactions.action_required.ActionRequiredModule
+import com.bitmark.registry.feature.transactions.history.TransactionHistoryFragment
+import com.bitmark.registry.feature.transactions.history.TransactionHistoryModule
 import com.bitmark.registry.feature.transfer.TransferFragment
 import com.bitmark.registry.feature.transfer.TransferModule
 import dagger.Module
@@ -114,4 +116,8 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [AccountModule::class])
     @FragmentScope
     internal abstract fun bindAccountFragment(): AccountFragment
+
+    @ContributesAndroidInjector(modules = [SettingsDetailsModule::class])
+    @FragmentScope
+    internal abstract fun bindSettingsDetailsFragment(): SettingsDetailsFragment
 }

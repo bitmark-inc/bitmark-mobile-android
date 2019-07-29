@@ -9,6 +9,7 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.account.settings.details.SettingsDetailsFragment
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
 import com.bitmark.registry.util.extension.copyToClipboard
 import com.bitmark.registry.util.extension.invisible
@@ -81,10 +82,15 @@ class SettingsFragment : BaseSupportFragment() {
             )
         }
 
-        tvDetail.setSafetyOnclickListener { }
+        tvDetail.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT).replaceChildFragment(
+                R.id.layoutContainer,
+                SettingsDetailsFragment.newInstance()
+            )
+        }
 
         tvNeedHelp.setSafetyOnclickListener {
-            Intercom.client().displayMessenger();
+            Intercom.client().displayMessenger()
         }
 
         ivQrCode.setSafetyOnclickListener {

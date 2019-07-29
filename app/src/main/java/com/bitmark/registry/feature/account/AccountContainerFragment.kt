@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.account
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.BehaviorComponent
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingFragment
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
@@ -39,7 +40,7 @@ class AccountContainerFragment : BaseSupportFragment() {
 
     override fun onBackPressed(): Boolean {
         super.onBackPressed()
-        val currentFragment = currentFragment() as? BaseSupportFragment
+        val currentFragment = currentFragment() as? BehaviorComponent
             ?: return false
         return currentFragment.onBackPressed()
     }

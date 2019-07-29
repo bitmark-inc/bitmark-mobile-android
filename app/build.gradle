@@ -157,6 +157,10 @@ android {
           "\"https://registry.test.bitmark.com\""
       buildConfigField "String", "NOTIFICATION_CLIENT",
           "\"registryinhouse\""
+      buildConfigField "String", "TERMS_OF_SERVICE_URL",
+          "\"https://bitmark.com/en/legal/terms?env=app\""
+      buildConfigField "String", "PRIVACY_POLICY_URL",
+          "\"https://bitmark.com/en/legal/privacy?env=app\""
     }
 
     prd {
@@ -189,6 +193,10 @@ android {
           "\"https://registry.bitmark.com\""
       buildConfigField "String", "NOTIFICATION_CLIENT",
           "\"registry\""
+      buildConfigField "String", "TERMS_OF_SERVICE_URL",
+          "\"https://bitmark.com/en/legal/terms?env=app\""
+      buildConfigField "String", "PRIVACY_POLICY_URL",
+          "\"https://bitmark.com/en/legal/privacy?env=app\""
     }
   }
 

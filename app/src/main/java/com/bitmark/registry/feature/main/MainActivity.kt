@@ -5,8 +5,8 @@ import androidx.core.content.res.ResourcesCompat
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
-import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.BehaviorComponent
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.properties.PropertiesFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -46,7 +46,7 @@ class MainActivity : BaseAppCompatActivity() {
             viewPager.setCurrentItem(position, false)
 
             if (wasSelected) {
-                (adapter.currentFragment as? BaseSupportFragment)?.refresh()
+                (adapter.currentFragment as? BehaviorComponent)?.refresh()
             }
 
             true
@@ -55,7 +55,7 @@ class MainActivity : BaseAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val currentFragment = adapter.currentFragment as? BaseSupportFragment
+        val currentFragment = adapter.currentFragment as? BehaviorComponent
         if (currentFragment is PropertiesFragment)
             super.onBackPressed()
         else if (currentFragment?.onBackPressed() == false) {

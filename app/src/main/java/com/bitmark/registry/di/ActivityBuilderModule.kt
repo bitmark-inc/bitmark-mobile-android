@@ -1,5 +1,7 @@
 package com.bitmark.registry.di
 
+import com.bitmark.registry.feature.account.settings.details.WhatsNewActivity
+import com.bitmark.registry.feature.account.settings.details.WhatsNewModule
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.main.MainModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
@@ -42,4 +44,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [ScanQrCodeModule::class])
     @ActivityScope
     internal abstract fun bindScanQrCodeActivity(): ScanQrCodeActivity
+
+    @ContributesAndroidInjector(modules = [WhatsNewModule::class])
+    @ActivityScope
+    internal abstract fun bindWhatsNewActivity(): WhatsNewActivity
 }

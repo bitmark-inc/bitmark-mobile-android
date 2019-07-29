@@ -62,5 +62,27 @@ class DateTimeUtil {
                 ""
             }
         }
+
+        fun stringToDate(date: String) = stringToDate(date, ISO8601_FORMAT)
+
+        fun stringToDate(
+            date: String,
+            format: String,
+            timezone: String = "UTC"
+        ): Date? {
+            return try {
+                val formatter = SimpleDateFormat(format, Locale.getDefault())
+                formatter.timeZone = TimeZone.getTimeZone(timezone)
+                formatter.parse(date)
+            } catch (e: Throwable) {
+                null
+            }
+        }
+
+        fun dayCountFrom(date: Date): Long {
+            val nowMillis = Date().time
+            val diff = nowMillis - date.time
+            return diff / (1000 * 60 * 60 * 24)
+        }
     }
 }

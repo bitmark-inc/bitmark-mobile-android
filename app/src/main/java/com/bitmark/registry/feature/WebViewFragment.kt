@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.layout_webview.*
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class WebViewFragment : Fragment() {
+class WebViewFragment : Fragment(), BehaviorComponent {
 
     companion object {
 
@@ -55,6 +55,11 @@ class WebViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initComponents()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        deinitComponents()
     }
 
     private fun initComponents() {
@@ -90,16 +95,47 @@ class WebViewFragment : Fragment() {
         ivNext.setOnClickListener { webview.goForward() }
 
         ivToolbarBack.setOnClickListener {
-            Navigator(this).anim(RIGHT_LEFT).popFragment()
+            destroy()
+        }
+    }
+
+    private fun deinitComponents() {
+        webview.webViewClient = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!visibled) {
+            load()
         }
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (isVisibleToUser && !visibled) {
-            // a bit delay for better performance
-            Handler().postDelayed({ webview.loadUrl(url) }, 200)
-            visibled = true
+            load()
         }
+    }
+
+    private fun load() {
+        // a bit delay for better performance
+        Handler().postDelayed({ webview.loadUrl(url) }, 200)
+        visibled = true
+    }
+
+    override fun onBackPressed(): Boolean = destroy()
+
+    private fun destroy(): Boolean {
+        val navigator =
+            if (parentFragment != null) Navigator(parentFragment!!) else Navigator(
+                this
+            )
+
+        var onBackPressed = navigator.anim(RIGHT_LEFT).popFragment() ?: false
+        if (!onBackPressed) {
+            onBackPressed =
+                navigator.anim(RIGHT_LEFT).popChildFragment() ?: false
+        }
+        return onBackPressed
     }
 }

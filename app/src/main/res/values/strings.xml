@@ -120,5 +120,24 @@
   <string name="removing_access_for_account">Removing access for account</string>
   <string name="please_sign_to_register_account">Please sign to register account.</string>
   <string name="you_can_transfer_rights_to_another">You can transfer rights to another Bitmark account by scanning the receiving account\&apos;s QR code. You can view your account QR code by tapping @  at the top of the Account screen. </string>
+  <string name="terms_of_service">Terms of Service</string>
+  <string name="privacy_policy">Privacy Policy</string>
+  <string name="what_s_new">What\&apos;s New!</string>
+  <string name="play_store_rating_and_review">Play Store Rating &amp; Review</string>
+  <string name="share_this_app">Share This App</string>
+  <string name="details">Details</string>
+  <string name="version">Version</string>
+  <string name="share_with">Share with</string>
+  <string name="release_notes">Release Notes</string>
+  <string-array name="release_note_info">
+    <item name="content">Highlights of the new features\n---\n\nEnhancements\n---\n\nWe value your feedback, if you have ideas or suggestions on how to make our app even better, please email us at support@bitmark.com.\n</item>
+    <item name="date">2018-07-29T15:00:00.000000Z</item>
+  </string-array>
+  <string name="close">Close</string>
+
+
+  <!--string format-->
+  <string name="day_ago_format">%1$dd ago</string>
+
 
 </resources>
