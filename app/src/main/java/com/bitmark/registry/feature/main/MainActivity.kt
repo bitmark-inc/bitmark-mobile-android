@@ -27,6 +27,10 @@ class MainActivity : BaseAppCompatActivity() {
         super.initComponents()
         val navAdapter = AHBottomNavigationAdapter(this, R.menu.navigation)
         navAdapter.setupWithBottomNavigation(bottomNav)
+        bottomNav.defaultBackgroundColor = ContextCompat.getColor(
+            this,
+            R.color.wild_sand
+        )
         bottomNav.accentColor =
             ContextCompat.getColor(this, R.color.blue_ribbon)
         bottomNav.inactiveColor =

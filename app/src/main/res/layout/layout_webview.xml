@@ -68,6 +68,7 @@
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
       android:layout_alignParentBottom="true"
+      android:layout_marginBottom="@dimen/dp_3"
       android:background="@color/alabaster"
       android:gravity="center"
       android:orientation="horizontal"
