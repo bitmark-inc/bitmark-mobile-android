@@ -47,6 +47,11 @@ class WebViewActivity : AppCompatActivity() {
         initComponents()
     }
 
+    override fun onDestroy() {
+        deinitComponents()
+        super.onDestroy()
+    }
+
     private fun initComponents() {
         val url = intent?.extras?.getString(URL)
         val title = intent?.extras?.getString(TITLE)
@@ -84,6 +89,10 @@ class WebViewActivity : AppCompatActivity() {
 
         // a bit delay for better performance
         Handler().postDelayed({ webview.loadUrl(url) }, 200)
+    }
+
+    private fun deinitComponents() {
+        webview.webViewClient = null
     }
 
     override fun onBackPressed() {
