@@ -1,11 +1,13 @@
 package com.bitmark.registry.feature.splash
 
+import androidx.lifecycle.MutableLiveData
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
@@ -35,6 +37,8 @@ class SplashViewModel(
 
     private val cleanupAppDataLiveData = CompositeLiveData<Boolean>()
 
+    internal val progressLiveData = MutableLiveData<Int>()
+
     internal fun getExistingAccount() {
         getExistingAccountLiveData.add(
             rxLiveDataTransformer.single(
@@ -60,8 +64,13 @@ class SplashViewModel(
 
     private fun cleanupAppDataStream(deviceToken: String?): Single<Boolean> {
         return accountRepo.checkAccessRemoved().flatMap { removed ->
-            if (!removed) Single.just(false)
+            if (!removed) Single.just(false).doOnSuccess {
+                progressLiveData.set(
+                    100
+                )
+            }
             else {
+
                 val deleteDeviceTokenStream =
                     if (deviceToken == null) Completable.complete() else appRepo.deleteDeviceToken(
                         deviceToken
@@ -75,10 +84,17 @@ class SplashViewModel(
                     appRepo.deleteCache()
                 ).andThen(appRepo.deleteSharePref())
 
+                var progress = 0
+                val streamCount = 2
+                val completeAction =
+                    { progressLiveData.set(++progress / streamCount * 100) }
+
+
                 Completable.mergeArrayDelayError(
-                    deleteDeviceTokenStream,
-                    deleteDataStream
+                    deleteDeviceTokenStream.doOnComplete(completeAction),
+                    deleteDataStream.doOnComplete(completeAction)
                 ).andThen(Single.just(true))
+                    .doOnSubscribe { progressLiveData.set(0) }
 
             }
         }
@@ -104,13 +120,18 @@ class SplashViewModel(
                     )
                 }.onErrorResumeNext { Completable.complete() }
 
+        var progress = 0
+        val streamCount = 2
+        val completeAction =
+            { progressLiveData.set(++progress / streamCount * 100) }
+
 
         prepareDataLiveData.add(
             rxLiveDataTransformer.completable(
                 Completable.mergeArrayDelayError(
-                    registerJwtStream,
-                    cleanupBitmarkStream
-                ).doOnComplete {
+                    registerJwtStream.doOnComplete(completeAction),
+                    cleanupBitmarkStream.doOnComplete(completeAction)
+                ).doOnSubscribe { progressLiveData.set(0) }.doOnComplete {
                     // connect no matter it's successful or failed
                     wsEventBus.connect(keyPair)
                 }

@@ -134,6 +134,8 @@
     <item name="date">2018-07-29T15:00:00.000000Z</item>
   </string-array>
   <string name="close">Close</string>
+  <string name="preparing_data">Preparing data…</string>
+  <string name="clean_up_data">Cleanup data…</string>
 
 
   <!--string format-->

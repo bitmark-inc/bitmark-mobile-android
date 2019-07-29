@@ -48,6 +48,8 @@ class SplashActivity : BaseAppCompatActivity() {
 
     private lateinit var authorizationDialog: AuthorizationRequiredDialog
 
+    private val handler = Handler()
+
     override fun layoutRes(): Int = R.layout.activity_splash
 
     override fun viewModel(): BaseViewModel? = viewModel
@@ -55,6 +57,11 @@ class SplashActivity : BaseAppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         process()
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     override fun initComponents() {
@@ -108,10 +115,10 @@ class SplashActivity : BaseAppCompatActivity() {
                             )
                         }
                     } else {
-                        Handler().postDelayed({
+                        handler.postDelayed({
                             navigator.anim(RIGHT_LEFT)
                                 .startActivityAsRoot(RegisterContainerActivity::class.java)
-                        }, 1000)
+                        }, 250)
                     }
 
                 }
@@ -126,16 +133,21 @@ class SplashActivity : BaseAppCompatActivity() {
 
         viewModel.prepareDataLiveData().observe(this, Observer { res ->
             when {
-                res.isLoading() -> progressBar.visible()
+                res.isLoading() -> {
+                    tvAction.setText(R.string.preparing_data)
+                    showLoading()
+                }
+
                 res.isSuccess() -> {
-                    progressBar.gone()
-                    Handler().postDelayed({
+                    handler.postDelayed({
+                        hideLoading()
                         navigator.anim(RIGHT_LEFT)
                             .startActivityAsRoot(MainActivity::class.java)
                     }, 500)
                 }
-                else -> {
-                    progressBar.gone()
+
+                res.isError() -> {
+                    hideLoading()
                     dialogController.alert(
                         getString(R.string.error),
                         res.throwable()?.message!!
@@ -147,12 +159,15 @@ class SplashActivity : BaseAppCompatActivity() {
         viewModel.cleanupAppDataLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    progressBar.gone()
                     val dataDeleted = res.data()!!
                     if (dataDeleted) {
                         FirebaseInstanceId.getInstance().deleteInstanceId()
                     }
-                    viewModel.getExistingAccount()
+                    handler.postDelayed({
+                        // a bit delay to avoid flash screen if nothing need to cleanup
+                        hideLoading()
+                        viewModel.getExistingAccount()
+                    }, 500)
                 }
 
                 res.isError() -> {
@@ -160,10 +175,25 @@ class SplashActivity : BaseAppCompatActivity() {
                 }
 
                 res.isLoading() -> {
-                    progressBar.visible()
+                    tvAction.setText(R.string.clean_up_data)
+                    showLoading()
                 }
             }
         })
+
+        viewModel.progressLiveData.observe(this, Observer { progress ->
+            progressBar.progress = progress
+        })
+    }
+
+    private fun showLoading() {
+        tvAction.visible()
+        progressBar.visible()
+    }
+
+    private fun hideLoading() {
+        tvAction.gone()
+        progressBar.gone()
     }
 
     private fun getStoredAccount(
