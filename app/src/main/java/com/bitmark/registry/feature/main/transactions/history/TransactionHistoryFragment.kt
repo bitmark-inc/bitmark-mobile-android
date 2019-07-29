@@ -95,7 +95,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
 
         layoutSwipeRefresh.setOnRefreshListener {
             needDeduplication = true
-            viewModel.fetchTxs()
+            viewModel.refreshTxs()
         }
     }
 
@@ -133,7 +133,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.fetchTxsLiveData().observe(this, Observer { res ->
+        viewModel.refreshTxsLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     layoutSwipeRefresh.isRefreshing = false
@@ -155,6 +155,19 @@ class TransactionHistoryFragment : BaseSupportFragment() {
                 showEmptyView()
             } else {
                 hideEmptyView()
+            }
+        })
+
+        viewModel.fetchLatestTxsLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val txs = res.data() ?: return@Observer
+                    adapter.update(txs)
+                }
+
+                res.isError() -> {
+                    // silence fetching so ignore error
+                }
             }
         })
     }
@@ -179,6 +192,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
         if (isVisibleToUser && !visibled) {
             visibled = true
             viewModel.listTxs()
+            viewModel.fetchLatestTxs()
         }
     }
 }

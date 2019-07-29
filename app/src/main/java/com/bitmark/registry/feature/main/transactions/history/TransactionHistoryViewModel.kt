@@ -35,7 +35,10 @@ class TransactionHistoryViewModel(
     private val listTxsLiveData =
         CompositeLiveData<List<TransactionModelView>>()
 
-    private val fetchTxsLiveData =
+    private val refreshTxsLiveData =
+        CompositeLiveData<List<TransactionModelView>>()
+
+    private val fetchLatestTxsLiveData =
         CompositeLiveData<List<TransactionModelView>>()
 
     internal val txsSavedLiveData =
@@ -45,7 +48,9 @@ class TransactionHistoryViewModel(
 
     internal fun listTxsLiveData() = listTxsLiveData.asLiveData()
 
-    internal fun fetchTxsLiveData() = fetchTxsLiveData.asLiveData()
+    internal fun refreshTxsLiveData() = refreshTxsLiveData.asLiveData()
+
+    internal fun fetchLatestTxsLiveData() = fetchLatestTxsLiveData.asLiveData()
 
     internal fun listTxs() {
         listTxsLiveData.add(rxLiveDataTransformer.single(listTxsStream()))
@@ -127,8 +132,12 @@ class TransactionHistoryViewModel(
             }
         }
 
-    internal fun fetchTxs() {
-        fetchTxsLiveData.add(rxLiveDataTransformer.single(fetchTxsStream()))
+    internal fun refreshTxs() {
+        refreshTxsLiveData.add(rxLiveDataTransformer.single(fetchTxsStream()))
+    }
+
+    internal fun fetchLatestTxs() {
+        fetchLatestTxsLiveData.add(rxLiveDataTransformer.single(fetchTxsStream()))
     }
 
     private fun fetchTxsStream(): Single<List<TransactionModelView>> {

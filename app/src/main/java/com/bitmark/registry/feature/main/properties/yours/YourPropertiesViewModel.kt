@@ -44,12 +44,15 @@ class YourPropertiesViewModel(
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
 
-    private val fetchBitmarksLiveData =
+    private val refreshBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
 
     private val markSeenLiveData = CompositeLiveData<String>()
 
-    private val refreshedBitmarksLiveData =
+    private val refreshAssetTypeLiveData =
+        CompositeLiveData<List<BitmarkModelView>>()
+
+    private val fetchLatestBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
 
     private var currentOffset = -1L
@@ -60,12 +63,16 @@ class YourPropertiesViewModel(
 
     internal fun listBitmarksLiveData() = listBitmarksLiveData.asLiveData()
 
-    internal fun fetchBitmarksLiveData() = fetchBitmarksLiveData.asLiveData()
+    internal fun refreshBitmarksLiveData() =
+        refreshBitmarksLiveData.asLiveData()
 
     internal fun markSeenLiveData() = markSeenLiveData.asLiveData()
 
-    internal fun refreshedBitmarkLiveData() =
-        refreshedBitmarksLiveData.asLiveData()
+    internal fun refreshAssetTypeLiveData() =
+        refreshAssetTypeLiveData.asLiveData()
+
+    internal fun fetchLatestBitmarksLiveData() =
+        fetchLatestBitmarksLiveData.asLiveData()
 
     internal fun listBitmark() =
         listBitmarksLiveData.add(
@@ -138,8 +145,16 @@ class YourPropertiesViewModel(
 
     }
 
-    internal fun fetchBitmarks() {
-        fetchBitmarksLiveData.add(
+    internal fun refreshBitmarks() {
+        refreshBitmarksLiveData.add(
+            rxLiveDataTransformer.maybe(
+                fetchBitmarksStream()
+            )
+        )
+    }
+
+    internal fun fetchLatestBitmarks() {
+        fetchLatestBitmarksLiveData.add(
             rxLiveDataTransformer.maybe(
                 fetchBitmarksStream()
             )
@@ -213,8 +228,8 @@ class YourPropertiesViewModel(
             }
         }
 
-    private fun refreshBitmarks(assetId: String) {
-        refreshedBitmarksLiveData.add(
+    private fun refreshAssetType(assetId: String) {
+        refreshAssetTypeLiveData.add(
             rxLiveDataTransformer.single(
                 Single.zip(
                     bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
@@ -237,7 +252,7 @@ class YourPropertiesViewModel(
         }
 
         realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
-            refreshBitmarks(assetId)
+            refreshAssetType(assetId)
         }
 
         realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->

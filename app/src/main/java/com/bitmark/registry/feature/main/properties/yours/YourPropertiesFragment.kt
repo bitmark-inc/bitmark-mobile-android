@@ -52,6 +52,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.listBitmark()
+        viewModel.fetchLatestBitmarks()
     }
 
     override fun initComponents() {
@@ -98,7 +99,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
 
         layoutSwipeRefresh.setOnRefreshListener {
             needDeduplication = true
-            viewModel.fetchBitmarks()
+            viewModel.refreshBitmarks()
         }
 
     }
@@ -129,7 +130,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.fetchBitmarksLiveData().observe(this, Observer { res ->
+        viewModel.refreshBitmarksLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     layoutSwipeRefresh.isRefreshing = false
@@ -167,7 +168,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.refreshedBitmarkLiveData().observe(this, Observer { res ->
+        viewModel.refreshAssetTypeLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
                     val bitmarks = res.data() ?: return@Observer
@@ -186,6 +187,19 @@ class YourPropertiesFragment : BaseSupportFragment() {
                 showEmptyView()
             } else {
                 hideEmptyView()
+            }
+        })
+
+        viewModel.fetchLatestBitmarksLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val bitmarks = res.data() ?: return@Observer
+                    adapter.update(bitmarks)
+                }
+
+                res.isError() -> {
+                    // silence fetching so ignore error
+                }
             }
         })
     }
