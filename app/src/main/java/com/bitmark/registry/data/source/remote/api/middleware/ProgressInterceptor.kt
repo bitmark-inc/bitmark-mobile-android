@@ -27,13 +27,15 @@ class ProgressInterceptor(private val publisher: PublishSubject<Progress>) :
                         contentLength: Long,
                         done: Boolean
                     ) {
-                        publisher.onNext(
-                            Progress(
-                                identifier,
-                                (bytesRead * 100 / contentLength).toInt(),
-                                bytesRead >= contentLength
+
+                        if (contentLength > 0)
+                            publisher.onNext(
+                                Progress(
+                                    identifier,
+                                    (bytesRead * 100 / contentLength).toInt(),
+                                    bytesRead >= contentLength
+                                )
                             )
-                        )
                     }
 
                 })
