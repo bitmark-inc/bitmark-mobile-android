@@ -14,6 +14,7 @@ import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.middleware.Progress
 import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.CoreApi
@@ -27,6 +28,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleOnSubscribe
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -45,7 +47,8 @@ class BitmarkRemoteDataSource @Inject constructor(
     mobileServerApi: MobileServerApi,
     fileCourierServerApi: FileCourierServerApi,
     keyAccountServerApi: KeyAccountServerApi,
-    converter: Converter
+    converter: Converter,
+    private val progressPublisher: PublishSubject<Progress>
 ) : RemoteDataSource(
     coreApi,
     mobileServerApi,
@@ -212,13 +215,25 @@ class BitmarkRemoteDataSource @Inject constructor(
     fun downloadAssetFile(
         assetId: String,
         sender: String,
-        receiver: String
-    ): Single<DownloadAssetFileResponse> =
-        fileCourierServerApi.downloadAssetFile(
+        receiver: String,
+        progress: (Int) -> Unit
+    ): Single<DownloadAssetFileResponse> {
+
+        val subscription = progressPublisher.subscribe { p ->
+            if (p.identifier == assetId) {
+                progress.invoke(p.progress)
+            }
+        }
+
+        return fileCourierServerApi.downloadAssetFile(
+            assetId,
             assetId,
             sender,
             receiver
         ).flatMap { res ->
+
+            subscription.dispose()
+
             if (!res.isSuccessful) {
                 val code = res.code()
                 val rawBodyString = res.raw().toString()
@@ -235,16 +250,18 @@ class BitmarkRemoteDataSource @Inject constructor(
                 val algorithm = headers["data-key-alg"]
                 val encDataKey = headers["enc-data-key"]
                 val fileName = headers["file-name"]
-                val fileContent = res.body()?.bytes()
+                val resBody = res.body()
+
                 Single.just(
                     DownloadAssetFileResponse(
                         SessionData(encDataKey!!, algorithm!!),
                         fileName!!,
-                        fileContent!!
+                        resBody?.bytes()!!
                     )
                 )
             }
         }.subscribeOn(Schedulers.io())
+    }
 
     fun deleteAssetFile(
         assetId: String,

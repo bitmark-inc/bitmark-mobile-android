@@ -64,6 +64,7 @@
         android:layout_height="@dimen/dp_28"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:progressDrawable="@drawable/bg_progress_blue_ribbon"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

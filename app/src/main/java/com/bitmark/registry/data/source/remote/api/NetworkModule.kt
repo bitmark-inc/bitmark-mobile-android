@@ -1,14 +1,13 @@
 package com.bitmark.registry.data.source.remote.api
 
 import com.bitmark.registry.BuildConfig
-import com.bitmark.registry.data.source.remote.api.middleware.CoreApiInterceptor
-import com.bitmark.registry.data.source.remote.api.middleware.FileCourierServerInterceptor
-import com.bitmark.registry.data.source.remote.api.middleware.MobileServerApiInterceptor
+import com.bitmark.registry.data.source.remote.api.middleware.*
 import com.bitmark.registry.data.source.remote.api.service.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Singleton
 
 
@@ -34,8 +33,10 @@ class NetworkModule {
         gson: Gson, interceptor: CoreApiInterceptor
     ): CoreApi {
         return ServiceGenerator.createService(
-            BuildConfig.CORE_API_ENDPOINT, CoreApi::class.java, gson,
-            interceptor
+            BuildConfig.CORE_API_ENDPOINT,
+            CoreApi::class.java,
+            gson,
+            listOf(interceptor)
         )
     }
 
@@ -48,11 +49,13 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideMobileServerApi(
-        gson: Gson, interceptor: MobileServerApiInterceptor
+        gson: Gson, authInterceptor: MobileServerApiInterceptor
     ): MobileServerApi {
         return ServiceGenerator.createService(
-            BuildConfig.MOBILE_SERVER_EMPOINT, MobileServerApi::class.java,
-            gson, interceptor
+            BuildConfig.MOBILE_SERVER_EMPOINT,
+            MobileServerApi::class.java,
+            gson,
+            listOf(authInterceptor)
         )
     }
 
@@ -65,11 +68,15 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideFileCourierApi(
-        gson: Gson, interceptor: FileCourierServerInterceptor
+        gson: Gson,
+        authInterceptor: FileCourierServerInterceptor,
+        progressInterceptor: ProgressInterceptor
     ): FileCourierServerApi {
         return ServiceGenerator.createService(
             BuildConfig.FILE_COURIER_SERVER_ENPOINT,
-            FileCourierServerApi::class.java, gson, interceptor
+            FileCourierServerApi::class.java,
+            gson,
+            listOf(authInterceptor, progressInterceptor)
         )
     }
 
@@ -85,7 +92,16 @@ class NetworkModule {
         return ServiceGenerator.createService(
             BuildConfig.KEY_ACCOUNT_SERVER_ENDPOINT,
             KeyAccountServerApi::class.java,
-            gson, null
+            gson
         )
     }
+
+    @Singleton
+    @Provides
+    fun provideProgressInterceptor(publisher: PublishSubject<Progress>) =
+        ProgressInterceptor(publisher)
+
+    @Singleton
+    @Provides
+    fun provideProgressPublisher() = PublishSubject.create<Progress>()
 }

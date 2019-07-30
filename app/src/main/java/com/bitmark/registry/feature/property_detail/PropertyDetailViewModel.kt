@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.property_detail
 
+import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.source.AccountRepository
@@ -8,6 +9,7 @@ import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileRes
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.encryption.AssetEncryption
 import com.bitmark.registry.util.encryption.BoxEncryption
+import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.TransactionModelView
@@ -42,6 +44,8 @@ class PropertyDetailViewModel(
     private val getExistingAssetFileLiveData = CompositeLiveData<File?>()
 
     private val getKeyAliasLiveData = CompositeLiveData<String>()
+
+    internal val downloadProgressLiveData = MutableLiveData<Int>()
 
     internal fun getProvenanceLiveData() = getProvenanceLiveData.asLiveData()
 
@@ -179,10 +183,16 @@ class PropertyDetailViewModel(
         receiver: String,
         encryptionKeyPair: KeyPair
     ): Single<File> {
+
+        val progress: (Int) -> Unit = { percent ->
+            downloadProgressLiveData.set(percent)
+        }
+
         val downloadAssetStream = bitmarkRepo.downloadAssetFile(
             assetId,
             sender,
-            receiver
+            receiver,
+            progress
         )
         val getSenderEncKeyStream = accountRepo.getEncPubKey(sender)
         return Single.zip(
@@ -200,7 +210,9 @@ class PropertyDetailViewModel(
             val secretKey =
                 downloadRes.sessionData.getRawKey(keyDecryptor, senderEncPubKey)
             val assetEncryption = AssetEncryption(secretKey)
-            val rawContent = assetEncryption.decrypt(downloadRes.fileContent)
+            val fileContent = downloadRes.fileContent
+
+            val rawContent = assetEncryption.decrypt(fileContent)
 
             bitmarkRepo.saveAssetFile(
                 receiver,

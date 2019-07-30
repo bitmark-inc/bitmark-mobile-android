@@ -20,9 +20,9 @@ interface FileCourierServerApi {
     @Streaming
     @GET("v2/files/{assetId}/{sender}")
     fun downloadAssetFile(
-        @Path("assetId") assetId: String, @Path("sender") sender: String, @Query(
-            "receiver"
-        ) receiver: String
+        @Header("identifier") identifier: String, @Path("assetId") assetId: String, @Path(
+            "sender"
+        ) sender: String, @Query("receiver") receiver: String
     ): Single<Response<ResponseBody>>
 
     @DELETE("v2/files/{assetId}/{sender}")

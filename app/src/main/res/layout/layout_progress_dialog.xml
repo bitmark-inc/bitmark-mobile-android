@@ -31,13 +31,14 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="@dimen/dp_36"
-        android:layout_height="@dimen/dp_36"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_3"
         android:layout_marginTop="@dimen/dp_28"
-        android:indeterminate="true"
-        android:indeterminateTint="#000000"
+        android:indeterminateTint="@color/colorAccent"
         android:indeterminateTintMode="src_in"
-        style="@style/Widget.AppCompat.ProgressBar"
+        android:progressDrawable="@drawable/bg_progress_blue_ribbon"
+        tools:progress="40"
+        style="?android:attr/progressBarStyleHorizontal"
         />
 
     <androidx.appcompat.widget.AppCompatTextView

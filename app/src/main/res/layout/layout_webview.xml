@@ -101,6 +101,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
+      android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="gone"
       tools:visibility="visible"
       />

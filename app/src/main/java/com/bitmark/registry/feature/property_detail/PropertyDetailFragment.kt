@@ -78,7 +78,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private val handler = Handler()
 
-    private lateinit var progressDialog: ProgressAppCompatDialog
+    private var progressDialog: ProgressAppCompatDialog? = null
 
     override fun layoutRes(): Int = R.layout.fragment_property_detail
 
@@ -333,7 +333,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
             when {
                 res.isSuccess() -> {
-                    dialogController.dismiss(progressDialog)
+                    dialogController.dismiss(progressDialog ?: return@Observer)
                     val file = res.data()
                     if (file != null) {
                         bitmark.assetFile = file
@@ -346,7 +346,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
-                    dialogController.dismiss(progressDialog)
+                    dialogController.dismiss(progressDialog ?: return@Observer)
                     val e = res.throwable()
                     val errorMessage =
                         if (e is HttpException && e.statusCode == 404) {
@@ -371,7 +371,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                         title = getString(R.string.preparing_to_export),
                         message = message
                     )
-                    dialogController.show(progressDialog)
+                    dialogController.show(progressDialog ?: return@Observer)
                 }
             }
         })
@@ -399,6 +399,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
                     ) { navigator.finishActivity() }
                 }
             }
+        })
+
+        viewModel.downloadProgressLiveData.observe(this, Observer { percent ->
+            progressDialog?.setProgress(percent)
         })
     }
 

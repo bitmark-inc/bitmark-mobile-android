@@ -26,4 +26,8 @@ class ProgressAppCompatDialog(
         tvTitle.text = title
         tvMessage.text = message
     }
+
+    fun setProgress(percent: Int) {
+        progressBar.progress = percent
+    }
 }

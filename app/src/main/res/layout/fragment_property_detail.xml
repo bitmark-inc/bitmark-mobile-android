@@ -197,6 +197,7 @@
       android:layout_height="@dimen/dp_36"
       android:layout_marginEnd="@dimen/dp_20"
       android:layout_marginStart="@dimen/dp_20"
+      android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="invisible"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="@id/layoutProvenance"

@@ -29,6 +29,7 @@
       android:layout_marginEnd="@dimen/dp_48"
       android:layout_marginStart="@dimen/dp_48"
       android:layout_marginTop="@dimen/dp_12"
+      android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="gone"
       tools:progress="25"
       tools:visibility="visible"

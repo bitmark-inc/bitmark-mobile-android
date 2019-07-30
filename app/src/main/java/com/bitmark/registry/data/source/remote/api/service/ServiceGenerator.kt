@@ -26,16 +26,16 @@ class ServiceGenerator {
 
         fun <T> createService(
             endPoint: String, serviceClass: Class<T>, gson: Gson,
-            interceptor: Interceptor?
+            interceptors: List<Interceptor> = listOf()
         ): T {
             return createService(
-                endPoint, serviceClass, gson, interceptor, CONNECTION_TIMEOUT
+                endPoint, serviceClass, gson, interceptors, CONNECTION_TIMEOUT
             )
         }
 
         fun <T> createService(
             endPoint: String, serviceClass: Class<T>, gson: Gson,
-            interceptor: Interceptor?, timeout: Long
+            interceptors: List<Interceptor>? = null, timeout: Long
         ): T {
             val httpClientBuilder = OkHttpClient.Builder()
             if (BuildConfig.DEBUG) {
@@ -43,9 +43,13 @@ class ServiceGenerator {
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
                 httpClientBuilder.addInterceptor(loggingInterceptor)
             }
-            if (interceptor != null) {
-                httpClientBuilder.addInterceptor(interceptor)
+
+            interceptors?.forEach { interceptor ->
+                httpClientBuilder.addInterceptor(
+                    interceptor
+                )
             }
+
             httpClientBuilder.writeTimeout(timeout, TimeUnit.SECONDS)
             httpClientBuilder.readTimeout(timeout, TimeUnit.SECONDS)
             httpClientBuilder.connectTimeout(timeout, TimeUnit.SECONDS)

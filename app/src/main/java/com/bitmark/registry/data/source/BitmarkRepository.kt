@@ -378,8 +378,13 @@ class BitmarkRepository(
         localDataSource.checkAssetFile(owner, assetId)
 
 
-    fun downloadAssetFile(assetId: String, sender: String, receiver: String) =
-        remoteDataSource.downloadAssetFile(assetId, sender, receiver)
+    fun downloadAssetFile(
+        assetId: String,
+        sender: String,
+        receiver: String,
+        progress: (Int) -> Unit
+    ) =
+        remoteDataSource.downloadAssetFile(assetId, sender, receiver, progress)
 
     fun saveAssetFile(
         owner: String,
