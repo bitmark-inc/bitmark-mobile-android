@@ -17,6 +17,7 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
+import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.loadAccount
@@ -161,7 +162,11 @@ class SplashActivity : BaseAppCompatActivity() {
                 res.isSuccess() -> {
                     val dataDeleted = res.data()!!
                     if (dataDeleted) {
-                        FirebaseInstanceId.getInstance().deleteInstanceId()
+                        val intent = Intent(
+                            this,
+                            DeleteFirebaseInstanceIdService::class.java
+                        )
+                        startService(intent)
                     }
                     handler.postDelayed({
                         // a bit delay to avoid flash screen if nothing need to cleanup

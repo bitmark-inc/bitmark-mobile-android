@@ -4,6 +4,7 @@ import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
@@ -20,7 +21,8 @@ import io.reactivex.functions.BiFunction
 class RecoveryPhraseTestViewModel(
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val wsEventBus: WebSocketEventBus
 ) : BaseViewModel() {
 
     private val removeRecoveryActionRequiredLiveData = CompositeLiveData<Any>()
@@ -53,8 +55,13 @@ class RecoveryPhraseTestViewModel(
             )
         )
 
-    private fun removeAccessStream(deviceToken: String?) =
-        accountRepo.removeAccess().andThen(
+    private fun removeAccessStream(deviceToken: String?): Completable {
+
+        val disconnectWsStream = Completable.create { emt ->
+            wsEventBus.disconnect { emt.onComplete() }
+        }
+
+        return accountRepo.removeAccess().andThen(
             if (deviceToken == null) Completable.complete() else appRepo.deleteDeviceToken(
                 deviceToken
             )
@@ -62,9 +69,12 @@ class RecoveryPhraseTestViewModel(
             Completable.mergeArrayDelayError(
                 appRepo.deleteQrCodeFile(),
                 appRepo.deleteDatabase(),
-                appRepo.deleteCache()
+                appRepo.deleteCache(),
+                disconnectWsStream
             )
         ).andThen(appRepo.deleteSharePref())
+    }
+
 
     internal fun getAccountInfo() = getAccountInfoLiveData.add(
         rxLiveDataTransformer.single(

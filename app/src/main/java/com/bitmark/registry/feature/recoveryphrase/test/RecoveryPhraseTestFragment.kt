@@ -13,6 +13,7 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseAdapter
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.util.extension.*
@@ -247,7 +248,11 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     progressDialog.dismiss()
-                    FirebaseInstanceId.getInstance().deleteInstanceId()
+                    val intent = Intent(
+                        context,
+                        DeleteFirebaseInstanceIdService::class.java
+                    )
+                    context?.startService(intent)
                     Intercom.client().logout()
                     navigator.startActivityAsRoot(SplashActivity::class.java)
                 }

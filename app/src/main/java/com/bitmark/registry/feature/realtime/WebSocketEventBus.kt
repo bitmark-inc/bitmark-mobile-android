@@ -46,12 +46,15 @@ class WebSocketEventBus(private val accountRepo: AccountRepository) : Bus(),
         webSocketService.connect(keyPair)
     }
 
-    fun disconnect() {
-        // synchronize for completely destroy along with view lifecycle
-        getAccountNumber() { accountNumber ->
-            unsubscribeNewPendingTx(accountNumber)
-            unsubscribeBitmarkChanged(accountNumber)
-            webSocketService.disconnect()
+    fun disconnect(onDone: (() -> Unit)? = null) {
+        getAccountNumber { accountNumber ->
+            try {
+                unsubscribeNewPendingTx(accountNumber)
+                unsubscribeBitmarkChanged(accountNumber)
+                webSocketService.disconnect()
+                onDone?.invoke()
+            } catch (ignore: Throwable) {
+            }
         }
     }
 
