@@ -50,7 +50,7 @@ open class Converter @Inject constructor() {
         a.name,
         a.offset,
         a.registrant,
-        AssetData.map(a.status)
+        AssetData.map(a.status ?: AssetRecord.Status.PENDING)
     )
 
     fun mapTx(): (TransactionRecord) -> TransactionData = { tx ->

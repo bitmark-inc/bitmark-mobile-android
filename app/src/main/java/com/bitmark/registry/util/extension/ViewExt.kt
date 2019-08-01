@@ -6,13 +6,18 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.graphics.Point
 import android.graphics.Rect
 import android.os.Handler
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.bitmark.apiservice.utils.callback.Callback0
@@ -272,4 +277,26 @@ fun Context.getDimension(@DimenRes dimenRes: Int, default: Float = 0f): Float {
     } catch (e: Throwable) {
         default
     }
+}
+
+fun Activity.getDisplayWidth(): Int {
+    val display = windowManager.defaultDisplay
+    val size = Point()
+    display.getSize(size)
+    return size.x
+}
+
+fun View.setBackgroundDrawable(@DrawableRes id: Int) {
+    background = ContextCompat.getDrawable(context, id)
+}
+
+fun TextView.setTextUnderline(text: String) {
+    val span = SpannableString(text)
+    span.setSpan(
+        UnderlineSpan(),
+        0,
+        text.length,
+        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+    )
+    setText(span)
 }

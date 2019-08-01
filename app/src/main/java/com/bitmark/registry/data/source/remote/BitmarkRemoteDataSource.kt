@@ -1,14 +1,18 @@
 package com.bitmark.registry.data.source.remote
 
+import com.bitmark.apiservice.params.IssuanceParams
+import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.params.query.BitmarkQueryBuilder
 import com.bitmark.apiservice.params.query.TransactionQueryBuilder
 import com.bitmark.apiservice.response.GetBitmarkResponse
 import com.bitmark.apiservice.response.GetBitmarksResponse
 import com.bitmark.apiservice.response.GetTransactionsResponse
+import com.bitmark.apiservice.response.RegistrationResponse
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.apiservice.utils.error.UnexpectedException
+import com.bitmark.apiservice.utils.record.AssetRecord
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BlockData
@@ -22,6 +26,7 @@ import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
 import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
 import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
 import com.bitmark.registry.util.encryption.SessionData
+import com.bitmark.sdk.features.Asset
 import com.bitmark.sdk.features.Bitmark
 import com.bitmark.sdk.features.Transaction
 import io.reactivex.Completable
@@ -140,6 +145,34 @@ class BitmarkRemoteDataSource @Inject constructor(
                     })
             }
         ).subscribeOn(Schedulers.io())
+
+    fun issueBitmark(params: IssuanceParams) =
+        Single.create<List<String>> { emt ->
+            Bitmark.issue(params, object : Callback1<List<String>> {
+                override fun onSuccess(data: List<String>?) {
+                    emt.onSuccess(data!!)
+                }
+
+                override fun onError(throwable: Throwable?) {
+                    emt.onError(throwable!!)
+                }
+
+            })
+        }.subscribeOn(Schedulers.io())
+
+    fun registerAsset(params: RegistrationParams) =
+        Single.create<String> { emt ->
+            Asset.register(params, object : Callback1<RegistrationResponse> {
+                override fun onSuccess(data: RegistrationResponse?) {
+                    emt.onSuccess(data!!.assets.first().id)
+                }
+
+                override fun onError(throwable: Throwable?) {
+                    emt.onError(throwable!!)
+                }
+
+            })
+        }.subscribeOn(Schedulers.io())
 
 
     //endregion Bitmark
@@ -361,6 +394,19 @@ class BitmarkRemoteDataSource @Inject constructor(
             accessReqBody
         ).subscribeOn(Schedulers.io())
     }
+
+    fun getAsset(id: String) = Single.create<AssetData> { emt ->
+        Asset.get(id, object : Callback1<AssetRecord> {
+            override fun onSuccess(data: AssetRecord?) {
+                emt.onSuccess(converter.mapAsset(data!!))
+            }
+
+            override fun onError(throwable: Throwable?) {
+                emt.onError(throwable!!)
+            }
+
+        })
+    }.subscribeOn(Schedulers.io())
 
     //endregion Asset
 

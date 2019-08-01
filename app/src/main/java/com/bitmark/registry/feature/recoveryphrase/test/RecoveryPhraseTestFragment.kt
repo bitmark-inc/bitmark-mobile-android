@@ -2,7 +2,6 @@ package com.bitmark.registry.feature.recoveryphrase.test
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.Observer
@@ -224,7 +223,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                                 viewModel.removeAccess(token)
                             }
                         },
-                        setupRequiredAction = { gotoSecuritySetting() },
+                        setupRequiredAction = { navigator.gotoSecuritySetting() },
                         unknownErrorAction = {
                             dialogController.alert(
                                 R.string.error,
@@ -291,11 +290,6 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             if (!task.isSuccessful) action.invoke(null)
             else action.invoke(task.result?.token)
         }
-    }
-
-    private fun gotoSecuritySetting() {
-        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.anim(Navigator.BOTTOM_UP).startActivityAsRoot(intent)
     }
 
     private fun showError(

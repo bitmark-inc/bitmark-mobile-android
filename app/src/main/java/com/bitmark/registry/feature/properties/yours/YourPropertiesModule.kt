@@ -40,7 +40,7 @@ class YourPropertiesModule {
     @FragmentScope
     fun provideNavigator(
         fragment: YourPropertiesFragment
-    ) = Navigator(fragment)
+    ) = Navigator(fragment.parentFragment?.parentFragment!!)
 
     @Provides
     @FragmentScope

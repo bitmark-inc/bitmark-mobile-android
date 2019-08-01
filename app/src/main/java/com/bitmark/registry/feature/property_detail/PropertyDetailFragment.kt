@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -470,17 +469,12 @@ class PropertyDetailFragment : BaseSupportFragment() {
             spec,
             dialogController,
             successAction = action,
-            setupRequiredAction = { gotoSecuritySetting() },
+            setupRequiredAction = { navigator.gotoSecuritySetting() },
             unknownErrorAction = {
                 dialogController.alert(
                     R.string.error,
                     R.string.unexpected_error
                 )
             })
-    }
-
-    private fun gotoSecuritySetting() {
-        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.anim(BOTTOM_UP).startActivity(intent)
     }
 }

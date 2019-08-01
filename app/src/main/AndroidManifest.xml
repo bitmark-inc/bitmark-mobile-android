@@ -56,6 +56,11 @@
         android:name=".feature.account.settings.details.WhatsNewActivity"
         android:screenOrientation="portrait"/>
 
+    <activity
+        android:name=".feature.issuance.issuance.IssuanceActivity"
+        android:screenOrientation="portrait"
+        android:windowSoftInputMode="adjustResize"/>
+
     <!-- Firebase message service -->
     <service
         android:name=".feature.notification.AppFirebaseMessageService"

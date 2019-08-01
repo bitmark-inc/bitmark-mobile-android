@@ -80,7 +80,7 @@ class YourPropertiesRecyclerViewAdapter() :
                 this.items.indexOfFirst { b -> b.isPending() }
             val newIndex =
                 if ((existingIndex == -1 && firstPendingIndex == -1)
-                    || (i.isPending() && this.items[firstPendingIndex].offset <= i.offset)
+                    || (i.isPending() && firstPendingIndex != -1 && this.items[firstPendingIndex].offset <= i.offset)
                 ) 0
                 else if (existingIndex != -1 && !i.isPending()) {
                     existingIndex

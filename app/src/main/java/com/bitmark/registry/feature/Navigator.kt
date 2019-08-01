@@ -137,6 +137,15 @@ class Navigator(host: Any) {
         startTransactionAnim(activity)
     }
 
+    fun startActivityForResult(intent: Intent, requestCode: Int) {
+        if (fragment != null) {
+            fragment?.startActivityForResult(intent, requestCode)
+        } else {
+            activity?.startActivityForResult(intent, requestCode)
+        }
+        startTransactionAnim(activity)
+    }
+
     fun startActivityAsRoot(clazz: Class<*>, bundle: Bundle? = null) {
         val intent = Intent(activity, clazz)
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)

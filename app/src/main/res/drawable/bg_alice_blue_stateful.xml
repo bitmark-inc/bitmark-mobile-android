@@ -5,6 +5,8 @@
       android:state_pressed="true"/>
   <item android:drawable="@color/catskill_white"
       android:state_focused="true"/>
+  <item android:drawable="@color/wild_sand"
+      android:state_enabled="false"/>
   <item android:drawable="@color/alice_blue"/>
 
 </selector>

@@ -10,6 +10,10 @@ import com.bitmark.registry.feature.account.settings.SettingsFragment
 import com.bitmark.registry.feature.account.settings.SettingsModule
 import com.bitmark.registry.feature.account.settings.details.SettingsDetailsFragment
 import com.bitmark.registry.feature.account.settings.details.SettingsDetailsModule
+import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
+import com.bitmark.registry.feature.issuance.selection.AssetSelectionModule
+import com.bitmark.registry.feature.properties.PropertiesContainerFragment
+import com.bitmark.registry.feature.properties.PropertiesContainerModule
 import com.bitmark.registry.feature.properties.PropertiesFragment
 import com.bitmark.registry.feature.properties.PropertiesModule
 import com.bitmark.registry.feature.properties.yours.YourPropertiesFragment
@@ -120,4 +124,12 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [SettingsDetailsModule::class])
     @FragmentScope
     internal abstract fun bindSettingsDetailsFragment(): SettingsDetailsFragment
+
+    @ContributesAndroidInjector(modules = [AssetSelectionModule::class])
+    @FragmentScope
+    internal abstract fun bindAssetSelectionFragment(): AssetSelectionFragment
+
+    @ContributesAndroidInjector(modules = [PropertiesContainerModule::class])
+    @FragmentScope
+    internal abstract fun bindPropertiesContainerFragment(): PropertiesContainerFragment
 }

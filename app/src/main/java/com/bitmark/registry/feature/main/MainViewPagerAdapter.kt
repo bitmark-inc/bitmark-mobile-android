@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bitmark.registry.feature.ViewPagerAdapter
 import com.bitmark.registry.feature.account.AccountContainerFragment
-import com.bitmark.registry.feature.properties.PropertiesFragment
+import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.transactions.TransactionsFragment
 
 
@@ -24,7 +24,7 @@ class MainViewPagerAdapter(fm: FragmentManager) : ViewPagerAdapter(fm) {
 
     init {
         super.add(
-            PropertiesFragment.newInstance(),
+            PropertiesContainerFragment.newInstance(),
             TransactionsFragment.newInstance(),
             AccountContainerFragment.newInstance()
         )

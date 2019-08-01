@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
 import android.view.View
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
@@ -14,7 +13,6 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.util.extension.*
@@ -211,18 +209,13 @@ class TransferFragment : BaseSupportFragment() {
             spec,
             dialogController,
             successAction = action,
-            setupRequiredAction = { gotoSecuritySetting() },
+            setupRequiredAction = { navigator.gotoSecuritySetting() },
             unknownErrorAction = {
                 dialogController.alert(
                     R.string.error,
                     R.string.unexpected_error
                 )
             })
-    }
-
-    private fun gotoSecuritySetting() {
-        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.anim(BOTTOM_UP).startActivity(intent)
     }
 
     override fun onActivityResult(

@@ -1,5 +1,7 @@
 package com.bitmark.registry.data.source
 
+import com.bitmark.apiservice.params.IssuanceParams
+import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_DELETED
@@ -56,7 +58,8 @@ class BitmarkRepository(
         pending: Boolean = false,
         issuer: String? = null,
         refAssetId: String? = null,
-        loadAsset: Boolean = true
+        loadAsset: Boolean = true,
+        bitmarkIds: List<String>? = null
     ): Single<List<BitmarkData>> {
         return remoteDataSource.listBitmarks(
             owner = owner,
@@ -66,7 +69,8 @@ class BitmarkRepository(
             pending = pending,
             issuer = issuer,
             refAssetId = refAssetId,
-            loadAsset = loadAsset
+            loadAsset = loadAsset,
+            bitmarkIds = bitmarkIds
         ).observeOn(Schedulers.computation()).flatMap { p ->
             localDataSource.saveAssets(p.second)
                 .andThen(localDataSource.saveBitmarks(p.first))
@@ -271,6 +275,15 @@ class BitmarkRepository(
         deleteStoredBitmark(owner, bitmarkId, assetId)
     }
 
+    fun issueBitmark(params: IssuanceParams) =
+        remoteDataSource.issueBitmark(params).flatMap { bitmarkIds ->
+            syncBitmarks(
+                bitmarkIds = bitmarkIds,
+                pending = true,
+                loadAsset = true
+            )
+        }.ignoreElement()
+
     // sync txs with remote server and also save to local db
     fun syncTxs(
         owner: String? = null,
@@ -432,5 +445,16 @@ class BitmarkRepository(
             file
         )
     }.andThen(localDataSource.deleteEncryptedAssetFile(owner, assetId))
+
+    fun getAsset(id: String) = remoteDataSource.getAsset(id)
+
+    fun registerAsset(params: RegistrationParams) =
+        remoteDataSource.registerAsset(params).flatMap { assetId ->
+            getAsset(assetId).flatMapCompletable { asset ->
+                localDataSource.saveAsset(
+                    asset
+                )
+            }.andThen(Single.just(assetId))
+        }
 
 }

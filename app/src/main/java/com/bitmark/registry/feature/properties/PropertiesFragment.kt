@@ -10,6 +10,8 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_properties.*
 import javax.inject.Inject
@@ -65,7 +67,12 @@ class PropertiesFragment : BaseSupportFragment() {
         viewPager.adapter = adapter
         tabLayout.setupWithViewPager(viewPager)
 
-        ivAdd.setOnClickListener { }
+        ivAdd.setOnClickListener {
+            navigator.anim(RIGHT_LEFT).replaceChildFragment(
+                R.id.layoutContainer,
+                AssetSelectionFragment.newInstance()
+            )
+        }
 
         tabLayout.addOnTabSelectedListener(tabSelectedListener)
     }

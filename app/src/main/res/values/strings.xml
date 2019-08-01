@@ -136,7 +136,38 @@
   <string name="close">Close</string>
   <string name="preparing_data">Preparing data…</string>
   <string name="clean_up_data">Cleanup data…</string>
-
+  <string name="register">Register</string>
+  <string name="photo">Photo</string>
+  <string name="video">Video</string>
+  <string name="file">File</string>
+  <string name="to_register_your_media_and_asset">To register your media and assets, first create an asset record.\nYou can then issue that asset and transfer it. All of this is recorded on the blockchain.</string>
+  <string name="extracting_file">Extracting file…</string>
+  <string name="extracting">Extracting</string>
+  <string name="unsupported_file">Unsupported file</string>
+  <string name="register_property_rights">Register property rights</string>
+  <string name="asset_fingerprint">Asset fingerprint</string>
+  <string name="generated_from">Generated from</string>
+  <string name="property_name">Property name</string>
+  <string name="asset_type">Asset type</string>
+  <string name="property_description">Property description</string>
+  <string name="what_is_property_description_arrow">What is property description? »</string>
+  <string name="sixty_four_character_max">64-CHARACTER MAX</string>
+  <string name="select_asset_type">Select asset type</string>
+  <string name="key">KEY</string>
+  <string name="value">VALUE</string>
+  <string name="edit">Edit</string>
+  <string name="add_new_field">Add new field</string>
+  <string name="number_of_bitmarks_to_issue">Number of bitmarks to issue</string>
+  <string name="rights_claim">Rights claim</string>
+  <string name="quote_i_hereby_claim_that_i_am_the_legal">&quot;I hereby claim that I am the legal owner of this asset and want these property rights to be irrevocably issued and recorded on the Bitmark blockchain. &quot;</string>
+  <string name="could_not_register_property">Could not register property rights. Please try again later.</string>
+  <string name="your_rights_to_this_property">Your rights to this property have been registered.</string>
+  <string name="please_sign_to_register_property_rights">Please sign to register property rights.</string>
+  <string-array name="asset_type">
+    <item>@string/photo</item>
+    <item>@string/video</item>
+    <item>@string/file</item>
+  </string-array>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

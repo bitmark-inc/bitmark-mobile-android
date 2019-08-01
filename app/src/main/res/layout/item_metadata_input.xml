@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:paddingEnd="@dimen/dp_20"
+    android:paddingStart="@dimen/dp_20"
+    >
+
+  <androidx.appcompat.widget.AppCompatEditText
+      android:id="@+id/etKey"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_36"
+      android:layout_marginTop="@dimen/dp_4"
+      android:layout_toEndOf="@id/ivDelete"
+      android:background="@drawable/bg_border_silver"
+      android:fontFamily="@font/andale_regular_mono"
+      android:hint="@string/key"
+      android:inputType="textCapCharacters"
+      android:paddingEnd="@dimen/dp_8"
+      android:paddingStart="@dimen/dp_8"
+      android:textAllCaps="true"
+      android:textColorHint="@color/silver"
+      android:textSize="@dimen/sp_13"
+      />
+
+  <androidx.appcompat.widget.AppCompatEditText
+      android:id="@+id/etValue"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_36"
+      android:layout_below="@id/etKey"
+      android:layout_marginBottom="@dimen/dp_4"
+      android:layout_toEndOf="@id/ivDelete"
+      android:background="@drawable/bg_border_silver_top_less"
+      android:fontFamily="@font/andale_regular_mono"
+      android:hint="@string/value"
+      android:inputType="textCapSentences"
+      android:paddingEnd="@dimen/dp_8"
+      android:paddingStart="@dimen/dp_8"
+      android:textColorHint="@color/silver"
+      android:textSize="@dimen/sp_13"
+      />
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivDelete"
+      android:layout_width="@dimen/dp_20"
+      android:layout_height="@dimen/dp_20"
+      android:layout_centerVertical="true"
+      android:layout_marginEnd="@dimen/dp_12"
+      android:visibility="gone"
+      app:srcCompat="@drawable/ic_delete"
+      tools:visibility="visible"
+      />
+
+
+</RelativeLayout>

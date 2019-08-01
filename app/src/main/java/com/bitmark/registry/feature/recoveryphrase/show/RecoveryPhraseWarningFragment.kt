@@ -1,8 +1,6 @@
 package com.bitmark.registry.feature.recoveryphrase.show
 
-import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
@@ -10,6 +8,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
@@ -133,13 +132,8 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
             spec,
             dialogController,
             successAction = action,
-            setupRequiredAction = { gotoSecuritySetting() }
+            setupRequiredAction = { navigator.gotoSecuritySetting() }
         )
-    }
-
-    private fun gotoSecuritySetting() {
-        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.anim(Navigator.BOTTOM_UP).startActivity(intent)
     }
 
     override fun onBackPressed() = navigator.popChildFragment() ?: false

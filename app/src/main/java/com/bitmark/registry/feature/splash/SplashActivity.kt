@@ -3,7 +3,6 @@ package com.bitmark.registry.feature.splash
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
 import android.text.TextUtils
 import androidx.lifecycle.Observer
 import com.bitmark.cryptography.crypto.Ed25519
@@ -14,12 +13,12 @@ import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.gone
+import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.visible
 import com.bitmark.registry.util.view.AuthorizationRequiredDialog
@@ -221,14 +220,8 @@ class SplashActivity : BaseAppCompatActivity() {
             canceledAction = {
                 dialogController.show(authorizationDialog)
             },
-            setupRequiredAction = { gotoSecuritySetting() },
+            setupRequiredAction = { navigator.gotoSecuritySetting() },
             unknownErrorAction = { e -> exitWithAlert(e?.message!!) })
-    }
-
-
-    private fun gotoSecuritySetting() {
-        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.anim(BOTTOM_UP).startActivityAsRoot(intent)
     }
 
     private fun exitWithAlert(message: String) {

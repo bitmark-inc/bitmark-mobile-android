@@ -1,9 +1,7 @@
 package com.bitmark.registry.feature.register.authentication
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.utils.callback.Callback0
 import com.bitmark.cryptography.crypto.Ed25519
@@ -14,10 +12,10 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.gone
+import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.extension.visible
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
@@ -207,7 +205,7 @@ class AuthenticationFragment : BaseSupportFragment() {
                                 dialogController.alert(
                                     R.string.error,
                                     R.string.fingerprint_required
-                                ) { gotoSecuritySetting() }
+                                ) { navigator.gotoSecuritySetting() }
                             }
 
                             // did not set up pass code
@@ -215,7 +213,7 @@ class AuthenticationFragment : BaseSupportFragment() {
                                 dialogController.alert(
                                     R.string.error,
                                     R.string.passcode_pin_required
-                                ) { gotoSecuritySetting() }
+                                ) { navigator.gotoSecuritySetting() }
                             }
                         }
                     }
@@ -230,11 +228,6 @@ class AuthenticationFragment : BaseSupportFragment() {
             }
 
         })
-    }
-
-    private fun gotoSecuritySetting() {
-        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-        navigator.anim(BOTTOM_UP).startActivity(intent)
     }
 
     override fun onBackPressed() = navigator.popFragment() ?: false
