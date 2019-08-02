@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.issuance.issuance
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.IssuanceParams
 import com.bitmark.apiservice.params.RegistrationParams
@@ -25,10 +26,11 @@ import java.io.File
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class IssuanceViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val registerPropertyLiveData = CompositeLiveData<Any>()
 

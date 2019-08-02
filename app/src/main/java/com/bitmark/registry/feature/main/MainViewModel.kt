@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.main
 
+import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
@@ -14,11 +15,12 @@ import io.reactivex.Maybe
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class MainViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val wsEventBus: WebSocketEventBus
 ) :
-    BaseViewModel() {
+    BaseViewModel(lifecycle) {
 
     override fun onCreate() {
         super.onCreate()

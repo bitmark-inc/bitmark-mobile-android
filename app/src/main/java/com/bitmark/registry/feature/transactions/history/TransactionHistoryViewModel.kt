@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.transactions.history
 
+import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
@@ -22,11 +23,12 @@ import io.reactivex.functions.BiFunction
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class TransactionHistoryViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val realtimeBus: RealtimeBus
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     companion object {
         const val PAGE_SIZE = 20

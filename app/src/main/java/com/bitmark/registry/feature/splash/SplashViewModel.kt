@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.splash
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.source.AccountRepository
@@ -22,13 +23,14 @@ import io.reactivex.functions.BiFunction
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class SplashViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus
 ) :
-    BaseViewModel() {
+    BaseViewModel(lifecycle) {
 
     private val getExistingAccountLiveData =
         CompositeLiveData<Triple<String, Boolean, String>>()

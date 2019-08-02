@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.account.settings
 
+import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -13,10 +14,11 @@ import com.bitmark.registry.util.livedata.RxLiveDataTransformer
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class SettingsViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) :
-    BaseViewModel() {
+    BaseViewModel(lifecycle) {
 
     private val getAccountNumberLiveData = CompositeLiveData<String>()
 

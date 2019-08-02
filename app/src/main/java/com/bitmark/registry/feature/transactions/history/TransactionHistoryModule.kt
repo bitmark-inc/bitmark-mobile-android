@@ -23,12 +23,14 @@ class TransactionHistoryModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: TransactionHistoryFragment,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         realtimeBus: RealtimeBus
     ): TransactionHistoryViewModel {
         return TransactionHistoryViewModel(
+            fragment.lifecycle,
             accountRepo,
             bitmarkRepo,
             rxLiveDataTransformer,

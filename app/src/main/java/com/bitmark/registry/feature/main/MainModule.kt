@@ -20,9 +20,10 @@ class MainModule {
     @Provides
     @ActivityScope
     fun provideViewModel(
+        activity: MainActivity,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
         wsEventBus: WebSocketEventBus
     ) =
-        MainViewModel(accountRepo, bitmarkRepo, wsEventBus)
+        MainViewModel(activity.lifecycle, accountRepo, bitmarkRepo, wsEventBus)
 }

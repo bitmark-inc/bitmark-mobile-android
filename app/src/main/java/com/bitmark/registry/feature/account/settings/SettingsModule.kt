@@ -20,9 +20,14 @@ class SettingsModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: SettingsFragment,
         accountRepo: AccountRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
-    ) = SettingsViewModel(accountRepo, rxLiveDataTransformer)
+    ) = SettingsViewModel(
+        fragment.lifecycle,
+        accountRepo,
+        rxLiveDataTransformer
+    )
 
     @Provides
     @FragmentScope

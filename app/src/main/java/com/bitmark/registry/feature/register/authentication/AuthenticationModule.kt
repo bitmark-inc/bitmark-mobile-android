@@ -23,12 +23,14 @@ class AuthenticationModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: AuthenticationFragment,
         accountRepo: AccountRepository,
         appRepo: AppRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         wsEventBus: WebSocketEventBus
     ): AuthenticationViewModel {
         return AuthenticationViewModel(
+            fragment.lifecycle,
             accountRepo,
             appRepo,
             rxLiveDataTransformer,

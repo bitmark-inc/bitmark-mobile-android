@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.properties
 
+import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
@@ -15,11 +16,12 @@ import com.bitmark.registry.util.livedata.RxLiveDataTransformer
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class PropertiesViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val realtimeBus: RealtimeBus
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val getBitmarkCountLiveData = CompositeLiveData<Long>()
 

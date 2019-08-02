@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.property_detail
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.cryptography.crypto.key.KeyPair
@@ -25,10 +26,11 @@ import java.io.File
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class PropertyDetailViewModel(
+    lifecycle: Lifecycle,
     private val bitmarkRepo: BitmarkRepository,
     private val accountRepo: AccountRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val getProvenanceLiveData =
         CompositeLiveData<Pair<String, List<TransactionModelView>>>()

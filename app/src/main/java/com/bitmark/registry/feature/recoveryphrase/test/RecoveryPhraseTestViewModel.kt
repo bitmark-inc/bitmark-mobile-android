@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.recoveryphrase.test
 
+import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
@@ -19,11 +20,12 @@ import io.reactivex.functions.BiFunction
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class RecoveryPhraseTestViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val removeRecoveryActionRequiredLiveData = CompositeLiveData<Any>()
 

@@ -30,11 +30,13 @@ class RecoveryPhraseTestModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: RecoveryPhraseTestFragment,
         accountRepo: AccountRepository,
         appRepo: AppRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         wsEventBus: WebSocketEventBus
     ) = RecoveryPhraseTestViewModel(
+        fragment.lifecycle,
         accountRepo,
         appRepo,
         rxLiveDataTransformer,

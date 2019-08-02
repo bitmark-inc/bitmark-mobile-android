@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.properties.yours
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.ISSUING
@@ -28,11 +29,12 @@ import java.io.File
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class YourPropertiesViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val realtimeBus: RealtimeBus
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     companion object {
         private const val PAGE_SIZE = 20

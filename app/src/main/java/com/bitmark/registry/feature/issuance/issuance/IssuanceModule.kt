@@ -22,10 +22,16 @@ class IssuanceModule {
     @Provides
     @ActivityScope
     fun provideViewModel(
+        activity: IssuanceActivity,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
-    ) = IssuanceViewModel(accountRepo, bitmarkRepo, rxLiveDataTransformer)
+    ) = IssuanceViewModel(
+        activity.lifecycle,
+        accountRepo,
+        bitmarkRepo,
+        rxLiveDataTransformer
+    )
 
     @Provides
     @ActivityScope

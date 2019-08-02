@@ -34,7 +34,12 @@ class RecoveryPhraseWarningModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: RecoveryPhraseWarningFragment,
         accountRepo: AccountRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
-    ) = RecoveryPhraseWarningViewModel(accountRepo, rxLiveDataTransformer)
+    ) = RecoveryPhraseWarningViewModel(
+        fragment.lifecycle,
+        accountRepo,
+        rxLiveDataTransformer
+    )
 }

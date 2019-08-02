@@ -13,16 +13,10 @@ import io.reactivex.disposables.Disposable
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-abstract class BaseViewModel :
+abstract class BaseViewModel(protected val lifecycle: Lifecycle) :
     LifecycleObserver {
 
     private val compositeDisposable = CompositeDisposable()
-
-    protected var lifecycle: Lifecycle? = null
-
-    fun addLifecycle(lifecycle: Lifecycle) {
-        this.lifecycle = lifecycle
-    }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     open fun onCreate() {

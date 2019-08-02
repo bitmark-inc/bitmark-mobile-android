@@ -24,6 +24,7 @@ class SplashModule {
     @Provides
     @ActivityScope
     fun provideViewModel(
+        activity: SplashActivity,
         accountRepo: AccountRepository,
         appRepo: AppRepository,
         bitmarkRepo: BitmarkRepository,
@@ -31,6 +32,7 @@ class SplashModule {
         wsEventBus: WebSocketEventBus
     ): SplashViewModel {
         return SplashViewModel(
+            activity.lifecycle,
             accountRepo,
             appRepo,
             bitmarkRepo,

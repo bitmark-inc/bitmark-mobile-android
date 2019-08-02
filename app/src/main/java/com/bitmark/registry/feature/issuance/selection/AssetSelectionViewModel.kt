@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.issuance.selection
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.utils.error.HttpException
@@ -25,9 +26,10 @@ import java.io.File
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class AssetSelectionViewModel(
+    lifecycle: Lifecycle,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val getAssetInfoLiveData = CompositeLiveData<AssetModelView>()
 

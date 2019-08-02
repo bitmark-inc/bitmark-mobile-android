@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.transactions.action_required
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
@@ -18,10 +19,11 @@ import com.bitmark.registry.util.modelview.ActionRequiredModelView
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class ActionRequiredViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val realtimeBus: RealtimeBus
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val getActionRequiredLiveData =
         CompositeLiveData<List<ActionRequiredModelView>>()

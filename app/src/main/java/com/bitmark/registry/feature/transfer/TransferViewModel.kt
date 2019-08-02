@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.transfer
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.cryptography.crypto.key.KeyPair
@@ -23,10 +24,11 @@ import io.reactivex.Single
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class TransferViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val transferLiveData = CompositeLiveData<Any>()
 

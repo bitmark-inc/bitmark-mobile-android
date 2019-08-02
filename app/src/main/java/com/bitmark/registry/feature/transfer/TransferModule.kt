@@ -21,11 +21,13 @@ class TransferModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: TransferFragment,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
     ): TransferViewModel {
         return TransferViewModel(
+            fragment.lifecycle,
             accountRepo,
             bitmarkRepo,
             rxLiveDataTransformer

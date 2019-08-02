@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.register.authentication
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.cryptography.crypto.Sha3256
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
@@ -26,11 +27,12 @@ import java.util.*
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class AuthenticationViewModel(
+    lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus
-) : BaseViewModel() {
+) : BaseViewModel(lifecycle) {
 
     private val registerAccountLiveData = CompositeLiveData<Any>()
 

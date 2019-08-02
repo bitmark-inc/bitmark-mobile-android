@@ -31,7 +31,12 @@ class AssetSelectionModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: AssetSelectionFragment,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
-    ) = AssetSelectionViewModel(bitmarkRepo, rxLiveDataTransformer)
+    ) = AssetSelectionViewModel(
+        fragment.lifecycle,
+        bitmarkRepo,
+        rxLiveDataTransformer
+    )
 }

@@ -20,8 +20,14 @@ class ActionRequiredModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: ActionRequiredFragment,
         accountRepo: AccountRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         realtimeBus: RealtimeBus
-    ) = ActionRequiredViewModel(accountRepo, rxLiveDataTransformer, realtimeBus)
+    ) = ActionRequiredViewModel(
+        fragment.lifecycle,
+        accountRepo,
+        rxLiveDataTransformer,
+        realtimeBus
+    )
 }

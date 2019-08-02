@@ -23,12 +23,14 @@ class YourPropertiesModule {
     @Provides
     @FragmentScope
     fun provideViewModel(
+        fragment: YourPropertiesFragment,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         realtimeBus: RealtimeBus
     ): YourPropertiesViewModel {
         return YourPropertiesViewModel(
+            fragment.lifecycle,
             accountRepo,
             bitmarkRepo,
             rxLiveDataTransformer,
