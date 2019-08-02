@@ -10,11 +10,13 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.extension.append
 import com.bitmark.registry.util.extension.set
+import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import java.io.File
 
@@ -39,7 +41,7 @@ class YourPropertiesViewModel(
     internal val deletedBitmarkLiveData = MutableLiveData<List<String>>()
 
     internal val bitmarkSavedLiveData =
-        MutableLiveData<List<BitmarkModelView>>()
+        lazy { BufferedLiveData<List<BitmarkModelView>>(lifecycle!!) }
 
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -176,7 +178,7 @@ class YourPropertiesViewModel(
 
             bitmarkRepo.syncBitmarks(
                 owner = accountNumber,
-                at = maxOffset + 1,
+                at = maxOffset,
                 to = "later",
                 limit = PAGE_SIZE,
                 pending = true
@@ -266,9 +268,9 @@ class YourPropertiesViewModel(
                 currentOffset =
                     if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
                 bitmarkMapFunc().invoke(p)
-            }.subscribe { b, e ->
+            }.observeOn(AndroidSchedulers.mainThread()).subscribe { b, e ->
                 if (e == null) {
-                    bitmarkSavedLiveData.set(b)
+                    bitmarkSavedLiveData.value.setValue(b)
                 }
             })
         }

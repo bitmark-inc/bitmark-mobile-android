@@ -109,14 +109,26 @@ class IssuanceActivity : BaseAppCompatActivity() {
         rvMetadata.layoutManager = layoutManager
         rvMetadata.adapter = adapter
 
+        if (asset.registered) {
+            adapter.disable()
+            etPropName.isFocusable = false
+            setAddMetadataState(false)
+            setActionMetadataState(false)
+            tvAssetType.disable()
+            assetType =
+                asset.metadata?.get("source") ?: asset.metadata?.get("Source")
+                        ?: getString(R.string.other)
+            tvAssetType.text = assetType
+        }
+
         adapter.setItemFilledListener {
-            if (adapter.isFilled()) {
+            if (adapter.isFilled() && !asset.registered) {
                 setAddMetadataState(true)
             } else {
                 setAddMetadataState(false)
             }
             setRegisterState(
-                checkValidData()
+                checkValidData(asset.registered)
             )
         }
 
@@ -142,7 +154,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 etPropName.setTextColorRes(android.R.color.black)
             }
             setRegisterState(
-                checkValidData()
+                checkValidData(asset.registered)
             )
         }
 
@@ -156,13 +168,13 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 etIssueQuantity.setTextColorRes(android.R.color.black)
             }
             setRegisterState(
-                checkValidData()
+                checkValidData(asset.registered)
             )
         }
 
         cbRightsClaim.setOnCheckedChangeListener { _, _ ->
             setRegisterState(
-                checkValidData()
+                checkValidData(asset.registered)
             )
         }
 
@@ -186,7 +198,8 @@ class IssuanceActivity : BaseAppCompatActivity() {
             val registered = asset.registered
             val file = File(asset.filePath)
             val propName = etPropName.text.toString()
-            val metadata = adapter.toMap()
+            val metadata = adapter.toMap().toMutableMap()
+            metadata["source"] = assetType!!
             val quantity = etIssueQuantity.text.toString().toInt()
 
             loadKey(accountInfo.first, accountInfo.second) { keyPair ->
@@ -233,7 +246,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             tvAssetType.isSelected = !tvAType.isSelected
             tvAssetType.background =
                 getDrawable(if (tvAssetType.isSelected) R.drawable.bg_border_blue_ribbon else R.drawable.bg_border_torch_red)
-            if (tvAssetType.isSelected) showAssetTypePopupMenu()
+            if (tvAssetType.isSelected) showAssetTypePopupMenu(asset.registered)
         }
 
         layoutContent.setOnTouchListener(object : View.OnTouchListener {
@@ -348,7 +361,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             })
     }
 
-    private fun showAssetTypePopupMenu() {
+    private fun showAssetTypePopupMenu(registered: Boolean) {
         val recyclerView = RecyclerView(this)
         val rvLayoutParams = RecyclerView.LayoutParams(
             RecyclerView.LayoutParams.MATCH_PARENT,
@@ -380,6 +393,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         popupWindow.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        popupWindow.elevation = 25f
         popupWindow.isFocusable = true
         popupWindow.setOnDismissListener {
             tvAssetType.isSelected = false
@@ -396,7 +410,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             tvAssetType.background =
                 getDrawable(R.drawable.bg_border_blue_ribbon)
             popupWindow.dismiss()
-            setRegisterState(checkValidData())
+            setRegisterState(checkValidData(registered))
         }
 
     }
@@ -447,11 +461,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
     }
 
-    private fun checkValidData(): Boolean {
+    private fun checkValidData(registered: Boolean): Boolean {
         val propertyName = etPropName.text.toString()
         val validPropertyName =
             propertyName.isEmpty() || propertyName.length <= MAX_ASSET_NAME_LENGTH
-        val validAssetType = !assetType.isNullOrEmpty()
+        val validAssetType =
+            if (registered) true else !assetType.isNullOrEmpty()
         val validMetadata = adapter.isValid()
         val validQuantity = quantity in (MIN_ASSET_QUANTITY..MAX_ASSET_QUANTITY)
         val validRightClaims = cbRightsClaim.isChecked

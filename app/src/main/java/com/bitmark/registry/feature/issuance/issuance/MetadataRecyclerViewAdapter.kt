@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.setBackgroundDrawable
+import com.bitmark.registry.util.extension.setTextColorRes
 import com.bitmark.registry.util.extension.visible
 import kotlinx.android.synthetic.main.item_metadata_input.view.*
 
@@ -50,7 +51,7 @@ class MetadataRecyclerViewAdapter :
     }
 
     internal fun set(mapItem: Map<String, String>) {
-        if(mapItem.isEmpty()) return
+        if (mapItem.isEmpty()) return
         items.clear()
         for (entry in mapItem.entries) {
             items.add(Item(entry.key, entry.value))
@@ -79,7 +80,12 @@ class MetadataRecyclerViewAdapter :
     internal fun isFilled() = items.find { i -> i.isInvalid() } == null
 
     internal fun isValid() =
-        (items.size == 1 && items[0].isBlank()) || isFilled()
+        (items.size == 1 && items[0].isBlank()) || isFilled() || this.items.distinctBy { t -> t.key }.size != this.items.size
+
+    internal fun disable() {
+        items.forEach { i -> i.disable = true }
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -139,7 +145,20 @@ class MetadataRecyclerViewAdapter :
                 } else {
                     ivDelete.gone()
                 }
-                etKey.setText(item.key)
+
+                if (item.disable) {
+                    etKey.isFocusable = false
+                    etValue.isFocusable = false
+                    etKey.setTextColorRes(R.color.silver)
+                    etValue.setTextColorRes(R.color.silver)
+                } else {
+                    etKey.isFocusableInTouchMode = true
+                    etValue.isFocusableInTouchMode = true
+                    etKey.setTextColorRes(android.R.color.black)
+                    etValue.setTextColorRes(android.R.color.black)
+                }
+
+                etKey.setText(item.key.toUpperCase())
                 etValue.setText(item.value)
             }
         }
@@ -193,16 +212,26 @@ class MetadataRecyclerViewAdapter :
         private fun showMissing() {
             item.state = Item.State.MISSING
             with(itemView) {
-                etKey.setBackgroundDrawable(R.drawable.bg_border_torch_red)
-                etValue.setBackgroundDrawable(R.drawable.bg_border_torch_red_top_less)
+                if (!item.disable) {
+                    etKey.setBackgroundDrawable(R.drawable.bg_border_torch_red)
+                    etValue.setBackgroundDrawable(R.drawable.bg_border_torch_red_top_less)
+                } else {
+                    etKey.setBackgroundDrawable(R.drawable.bg_border_silver)
+                    etValue.setBackgroundDrawable(R.drawable.bg_border_silver_top_less)
+                }
             }
         }
 
         private fun showFilled() {
             item.state = Item.State.FILLED
             with(itemView) {
-                etKey.setBackgroundDrawable(R.drawable.bg_border_blue_ribbon)
-                etValue.setBackgroundDrawable(R.drawable.bg_border_blue_ribbon_top_less)
+                if (!item.disable) {
+                    etKey.setBackgroundDrawable(R.drawable.bg_border_blue_ribbon)
+                    etValue.setBackgroundDrawable(R.drawable.bg_border_blue_ribbon_top_less)
+                } else {
+                    etKey.setBackgroundDrawable(R.drawable.bg_border_silver)
+                    etValue.setBackgroundDrawable(R.drawable.bg_border_silver_top_less)
+                }
             }
         }
 
@@ -212,6 +241,7 @@ class MetadataRecyclerViewAdapter :
         var key: String,
         var value: String,
         var removable: Boolean = false,
+        var disable: Boolean = false,
         var state: State = State.INITIALIZE
     ) {
 

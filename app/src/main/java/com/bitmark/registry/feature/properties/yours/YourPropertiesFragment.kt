@@ -188,14 +188,16 @@ class YourPropertiesFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmarks ->
-            adapter.update(bitmarks)
-            if (adapter.isEmpty()) {
-                showEmptyView()
-            } else {
-                hideEmptyView()
-            }
-        })
+        viewModel.bitmarkSavedLiveData.value.observe(
+            this,
+            Observer { bitmarks ->
+                adapter.update(bitmarks)
+                if (adapter.isEmpty()) {
+                    showEmptyView()
+                } else {
+                    hideEmptyView()
+                }
+            })
 
         viewModel.fetchLatestBitmarksLiveData().observe(this, Observer { res ->
             when {

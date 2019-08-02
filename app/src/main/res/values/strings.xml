@@ -159,7 +159,7 @@
   <string name="add_new_field">Add new field</string>
   <string name="number_of_bitmarks_to_issue">Number of bitmarks to issue</string>
   <string name="rights_claim">Rights claim</string>
-  <string name="quote_i_hereby_claim_that_i_am_the_legal">&quot;I hereby claim that I am the legal owner of this asset and want these property rights to be irrevocably issued and recorded on the Bitmark blockchain. &quot;</string>
+  <string name="quote_i_hereby_claim_that_i_am_the_legal">"I hereby claim that I am the legal owner of this asset and want these property rights to be irrevocably issued and recorded on the Bitmark blockchain. "</string>
   <string name="could_not_register_property">Could not register property rights. Please try again later.</string>
   <string name="your_rights_to_this_property">Your rights to this property have been registered.</string>
   <string name="please_sign_to_register_property_rights">Please sign to register property rights.</string>
@@ -168,6 +168,7 @@
     <item>@string/video</item>
     <item>@string/file</item>
   </string-array>
+  <string name="other">Other</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

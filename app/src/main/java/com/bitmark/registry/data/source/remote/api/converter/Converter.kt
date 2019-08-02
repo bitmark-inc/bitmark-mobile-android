@@ -62,7 +62,7 @@ open class Converter @Inject constructor() {
         tx.owner,
         tx.assetId,
         mapHead(tx.head),
-        TransactionData.map(tx.status),
+        TransactionData.map(tx.status ?: TransactionRecord.Status.PENDING),
         tx.blockNumber,
         tx.blockOffset,
         tx.offset,

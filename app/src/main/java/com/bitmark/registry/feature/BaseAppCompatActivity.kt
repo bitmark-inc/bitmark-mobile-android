@@ -16,6 +16,7 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (viewModel() != null) {
             lifecycle.addObserver(viewModel()!!)
+            viewModel()?.addLifecycle(lifecycle)
         }
         setContentView(layoutRes())
         initComponents()

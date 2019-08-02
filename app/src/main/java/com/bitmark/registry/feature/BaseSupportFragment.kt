@@ -21,8 +21,10 @@ abstract class BaseSupportFragment : DaggerFragment(), BehaviorComponent {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (viewModel() != null)
+        if (viewModel() != null) {
             lifecycle.addObserver(viewModel()!!)
+            viewModel()?.addLifecycle(lifecycle)
+        }
         observe()
     }
 

@@ -1,17 +1,17 @@
 package com.bitmark.registry.feature.transactions.history
 
-import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.extension.append
-import com.bitmark.registry.util.extension.set
+import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.TransactionModelView
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 
 
@@ -42,7 +42,7 @@ class TransactionHistoryViewModel(
         CompositeLiveData<List<TransactionModelView>>()
 
     internal val txsSavedLiveData =
-        MutableLiveData<List<TransactionModelView>>()
+        lazy { BufferedLiveData<List<TransactionModelView>>(lifecycle!!) }
 
     private var currentOffset = -1L
 
@@ -157,7 +157,7 @@ class TransactionHistoryViewModel(
 
             bitmarkRepo.syncTxs(
                 owner = accountNumber,
-                at = maxOffset + 1,
+                at = maxOffset,
                 to = "later",
                 limit = PAGE_SIZE,
                 sent = true,
@@ -189,9 +189,9 @@ class TransactionHistoryViewModel(
                     currentOffset =
                         if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
                     mapTxs().invoke(p)
-                }.subscribe { ts, e ->
+                }.observeOn(AndroidSchedulers.mainThread()).subscribe { ts, e ->
                     if (e == null) {
-                        txsSavedLiveData.set(ts)
+                        txsSavedLiveData.value.setValue(ts)
                     }
                 })
         }

@@ -18,6 +18,12 @@ abstract class BaseViewModel :
 
     private val compositeDisposable = CompositeDisposable()
 
+    protected var lifecycle: Lifecycle? = null
+
+    fun addLifecycle(lifecycle: Lifecycle) {
+        this.lifecycle = lifecycle
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     open fun onCreate() {
     }
@@ -36,7 +42,6 @@ abstract class BaseViewModel :
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     open fun onStop() {
-
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

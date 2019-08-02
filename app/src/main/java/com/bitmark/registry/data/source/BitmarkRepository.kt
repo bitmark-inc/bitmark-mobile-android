@@ -276,13 +276,29 @@ class BitmarkRepository(
     }
 
     fun issueBitmark(params: IssuanceParams) =
-        remoteDataSource.issueBitmark(params).flatMap { bitmarkIds ->
-            syncBitmarks(
-                bitmarkIds = bitmarkIds,
-                pending = true,
-                loadAsset = true
+        remoteDataSource.issueBitmark(params).flatMapCompletable { bitmarkIds ->
+
+            val syncTxsStream = mutableListOf<Completable>()
+            bitmarkIds.forEach { id ->
+                syncTxsStream.add(
+                    syncTxs(
+                        sent = true,
+                        loadBlock = true,
+                        loadAsset = true,
+                        isPending = true,
+                        bitmarkId = id
+                    ).ignoreElement()
+                )
+            }
+
+            Completable.mergeArrayDelayError(
+                syncBitmarks(
+                    bitmarkIds = bitmarkIds,
+                    pending = true,
+                    loadAsset = true
+                ).ignoreElement(), Completable.merge(syncTxsStream)
             )
-        }.ignoreElement()
+        }
 
     // sync txs with remote server and also save to local db
     fun syncTxs(
