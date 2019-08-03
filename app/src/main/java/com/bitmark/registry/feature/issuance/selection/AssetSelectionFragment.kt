@@ -90,7 +90,7 @@ class AssetSelectionFragment : BaseSupportFragment() {
 
     private fun requestPermission(action: () -> Unit) {
         val rxPermission = RxPermissions(this)
-        compositeDisposable.add(rxPermission.request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe { granted ->
+        compositeDisposable.add(rxPermission.request(Manifest.permission.READ_EXTERNAL_STORAGE).subscribe { granted ->
             if (granted) action.invoke()
         })
     }

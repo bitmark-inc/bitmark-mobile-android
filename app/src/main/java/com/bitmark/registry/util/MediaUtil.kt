@@ -152,7 +152,7 @@ class MediaUtil {
                                 emt.onNext(
                                     Progress(
                                         if (progress >= 100) 100 else progress,
-                                        null
+                                        file.absolutePath
                                     )
                                 )
                             }
