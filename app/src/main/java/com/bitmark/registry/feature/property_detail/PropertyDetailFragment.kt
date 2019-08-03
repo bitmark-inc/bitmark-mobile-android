@@ -18,10 +18,7 @@ import com.bitmark.apiservice.utils.Address
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseSupportFragment
-import com.bitmark.registry.feature.BaseViewModel
-import com.bitmark.registry.feature.DialogController
-import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.transfer.TransferFragment
@@ -135,6 +132,18 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
         ivBack.setSafetyOnclickListener {
             navigator.anim(RIGHT_LEFT).finishActivity()
+        }
+
+        provenanceAdapter.setItemClickListener { item ->
+            if (item.isPending) return@setItemClickListener
+            val url = "%s/account/%s/owned?env=app".format(
+                BuildConfig.REGISTRY_WEBSITE,
+                item.owner
+            )
+            navigator.anim(RIGHT_LEFT).startActivity(
+                WebViewActivity::class.java,
+                WebViewActivity.getBundle(url, getString(R.string.registry))
+            )
         }
 
     }

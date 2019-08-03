@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/white"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/dp_8"
     android:paddingTop="@dimen/dp_8"
@@ -26,7 +27,7 @@
       android:layout_height="wrap_content"
       android:layout_weight="0.5"
       android:fontFamily="@font/andale_regular_mono"
-      android:textColor="@color/blue_ribbon"
+      android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_13"
       tools:text="[1rB45...4g6dD]"
       />

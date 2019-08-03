@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
+import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.modelview.TransactionModelView
 import kotlinx.android.synthetic.main.item_provenance.view.*
 
@@ -20,6 +21,12 @@ class ProvenanceRecyclerViewAdapter :
     RecyclerView.Adapter<ProvenanceRecyclerViewAdapter.ViewHolder>() {
 
     private val items = mutableListOf<Item>()
+
+    private var itemClickListener: ((Item) -> Unit)? = null
+
+    internal fun setItemClickListener(listener: (Item) -> Unit) {
+        this.itemClickListener = listener
+    }
 
     fun add(accountNumber: String, provenances: List<TransactionModelView>) {
         val pos = this.items.size
@@ -58,7 +65,7 @@ class ProvenanceRecyclerViewAdapter :
                 R.layout.item_provenance,
                 parent,
                 false
-            )
+            ), itemClickListener
         )
 
     override fun getItemCount(): Int = items.size
@@ -67,9 +74,19 @@ class ProvenanceRecyclerViewAdapter :
         holder.bind(items[position])
 
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View, itemClickListener: ((Item) -> Unit)?) :
+        RecyclerView.ViewHolder(view) {
+
+        private lateinit var item: Item
+
+        init {
+            with(itemView) {
+                setSafetyOnclickListener { itemClickListener?.invoke(item) }
+            }
+        }
 
         fun bind(item: Item) {
+            this.item = item
             with(itemView) {
                 if (item.isPending) {
                     val color = ContextCompat.getColor(context, R.color.silver)
@@ -96,6 +113,7 @@ class ProvenanceRecyclerViewAdapter :
                     if (item.accountNumber == item.owner) context.getString(
                         R.string.you
                     ).toUpperCase() else item.getShortenOwner()
+
             }
         }
     }
