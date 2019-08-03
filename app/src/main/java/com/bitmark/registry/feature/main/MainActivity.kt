@@ -8,7 +8,7 @@ import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.BehaviorComponent
 import com.bitmark.registry.feature.account.AccountContainerFragment
-import com.bitmark.registry.feature.properties.PropertiesFragment
+import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
@@ -60,7 +60,7 @@ class MainActivity : BaseAppCompatActivity() {
 
     override fun onBackPressed() {
         val currentFragment = adapter.currentFragment as? BehaviorComponent
-        if (currentFragment is PropertiesFragment)
+        if (currentFragment is PropertiesContainerFragment)
             super.onBackPressed()
         else if (currentFragment?.onBackPressed() == false) {
             bottomNav.currentItem = 0
