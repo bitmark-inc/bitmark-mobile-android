@@ -37,6 +37,8 @@ class WebViewActivity : AppCompatActivity() {
 
     private val navigator = Navigator(this)
 
+    private val handler = Handler()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_webview)
@@ -88,10 +90,11 @@ class WebViewActivity : AppCompatActivity() {
         }
 
         // a bit delay for better performance
-        Handler().postDelayed({ webview.loadUrl(url) }, 200)
+        handler.postDelayed({ webview.loadUrl(url) }, 200)
     }
 
     private fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
         webview.webViewClient = null
     }
 

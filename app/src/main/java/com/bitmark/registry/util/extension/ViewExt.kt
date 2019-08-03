@@ -62,7 +62,7 @@ fun View.setSafetyOnclickListener(action: (View?) -> Unit) {
             blocked = true
             handler.postDelayed({
                 blocked = false
-            }, 1000)
+            }, 500)
             action.invoke(v)
         }
 

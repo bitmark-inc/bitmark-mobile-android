@@ -81,6 +81,13 @@ class AssetSelectionFragment : BaseSupportFragment() {
         ivBack.setOnClickListener { navigator.popChildFragment() }
     }
 
+    override fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
+        dialogController.dismiss()
+        compositeDisposable.dispose()
+        super.deinitComponents()
+    }
+
     private fun requestPermission(action: () -> Unit) {
         val rxPermission = RxPermissions(this)
         compositeDisposable.add(rxPermission.request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe { granted ->
@@ -185,13 +192,6 @@ class AssetSelectionFragment : BaseSupportFragment() {
                 }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        handler.removeCallbacksAndMessages(null)
-        dialogController.dismiss()
-        compositeDisposable.dispose()
-        super.onDestroyView()
     }
 
     private fun browseMedia(mime: String) {

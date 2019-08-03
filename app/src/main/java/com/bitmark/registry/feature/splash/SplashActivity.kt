@@ -59,11 +59,6 @@ class SplashActivity : BaseAppCompatActivity() {
         process()
     }
 
-    override fun onDestroy() {
-        handler.removeCallbacksAndMessages(null)
-        super.onDestroy()
-    }
-
     override fun initComponents() {
         super.initComponents()
         authorizationDialog = AuthorizationRequiredDialog(this) {
@@ -72,6 +67,7 @@ class SplashActivity : BaseAppCompatActivity() {
     }
 
     override fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
         dialogController.dismiss()
         super.deinitComponents()
     }

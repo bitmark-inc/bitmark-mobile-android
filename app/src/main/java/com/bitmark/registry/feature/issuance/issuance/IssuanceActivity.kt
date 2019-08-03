@@ -279,6 +279,11 @@ class IssuanceActivity : BaseAppCompatActivity() {
         })
     }
 
+    override fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
+        super.deinitComponents()
+    }
+
     override fun observe() {
         super.observe()
 
@@ -476,11 +481,6 @@ class IssuanceActivity : BaseAppCompatActivity() {
     override fun onBackPressed() {
         navigator.anim(RIGHT_LEFT).finishActivity()
         super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        handler.removeCallbacksAndMessages(null)
-        super.onDestroy()
     }
 
 }

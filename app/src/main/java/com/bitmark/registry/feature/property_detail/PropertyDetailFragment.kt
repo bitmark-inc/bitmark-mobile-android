@@ -205,7 +205,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 // copy bitmark
                 tvSubItem1.visible()
                 context.copyToClipboard(bitmark.id)
-                Handler().postDelayed({
+                handler.postDelayed({
                     tvSubItem1.invisible()
                     popupWindow.dismiss()
                 }, 1000)

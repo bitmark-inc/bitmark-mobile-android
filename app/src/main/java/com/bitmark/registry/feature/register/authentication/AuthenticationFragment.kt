@@ -58,6 +58,8 @@ class AuthenticationFragment : BaseSupportFragment() {
 
     private var blocked = false
 
+    private val handler = Handler()
+
     override fun layoutRes(): Int = R.layout.fragment_authentication
 
     override fun viewModel(): BaseViewModel? = viewModel
@@ -88,6 +90,7 @@ class AuthenticationFragment : BaseSupportFragment() {
     }
 
     override fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
         dialogController.dismiss()
         super.deinitComponents()
     }
@@ -98,7 +101,7 @@ class AuthenticationFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     blocked = false
-                    Handler().postDelayed({
+                    handler.postDelayed({
                         navigator.anim(RIGHT_LEFT).startActivityAsRoot(
                             MainActivity::class.java
                         )

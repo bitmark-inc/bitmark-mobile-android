@@ -44,6 +44,8 @@ class WebViewFragment : Fragment(), BehaviorComponent {
 
     private var visibled = false
 
+    private val handler = Handler()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -100,6 +102,7 @@ class WebViewFragment : Fragment(), BehaviorComponent {
     }
 
     private fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
         webview.webViewClient = null
     }
 
@@ -119,7 +122,7 @@ class WebViewFragment : Fragment(), BehaviorComponent {
 
     private fun load() {
         // a bit delay for better performance
-        Handler().postDelayed({ webview.loadUrl(url) }, 200)
+        handler.postDelayed({ webview.loadUrl(url) }, 200)
         visibled = true
     }
 

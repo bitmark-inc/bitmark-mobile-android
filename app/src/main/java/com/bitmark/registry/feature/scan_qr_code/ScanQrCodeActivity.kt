@@ -40,6 +40,8 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
 
     private val compositeDisposable = CompositeDisposable()
 
+    private val handler = Handler()
+
     override fun layoutRes(): Int = R.layout.activity_scan_qr_code
 
     override fun viewModel(): BaseViewModel? = null
@@ -62,7 +64,7 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
         tvMessage.text = spanStringBuilder
 
         // a bit delay for better ux
-        Handler().postDelayed({
+        handler.postDelayed({
             val rxPermission = RxPermissions(this)
             compositeDisposable.add(rxPermission.request(Manifest.permission.CAMERA).subscribe { granted ->
                 if (!granted) navigator.anim(RIGHT_LEFT).finishActivity()
@@ -89,20 +91,21 @@ class ScanQrCodeActivity : BaseAppCompatActivity() {
         })
     }
 
+    override fun deinitComponents() {
+        compositeDisposable.dispose()
+        handler.removeCallbacksAndMessages(null)
+        super.deinitComponents()
+    }
+
     override fun onResume() {
         super.onResume()
         // a bit delay for animation finish
-        Handler().postDelayed({ viewScanner.resume() }, 250)
+        handler.postDelayed({ viewScanner.resume() }, 250)
     }
 
     override fun onPause() {
         viewScanner.pause()
         super.onPause()
-    }
-
-    override fun onDestroy() {
-        compositeDisposable.dispose()
-        super.onDestroy()
     }
 
     override fun onBackPressed() {
