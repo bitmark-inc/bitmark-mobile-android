@@ -3,8 +3,8 @@ package com.bitmark.registry.feature.property_detail
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
 import kotlinx.android.synthetic.main.item_metadata.view.*
@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.item_metadata.view.*
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class MetadataRecyclerViewAdapter(@ColorInt private var textColor: Int) :
+class MetadataRecyclerViewAdapter(@ColorRes private var textColor: Int = android.R.color.black) :
     RecyclerView.Adapter<MetadataRecyclerViewAdapter.ViewHolder>() {
 
     private val items = mutableListOf<Pair<String, String>>()
@@ -53,9 +53,10 @@ class MetadataRecyclerViewAdapter(@ColorInt private var textColor: Int) :
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        internal fun bind(entry: Pair<String, String>, @ColorInt textColor: Int) {
+        internal fun bind(entry: Pair<String, String>, @ColorRes textColor: Int) {
             with(itemView) {
-                tvKey.setTextColor(textColor)
+                val color = ContextCompat.getColor(context, textColor)
+                tvKey.setTextColor(color)
 
                 val key = entry.first
                 val value = entry.second

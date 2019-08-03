@@ -44,7 +44,7 @@ class TransactionHistoryViewModel(
         CompositeLiveData<List<TransactionModelView>>()
 
     internal val txsSavedLiveData =
-        lazy { BufferedLiveData<List<TransactionModelView>>(lifecycle!!) }
+        BufferedLiveData<List<TransactionModelView>>(lifecycle)
 
     private var currentOffset = -1L
 
@@ -121,16 +121,7 @@ class TransactionHistoryViewModel(
             val txs = p.second
 
             txs.map { tx ->
-                TransactionModelView(
-                    tx.id,
-                    tx.block?.createdAt,
-                    tx.owner,
-                    tx.previousOwner,
-                    tx.asset?.name,
-                    tx.status,
-                    owner,
-                    tx.offset
-                )
+                TransactionModelView.newInstance(tx, owner)
             }
         }
 
@@ -193,7 +184,7 @@ class TransactionHistoryViewModel(
                     mapTxs().invoke(p)
                 }.observeOn(AndroidSchedulers.mainThread()).subscribe { ts, e ->
                     if (e == null) {
-                        txsSavedLiveData.value.setValue(ts)
+                        txsSavedLiveData.setValue(ts)
                     }
                 })
         }

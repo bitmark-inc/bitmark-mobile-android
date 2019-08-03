@@ -149,7 +149,7 @@ class TransactionHistoryFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.txsSavedLiveData.value.observe(this, Observer { txs ->
+        viewModel.txsSavedLiveData.observe(this, Observer { txs ->
             adapter.update(txs)
             if (adapter.isEmpty()) {
                 showEmptyView()

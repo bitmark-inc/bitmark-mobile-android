@@ -200,7 +200,14 @@ class BitmarkLocalDataSource @Inject constructor(
     ).toSingle()
 
     fun getBitmarkById(id: String) =
-        databaseApi.rxMaybe { db -> db.bitmarkDao().getById(id) }
+        databaseApi.rxMaybe { db ->
+            db.bitmarkDao().getById(id)
+        }.flatMap { bitmark ->
+            getAssetById(bitmark.assetId).map { asset ->
+                bitmark.asset = asset
+                bitmark
+            }
+        }
 
     //endregion Bitmark
 

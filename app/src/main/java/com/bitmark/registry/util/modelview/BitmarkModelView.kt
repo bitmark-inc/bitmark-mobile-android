@@ -4,6 +4,7 @@ import android.os.Parcelable
 import android.webkit.MimeTypeMap
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.util.DateTimeUtil
+import com.bitmark.registry.util.DateTimeUtil.Companion.OFFICIAL_DATE_FORMAT
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
@@ -19,7 +20,7 @@ class BitmarkModelView constructor(
     val id: String,
     val name: String?,
     private val confirmedAt: String?,
-    private val issuedAt: String? = null,
+    private val createdAt: String? = null,
     val issuer: String,
     val headId: String,
     val metadata: Map<String, String>?,
@@ -46,7 +47,7 @@ class BitmarkModelView constructor(
                 id = bitmark.id,
                 name = bitmark.asset?.name ?: "",
                 confirmedAt = bitmark.confirmedAt,
-                issuedAt = bitmark.issuedAt,
+                createdAt = bitmark.createdAt,
                 issuer = bitmark.issuer,
                 headId = bitmark.headId,
                 metadata = bitmark.asset?.metadata ?: mapOf(),
@@ -161,8 +162,11 @@ class BitmarkModelView constructor(
             confirmedAt
         ) else null
 
-    fun issuedAt() =
-        if (!issuedAt.isNullOrEmpty()) DateTimeUtil.stringToString(issuedAt) else null
+    fun createdAt() =
+        if (!createdAt.isNullOrEmpty()) DateTimeUtil.stringToString(
+            createdAt,
+            OFFICIAL_DATE_FORMAT
+        ) else null
 
     fun isSettled() = status == BitmarkData.Status.SETTLED
 

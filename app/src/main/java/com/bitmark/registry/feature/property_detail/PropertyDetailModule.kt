@@ -5,6 +5,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -25,12 +26,14 @@ class PropertyDetailModule {
         fragment: PropertyDetailFragment,
         bitmarkRepo: BitmarkRepository,
         accountRepo: AccountRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        realtimeBus: RealtimeBus
     ) = PropertyDetailViewModel(
         fragment.lifecycle,
         bitmarkRepo,
         accountRepo,
-        rxLiveDataTransformer
+        rxLiveDataTransformer,
+        realtimeBus
     )
 
     @Provides

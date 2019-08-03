@@ -28,5 +28,5 @@ interface BitmarkStatusChangedListener :
 
 interface BitmarkSavedListener :
     BitmarkChangedListener {
-    fun onBitmarksSaved(bitmark: List<BitmarkData>)
+    fun onBitmarksSaved(bitmarks: List<BitmarkData>)
 }

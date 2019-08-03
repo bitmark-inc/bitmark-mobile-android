@@ -26,6 +26,22 @@ data class TransactionModelView(
     val offset: Long
 ) : Parcelable {
 
+    companion object {
+        fun newInstance(
+            tx: TransactionData,
+            accountNumber: String? = null
+        ) = TransactionModelView(
+            tx.id,
+            tx.block?.createdAt,
+            tx.owner,
+            tx.previousOwner,
+            tx.asset?.name,
+            tx.status,
+            accountNumber,
+            tx.offset
+        )
+    }
+
     fun isPending() = status == TransactionData.Status.PENDING
 
     fun confirmedAt() =

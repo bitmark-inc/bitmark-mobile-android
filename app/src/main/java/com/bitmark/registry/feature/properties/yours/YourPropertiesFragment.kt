@@ -188,7 +188,7 @@ class YourPropertiesFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.bitmarkSavedLiveData.value.observe(
+        viewModel.bitmarkSavedLiveData.observe(
             this,
             Observer { bitmarks ->
                 adapter.update(bitmarks)

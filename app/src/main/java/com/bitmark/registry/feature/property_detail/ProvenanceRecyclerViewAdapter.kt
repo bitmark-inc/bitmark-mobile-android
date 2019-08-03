@@ -35,13 +35,13 @@ class ProvenanceRecyclerViewAdapter :
         notifyItemRangeInserted(pos, items.size)
     }
 
-    fun set(accountNumber: String, provenances: List<TransactionModelView>) {
+    fun set(provenances: List<TransactionModelView>) {
         this.items.clear()
         val items = provenances.map { p ->
             Item(
                 p.confirmedAt(),
                 p.owner,
-                accountNumber,
+                p.accountNumber!!,
                 p.isPending()
             )
         }
@@ -76,7 +76,7 @@ class ProvenanceRecyclerViewAdapter :
                     tvConfirmedAt.setTextColor(color)
                     tvOwner.setTextColor(color)
                     tvConfirmedAt.text =
-                        context.getString(R.string.wait_to_be_confirmed)
+                        context.getString(R.string.pending)
                 } else {
                     tvConfirmedAt.setTextColor(
                         ContextCompat.getColor(

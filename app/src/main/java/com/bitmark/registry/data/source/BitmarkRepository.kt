@@ -300,6 +300,8 @@ class BitmarkRepository(
             )
         }
 
+    fun getStoredBitmarkById(id: String) = localDataSource.getBitmarkById(id)
+
     // sync txs with remote server and also save to local db
     fun syncTxs(
         owner: String? = null,

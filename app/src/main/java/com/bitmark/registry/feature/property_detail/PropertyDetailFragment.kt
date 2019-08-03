@@ -83,6 +83,8 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     override fun viewModel(): BaseViewModel? = viewModel
 
+    private val metadataAdapter = MetadataRecyclerViewAdapter()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getKeyAlias()
@@ -94,6 +96,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
         super.initComponents()
 
         bitmark = arguments?.getParcelable(BITMARK)!!
+        viewModel.setBitmarkId(bitmark.id)
         val context = this.context!!
 
         showAssetType(bitmark.assetType)
@@ -103,22 +106,19 @@ class PropertyDetailFragment : BaseSupportFragment() {
         tvAssetName.text =
             if (bitmark.name.isNullOrBlank()) "" else bitmark.name
         tvIssuedOn.text =
-            if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.confirmedAt() else getString(
+            if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.createdAt() else getString(
                 R.string.pending
             ) + "...."
 
         // display with corresponding status
-        val color = if (bitmark.isSettled()) ContextCompat.getColor(
-            context,
-            android.R.color.black
-        ) else ContextCompat.getColor(context, R.color.silver)
-        tvAssetName.setTextColor(color)
-        tvIssuedOn.setTextColor(color)
+        val color =
+            if (bitmark.isSettled()) android.R.color.black else R.color.silver
+        tvAssetName.setTextColorRes(color)
+        tvIssuedOn.setTextColorRes(color)
 
         val rvMetadataLayoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        val metadataAdapter =
-            MetadataRecyclerViewAdapter(color)
+        metadataAdapter.changeTextColor(color)
         rvMetadata.layoutManager = rvMetadataLayoutManager
         rvMetadata.adapter = metadataAdapter
         metadataAdapter.set(bitmark.metadata ?: mapOf())
@@ -261,11 +261,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
         viewModel.getProvenanceLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    val p = res.data()
-                    val txs = p?.second
+                    val txs = res.data()
                     if (txs == null || txs.isEmpty()) return@Observer
                     bitmark.previousOwner = txs[0].previousOwner
-                    provenanceAdapter.set(p.first, txs)
+                    provenanceAdapter.set(txs)
                 }
             }
         })
@@ -278,11 +277,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
                 res.isSuccess() -> {
                     progressBar.gone()
-                    val p = res.data()
-                    val txs = p?.second
+                    val txs = res.data()
                     if (txs == null || txs.isEmpty()) return@Observer
                     bitmark.previousOwner = txs[0].previousOwner
-                    provenanceAdapter.set(p.first, txs)
+                    provenanceAdapter.set(txs)
                 }
 
                 res.isError() -> {
@@ -402,6 +400,24 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
         viewModel.downloadProgressLiveData.observe(this, Observer { percent ->
             progressDialog?.setProgress(percent)
+        })
+
+        viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmark ->
+            val color =
+                if (bitmark.isSettled()) android.R.color.black else R.color.silver
+            tvAssetName.setTextColorRes(color)
+            tvIssuedOn.setTextColorRes(color)
+            tvIssuedOn.text =
+                if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.createdAt() else getString(
+                    R.string.pending
+                ) + "...."
+            metadataAdapter.changeTextColor(color)
+        })
+
+        viewModel.txsSavedLiveData.observe(this, Observer { txs ->
+            if (txs.isEmpty()) return@Observer
+            bitmark.previousOwner = txs[0].previousOwner
+            provenanceAdapter.set(txs)
         })
     }
 

@@ -4,17 +4,24 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.encryption.AssetEncryption
 import com.bitmark.registry.util.encryption.BoxEncryption
 import com.bitmark.registry.util.extension.set
+import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
+import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.modelview.TransactionModelView
+import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import java.io.File
 
@@ -29,14 +36,17 @@ class PropertyDetailViewModel(
     lifecycle: Lifecycle,
     private val bitmarkRepo: BitmarkRepository,
     private val accountRepo: AccountRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val realtimeBus: RealtimeBus
 ) : BaseViewModel(lifecycle) {
 
+    private lateinit var bitmarkId: String
+
     private val getProvenanceLiveData =
-        CompositeLiveData<Pair<String, List<TransactionModelView>>>()
+        CompositeLiveData<List<TransactionModelView>>()
 
     private val syncProvenanceLiveData =
-        CompositeLiveData<Pair<String, List<TransactionModelView>>>()
+        CompositeLiveData<List<TransactionModelView>>()
 
     private val deleteBitmarkLiveData = CompositeLiveData<Any>()
 
@@ -48,6 +58,16 @@ class PropertyDetailViewModel(
     private val getKeyAliasLiveData = CompositeLiveData<String>()
 
     internal val downloadProgressLiveData = MutableLiveData<Int>()
+
+    internal val bitmarkSavedLiveData =
+        BufferedLiveData<BitmarkModelView>(lifecycle)
+
+    internal val txsSavedLiveData =
+        BufferedLiveData<List<TransactionModelView>>(lifecycle)
+
+    internal fun setBitmarkId(bitmarkId: String) {
+        this.bitmarkId = bitmarkId
+    }
 
     internal fun getProvenanceLiveData() = getProvenanceLiveData.asLiveData()
 
@@ -79,38 +99,29 @@ class PropertyDetailViewModel(
         )
     }
 
-    private fun getProvenanceStream(bitmarkId: String): Single<Pair<String, List<TransactionModelView>>> {
+    private fun getProvenanceStream(bitmarkId: String): Single<List<TransactionModelView>> {
         val accountStream =
             accountRepo.getAccountInfo().map { a -> a.first }
         val txsStream = bitmarkRepo.listTxs(
             bitmarkId = bitmarkId,
             loadBlock = true,
             isPending = true
-        ).map { txs ->
-            txs.map { tx ->
-                TransactionModelView(
-                    id = tx.id,
-                    confirmedAt = tx.block?.createdAt ?: "",
-                    owner = tx.owner,
-                    previousOwner = tx.previousOwner,
-                    status = tx.status,
-                    offset = tx.offset
-                )
-            }
-        }
+        )
 
         return Single.zip(
             accountStream,
             txsStream,
             BiFunction { accountNumber, txs ->
-                Pair(
-                    accountNumber,
-                    txs
-                )
+                txs.map { t ->
+                    TransactionModelView.newInstance(
+                        t,
+                        accountNumber
+                    )
+                }
             })
     }
 
-    private fun syncProvenanceStream(bitmarkId: String): Single<Pair<String, List<TransactionModelView>>> {
+    private fun syncProvenanceStream(bitmarkId: String): Single<List<TransactionModelView>> {
         val accountStream =
             accountRepo.getAccountInfo().map { a -> a.first }
         val txsStream = bitmarkRepo.syncTxs(
@@ -118,27 +129,18 @@ class PropertyDetailViewModel(
             loadBlock = true,
             isPending = true,
             loadAsset = true
-        ).map { txs ->
-            txs.map { tx ->
-                TransactionModelView(
-                    id = tx.id,
-                    confirmedAt = tx.block?.createdAt ?: "",
-                    previousOwner = tx.previousOwner,
-                    owner = tx.owner,
-                    status = tx.status,
-                    offset = tx.offset
-                )
-            }
-        }
+        )
 
         return Single.zip(
             accountStream,
             txsStream,
             BiFunction { accountNumber, txs ->
-                Pair(
-                    accountNumber,
-                    txs
-                )
+                txs.map { t ->
+                    TransactionModelView.newInstance(
+                        t,
+                        accountNumber
+                    )
+                }
             })
     }
 
@@ -241,8 +243,74 @@ class PropertyDetailViewModel(
     internal fun getKeyAlias() =
         getKeyAliasLiveData.add(rxLiveDataTransformer.single(accountRepo.getKeyAlias()))
 
+    override fun onCreate() {
+        super.onCreate()
+
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
+            if (bitmarks.isEmpty()) return@subscribe
+            val hasChanged =
+                bitmarks.indexOfFirst { b -> b.id == bitmarkId } != -1
+            if (!hasChanged) return@subscribe
+
+            val getAccountNumberStream =
+                accountRepo.getAccountInfo().map { a -> a.first }.toMaybe()
+
+            val getBitmarkStream =
+                bitmarkRepo.getStoredBitmarkById(bitmarks[0].id)
+
+            subscribe(
+                Maybe.zip(
+                    getAccountNumberStream,
+                    getBitmarkStream,
+                    BiFunction<String, BitmarkData, BitmarkModelView> { accountNumber, bitmark ->
+                        BitmarkModelView.newInstance(bitmark, accountNumber)
+                    }).observeOn(
+                    AndroidSchedulers.mainThread()
+                ).subscribe({ bitmark ->
+                    bitmarkSavedLiveData.setValue(bitmark)
+                }, {})
+            )
+        }
+
+        realtimeBus.txsSavedPublisher.subscribe(this) { txs ->
+            if (txs.isEmpty()) return@subscribe
+            val hasChanged =
+                txs.indexOfFirst { t -> t.bitmarkId == bitmarkId } != -1
+            if (!hasChanged) return@subscribe
+
+            val getAccountNumberStream =
+                accountRepo.getAccountInfo().map { a -> a.first }
+
+            val syncTxsStream = bitmarkRepo.listTxs(
+                bitmarkId = bitmarkId,
+                isPending = true,
+                loadBlock = true
+            )
+
+            subscribe(
+                Single.zip(
+                    getAccountNumberStream,
+                    syncTxsStream,
+                    BiFunction<String, List<TransactionData>, List<TransactionModelView>> { accountNumber, ts ->
+                        ts.map { t ->
+                            TransactionModelView.newInstance(
+                                t,
+                                accountNumber
+                            )
+                        }
+                    }).observeOn(
+                    AndroidSchedulers.mainThread()
+                ).subscribe { ts, e ->
+                    if (e == null) {
+                        txsSavedLiveData.setValue(ts)
+                    }
+                }
+            )
+        }
+    }
 
     override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
         rxLiveDataTransformer.dispose()
         super.onDestroy()
     }

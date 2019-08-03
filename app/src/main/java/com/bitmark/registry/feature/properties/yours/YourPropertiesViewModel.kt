@@ -43,7 +43,7 @@ class YourPropertiesViewModel(
     internal val deletedBitmarkLiveData = MutableLiveData<List<String>>()
 
     internal val bitmarkSavedLiveData =
-        lazy { BufferedLiveData<List<BitmarkModelView>>(lifecycle!!) }
+        BufferedLiveData<List<BitmarkModelView>>(lifecycle)
 
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -272,7 +272,7 @@ class YourPropertiesViewModel(
                 bitmarkMapFunc().invoke(p)
             }.observeOn(AndroidSchedulers.mainThread()).subscribe { b, e ->
                 if (e == null) {
-                    bitmarkSavedLiveData.value.setValue(b)
+                    bitmarkSavedLiveData.setValue(b)
                 }
             })
         }
