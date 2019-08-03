@@ -96,7 +96,9 @@ class BitmarkLocalDataSource @Inject constructor(
                 val assetStreams = mutableListOf<Maybe<AssetData>>()
                 for (bitmark in bitmarks) {
                     assetStreams.add(
-                        getAssetById(bitmark.assetId)
+                        getAssetById(bitmark.assetId).toMaybe().onErrorResumeNext(
+                            Maybe.empty()
+                        )
                     )
                 }
                 Maybe.merge(assetStreams).doOnNext { asset ->
@@ -136,7 +138,11 @@ class BitmarkLocalDataSource @Inject constructor(
         }.andThen(getAssetById(bitmark.assetId).map { asset ->
             bitmark.asset = asset
             bitmark
-        }).doOnSuccess { b -> bitmarkSavedListener?.onBitmarksSaved(listOf(b)) }
+        }.toMaybe().onErrorResumeNext(Maybe.empty())).doOnSuccess { b ->
+            bitmarkSavedListener?.onBitmarksSaved(
+                listOf(b)
+            )
+        }
             .ignoreElement()
 
     fun updateBitmarkStatus(
@@ -206,14 +212,14 @@ class BitmarkLocalDataSource @Inject constructor(
             getAssetById(bitmark.assetId).map { asset ->
                 bitmark.asset = asset
                 bitmark
-            }
+            }.onErrorResumeNext { Single.just(bitmark) }.toMaybe()
         }
 
     //endregion Bitmark
 
     //region Asset
 
-    fun getAssetById(id: String): Maybe<AssetData> = databaseApi.rxMaybe { db ->
+    fun getAssetById(id: String) = databaseApi.rxSingle { db ->
         db.assetDao().getById(id)
     }
 
@@ -396,11 +402,12 @@ class BitmarkLocalDataSource @Inject constructor(
 
                 val assetStreams = mutableListOf<Maybe<AssetData>>()
                 for (id in assetIds) {
-                    val assetStream = getAssetById(id)
+                    val assetStream = getAssetById(id).toMaybe()
+                        .onErrorResumeNext(Maybe.empty())
                     assetStreams.add(assetStream)
                 }
 
-                Maybe.merge(assetStreams).doOnNext { asset ->
+                Maybe.mergeDelayError(assetStreams).doOnNext { asset ->
                     txs.filter { tx -> tx.assetId == asset.id }
                         .forEach { tx -> tx.asset = asset }
                 }.collectInto(txs, { _, _ -> }).flatMap { Single.just(txs) }
@@ -457,14 +464,14 @@ class BitmarkLocalDataSource @Inject constructor(
                 .onErrorResumeNext { Single.just(-1) }
         }
 
-    fun listTxsByOwnerStatus(
-        owner: String,
+    fun listRelevantTxsByStatus(
+        who: String,
         status: TransactionData.Status,
         loadAsset: Boolean = true,
         loadBlock: Boolean = true
     ): Single<List<TransactionData>> =
         databaseApi.rxSingle { db ->
-            db.transactionDao().listByOwnerStatusDesc(owner, status)
+            db.transactionDao().listRelevantByStatusDesc(who, status)
                 .onErrorResumeNext {
                     Single.just(
                         listOf()

@@ -70,7 +70,7 @@ class TransactionHistoryViewModel(
                 )
 
             val pendingTxsStream =
-                bitmarkRepo.listStoredPendingTxs(accountNumber)
+                bitmarkRepo.listStoredRelevantPendingTxs(accountNumber)
 
             Single.zip(
                 pendingTxsStream,

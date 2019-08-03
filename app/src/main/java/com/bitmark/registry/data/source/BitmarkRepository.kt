@@ -396,8 +396,8 @@ class BitmarkRepository(
     fun maxStoredRelevantTxOffset(owner: String): Single<Long> =
         localDataSource.maxRelevantTxOffset(owner)
 
-    fun listStoredPendingTxs(owner: String): Single<List<TransactionData>> =
-        localDataSource.listTxsByOwnerStatus(
+    fun listStoredRelevantPendingTxs(owner: String): Single<List<TransactionData>> =
+        localDataSource.listRelevantTxsByStatus(
             owner,
             TransactionData.Status.PENDING
         )
@@ -464,7 +464,10 @@ class BitmarkRepository(
         )
     }.andThen(localDataSource.deleteEncryptedAssetFile(owner, assetId))
 
-    fun getAsset(id: String) = remoteDataSource.getAsset(id)
+    fun getAsset(id: String) =
+        localDataSource.getAssetById(id).onErrorResumeNext {
+            remoteDataSource.getAsset(id)
+        }
 
     fun registerAsset(params: RegistrationParams) =
         remoteDataSource.registerAsset(params).flatMap { assetId ->

@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.bitmark.registry.data.model.AssetData
 import io.reactivex.Completable
-import io.reactivex.Maybe
+import io.reactivex.Single
 
 
 /**
@@ -19,7 +19,7 @@ import io.reactivex.Maybe
 abstract class AssetDao {
 
     @Query("SELECT * FROM Asset WHERE id = :id")
-    abstract fun getById(id: String): Maybe<AssetData>
+    abstract fun getById(id: String): Single<AssetData>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun save(assets: List<AssetData>): Completable
