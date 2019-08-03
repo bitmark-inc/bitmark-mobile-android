@@ -61,95 +61,111 @@ class BitmarkModelView constructor(
             )
         }
 
+        fun determineAssetTypeByMetadata(metadata: Map<String, String>): AssetType? {
+            return when (metadata["source"] ?: metadata["Source"]) {
+                "Medical Records", "Health Records" -> AssetType.MEDICAL
+                "Health Kit", "Health" -> AssetType.HEALTH
+                "Photo", "photo" -> AssetType.IMAGE
+                "Video", "video" -> AssetType.VIDEO
+                else -> null
+            }
+        }
+
+        fun determineAssetTypeByExt(ext: String): AssetType? {
+            return when (ext) {
+                in arrayOf(
+                    "ai",
+                    "bmp",
+                    "gif",
+                    "ico",
+                    "jpeg",
+                    "jpg",
+                    "png",
+                    "ps",
+                    "psd",
+                    "svg",
+                    "tif",
+                    "tiff"
+                ) -> AssetType.IMAGE
+                in arrayOf(
+                    "3g2",
+                    "3gp",
+                    "avi",
+                    "flv",
+                    "h264",
+                    "m4v",
+                    "mkv",
+                    "mov",
+                    "mp4",
+                    "mpg",
+                    "mpeg",
+                    "rm",
+                    "swf",
+                    "vob",
+                    "wmv"
+                ) -> AssetType.VIDEO
+                in arrayOf(
+                    "doc",
+                    "docx",
+                    "pdf",
+                    "rtf",
+                    "tex",
+                    "txt",
+                    "wks",
+                    "wps",
+                    "wpd"
+                ) -> AssetType.DOC
+                in arrayOf(
+                    "7z",
+                    "arj",
+                    "deb",
+                    "pkg",
+                    "rar",
+                    "rpm",
+                    "z",
+                    "zip"
+                ) -> AssetType.ZIP
+                else -> null
+            }
+        }
+
+        fun determineAssetTypeByMime(mime: String): AssetType? {
+            return when {
+                mime.contains("image/") -> AssetType.IMAGE
+                mime.contains("video/") -> AssetType.VIDEO
+                mime == "application/zip" || mime == "application/x-7z-compressed" || mime == "application/x-bzip" || mime == "application/x-bzip2" -> AssetType.ZIP
+                mime == "application/msword" || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mime == "application/x-abiword" || mime.contains(
+                    "application/vnd.oasis.opendocument"
+                ) || mime == "application/pdf" || mime == "application/x-shockwave-flash" || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> AssetType.DOC
+
+                else -> null
+            }
+        }
+
         fun determineAssetType(
             metadata: Map<String, String>? = null,
             assetFile: File? = null
         ): AssetType {
-            if (metadata != null && (metadata.containsKey("source") || metadata.containsKey(
-                    "Source"
-                ))
-            ) {
-                return when (metadata["source"] ?: metadata["Source"]) {
-                    "Medical Records" -> AssetType.MEDICAL
-                    "Health Records" -> AssetType.MEDICAL
-                    "Health Kit" -> AssetType.HEALTH
-                    "Health" -> AssetType.HEALTH
-                    else -> AssetType.UNKNOWN
-                }
-            } else if (null != assetFile) {
-                val mime =
-                    MimeTypeMap.getSingleton()
-                        .getMimeTypeFromExtension(assetFile.extension)
-                if (null != mime) {
-                    return when {
-                        mime.contains("image/") -> AssetType.IMAGE
-                        mime.contains("video/") -> AssetType.VIDEO
-                        mime == "application/zip" || mime == "application/x-7z-compressed" || mime == "application/x-bzip" || mime == "application/x-bzip2" -> AssetType.ZIP
-                        mime == "application/msword" || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mime == "application/x-abiword" || mime.contains(
-                            "application/vnd.oasis.opendocument"
-                        ) || mime == "application/pdf" || mime == "application/x-shockwave-flash" || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> AssetType.DOC
-
-                        else -> AssetType.UNKNOWN
-                    }
-                } else {
-                    return when (assetFile.extension) {
-                        in arrayOf(
-                            "ai",
-                            "bmp",
-                            "gif",
-                            "ico",
-                            "jpeg",
-                            "jpg",
-                            "png",
-                            "ps",
-                            "psd",
-                            "svg",
-                            "tif",
-                            "tiff"
-                        ) -> AssetType.IMAGE
-                        in arrayOf(
-                            "3g2",
-                            "3gp",
-                            "avi",
-                            "flv",
-                            "h264",
-                            "m4v",
-                            "mkv",
-                            "mov",
-                            "mp4",
-                            "mpg",
-                            "mpeg",
-                            "rm",
-                            "swf",
-                            "vob",
-                            "wmv"
-                        ) -> AssetType.VIDEO
-                        in arrayOf(
-                            "doc",
-                            "docx",
-                            "pdf",
-                            "rtf",
-                            "tex",
-                            "txt",
-                            "wks",
-                            "wps",
-                            "wpd"
-                        ) -> AssetType.DOC
-                        in arrayOf(
-                            "7z",
-                            "arj",
-                            "deb",
-                            "pkg",
-                            "rar",
-                            "rpm",
-                            "z",
-                            "zip"
-                        ) -> AssetType.ZIP
-                        else -> AssetType.UNKNOWN
-                    }
-                }
+            var assetType: AssetType? = null
+            if (metadata != null) {
+                assetType = determineAssetTypeByMetadata(metadata)
             }
-            return AssetType.UNKNOWN
+
+            if (assetType != null) return assetType
+            val mime =
+                MimeTypeMap.getSingleton()
+                    .getMimeTypeFromExtension(assetFile?.extension)
+            if (mime != null) {
+                assetType = determineAssetTypeByMime(mime)
+            }
+
+            if (assetType != null) return assetType
+            val ext = assetFile?.extension
+            if (ext != null) {
+                assetType = determineAssetTypeByExt(ext)
+            }
+
+            return assetType ?: AssetType.UNKNOWN
         }
     }
 

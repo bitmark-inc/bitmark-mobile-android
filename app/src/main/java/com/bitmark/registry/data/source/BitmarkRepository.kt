@@ -466,7 +466,9 @@ class BitmarkRepository(
 
     fun getAsset(id: String) =
         localDataSource.getAssetById(id).onErrorResumeNext {
-            remoteDataSource.getAsset(id)
+            remoteDataSource.getAsset(id).flatMap { asset ->
+                localDataSource.saveAsset(asset).andThen(Single.just(asset))
+            }
         }
 
     fun registerAsset(params: RegistrationParams) =

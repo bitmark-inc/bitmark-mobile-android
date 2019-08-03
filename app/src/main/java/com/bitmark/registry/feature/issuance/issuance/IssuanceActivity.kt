@@ -159,9 +159,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         etIssueQuantity.doOnTextChanged { text, _, _, _ ->
-            if (text!!.isNotEmpty()) {
-                quantity = text.toString().toInt()
+            quantity = if (text!!.isNotEmpty()) {
+                text.toString().toInt()
+            } else {
+                MIN_ASSET_QUANTITY
             }
+
             if (quantity !in (MIN_ASSET_QUANTITY..MAX_ASSET_QUANTITY)) {
                 etIssueQuantity.setTextColorRes(R.color.torch_red)
             } else {
@@ -170,6 +173,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
             setRegisterState(
                 checkValidData(asset.registered)
             )
+        }
+
+        etIssueQuantity.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                etIssueQuantity.setText(quantity.toString())
+            }
         }
 
         cbRightsClaim.setOnCheckedChangeListener { _, _ ->
@@ -197,7 +206,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             val assetId = asset.id
             val registered = asset.registered
             val file = File(asset.filePath)
-            val propName = etPropName.text.toString()
+            val propName = etPropName.text.toString().trim()
             val metadata = adapter.toMap().toMutableMap()
             metadata["source"] = assetType!!
             val quantity = etIssueQuantity.text.toString().toInt()

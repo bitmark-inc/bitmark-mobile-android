@@ -72,7 +72,7 @@ class MetadataRecyclerViewAdapter :
         val map = mutableMapOf<String, String>()
         for (i in items) {
             if (i.isInvalid()) continue
-            map[i.key] = i.value
+            map[i.key.trim()] = i.value.trim()
         }
         return map
     }
@@ -175,7 +175,11 @@ class MetadataRecyclerViewAdapter :
                 } else {
                     item.value = text
                 }
-                if (isDeleted && item.isInvalid()) {
+                if (isDeleted && item.isInvalid() || "source".equals(
+                        item.key,
+                        ignoreCase = true
+                    )
+                ) {
                     showMissing()
                 } else if (!item.isInvalid()) {
                     showFilled()
