@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.util.extension.append
 import com.bitmark.registry.util.extension.shortenAccountNumber
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.modelview.BitmarkModelView.AssetType.*
@@ -68,30 +69,28 @@ class YourPropertiesRecyclerViewAdapter() :
     }
 
     internal fun update(items: List<BitmarkModelView>) {
+        if (items.isEmpty()) return
         items.forEach { i ->
-            val existingIndex = this.items.indexOfFirst { b -> b.id == i.id }
-            if (existingIndex != -1) {
-                this.items.removeAt(existingIndex)
-                notifyItemRemoved(existingIndex)
+            val index = this.items.indexOfFirst { item -> item.id == i.id }
+            if (index != -1) {
+                this.items.removeAt(index)
+                this.items.add(index, i)
+            } else {
+                this.items.add(i)
             }
-
-            val lastPendingIndex = this.items.indexOfLast { b -> b.isPending() }
-            val firstPendingIndex =
-                this.items.indexOfFirst { b -> b.isPending() }
-            val newIndex =
-                if ((existingIndex == -1 && firstPendingIndex == -1)
-                    || (i.isPending() && firstPendingIndex != -1 && this.items[firstPendingIndex].offset <= i.offset)
-                ) 0
-                else if (existingIndex != -1 && !i.isPending()) {
-                    existingIndex
-                } else {
-                    lastPendingIndex + 1
-                }
-
-
-            this.items.add(newIndex, i)
-            notifyItemInserted(newIndex)
         }
+        // FIXME bad solution to avoid wrong order
+        reorder()
+    }
+
+    private fun reorder() {
+        val pendingItems = items.filter { i -> i.isPending() }
+            .sortedByDescending { t -> t.offset }
+        val settledItems = items.filter { i -> i.isSettled() }
+            .sortedByDescending { t -> t.offset }
+        items.clear()
+        items.append(pendingItems, settledItems)
+        notifyDataSetChanged()
     }
 
     internal fun setOnItemClickListener(clickListener: (BitmarkModelView) -> Unit) {

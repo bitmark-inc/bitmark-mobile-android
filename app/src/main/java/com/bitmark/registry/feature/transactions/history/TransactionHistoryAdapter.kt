@@ -6,10 +6,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
-import com.bitmark.registry.util.extension.gone
-import com.bitmark.registry.util.extension.invisible
-import com.bitmark.registry.util.extension.shortenAccountNumber
-import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.TransactionModelView
 import kotlinx.android.synthetic.main.item_tx_history.view.*
 
@@ -55,30 +52,29 @@ class TransactionHistoryAdapter :
         notifyDataSetChanged()
     }
 
-    fun update(items: List<TransactionModelView>) {
+    internal fun update(items: List<TransactionModelView>) {
+        if (items.isEmpty()) return
         items.forEach { i ->
-            val existingIndex = this.items.indexOfFirst { t -> t.id == i.id }
-            if (existingIndex != -1) {
-                this.items.removeAt(existingIndex)
-                notifyItemRemoved(existingIndex)
+            val index = this.items.indexOfFirst { item -> item.id == i.id }
+            if (index != -1) {
+                this.items.removeAt(index)
+                this.items.add(index, i)
+            } else {
+                this.items.add(i)
             }
-
-            val lastPendingIndex = this.items.indexOfLast { t -> t.isPending() }
-            val firstPendingIndex =
-                this.items.indexOfFirst { t -> t.isPending() }
-            val newIndex =
-                if ((existingIndex == -1 && firstPendingIndex == -1)
-                    || (i.isPending() && firstPendingIndex != -1 && this.items[firstPendingIndex].offset <= i.offset)
-                ) 0
-                else if (existingIndex != -1 && !i.isPending()) {
-                    existingIndex
-                } else {
-                    lastPendingIndex + 1
-                }
-
-            this.items.add(newIndex, i)
-            notifyItemInserted(newIndex)
         }
+        // FIXME bad solution to avoid wrong order
+        reorder()
+    }
+
+    private fun reorder() {
+        val pendingItems = items.filter { i -> i.isPending() }
+            .sortedByDescending { t -> t.offset }
+        val confirmedItems = items.filter { i -> !i.isPending() }
+            .sortedByDescending { t -> t.offset }
+        items.clear()
+        items.append(pendingItems, confirmedItems)
+        notifyDataSetChanged()
     }
 
     fun isEmpty() = items.isEmpty()

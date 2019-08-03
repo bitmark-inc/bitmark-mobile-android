@@ -1,7 +1,6 @@
 package com.bitmark.registry.feature.properties.yours
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.ISSUING
 import com.bitmark.registry.data.model.BitmarkData.Status.TRANSFERRING
@@ -40,7 +39,8 @@ class YourPropertiesViewModel(
         private const val PAGE_SIZE = 20
     }
 
-    internal val deletedBitmarkLiveData = MutableLiveData<List<String>>()
+    internal val deletedBitmarkLiveData =
+        BufferedLiveData<List<String>>(lifecycle)
 
     internal val bitmarkSavedLiveData =
         BufferedLiveData<List<BitmarkModelView>>(lifecycle)
@@ -53,8 +53,8 @@ class YourPropertiesViewModel(
 
     private val markSeenLiveData = CompositeLiveData<String>()
 
-    private val refreshAssetTypeLiveData =
-        CompositeLiveData<List<BitmarkModelView>>()
+    internal val refreshAssetTypeLiveData =
+        BufferedLiveData<List<BitmarkModelView>>(lifecycle)
 
     private val fetchLatestBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -71,9 +71,6 @@ class YourPropertiesViewModel(
         refreshBitmarksLiveData.asLiveData()
 
     internal fun markSeenLiveData() = markSeenLiveData.asLiveData()
-
-    internal fun refreshAssetTypeLiveData() =
-        refreshAssetTypeLiveData.asLiveData()
 
     internal fun fetchLatestBitmarksLiveData() =
         fetchLatestBitmarksLiveData.asLiveData()
@@ -233,20 +230,20 @@ class YourPropertiesViewModel(
         }
 
     private fun refreshAssetType(assetId: String) {
-        refreshAssetTypeLiveData.add(
-            rxLiveDataTransformer.single(
-                Single.zip(
-                    bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
-                    accountRepo.getAccountInfo(),
-                    BiFunction<List<BitmarkData>, Pair<String, Boolean>, Pair<String, List<BitmarkData>>> { bitmarks, account ->
-                        Pair(
-                            account.first,
-                            bitmarks
-                        )
-                    }).flatMap(checkAssetFileStream())
-                    .map(bitmarkMapFunc())
-            )
-        )
+        subscribe(Single.zip(
+            bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
+            accountRepo.getAccountInfo(),
+            BiFunction<List<BitmarkData>, Pair<String, Boolean>, Pair<String, List<BitmarkData>>> { bitmarks, account ->
+                Pair(
+                    account.first,
+                    bitmarks
+                )
+            }).flatMap(checkAssetFileStream())
+            .map(bitmarkMapFunc()).observeOn(AndroidSchedulers.mainThread()).subscribe { bitmarks, e ->
+                if (e == null) {
+                    refreshAssetTypeLiveData.setValue(bitmarks)
+                }
+            })
     }
 
     override fun onCreate() {

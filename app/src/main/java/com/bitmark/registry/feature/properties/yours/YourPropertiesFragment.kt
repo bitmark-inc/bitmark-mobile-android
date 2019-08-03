@@ -175,17 +175,9 @@ class YourPropertiesFragment : BaseSupportFragment() {
             }
         })
 
-        viewModel.refreshAssetTypeLiveData().observe(this, Observer { res ->
-            when {
-                res.isSuccess() -> {
-                    val bitmarks = res.data() ?: return@Observer
-                    adapter.update(bitmarks)
-                }
-
-                else -> {
-                    // silence update so do nothing
-                }
-            }
+        viewModel.refreshAssetTypeLiveData.observe(this, Observer { bitmarks ->
+            if (bitmarks.isEmpty()) return@Observer
+            adapter.update(bitmarks)
         })
 
         viewModel.bitmarkSavedLiveData.observe(
