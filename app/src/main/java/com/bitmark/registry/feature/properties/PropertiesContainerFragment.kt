@@ -52,6 +52,11 @@ class PropertiesContainerFragment : BaseSupportFragment() {
             ?: super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun refresh() {
+        super.refresh()
+        (currentFragment() as? BehaviorComponent)?.refresh()
+    }
+
     private fun currentFragment() =
         childFragmentManager.findFragmentById(R.id.layoutContainer)
 }

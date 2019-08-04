@@ -104,6 +104,7 @@ class WebViewFragment : Fragment(), BehaviorComponent {
     private fun deinitComponents() {
         handler.removeCallbacksAndMessages(null)
         webview.webViewClient = null
+        visibled = false
     }
 
     override fun onResume() {
