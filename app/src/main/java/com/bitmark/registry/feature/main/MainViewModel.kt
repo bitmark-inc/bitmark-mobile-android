@@ -28,6 +28,9 @@ class MainViewModel(
 
     internal val checkBitmarkSeenLiveData = BufferedLiveData<Boolean>(lifecycle)
 
+    internal val checkActionRequiredLiveData =
+        BufferedLiveData<Int>(lifecycle)
+
     override fun onCreate() {
         super.onCreate()
 
@@ -53,6 +56,10 @@ class MainViewModel(
         realtimeBus.bitmarkSavedPublisher.subscribe(this) {
             checkUnseenBitmark()
         }
+
+        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) {
+            checkActionRequired()
+        }
     }
 
     internal fun checkUnseenBitmark() {
@@ -62,6 +69,17 @@ class MainViewModel(
             ).subscribe { has, e ->
                 if (e == null) {
                     checkBitmarkSeenLiveData.setValue(has)
+                }
+            })
+    }
+
+    internal fun checkActionRequired() {
+        subscribe(
+            accountRepo.getActionRequired().map { actions -> actions.size }.observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe { count, e ->
+                if (e == null) {
+                    checkActionRequiredLiveData.setValue(count)
                 }
             })
     }

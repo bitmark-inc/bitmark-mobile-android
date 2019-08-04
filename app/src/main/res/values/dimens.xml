@@ -42,6 +42,7 @@
   <dimen name="dp_neg_4">-4dp</dimen>
 
 
+  <dimen name="sp_7">7sp</dimen>
   <dimen name="sp_8">8sp</dimen>
   <dimen name="sp_10">10sp</dimen>
   <dimen name="sp_11">11sp</dimen>
@@ -66,5 +67,8 @@
   </dimen>
   <dimen name="bottom_navigation_notification_height" tools:override="true">
     @dimen/dp_12
+  </dimen>
+  <dimen name="bottom_navigation_notification_text_size" tools:override="true">
+    @dimen/sp_7
   </dimen>
 </resources>

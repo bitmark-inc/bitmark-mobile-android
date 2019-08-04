@@ -28,6 +28,7 @@ class MainActivity : BaseAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.checkUnseenBitmark()
+        viewModel.checkActionRequired()
     }
 
     override fun initComponents() {
@@ -72,6 +73,14 @@ class MainActivity : BaseAppCompatActivity() {
                 bottomNav.setNotification(" ", 0)
             } else {
                 bottomNav.setNotification("", 0)
+            }
+        })
+
+        viewModel.checkActionRequiredLiveData.observe(this, Observer { count ->
+            if (count > 0) {
+                bottomNav.setNotification(count.toString(), 1)
+            } else {
+                bottomNav.setNotification("", 1)
             }
         })
     }
