@@ -44,7 +44,6 @@ class AccountFragment : BaseSupportFragment() {
 
         adapter = AccountViewPagerAdapter(context, childFragmentManager)
         viewPager.adapter = adapter
-        tabLayout.setupWithViewPager(viewPager)
 
         tabLayout.addOnTabSelectedListener(tabSelectedListener)
     }

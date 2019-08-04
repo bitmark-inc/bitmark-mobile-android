@@ -43,7 +43,6 @@ class TransactionsFragment : BaseSupportFragment() {
         super.initComponents()
         adapter = TransactionsViewPagerAdapter(context, childFragmentManager)
         viewPager.adapter = adapter
-        tabLayout.setupWithViewPager(viewPager)
         tabLayout.addOnTabSelectedListener(tabSelectedListener)
     }
 

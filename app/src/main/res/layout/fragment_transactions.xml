@@ -37,28 +37,28 @@
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 
-  <com.google.android.material.tabs.TabLayout
-      android:id="@+id/tabLayout"
-      android:layout_width="match_parent"
-      android:layout_height="@dimen/dp_40"
-      app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
-      app:tabBackground="@drawable/bg_wild_sand_stateful"
-      app:tabGravity="fill"
-      app:tabIndicatorColor="@color/blue_ribbon"
-      app:tabIndicatorGravity="top"
-      app:tabIndicatorHeight="@dimen/dp_3"
-      app:tabSelectedTextColor="@android:color/black"
-      app:tabTextAppearance="@style/TabLayout"
-      app:tabTextColor="@color/silver"
-      />
-
   <com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager
       android:id="@+id/viewPager"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/tabLayout"
+      app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
       tools:visibility="visible"
-      />
+      >
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
+        app:tabBackground="@drawable/bg_wild_sand_stateful"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/blue_ribbon"
+        app:tabIndicatorGravity="top"
+        app:tabIndicatorHeight="@dimen/dp_3"
+        app:tabSelectedTextColor="@android:color/black"
+        app:tabTextAppearance="@style/TabLayout"
+        app:tabTextColor="@color/silver"
+        />
+  </com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -65,7 +65,6 @@ class PropertiesFragment : BaseSupportFragment() {
 
         adapter = PropertiesViewPagerAdapter(context, childFragmentManager)
         viewPager.adapter = adapter
-        tabLayout.setupWithViewPager(viewPager)
 
         ivAdd.setOnClickListener {
             navigator.anim(RIGHT_LEFT).replaceChildFragment(

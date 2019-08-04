@@ -24,7 +24,7 @@ class PropertiesViewPagerAdapter(
     init {
         super.add(
             YourPropertiesFragment.newInstance(), WebViewFragment.newInstance(
-                BuildConfig.REGISTRY_WEBSITE
+                "%s?env=app".format(BuildConfig.REGISTRY_WEBSITE)
             )
         )
     }
