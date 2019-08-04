@@ -38,6 +38,8 @@ class BitmarkLocalDataSource @Inject constructor(
 
     private var txsSavedListener: TxsSavedListener? = null
 
+    private var bitmarkSeenListener: BitmarkSeenListener? = null
+
     fun setBitmarkDeletedListener(listener: BitmarkDeletedListener?) {
         this.bitmarkDeletedListener = listener
     }
@@ -56,6 +58,10 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun setTxsSavedListener(listener: TxsSavedListener?) {
         this.txsSavedListener = listener
+    }
+
+    fun setBitmarkSeenListener(listener: BitmarkSeenListener?) {
+        this.bitmarkSeenListener = listener
     }
 
     //region Bitmark
@@ -124,26 +130,60 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun saveBitmarks(bitmarks: List<BitmarkData>): Completable =
         if (bitmarks.isEmpty()) Completable.complete()
-        else databaseApi.rxCompletable { db ->
-            db.bitmarkDao().save(bitmarks)
-        }.andThen(attachAssetToBitmark().invoke(bitmarks)).doOnSuccess { b ->
-            bitmarkSavedListener?.onBitmarksSaved(
-                b
-            )
-        }.ignoreElement()
+        else {
+            checkBitmarksSeen(bitmarks.map { b -> b.id }).flatMapCompletable { checkSeenResult ->
+                checkSeenResult.forEach { p ->
+                    bitmarks.find { b -> b.id == p.first }?.seen = p.second
+                }
+                databaseApi.rxCompletable { db ->
+                    db.bitmarkDao().save(bitmarks)
+                }
+            }
+                .andThen(attachAssetToBitmark().invoke(bitmarks))
+                .doOnSuccess { b ->
+                    bitmarkSavedListener?.onBitmarksSaved(
+                        b
+                    )
+                }.ignoreElement()
+        }
 
     fun saveBitmark(bitmark: BitmarkData): Completable =
-        databaseApi.rxCompletable { db ->
-            db.bitmarkDao().save(bitmark)
-        }.andThen(getAssetById(bitmark.assetId).map { asset ->
-            bitmark.asset = asset
-            bitmark
-        }.toMaybe().onErrorResumeNext(Maybe.empty())).doOnSuccess { b ->
-            bitmarkSavedListener?.onBitmarksSaved(
-                listOf(b)
+        checkBitmarkSeen(bitmark.id).flatMapCompletable { p ->
+            bitmark.seen = p.second
+            databaseApi.rxCompletable { db ->
+                db.bitmarkDao().save(bitmark)
+            }
+        }
+            .andThen(getAssetById(bitmark.assetId).map { asset ->
+                bitmark.asset = asset
+                bitmark
+            }.toMaybe().onErrorResumeNext(Maybe.empty())).doOnSuccess { b ->
+                bitmarkSavedListener?.onBitmarksSaved(
+                    listOf(b)
+                )
+            }
+            .ignoreElement()
+
+    private fun checkBitmarkSeen(bitmarkId: String) =
+        getBitmarkById(bitmarkId).toSingle().map { b ->
+            Pair(
+                b.id,
+                b.seen
+            )
+        }.onErrorResumeNext {
+            Single.just(
+                Pair(bitmarkId, false)
             )
         }
-            .ignoreElement()
+
+    private fun checkBitmarksSeen(bitmarkIds: List<String>): Single<List<Pair<String, Boolean>>> {
+        val streams = mutableListOf<Single<Pair<String, Boolean>>>()
+        bitmarkIds.forEach { id ->
+            streams.add(checkBitmarkSeen(id))
+        }
+        return Single.zip(streams) { s -> s.map { it as Pair<String, Boolean> } }
+
+    }
 
     fun updateBitmarkStatus(
         bitmarkId: String,
@@ -193,7 +233,11 @@ class BitmarkLocalDataSource @Inject constructor(
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
         databaseApi.rxCompletable { db ->
             db.bitmarkDao().markSeen(bitmarkId)
-        }.toSingleDefault(bitmarkId)
+        }.toSingleDefault(bitmarkId).doOnSuccess {
+            bitmarkSeenListener?.onSeen(
+                bitmarkId
+            )
+        }
 
     fun countBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
         db.bitmarkDao().countBitmarkRefSameAsset(assetId)
@@ -214,6 +258,10 @@ class BitmarkLocalDataSource @Inject constructor(
                 bitmark
             }.onErrorResumeNext { Single.just(bitmark) }.toMaybe()
         }
+
+    fun checkUnseenBitmark() = databaseApi.rxSingle { db ->
+        db.bitmarkDao().countUnseen()
+    }.onErrorResumeNext { Single.just(0) }.map { count -> count > 0 }
 
     //endregion Bitmark
 

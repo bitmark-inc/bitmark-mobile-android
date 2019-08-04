@@ -30,3 +30,7 @@ interface BitmarkSavedListener :
     BitmarkChangedListener {
     fun onBitmarksSaved(bitmarks: List<BitmarkData>)
 }
+
+interface BitmarkSeenListener : BitmarkChangedListener {
+    fun onSeen(bitmarkId: String)
+}

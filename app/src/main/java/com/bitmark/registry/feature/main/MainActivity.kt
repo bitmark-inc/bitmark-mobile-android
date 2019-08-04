@@ -1,7 +1,9 @@
 package com.bitmark.registry.feature.main
 
+import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
@@ -22,6 +24,11 @@ class MainActivity : BaseAppCompatActivity() {
     override fun layoutRes(): Int = R.layout.activity_main
 
     override fun viewModel(): BaseViewModel? = viewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.checkUnseenBitmark()
+    }
 
     override fun initComponents() {
         super.initComponents()
@@ -56,6 +63,17 @@ class MainActivity : BaseAppCompatActivity() {
             true
         }
 
+    }
+
+    override fun observe() {
+        super.observe()
+        viewModel.checkBitmarkSeenLiveData.observe(this, Observer { has ->
+            if (has) {
+                bottomNav.setNotification(" ", 0)
+            } else {
+                bottomNav.setNotification("", 0)
+            }
+        })
     }
 
     override fun onBackPressed() {

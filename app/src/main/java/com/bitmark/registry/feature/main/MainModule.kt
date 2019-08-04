@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.main
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,14 @@ class MainModule {
         activity: MainActivity,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
-        wsEventBus: WebSocketEventBus
+        wsEventBus: WebSocketEventBus,
+        realtimeBus: RealtimeBus
     ) =
-        MainViewModel(activity.lifecycle, accountRepo, bitmarkRepo, wsEventBus)
+        MainViewModel(
+            activity.lifecycle,
+            accountRepo,
+            bitmarkRepo,
+            wsEventBus,
+            realtimeBus
+        )
 }

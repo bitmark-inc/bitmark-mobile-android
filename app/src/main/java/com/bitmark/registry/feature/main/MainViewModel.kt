@@ -4,8 +4,11 @@ import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.util.livedata.BufferedLiveData
 import io.reactivex.Maybe
+import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 /**
@@ -18,9 +21,12 @@ class MainViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
-    private val wsEventBus: WebSocketEventBus
+    private val wsEventBus: WebSocketEventBus,
+    private val realtimeBus: RealtimeBus
 ) :
     BaseViewModel(lifecycle) {
+
+    internal val checkBitmarkSeenLiveData = BufferedLiveData<Boolean>(lifecycle)
 
     override fun onCreate() {
         super.onCreate()
@@ -35,6 +41,29 @@ class MainViewModel(
             val owner = m["owner"]
             processNewPendingTxEvent(owner!!)
         }
+
+        realtimeBus.bitmarkSeenPublisher.subscribe(this) {
+            checkUnseenBitmark()
+        }
+
+        realtimeBus.bitmarkDeletedPublisher.subscribe(this) {
+            checkUnseenBitmark()
+        }
+
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) {
+            checkUnseenBitmark()
+        }
+    }
+
+    internal fun checkUnseenBitmark() {
+        subscribe(
+            bitmarkRepo.checkUnseenBitmark().observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe { has, e ->
+                if (e == null) {
+                    checkBitmarkSeenLiveData.setValue(has)
+                }
+            })
     }
 
     private fun processBitmarkChangedEvent(
@@ -105,6 +134,7 @@ class MainViewModel(
         accountRepo.getAccountInfo().map { p -> p.first }
 
     override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
         wsEventBus.disconnect()
         super.onDestroy()
     }

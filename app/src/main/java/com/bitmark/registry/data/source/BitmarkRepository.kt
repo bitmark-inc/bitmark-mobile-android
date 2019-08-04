@@ -49,6 +49,10 @@ class BitmarkRepository(
         localDataSource.setTxsSavedListener(listener)
     }
 
+    fun setBitmarkSeenListener(listener: BitmarkSeenListener?) {
+        localDataSource.setBitmarkSeenListener(listener)
+    }
+
     // sync bitmarks from server and save to local db
     fun syncBitmarks(
         owner: String? = null,
@@ -301,6 +305,8 @@ class BitmarkRepository(
         }
 
     fun getStoredBitmarkById(id: String) = localDataSource.getBitmarkById(id)
+
+    fun checkUnseenBitmark() = localDataSource.checkUnseenBitmark()
 
     // sync txs with remote server and also save to local db
     fun syncTxs(

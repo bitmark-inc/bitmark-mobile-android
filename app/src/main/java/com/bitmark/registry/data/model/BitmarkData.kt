@@ -72,7 +72,7 @@ data class BitmarkData(
     val status: Status,
 
     @Expose
-    val seen: Boolean = false
+    var seen: Boolean = false
 
 ) {
 

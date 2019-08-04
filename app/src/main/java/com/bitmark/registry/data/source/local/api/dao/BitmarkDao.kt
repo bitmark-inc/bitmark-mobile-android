@@ -80,4 +80,7 @@ abstract class BitmarkDao {
     @Query("DELETE FROM Bitmark")
     abstract fun delete(): Completable
 
+    @Query("SELECT COUNT(*) FROM Bitmark WHERE seen = 0 ")
+    abstract fun countUnseen(): Single<Int>
+
 }

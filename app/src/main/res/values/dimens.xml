@@ -61,4 +61,10 @@
   <dimen name="design_bottom_navigation_active_text_size" tools:override="true">
     @dimen/sp_10
   </dimen>
+  <dimen name="bottom_navigation_notification_width" tools:override="true">
+    @dimen/dp_12
+  </dimen>
+  <dimen name="bottom_navigation_notification_height" tools:override="true">
+    @dimen/dp_12
+  </dimen>
 </resources>
