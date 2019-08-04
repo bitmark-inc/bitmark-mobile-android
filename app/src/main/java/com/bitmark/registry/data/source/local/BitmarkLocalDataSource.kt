@@ -259,8 +259,8 @@ class BitmarkLocalDataSource @Inject constructor(
             }.onErrorResumeNext { Single.just(bitmark) }.toMaybe()
         }
 
-    fun checkUnseenBitmark() = databaseApi.rxSingle { db ->
-        db.bitmarkDao().countUnseen()
+    fun checkUnseenBitmark(owner: String) = databaseApi.rxSingle { db ->
+        db.bitmarkDao().countUnseen(owner)
     }.onErrorResumeNext { Single.just(0) }.map { count -> count > 0 }
 
     //endregion Bitmark

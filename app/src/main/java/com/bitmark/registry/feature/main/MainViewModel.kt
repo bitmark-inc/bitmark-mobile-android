@@ -64,13 +64,18 @@ class MainViewModel(
 
     internal fun checkUnseenBitmark() {
         subscribe(
-            bitmarkRepo.checkUnseenBitmark().observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe { has, e ->
-                if (e == null) {
-                    checkBitmarkSeenLiveData.setValue(has)
-                }
-            })
+            accountRepo.getAccountInfo().map { a -> a.first }.flatMap { accountNumber ->
+                bitmarkRepo.checkUnseenBitmark(
+                    accountNumber
+                )
+            }
+                .observeOn(
+                    AndroidSchedulers.mainThread()
+                ).subscribe { has, e ->
+                    if (e == null) {
+                        checkBitmarkSeenLiveData.setValue(has)
+                    }
+                })
     }
 
     internal fun checkActionRequired() {

@@ -306,7 +306,8 @@ class BitmarkRepository(
 
     fun getStoredBitmarkById(id: String) = localDataSource.getBitmarkById(id)
 
-    fun checkUnseenBitmark() = localDataSource.checkUnseenBitmark()
+    fun checkUnseenBitmark(owner: String) =
+        localDataSource.checkUnseenBitmark(owner)
 
     // sync txs with remote server and also save to local db
     fun syncTxs(
