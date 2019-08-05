@@ -130,7 +130,7 @@ class SplashActivity : BaseAppCompatActivity() {
         viewModel.prepareDataLiveData().observe(this, Observer { res ->
             when {
                 res.isLoading() -> {
-                    tvAction.setText(R.string.preparing_data)
+                    tvAction.setText(R.string.loading_three_dot)
                     showLoading()
                 }
 

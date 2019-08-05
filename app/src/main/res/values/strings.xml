@@ -169,6 +169,7 @@
     <item>@string/file</item>
   </string-array>
   <string name="other">Other</string>
+  <string name="loading_three_dot">Loading…</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
