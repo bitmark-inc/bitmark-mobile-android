@@ -122,7 +122,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         adapter.setItemFilledListener {
-            if (adapter.isFilled() && !asset.registered) {
+            if (adapter.isValid() && !asset.registered) {
                 setAddMetadataState(true)
             } else {
                 setAddMetadataState(false)

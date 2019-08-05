@@ -1,5 +1,7 @@
 package com.bitmark.registry.feature.issuance.issuance
 
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +27,8 @@ class MetadataRecyclerViewAdapter :
     private val items = mutableListOf<Item>()
 
     private var itemFilledListener: ((Boolean) -> Unit)? = null
+
+    private val handler = Handler(Looper.getMainLooper())
 
     private val internalItemDeletedListener: (Item) -> Unit = { item ->
         val pos = items.indexOf(item)
@@ -54,6 +58,8 @@ class MetadataRecyclerViewAdapter :
         if (mapItem.isEmpty()) return
         items.clear()
         for (entry in mapItem.entries) {
+            // do not display "source" key
+            if (entry.key.equals("source", ignoreCase = true)) continue
             items.add(Item(entry.key, entry.value))
         }
         notifyDataSetChanged()
@@ -71,16 +77,16 @@ class MetadataRecyclerViewAdapter :
     internal fun toMap(): Map<String, String> {
         val map = mutableMapOf<String, String>()
         for (i in items) {
-            if (i.isInvalid()) continue
+            if (!i.isValid()) continue
             map[i.key.trim()] = i.value.trim()
         }
         return map
     }
 
-    internal fun isFilled() = items.find { i -> i.isInvalid() } == null
-
     internal fun isValid() =
-        (items.size == 1 && items[0].isBlank()) || isFilled() || this.items.distinctBy { t -> t.key }.size != this.items.size
+        (items.size == 1 && items[0].isBlank())
+                || items.find { i -> !i.isValid() } == null
+                && this.items.distinctBy { t -> t.key }.size == this.items.size
 
     internal fun disable() {
         items.forEach { i -> i.disable = true }
@@ -95,7 +101,9 @@ class MetadataRecyclerViewAdapter :
             R.layout.item_metadata_input,
             parent,
             false
-        ), internalItemDeletedListener, itemFilledListener
+        ),
+        internalItemDeletedListener,
+        itemFilledListener
     )
 
     override fun getItemCount(): Int = items.size
@@ -104,7 +112,7 @@ class MetadataRecyclerViewAdapter :
         holder.bind(items[position])
     }
 
-    class ViewHolder(
+    inner class ViewHolder(
         view: View,
         deleteClickListener: ((Item) -> Unit)?,
         private val itemFilledListener: ((Boolean) -> Unit)?
@@ -170,22 +178,27 @@ class MetadataRecyclerViewAdapter :
             with(itemView) {
                 val isDeleted =
                     text.isBlank() && (view == etKey && item.key.isNotBlank()) || (view == etValue && item.value.isNotBlank())
+
                 if (view == etKey) {
+                    val duplicatedItem = items.find { i ->
+                        i.key.isNotBlank() && i.key.equals(
+                            text,
+                            ignoreCase = true
+                        )
+                    }
+                    item.duplicate =
+                        duplicatedItem != null && item.hashCode() != duplicatedItem.hashCode()
                     item.key = text
                 } else {
                     item.value = text
                 }
-                if (isDeleted && item.isInvalid() || "source".equals(
-                        item.key,
-                        ignoreCase = true
-                    )
-                ) {
-                    showMissing()
-                } else if (!item.isInvalid()) {
-                    showFilled()
+                if (isDeleted && item.isMissing() || item.isProhibited() || item.duplicate) {
+                    showInvalidState()
+                } else if (item.isValid()) {
+                    showValidState()
                 }
 
-                itemFilledListener?.invoke(!item.isInvalid())
+                itemFilledListener?.invoke(item.isValid())
             }
         }
 
@@ -193,16 +206,16 @@ class MetadataRecyclerViewAdapter :
             with(itemView) {
                 val that = if (`this` == etKey) etValue else etKey
 
-                if (hasFocus && !item.isMissing()) {
+                if (hasFocus && !item.isInvalidState()) {
                     // if it's currently missing, keep that state.
-                    showFilled()
+                    showValidState()
                 } else {
                     // bit delay for waiting for ${that}'s focus event
                     handler.postDelayed(
                         {
                             if (!that.isFocused) {
-                                if (item.isInvalid()) {
-                                    showMissing()
+                                if (!item.isValid()) {
+                                    showInvalidState()
                                 }
                             }
 
@@ -213,8 +226,8 @@ class MetadataRecyclerViewAdapter :
             }
         }
 
-        private fun showMissing() {
-            item.state = Item.State.MISSING
+        private fun showInvalidState() {
+            item.state = Item.State.INVALID
             with(itemView) {
                 if (!item.disable) {
                     etKey.setBackgroundDrawable(R.drawable.bg_border_torch_red)
@@ -226,8 +239,8 @@ class MetadataRecyclerViewAdapter :
             }
         }
 
-        private fun showFilled() {
-            item.state = Item.State.FILLED
+        private fun showValidState() {
+            item.state = Item.State.VALID
             with(itemView) {
                 if (!item.disable) {
                     etKey.setBackgroundDrawable(R.drawable.bg_border_blue_ribbon)
@@ -246,17 +259,25 @@ class MetadataRecyclerViewAdapter :
         var value: String,
         var removable: Boolean = false,
         var disable: Boolean = false,
+        var duplicate: Boolean = false,
         var state: State = State.INITIALIZE
     ) {
 
         enum class State {
-            FILLED, MISSING, INITIALIZE
+            VALID, INVALID, INITIALIZE
         }
 
-        fun isMissing() = state == State.MISSING
+        fun isInvalidState() = state == State.INVALID
 
-        fun isInvalid() = key.isBlank() || value.isBlank()
+        fun isProhibited() = key.equals(
+            "source",
+            ignoreCase = true
+        )
 
         fun isBlank() = key.isBlank() && value.isBlank()
+
+        fun isMissing() = key.isBlank() || value.isBlank()
+
+        fun isValid() = !isMissing() && !isProhibited() && !duplicate
     }
 }
