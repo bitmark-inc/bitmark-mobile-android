@@ -20,6 +20,7 @@ import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_transfer.*
 import javax.inject.Inject
 
@@ -116,7 +117,6 @@ class TransferFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     blocked = false
-                    progressBar.gone()
                     val dialog = InfoAppCompatDialog(
                         context!!,
                         getString(R.string.your_property_rights_has_been_transferred)
@@ -143,6 +143,11 @@ class TransferFragment : BaseSupportFragment() {
 
                 res.isLoading() -> {
                     blocked = true
+                    Snackbar.make(
+                        btnTransfer,
+                        R.string.transferring_your_rights_three_dot,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                     progressBar.visible()
                 }
             }
@@ -150,6 +155,9 @@ class TransferFragment : BaseSupportFragment() {
 
         viewModel.transferProgressLiveData.observe(this, Observer { progress ->
             progressBar.progress = progress
+            if (progress >= 100) {
+                progressBar.gone()
+            }
         })
 
         viewModel.getKeyAliasLiveData().observe(this, Observer { res ->

@@ -124,6 +124,9 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         viewModel.progressLiveData.observe(this, Observer { progress ->
             progressBar.progress = progress
+            if (progress >= 100) {
+                progressBar.gone()
+            }
         })
     }
 

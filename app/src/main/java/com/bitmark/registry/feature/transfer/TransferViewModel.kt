@@ -66,6 +66,8 @@ class TransferViewModel(
         encKeyPair: KeyPair
     ): Completable {
         val receiver = params.owner.address!!
+        val streamCount = 2
+        var progress = 0
 
         return prepareTransferStream(
             assetId,
@@ -73,7 +75,7 @@ class TransferViewModel(
             receiver,
             encKeyPair
         ).doOnComplete {
-            transferProgressLiveData.set(50)
+            transferProgressLiveData.set(++progress * 100 / streamCount)
         }.andThen(
             bitmarkRepo.transferBitmark(
                 params,
@@ -81,7 +83,7 @@ class TransferViewModel(
                 bitmarkId,
                 assetId
             ).doOnComplete {
-                transferProgressLiveData.set(50)
+                transferProgressLiveData.set(++progress * 100 / streamCount)
             })
 
     }

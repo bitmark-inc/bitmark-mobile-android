@@ -170,6 +170,9 @@
   </string-array>
   <string name="other">Other</string>
   <string name="loading_three_dot">Loading…</string>
+  <string name="transferring_your_rights_three_dot">Transferring your rights…</string>
+  <string name="registering_your_rights_three_dot">Registering your rights in the Bitmark Digital Property System…</string>
+  <string name="deleting_your_rights_three_dot">Deleting your rights…</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

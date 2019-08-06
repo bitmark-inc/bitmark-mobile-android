@@ -193,17 +193,15 @@
 
   <ProgressBar
       android:id="@+id/progressBar"
-      android:layout_width="@dimen/dp_36"
-      android:layout_height="@dimen/dp_36"
-      android:layout_marginEnd="@dimen/dp_20"
-      android:layout_marginStart="@dimen/dp_20"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_40"
+      android:indeterminate="true"
       android:progressDrawable="@drawable/bg_progress_blue_ribbon"
-      android:visibility="invisible"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="@id/layoutProvenance"
-      app:layout_constraintStart_toStartOf="@id/layoutProvenance"
+      android:visibility="gone"
       app:layout_constraintTop_toTopOf="parent"
       tools:visibility="visible"
+      style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

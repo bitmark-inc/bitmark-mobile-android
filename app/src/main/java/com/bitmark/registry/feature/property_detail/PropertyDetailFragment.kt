@@ -28,6 +28,7 @@ import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_property_detail.*
 import kotlinx.android.synthetic.main.layout_property_menu.view.*
 import java.io.File
@@ -330,6 +331,11 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
                 res.isLoading() -> {
                     progressBar.visible()
+                    Snackbar.make(
+                        rvMetadata,
+                        R.string.deleting_your_rights_three_dot,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                     blocked = true
                 }
             }

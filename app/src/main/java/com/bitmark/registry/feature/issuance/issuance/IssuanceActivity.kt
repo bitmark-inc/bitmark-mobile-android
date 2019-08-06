@@ -29,6 +29,7 @@ import com.bitmark.registry.util.modelview.AssetModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.registry.util.view.SimpleRecyclerViewAdapter
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_issuance.*
 import java.io.File
 import javax.inject.Inject
@@ -300,7 +301,6 @@ class IssuanceActivity : BaseAppCompatActivity() {
             when {
                 res.isSuccess() -> {
                     blocked = false
-                    progressBar.gone()
                     val dialog = InfoAppCompatDialog(
                         this,
                         getString(R.string.your_rights_to_this_property)
@@ -327,6 +327,11 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
                 res.isLoading() -> {
                     blocked = true
+                    Snackbar.make(
+                        btnRegister,
+                        R.string.registering_your_rights_three_dot,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                     progressBar.visible()
                 }
             }
@@ -334,6 +339,9 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
         viewModel.progressLiveData.observe(this, Observer { percent ->
             progressBar.progress = percent
+            if(percent >= 100) {
+                progressBar.gone()
+            }
         })
 
         viewModel.getAccountNumberLiveData().observe(this, Observer { res ->
