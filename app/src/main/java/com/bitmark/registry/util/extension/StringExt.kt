@@ -1,5 +1,7 @@
 package com.bitmark.registry.util.extension
 
+import java.net.URI
+
 
 /**
  * @author Hieu Pham
@@ -13,4 +15,13 @@ fun String.shortenAccountNumber(): String {
         this.substring(0, 4),
         this.substring(length - 4, length)
     )
+}
+
+fun String.toHost(): String {
+    return try {
+        val uri = URI(this)
+        uri.host
+    } catch (e: Throwable) {
+        this
+    }
 }

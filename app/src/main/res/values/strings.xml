@@ -173,6 +173,15 @@
   <string name="transferring_your_rights_three_dot">Transferring your rights…</string>
   <string name="registering_your_rights_three_dot">Registering your rights in the Bitmark Digital Property System…</string>
   <string name="deleting_your_rights_three_dot">Deleting your rights…</string>
+  <string name="you_can_accept_rights">You can accept rights transfers from certain websites by scanning QR codes. Please only scan QR codes from websites that you already know and trust. </string>
+  <string name="unrecognized_qr_code">Unrecognized QR Code</string>
+  <string name="please_scan_the_qr_code_again">Please scan the QR code again or contact the QR code provider if you\'re still experiencing problems. </string>
+  <string name="please_sign_to_authorize">Please sign to authorize.</string>
+  <string name="to_complete_process">To complete the process, please return to browser.</string>
+  <string name="authorize_required">Authorized Required</string>
+  <string name="authorize">Authorize</string>
+  <string name="could_not_send_your_authorization">Could not send your authorization. Please try again later.</string>
+  <string name="please_sign_in_or_create_bitmark_account">Please sign in or create your Bitmark account to proceed.</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
@@ -190,6 +199,8 @@
   <string name="notification_claim_request_rejected">%1$s has rejected your claim request for property %2$s</string>
   <string name="notification_ifttt_new_issue">You\'ve received a property issuance request. Tap to view the request.</string>
   <string name="loading_dot">Loading…</string>
+  <string name="your_authorization_has_been_format">Your authorization has been sent to \&quot;%1$s\&quot;</string>
+  <string name="requires_your_digital_signature_format">\&quot;%1$s\&quot; requires your digital signature to authorize this action. To prevent abuse, please only authorize actions from trusted websites. </string>
 
 
 </resources>

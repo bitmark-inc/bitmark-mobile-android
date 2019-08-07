@@ -12,6 +12,8 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
+import com.bitmark.registry.feature.partner_authorization.PartnerAuthorizationActivity
+import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_properties.*
 import javax.inject.Inject
@@ -71,6 +73,11 @@ class PropertiesFragment : BaseSupportFragment() {
                 R.id.layoutContainer,
                 AssetSelectionFragment.newInstance()
             )
+        }
+
+        ivQrCode.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT)
+                .startActivity(PartnerAuthorizationActivity::class.java)
         }
 
         tabLayout.addOnTabSelectedListener(tabSelectedListener)

@@ -6,6 +6,8 @@ import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.feature.issuance.issuance.IssuanceModule
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.main.MainModule
+import com.bitmark.registry.feature.partner_authorization.PartnerAuthorizationActivity
+import com.bitmark.registry.feature.partner_authorization.PartnerAuthorizationModule
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerModule
 import com.bitmark.registry.feature.register.RegisterContainerActivity
@@ -54,4 +56,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [IssuanceModule::class])
     @ActivityScope
     internal abstract fun bindIssuanceActivity(): IssuanceActivity
+
+    @ContributesAndroidInjector(modules = [PartnerAuthorizationModule::class])
+    @ActivityScope
+    internal abstract fun bindPartnerAuthorizationActivity(): PartnerAuthorizationActivity
 }

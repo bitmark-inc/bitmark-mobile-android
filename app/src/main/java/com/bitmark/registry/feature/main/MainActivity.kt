@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.main
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import androidx.core.content.ContextCompat
@@ -8,17 +9,22 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseAppCompatActivity
-import com.bitmark.registry.feature.BaseViewModel
-import com.bitmark.registry.feature.BehaviorComponent
-import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.feature.transactions.TransactionsFragment
+import com.bitmark.registry.util.extension.gotoSecuritySetting
+import com.bitmark.registry.util.extension.loadAccount
+import com.bitmark.registry.util.extension.toHost
 import com.bitmark.registry.util.modelview.BitmarkModelView
+import com.bitmark.registry.util.view.InfoAppCompatDialog
+import com.bitmark.sdk.authentication.KeyAuthenticationSpec
+import com.bitmark.sdk.features.Account
 import kotlinx.android.synthetic.main.activity_main.*
+import java.net.URLDecoder
 import javax.inject.Inject
 
 class MainActivity : BaseAppCompatActivity() {
@@ -28,6 +34,9 @@ class MainActivity : BaseAppCompatActivity() {
 
     @Inject
     lateinit var navigator: Navigator
+
+    @Inject
+    lateinit var dialogController: DialogController
 
     private lateinit var adapter: MainViewPagerAdapter
 
@@ -55,6 +64,8 @@ class MainActivity : BaseAppCompatActivity() {
             } else {
                 handleNotification(notificationBundle)
             }
+        } else if (intent?.data != null) {
+            viewModel.prepareDeepLinkHandling()
         }
     }
 
@@ -63,6 +74,8 @@ class MainActivity : BaseAppCompatActivity() {
         val notificationBundle = intent?.getBundleExtra("notification")
         if (notificationBundle != null) {
             handleNotification(notificationBundle)
+        } else {
+            viewModel.prepareDeepLinkHandling()
         }
     }
 
@@ -88,6 +101,80 @@ class MainActivity : BaseAppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun handleDeepLinks(
+        uri: Uri?,
+        accountNumber: String,
+        keyAlias: String
+    ) {
+        when (uri?.host) {
+            "authorization" -> {
+                val path = uri.path ?: return
+                val data = path.removePrefix("/").split("/", limit = 2)
+                if (data.size != 2) return
+                val code = URLDecoder.decode(data[0], "UTF-8")
+                val url = data[1]
+
+                if (accountNumber.isNotEmpty() && keyAlias.isNotEmpty()) {
+                    dialogController.confirm(
+                        getString(R.string.authentication_required),
+                        getString(R.string.requires_your_digital_signature_format).format(
+                            url.toHost()
+                        ), false,
+                        getString(R.string.authorize),
+                        {
+                            authorize(url, code, accountNumber, keyAlias)
+                        },
+                        getString(R.string.cancel),
+                        {})
+                } else {
+                    dialogController.alert(
+                        R.string.authentication_required,
+                        R.string.please_sign_in_or_create_bitmark_account
+                    ) {
+                        navigator.startActivityAsRoot(
+                            RegisterContainerActivity::class.java,
+                            RegisterContainerActivity.getBundle(uri)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun authorize(
+        url: String,
+        code: String,
+        accountNumber: String,
+        keyAlias: String
+    ) {
+        loadAccount(
+            accountNumber,
+            keyAlias
+        ) { account ->
+            viewModel.authorize(
+                accountNumber,
+                url,
+                code,
+                account.keyPair
+            )
+        }
+    }
+
+    private fun loadAccount(
+        accountNumber: String,
+        keyAlias: String,
+        action: (Account) -> Unit
+    ) {
+        val spec = KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
+            .setAuthenticationDescription(getString(R.string.please_sign_to_authorize))
+            .build()
+        this.loadAccount(accountNumber,
+            spec,
+            dialogController,
+            successAction = action,
+            setupRequiredAction = { navigator.gotoSecuritySetting() })
     }
 
     override fun initComponents() {
@@ -153,6 +240,62 @@ class MainActivity : BaseAppCompatActivity() {
                 res.isSuccess() -> {
                     val bitmark = res.data() ?: return@Observer
                     openPropertyDetail(bitmark)
+                }
+            }
+        })
+
+        viewModel.prepareDeepLinkHandlingLiveData()
+            .observe(this, Observer { res ->
+                when {
+                    res.isSuccess() -> {
+                        val info = res.data() ?: return@Observer
+                        val accountNumber = info.first
+                        val keyAlias = info.second
+                        handleDeepLinks(intent?.data, accountNumber, keyAlias)
+                    }
+
+                    res.isError() -> {
+                        // ignore
+                    }
+                }
+            })
+
+        viewModel.authorizeLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val url = res.data() ?: ""
+                    val infoDialog = InfoAppCompatDialog(
+                        this,
+                        getString(R.string.your_authorization_has_been_format).format(
+                            url.toHost()
+                        ),
+                        getString(R.string.authorized)
+                    )
+
+                    dialogController.show(infoDialog)
+
+                    handler.postDelayed(
+                        {
+                            dialogController.dismiss(infoDialog) {
+                                dialogController.alert(
+                                    "",
+                                    getString(R.string.to_complete_process)
+                                )
+                            }
+                        },
+                        1500
+                    )
+                }
+
+                res.isError() -> {
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.could_not_send_your_authorization
+                    ) {
+                        navigator.anim(
+                            Navigator.RIGHT_LEFT
+                        ).finishActivity()
+                    }
                 }
             }
         })

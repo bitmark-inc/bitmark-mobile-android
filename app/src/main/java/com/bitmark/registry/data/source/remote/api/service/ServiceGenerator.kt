@@ -25,18 +25,26 @@ class ServiceGenerator {
         private const val CONNECTION_TIMEOUT = 30L
 
         fun <T> createService(
-            endPoint: String, serviceClass: Class<T>, gson: Gson,
-            interceptors: List<Interceptor> = listOf()
+            endPoint: String,
+            serviceClass: Class<T>,
+            gson: Gson,
+            interceptors: List<Interceptor>? = null,
+            timeout: Long = CONNECTION_TIMEOUT
         ): T {
-            return createService(
-                endPoint, serviceClass, gson, interceptors, CONNECTION_TIMEOUT
-            )
+            val httpClient = buildHttpClient(interceptors, timeout)
+            val builder = Retrofit.Builder().baseUrl(endPoint)
+                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+            val retrofit = builder.client(httpClient)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build()
+            return retrofit.create(serviceClass)
         }
 
-        fun <T> createService(
-            endPoint: String, serviceClass: Class<T>, gson: Gson,
-            interceptors: List<Interceptor>? = null, timeout: Long
-        ): T {
+        fun buildHttpClient(
+            interceptors: List<Interceptor>? = null,
+            timeout: Long = CONNECTION_TIMEOUT
+        ): OkHttpClient {
             val httpClientBuilder = OkHttpClient.Builder()
             if (BuildConfig.DEBUG) {
                 val loggingInterceptor = HttpLoggingInterceptor()
@@ -53,13 +61,9 @@ class ServiceGenerator {
             httpClientBuilder.writeTimeout(timeout, TimeUnit.SECONDS)
             httpClientBuilder.readTimeout(timeout, TimeUnit.SECONDS)
             httpClientBuilder.connectTimeout(timeout, TimeUnit.SECONDS)
-            val builder = Retrofit.Builder().baseUrl(endPoint)
-                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-            val retrofit = builder.client(httpClientBuilder.build())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
-            return retrofit.create(serviceClass)
+            return httpClientBuilder.build()
         }
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.register
 
+import android.net.Uri
 import android.os.Bundle
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
@@ -16,6 +17,16 @@ import javax.inject.Inject
  */
 class RegisterContainerActivity : BaseAppCompatActivity() {
 
+    companion object {
+        private const val URI = "uri"
+
+        fun getBundle(uri: Uri): Bundle {
+            val bundle = Bundle()
+            bundle.putString(URI, uri.toString())
+            return bundle
+        }
+    }
+
     @Inject
     lateinit var navigator: Navigator
 
@@ -27,7 +38,7 @@ class RegisterContainerActivity : BaseAppCompatActivity() {
         super.onPostCreate(savedInstanceState)
         navigator.replaceFragment(
             R.id.layoutContainer,
-            RegisterFragment.newInstance(),
+            RegisterFragment.newInstance(intent?.extras?.getString(URI)),
             false
         )
     }

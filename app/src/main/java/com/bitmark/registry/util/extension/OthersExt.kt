@@ -23,6 +23,8 @@ inline fun <reified T> Gson.fromJson(json: String) =
 inline fun <reified T> Gson.toJson(value: T) =
     this.toJson(value, object : TypeToken<T>() {}.type)
 
+fun Map<String, String>.toJson() = Gson().toJson(this)
+
 fun BitMatrix.toBitmap(size: Int): Bitmap {
     val pixels = IntArray(width * height)
     for (y in 0 until height) {

@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.register
 
+import android.os.Bundle
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
@@ -21,7 +22,15 @@ import javax.inject.Inject
 class RegisterFragment : BaseSupportFragment() {
 
     companion object {
-        fun newInstance() = RegisterFragment()
+        private const val URI = "uri"
+
+        fun newInstance(uri: String? = null): RegisterFragment {
+            val bundle = Bundle()
+            if (uri != null) bundle.putString(URI, uri)
+            val fragment = RegisterFragment()
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 
     @Inject
@@ -33,11 +42,13 @@ class RegisterFragment : BaseSupportFragment() {
 
     override fun initComponents() {
         super.initComponents()
+        val uri = arguments?.getString(URI)
+
         btnAccessAccount.setSafetyOnclickListener {
             navigator.anim(RIGHT_LEFT)
                 .replaceFragment(
                     R.id.layoutContainer,
-                    RecoveryPhraseSigninFragment.newInstance()
+                    RecoveryPhraseSigninFragment.newInstance(uri)
                 )
         }
 
@@ -45,7 +56,7 @@ class RegisterFragment : BaseSupportFragment() {
             navigator.anim(RIGHT_LEFT)
                 .replaceFragment(
                     R.id.layoutContainer,
-                    AuthenticationFragment.newInstance()
+                    AuthenticationFragment.newInstance(uri = uri)
                 )
         }
     }

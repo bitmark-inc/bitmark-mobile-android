@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.main
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
@@ -42,4 +43,9 @@ class MainModule {
     @Provides
     @ActivityScope
     fun provideNavigator(activity: MainActivity) = Navigator(activity)
+
+    @Provides
+    @ActivityScope
+    fun provideDialogController(activity: MainActivity) =
+        DialogController(activity)
 }

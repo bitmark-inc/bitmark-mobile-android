@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.register.recoveryphrase
 
+import android.os.Bundle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
@@ -23,7 +24,15 @@ import javax.inject.Inject
 class RecoveryPhraseSigninFragment : BaseSupportFragment() {
 
     companion object {
-        fun newInstance() = RecoveryPhraseSigninFragment()
+        private const val URI = "uri"
+
+        fun newInstance(uri: String? = null): RecoveryPhraseSigninFragment {
+            val bundle = Bundle()
+            if (uri != null) bundle.putString(URI, uri)
+            val fragment = RecoveryPhraseSigninFragment()
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 
     @Inject
@@ -68,7 +77,11 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 tvTryAgain.gone()
                 navigator.anim(RIGHT_LEFT).replaceFragment(
                     R.id.layoutContainer,
-                    AuthenticationFragment.newInstance(phrase)
+                    AuthenticationFragment.newInstance(
+                        phrase, arguments?.getString(
+                            URI
+                        )
+                    )
                 )
             } else {
                 tvError.visible()

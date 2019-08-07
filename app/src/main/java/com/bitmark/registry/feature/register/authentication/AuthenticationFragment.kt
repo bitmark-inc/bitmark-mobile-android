@@ -1,5 +1,7 @@
 package com.bitmark.registry.feature.register.authentication
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import androidx.lifecycle.Observer
@@ -37,11 +39,16 @@ class AuthenticationFragment : BaseSupportFragment() {
 
     companion object {
         private const val RECOVERY_PHRASE = "recovery_phrase"
+        private const val URI = "uri"
 
-        fun newInstance(phrase: Array<String?>? = null): AuthenticationFragment {
+        fun newInstance(
+            phrase: Array<String?>? = null,
+            uri: String? = null
+        ): AuthenticationFragment {
             val fragment = AuthenticationFragment()
             val bundle = Bundle()
             if (null != phrase) bundle.putStringArray(RECOVERY_PHRASE, phrase)
+            if (null != uri) bundle.putString(URI, uri)
             fragment.arguments = bundle
             return fragment
         }
@@ -102,9 +109,10 @@ class AuthenticationFragment : BaseSupportFragment() {
                 res.isSuccess() -> {
                     blocked = false
                     handler.postDelayed({
-                        navigator.anim(RIGHT_LEFT).startActivityAsRoot(
-                            MainActivity::class.java
-                        )
+                        val intent = Intent(context, MainActivity::class.java)
+                        val uri = arguments?.getString(URI)
+                        if (uri != null) intent.data = Uri.parse(uri)
+                        navigator.anim(RIGHT_LEFT).startActivityAsRoot(intent)
                     }, 250)
                 }
                 res.isError() -> {
@@ -145,7 +153,6 @@ class AuthenticationFragment : BaseSupportFragment() {
                 System.currentTimeMillis()
             )
         val spec = KeyAuthenticationSpec.Builder(context)
-            //.setAuthenticationValidityDuration(BuildConfig.KEY_VALIDITY_DURATION)
             .setKeyAlias(keyAlias)
             .setAuthenticationDescription(getString(R.string.please_sign_to_register_account))
             .setAuthenticationRequired(authRequired).build()

@@ -20,18 +20,33 @@
     <activity
         android:name=".feature.splash.SplashActivity"
         android:screenOrientation="portrait">
+
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
+
     </activity>
 
     <activity
         android:name=".feature.main.MainActivity"
         android:launchMode="singleTop"
         android:screenOrientation="portrait"
-        />
+        >
+      <intent-filter>
+
+        <action android:name="android.intent.action.VIEW"/>
+
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+
+        <data
+            android:host="authorization"
+            android:scheme="@string/chibi_scheme"/>
+      </intent-filter>
+
+    </activity>
 
     <activity
         android:name=".feature.property_detail.PropertyDetailContainerActivity"
@@ -61,6 +76,10 @@
         android:name=".feature.issuance.issuance.IssuanceActivity"
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustResize"/>
+
+    <activity
+        android:name=".feature.partner_authorization.PartnerAuthorizationActivity"
+        android:screenOrientation="portrait"/>
 
     <!-- Firebase message service -->
     <service
