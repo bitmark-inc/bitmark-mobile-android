@@ -129,8 +129,7 @@ class AssetSelectionFragment : BaseSupportFragment() {
     }
 
     override fun onBackPressed(): Boolean {
-        navigator.popChildFragment()
-        return super.onBackPressed()
+        return navigator.popChildFragment() ?: false
     }
 
     override fun onActivityResult(

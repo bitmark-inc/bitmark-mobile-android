@@ -160,7 +160,7 @@ class MainActivity : BaseAppCompatActivity() {
 
     override fun onBackPressed() {
         val currentFragment = adapter.currentFragment as? BehaviorComponent
-        if (currentFragment is PropertiesContainerFragment)
+        if (currentFragment is PropertiesContainerFragment && !currentFragment.onBackPressed())
             super.onBackPressed()
         else if (currentFragment?.onBackPressed() == false) {
             bottomNav.currentItem = 0
