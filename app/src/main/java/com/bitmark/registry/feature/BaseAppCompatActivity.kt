@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import com.bitmark.registry.di.DaggerAppCompatActivity
@@ -29,6 +30,11 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
             lifecycle.removeObserver(viewModel()!!)
         }
         super.onDestroy()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        this.intent = intent
     }
 
     /**
