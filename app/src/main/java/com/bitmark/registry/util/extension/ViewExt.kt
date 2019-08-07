@@ -250,12 +250,14 @@ fun Context.copyToClipboard(text: String) {
     clipboardManager.primaryClip = clip
 }
 
-fun Context.getResIdentifier(resName: String, classifier: String): Int {
-    return resources.getIdentifier(resName, classifier, packageName)
+fun Context.getResIdentifier(resName: String, classifier: String) = try {
+    resources.getIdentifier(resName, classifier, packageName)
+} catch (e: Throwable) {
+    null
 }
 
 fun Context.getString(stringResName: String): String {
-    val id = getResIdentifier(stringResName, "string")
+    val id = getResIdentifier(stringResName, "string") ?: return ""
     return try {
         getString(id)
     } catch (e: Throwable) {

@@ -19,6 +19,12 @@ class TransactionsViewPagerAdapter(
     private val context: Context?,
     fm: FragmentManager
 ) : ViewPagerAdapter(fm) {
+
+    companion object {
+        const val TAB_ACTION_REQUIRED = 0x00
+        const val TAB_TXS_HISTORY = 0x01
+    }
+
     init {
         super.add(
             ActionRequiredFragment.newInstance(),

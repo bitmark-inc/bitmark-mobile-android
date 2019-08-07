@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.account
 
+import android.os.Handler
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
@@ -26,6 +27,8 @@ class AccountContainerFragment : BaseSupportFragment() {
     @Inject
     lateinit var navigator: Navigator
 
+    private val handler = Handler()
+
     override fun layoutRes(): Int = R.layout.fragment_account_container
 
     override fun viewModel(): BaseViewModel? = null
@@ -36,6 +39,11 @@ class AccountContainerFragment : BaseSupportFragment() {
             R.id.layoutContainer,
             AccountFragment.newInstance(), false
         )
+    }
+
+    override fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
+        super.deinitComponents()
     }
 
     override fun onBackPressed(): Boolean {
@@ -64,6 +72,14 @@ class AccountContainerFragment : BaseSupportFragment() {
             )
         }
 
+    }
+
+    fun openIntercom() {
+        if (currentFragment() !is AccountFragment) navigator.popChildFragmentToRoot()
+        handler.postDelayed(
+            { (currentFragment() as? AccountFragment)?.openIntercom() },
+            100
+        )
     }
 
     override fun refresh() {

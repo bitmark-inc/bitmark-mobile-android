@@ -50,9 +50,21 @@ class SplashActivity : BaseAppCompatActivity() {
 
     private val handler = Handler()
 
+    private var notificationData: Bundle? = null
+
     override fun layoutRes(): Int = R.layout.activity_splash
 
     override fun viewModel(): BaseViewModel? = viewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val notificationBundle = intent?.getBundleExtra("notification")
+        if (notificationBundle != null) {
+            val bundle = Bundle()
+            bundle.putBundle("notification", notificationBundle)
+            notificationData = bundle
+        }
+    }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -138,7 +150,9 @@ class SplashActivity : BaseAppCompatActivity() {
                     handler.postDelayed({
                         hideLoading()
                         navigator.anim(RIGHT_LEFT)
-                            .startActivityAsRoot(MainActivity::class.java)
+                            .startActivityAsRoot(
+                                MainActivity::class.java, notificationData
+                            )
                     }, 500)
                 }
 

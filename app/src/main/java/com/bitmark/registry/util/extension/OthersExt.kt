@@ -7,6 +7,7 @@ import com.bitmark.registry.feature.Navigator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.google.zxing.common.BitMatrix
+import org.json.JSONArray
 
 
 /**
@@ -39,4 +40,16 @@ fun BitMatrix.toBitmap(size: Int): Bitmap {
 fun Navigator.gotoSecuritySetting() {
     val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
     anim(Navigator.BOTTOM_UP).startActivity(intent)
+}
+
+fun JSONArray.toStringArray() = try {
+
+    val array = Array(length()) { "" }
+    for (i in (0 until length())) {
+        array[i] = get(i).toString()
+    }
+    array
+
+} catch (e: Throwable) {
+    null
 }

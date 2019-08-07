@@ -7,8 +7,13 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.BufferedLiveData
+import com.bitmark.registry.util.livedata.CompositeLiveData
+import com.bitmark.registry.util.livedata.RxLiveDataTransformer
+import com.bitmark.registry.util.modelview.BitmarkModelView
 import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiFunction
 
 
 /**
@@ -21,6 +26,7 @@ class MainViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus,
     private val realtimeBus: RealtimeBus
 ) :
@@ -30,6 +36,29 @@ class MainViewModel(
 
     internal val checkActionRequiredLiveData =
         BufferedLiveData<Int>(lifecycle)
+
+    private val getBitmarkLiveData = CompositeLiveData<BitmarkModelView>()
+
+    internal fun getBitmarkLiveData() = getBitmarkLiveData.asLiveData()
+
+    internal fun getBitmark(bitmarkId: String) {
+        getBitmarkLiveData.add(
+            rxLiveDataTransformer.single(
+                Single.zip(
+                    accountRepo.getAccountInfo().map { a -> a.first },
+                    bitmarkRepo.syncBitmark(
+                        bitmarkId, true
+                    ),
+                    BiFunction { accountNumber, bitmark ->
+                        BitmarkModelView.newInstance(
+                            bitmark,
+                            accountNumber
+                        )
+                    }
+                )
+            )
+        )
+    }
 
     override fun onCreate() {
         super.onCreate()

@@ -60,7 +60,7 @@ class ActionRequiredFragment : BaseSupportFragment() {
             when (action.id) {
                 ActionRequired.Id.RECOVERY_PHRASE -> {
                     val activity = this.activity as? MainActivity
-                    activity?.gotoRecoveryPhraseWarning()
+                    activity?.openRecoveryPhraseWarning()
                 }
             }
         }

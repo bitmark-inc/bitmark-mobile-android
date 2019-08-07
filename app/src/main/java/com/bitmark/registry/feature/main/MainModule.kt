@@ -3,8 +3,10 @@ package com.bitmark.registry.feature.main
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
 
@@ -24,6 +26,7 @@ class MainModule {
         activity: MainActivity,
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository,
+        rxLiveDataTransformer: RxLiveDataTransformer,
         wsEventBus: WebSocketEventBus,
         realtimeBus: RealtimeBus
     ) =
@@ -31,7 +34,12 @@ class MainModule {
             activity.lifecycle,
             accountRepo,
             bitmarkRepo,
+            rxLiveDataTransformer,
             wsEventBus,
             realtimeBus
         )
+
+    @Provides
+    @ActivityScope
+    fun provideNavigator(activity: MainActivity) = Navigator(activity)
 }

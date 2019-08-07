@@ -48,6 +48,10 @@ class TransactionsFragment : BaseSupportFragment() {
 
     override fun refresh() {
         super.refresh()
-        viewPager.currentItem = 0
+        viewPager.currentItem = TransactionsViewPagerAdapter.TAB_ACTION_REQUIRED
+    }
+
+    fun openTxHistory() {
+        viewPager.currentItem = TransactionsViewPagerAdapter.TAB_TXS_HISTORY
     }
 }

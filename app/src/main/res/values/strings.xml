@@ -173,6 +173,20 @@
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
+  <string name="notification_channel_name">@string/app_name</string>
+  <string name="notification_channel_description">Bitmark Registry notification channel</string>
+  <string name="notification_intercom_new_messages">You have new messages from our support team. Tap to view.</string>
+  <string name="notification_tracking_transfer_confirmed">The property \"%1$s\" has been updated, tap to view tracking details.</string>
+  <string name="notification_transfer_confirmed_sender">The property \"%1$s\" was transferred to %2$s.</string>
+  <string name="notification_transfer_confirmed_receiver">You have received the property \"%1$s\" from %2$s.</string>
+  <string name="notification_transfer_request">You’ve received a property transfer request. Tap to review the request.</string>
+  <string name="notification_transfer_rejected">Your transfer request has been rejected. Please try again later or contact the recipient for further information.</string>
+  <string name="notification_transfer_failed">You’ve received a property transfer request. Tap to review the request.</string>
+  <string name="notification_transfer_accepted">Your property transfer request has been accepted.</string>
+  <string name="notification_claim_request">You’ve received a claim request for property %1$s from %2$s.</string>
+  <string name="notification_claim_request_rejected">%1$s has rejected your claim request for property %2$s</string>
+  <string name="notification_ifttt_new_issue">You\'ve received a property issuance request. Tap to view the request.</string>
+  <string name="loading_dot">Loading…</string>
 
 
 </resources>

@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.account
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.account.settings.SettingsFragment
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_account.*
 
@@ -55,6 +56,11 @@ class AccountFragment : BaseSupportFragment() {
 
     override fun refresh() {
         super.refresh()
-        viewPager.currentItem = 0
+        viewPager.currentItem = AccountViewPagerAdapter.TAB_SETTINGS
+    }
+
+    fun openIntercom() {
+        viewPager.currentItem = AccountViewPagerAdapter.TAB_SETTINGS
+        (adapter.currentFragment as? SettingsFragment)?.openIntercom()
     }
 }

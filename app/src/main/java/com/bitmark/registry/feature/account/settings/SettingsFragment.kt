@@ -90,7 +90,7 @@ class SettingsFragment : BaseSupportFragment() {
         }
 
         tvNeedHelp.setSafetyOnclickListener {
-            Intercom.client().displayMessenger()
+            openIntercom()
         }
 
         ivQrCode.setSafetyOnclickListener {
@@ -116,5 +116,9 @@ class SettingsFragment : BaseSupportFragment() {
                 }
             }
         })
+    }
+
+    fun openIntercom() {
+        Intercom.client().displayMessenger()
     }
 }
