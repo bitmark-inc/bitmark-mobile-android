@@ -20,7 +20,21 @@
       app:layout_constraintTop_toTopOf="parent"
       >
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivBack"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_back"
+        />
+
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/toolbarTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -28,7 +42,6 @@
         android:fontFamily="@font/avenir_bold"
         android:gravity="center"
         android:maxLines="1"
-        android:text="@string/recovery_phrase_test"
         android:textAllCaps="true"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_18"
@@ -36,6 +49,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/recovery_phrase_test"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -49,6 +63,7 @@
         android:text="@string/cancel"
         android:textColor="@drawable/blue_ribbon_stateful"
         android:textSize="@dimen/sp_16"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

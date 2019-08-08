@@ -182,6 +182,7 @@
   <string name="authorize">Authorize</string>
   <string name="could_not_send_your_authorization">Could not send your authorization. Please try again later.</string>
   <string name="please_sign_in_or_create_bitmark_account">Please sign in or create your Bitmark account to proceed.</string>
+  <string name="recovery_phrase_sign_out">Recovery phrase sign-out</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

@@ -55,6 +55,8 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
         val recoveryPhrase = arguments?.getStringArray(RECOVERY_PHRASE)!!
         val removeAccess = arguments?.getBoolean(REMOVE_ACCESS) ?: false
 
+        toolbarTitle.setText(if (removeAccess) R.string.recovery_phrase_sign_out else R.string.recovery_phrase)
+
         val adapter = RecoveryPhraseAdapter(
             editable = false,
             textColor = R.color.blue_ribbon

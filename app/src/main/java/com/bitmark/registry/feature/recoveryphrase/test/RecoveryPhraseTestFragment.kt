@@ -74,6 +74,16 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         val recoveryPhrase = arguments?.getStringArray(RECOVERY_PHRASE)!!
         val removeAccess = arguments?.getBoolean(REMOVE_ACCESS) ?: false
 
+        if (removeAccess) {
+            toolbarTitle.setText(R.string.recovery_phrase_sign_out)
+            tvCancel.invisible()
+            ivBack.visible()
+        } else {
+            toolbarTitle.setText(R.string.recovery_phrase_test)
+            tvCancel.visible()
+            ivBack.invisible()
+        }
+
         val adapter = RecoveryPhraseAdapter(editable = false)
         val layoutManager =
             GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
@@ -160,6 +170,8 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         }
 
         tvCancel.setOnClickListener { navigator.popChildFragmentToRoot() }
+
+        ivBack.setOnClickListener { navigator.popChildFragmentToRoot() }
     }
 
     private fun handleRecoveryItemClicked(
