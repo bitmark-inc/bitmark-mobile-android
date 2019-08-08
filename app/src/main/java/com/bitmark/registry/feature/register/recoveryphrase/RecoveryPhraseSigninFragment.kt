@@ -2,16 +2,20 @@ package com.bitmark.registry.feature.register.recoveryphrase
 
 import android.os.Bundle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
 import com.bitmark.registry.util.extension.*
+import com.bitmark.registry.util.view.SimpleRecyclerViewAdapter
 import com.bitmark.sdk.features.Account
+import com.bitmark.sdk.features.internal.RecoveryPhrase
 import kotlinx.android.synthetic.main.fragment_recovery_phrase_signin.*
+import java.util.*
 import javax.inject.Inject
 
 
@@ -45,60 +49,59 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
     override fun initComponents() {
         super.initComponents()
 
-        val adapter = RecoveryPhraseAdapter(textColor = R.color.blue_ribbon)
-        val layoutManager =
+        var locale = Locale.getDefault()
+        if (locale != Locale.ENGLISH && locale != Locale.TRADITIONAL_CHINESE) {
+            locale = Locale.ENGLISH
+        }
+        val bip39Words = RecoveryPhrase.getWords(locale)
+
+        val phraseAdapter =
+            RecoveryPhraseAdapter(textColor = R.color.blue_ribbon)
+        val phraseLayoutManager =
             GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
-        rvRecoveryPhrase.layoutManager = layoutManager
+        rvRecoveryPhrase.layoutManager = phraseLayoutManager
         rvRecoveryPhrase.isNestedScrollingEnabled = false
-        rvRecoveryPhrase.adapter = adapter
-        adapter.setDefault()
+        (rvRecoveryPhrase.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
+            false
+        rvRecoveryPhrase.adapter = phraseAdapter
+        phraseAdapter.setDefault()
+
+        val suggestionAdapter =
+            SimpleRecyclerViewAdapter(R.layout.item_text_suggestion)
+        val suggestionLayoutManager =
+            LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        rvSuggestion.layoutManager = suggestionLayoutManager
+        rvSuggestion.isNestedScrollingEnabled = false
+        (rvSuggestion.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
+            false
+        rvSuggestion.adapter = suggestionAdapter
 
         activity?.detectKeyBoardState { showing ->
             if (view == null) return@detectKeyBoardState
             if (showing) {
                 tvSwitchWord.gone()
+                btnSubmit.gone()
+                setSuggestionVisibility(true)
             } else {
                 tvSwitchWord.visible()
+                btnSubmit.visible()
+                setSuggestionVisibility(false)
             }
         }
 
         btnSubmit.setSafetyOnclickListener {
-            activity?.hideKeyBoard()
-            val phrase = adapter.getPhrase()
-            val isValid = try {
-                Account.fromRecoveryPhrase(*phrase)
-                true
-            } catch (e: Throwable) {
-                false
-            }
-
-            if (isValid) {
-                tvError.gone()
-                tvTryAgain.gone()
-                navigator.anim(RIGHT_LEFT).replaceFragment(
-                    R.id.layoutContainer,
-                    AuthenticationFragment.newInstance(
-                        phrase, arguments?.getString(
-                            URI
-                        )
-                    )
-                )
-            } else {
-                tvError.visible()
-                tvTryAgain.visible()
-            }
-
+            submit(phraseAdapter.getPhrase())
         }
 
         tvSwitchWord.setOnClickListener {
-            if (adapter.itemCount == Version.TWELVE.value) {
+            if (phraseAdapter.itemCount == Version.TWELVE.value) {
                 tvInstruction.setText(R.string.please_type_all_24_word)
                 tvSwitchWord.setText(R.string.are_you_using_12_word)
-                adapter.setDefault(Version.TWENTY_FOUR)
+                phraseAdapter.setDefault(Version.TWENTY_FOUR)
             } else {
                 tvInstruction.setText(R.string.please_type_all_12_word)
                 tvSwitchWord.setText(R.string.are_you_using_24_word)
-                adapter.setDefault()
+                phraseAdapter.setDefault()
             }
         }
 
@@ -106,16 +109,93 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
             navigator.popFragment()
         }
 
-        adapter.setListener(object : OnTextChangeListener {
+        phraseAdapter.setOnTextChangeListener(object : OnTextChangeListener {
             override fun onTextChanged(item: Item) {
-                if (adapter.isValid()) btnSubmit.enable()
-                else btnSubmit.disable()
+                if (phraseAdapter.isValid()) {
+                    btnSubmit.enable()
+                } else {
+                    btnSubmit.disable()
+                }
+
+                if (item.word.isBlank()) {
+                    suggestionAdapter.clear()
+                } else {
+                    val matchedItems = bip39Words.filter { w ->
+                        w.startsWith(
+                            item.word,
+                            ignoreCase = true
+                        )
+                    }
+                    if (matchedItems.isEmpty()) return
+                    suggestionAdapter.set(matchedItems, 3)
+                }
             }
 
             override fun afterTextChanged(item: Item) {
             }
 
         })
+
+        phraseAdapter.setOnDoneListener {
+            submit(phraseAdapter.getPhrase())
+        }
+
+        suggestionAdapter.setItemClickListener { text ->
+            phraseAdapter.set(text)
+            if (!phraseAdapter.requestNextFocus()) {
+                activity?.hideKeyBoard()
+            }
+        }
+
+        ivUp.setOnClickListener {
+            if (!phraseAdapter.requestPrevFocus()) {
+                activity?.hideKeyBoard()
+            }
+        }
+
+        ivDown.setOnClickListener {
+            if (!phraseAdapter.requestNextFocus()) {
+                activity?.hideKeyBoard()
+            }
+        }
+    }
+
+    private fun setSuggestionVisibility(visible: Boolean) {
+        if (visible) {
+            ivUp.visible()
+            ivDown.visible()
+            rvSuggestion.visible()
+        } else {
+            ivUp.gone()
+            ivDown.gone()
+            rvSuggestion.gone()
+        }
+    }
+
+    private fun submit(phrase: Array<String?>) {
+        activity?.hideKeyBoard()
+        val isValid = try {
+            Account.fromRecoveryPhrase(*phrase)
+            true
+        } catch (e: Throwable) {
+            false
+        }
+
+        if (isValid) {
+            tvError.gone()
+            tvTryAgain.gone()
+            navigator.anim(Navigator.RIGHT_LEFT).replaceFragment(
+                R.id.layoutContainer,
+                AuthenticationFragment.newInstance(
+                    phrase, arguments?.getString(
+                        URI
+                    )
+                )
+            )
+        } else {
+            tvError.visible()
+            tvTryAgain.visible()
+        }
     }
 
     override fun onBackPressed() = navigator.popFragment() ?: false

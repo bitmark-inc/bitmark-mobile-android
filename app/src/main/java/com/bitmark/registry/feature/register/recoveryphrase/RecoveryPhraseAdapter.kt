@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.register.recoveryphrase
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
@@ -26,10 +27,48 @@ class RecoveryPhraseAdapter(
 
     private val items = mutableListOf<Item>()
 
-    private var listener: OnTextChangeListener? = null
+    private var onTextChangeListener: OnTextChangeListener? = null
 
-    fun setListener(listener: OnTextChangeListener?) {
-        this.listener = listener
+    private var onDoneListener: (() -> Unit)? = null
+
+    fun setOnTextChangeListener(listener: OnTextChangeListener?) {
+        this.onTextChangeListener = listener
+    }
+
+    fun setOnDoneListener(listener: () -> Unit) {
+        this.onDoneListener = listener
+    }
+
+    internal fun requestNextFocus(): Boolean {
+        val focusedIndex = items.indexOfFirst { i -> i.focused }
+        if (focusedIndex != -1) {
+            items[focusedIndex].focused = false
+            notifyItemChanged(focusedIndex)
+            val nextFocusIndex =
+                items.indexOfFirst { i -> i.sequence == items[focusedIndex].sequence + 1 }
+            if (nextFocusIndex != -1) {
+                items[nextFocusIndex].focused = true
+                notifyItemChanged(nextFocusIndex)
+                return true
+            }
+        }
+        return false
+    }
+
+    internal fun requestPrevFocus(): Boolean {
+        val focusedIndex = items.indexOfFirst { i -> i.focused }
+        if (focusedIndex != -1) {
+            items[focusedIndex].focused = false
+            notifyItemChanged(focusedIndex)
+            val prevFocusIndex =
+                items.indexOfFirst { i -> i.sequence == items[focusedIndex].sequence - 1 }
+            if (prevFocusIndex != -1) {
+                items[prevFocusIndex].focused = true
+                notifyItemChanged(prevFocusIndex)
+                return true
+            }
+        }
+        return false
     }
 
     fun setDefault(version: Version = Version.TWELVE) {
@@ -78,6 +117,13 @@ class RecoveryPhraseAdapter(
         notifyDataSetChanged()
     }
 
+    fun set(word: String) {
+        val focusedIndex = items.indexOfFirst { i -> i.focused }
+        if (focusedIndex == -1) return
+        items[focusedIndex].word = word
+        notifyItemChanged(focusedIndex)
+    }
+
     fun showHiddenSequentially(word: String) {
         val items = ArrayList<Item>(this.items)
         items.sortWith(Comparator { o1, o2 -> o1.sequence.compareTo(o2.sequence) })
@@ -121,11 +167,11 @@ class RecoveryPhraseAdapter(
     override fun afterTextChanged(item: Item) {
         items.find { it.sequence == item.sequence }
             ?.also { it.word = item.word }
-        listener?.afterTextChanged(item)
+        onTextChangeListener?.afterTextChanged(item)
     }
 
     override fun onTextChanged(item: Item) {
-        listener?.onTextChanged(item)
+        onTextChangeListener?.onTextChanged(item)
     }
 
     override fun onCreateViewHolder(
@@ -143,7 +189,7 @@ class RecoveryPhraseAdapter(
         holder.bind(items[position])
     }
 
-    class ViewHolder(
+    inner class ViewHolder(
         view: View,
         editable: Boolean,
         private val listener: OnTextChangeListener
@@ -174,6 +220,7 @@ class RecoveryPhraseAdapter(
                 }
 
                 edtWord.setOnFocusChangeListener { _, hasFocus ->
+                    item.focused = hasFocus
                     val text = edtWord.text
                     if (!hasFocus && !text.isNullOrBlank()) {
                         edtWord.background = null
@@ -183,6 +230,25 @@ class RecoveryPhraseAdapter(
                             if (text.isNullOrBlank()) R.drawable.bg_border_blue_ribbon_wild_sand_stateful else R.drawable.bg_border_blue_ribbon_white_stateful
                         )
                     }
+                }
+
+                edtWord.setOnEditorActionListener { _, actionId, event ->
+                    if (event == null) {
+                        when (actionId) {
+                            EditorInfo.IME_ACTION_NEXT -> {
+                                requestNextFocus()
+                                true
+                            }
+
+                            EditorInfo.IME_ACTION_DONE -> {
+                                edtWord.clearFocus()
+                                onDoneListener?.invoke()
+                                true
+                            }
+
+                            else -> false
+                        }
+                    } else false
                 }
             }
         }
@@ -198,6 +264,16 @@ class RecoveryPhraseAdapter(
                         item.textColor
                     )
                 )
+
+                edtWord.imeOptions =
+                    if (item.sequence == items.size) EditorInfo.IME_ACTION_DONE else EditorInfo.IME_ACTION_NEXT
+
+                if (item.focused) {
+                    edtWord.requestFocus()
+                } else {
+                    edtWord.clearFocus()
+                }
+
             }
 
         }
@@ -215,7 +291,8 @@ class Item(
     internal val sequence: Int,
     internal var word: String,
     internal var hidden: Boolean = false,
-    internal var textColor: Int = R.color.gray
+    internal var textColor: Int = R.color.gray,
+    internal var focused: Boolean = false
 )
 
 enum class Version(val value: Int) {

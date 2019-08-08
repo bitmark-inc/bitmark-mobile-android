@@ -31,7 +31,7 @@
       android:background="@drawable/bg_border_blue_ribbon_wild_sand_stateful"
       android:fontFamily="@font/avenir_light"
       android:gravity="center_vertical"
-      android:inputType="text"
+      android:inputType="textNoSuggestions|textVisiblePassword"
       android:maxLines="1"
       android:textColor="@color/gray"
       android:textSize="@dimen/sp_15"

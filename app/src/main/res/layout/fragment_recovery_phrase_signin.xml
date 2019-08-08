@@ -119,7 +119,7 @@
       android:id="@+id/tvSwitchWord"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_above="@id/btnSubmit"
+      android:layout_above="@id/layoutSuggestion"
       android:layout_centerHorizontal="true"
       android:layout_marginBottom="@dimen/dp_16"
       android:layout_marginTop="@dimen/dp_8"
@@ -132,19 +132,74 @@
       android:textSize="@dimen/sp_15"
       />
 
-  <androidx.appcompat.widget.AppCompatButton
-      android:id="@+id/btnSubmit"
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/layoutSuggestion"
       android:layout_width="match_parent"
-      android:layout_height="@dimen/dp_44"
+      android:layout_height="@dimen/dp_40"
       android:layout_alignParentBottom="true"
-      android:background="@drawable/bg_blue_ribbon_stateful"
-      android:enabled="false"
-      android:fontFamily="@font/avenir_bold"
-      android:text="@string/submit"
-      android:textColor="@android:color/white"
-      android:textSize="@dimen/sp_16"
-      tools:visibility="visible"
-      style="?android:attr/borderlessButtonStyle"
-      />
+      android:background="@color/wild_sand"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      >
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_44"
+        android:background="@drawable/bg_blue_ribbon_stateful"
+        android:enabled="false"
+        android:fontFamily="@font/avenir_bold"
+        android:text="@string/submit"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/sp_16"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible"
+        style="?android:attr/borderlessButtonStyle"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivUp"
+        android:layout_width="@dimen/dp_20"
+        android:layout_height="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_20"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_up"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivDown"
+        android:layout_width="@dimen/dp_20"
+        android:layout_height="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_20"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivUp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_down"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSuggestion"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_12"
+        android:visibility="gone"
+        android:background="@color/wild_sand"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivDown"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>

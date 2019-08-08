@@ -339,7 +339,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
         viewModel.progressLiveData.observe(this, Observer { percent ->
             progressBar.progress = percent
-            if(percent >= 100) {
+            if (percent >= 100) {
                 progressBar.gone()
             }
         })
@@ -397,7 +397,8 @@ class IssuanceActivity : BaseAppCompatActivity() {
             DividerItemDecoration(this, layoutManager.orientation)
         recyclerView.layoutManager = layoutManager
         recyclerView.addItemDecoration(itemDecoration)
-        val adapter = SimpleRecyclerViewAdapter()
+        val adapter =
+            SimpleRecyclerViewAdapter(itemBackground = R.drawable.bg_border_bottom_top_less_white_stateful)
 
         val assetTypes =
             resources?.getStringArray(R.array.asset_type)?.toList()!!
