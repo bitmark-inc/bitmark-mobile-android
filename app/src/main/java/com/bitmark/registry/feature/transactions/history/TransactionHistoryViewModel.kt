@@ -11,6 +11,7 @@ import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.TransactionModelView
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
@@ -130,7 +131,13 @@ class TransactionHistoryViewModel(
     }
 
     internal fun fetchLatestTxs() {
-        fetchLatestTxsLiveData.add(rxLiveDataTransformer.single(fetchTxsStream()))
+        fetchLatestTxsLiveData.add(rxLiveDataTransformer.maybe(accountRepo.getAccountInfo().map { a -> a.first }.flatMap { accountNumber ->
+            bitmarkRepo.maxStoredRelevantTxOffset(
+                accountNumber
+            )
+        }.flatMapMaybe { offset ->
+            if (offset == -1L) Maybe.empty() else fetchTxsStream().toMaybe()
+        }))
     }
 
     private fun fetchTxsStream(): Single<List<TransactionModelView>> {
