@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
@@ -28,13 +29,17 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class YourPropertiesFragment : BaseSupportFragment() {
+class YourPropertiesFragment : BaseSupportFragment(),
+    AppLifecycleHandler.AppStateChangedListener {
 
     @Inject
     internal lateinit var viewModel: YourPropertiesViewModel
 
     @Inject
-    lateinit var navigator: Navigator
+    internal lateinit var navigator: Navigator
+
+    @Inject
+    internal lateinit var appLifecycleHandler: AppLifecycleHandler
 
     private val adapter = YourPropertiesRecyclerViewAdapter()
 
@@ -54,7 +59,6 @@ class YourPropertiesFragment : BaseSupportFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.listBitmark()
-        viewModel.fetchLatestBitmarks()
     }
 
     override fun initComponents() {
@@ -109,6 +113,13 @@ class YourPropertiesFragment : BaseSupportFragment() {
             viewModel.refreshBitmarks()
         }
 
+        appLifecycleHandler.addAppStateChangedListener(this)
+
+    }
+
+    override fun deinitComponents() {
+        appLifecycleHandler.removeAppStateChangedListener(this)
+        super.deinitComponents()
     }
 
     override fun observe() {
@@ -222,5 +233,10 @@ class YourPropertiesFragment : BaseSupportFragment() {
     override fun refresh() {
         super.refresh()
         rvProperties.smoothScrollToPosition(0)
+    }
+
+    override fun onForeground() {
+        super.onForeground()
+        viewModel.fetchLatestBitmarks()
     }
 }

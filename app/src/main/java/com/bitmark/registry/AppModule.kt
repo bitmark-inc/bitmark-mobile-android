@@ -34,6 +34,13 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideWebSocketEventBus(accountRepo: AccountRepository) =
-        WebSocketEventBus(accountRepo)
+    fun provideWebSocketEventBus(
+        accountRepo: AccountRepository,
+        appLifecycleHandler: AppLifecycleHandler
+    ) =
+        WebSocketEventBus(accountRepo, appLifecycleHandler)
+
+    @Provides
+    @Singleton
+    fun provideAppLifecycleHandler() = AppLifecycleHandler()
 }

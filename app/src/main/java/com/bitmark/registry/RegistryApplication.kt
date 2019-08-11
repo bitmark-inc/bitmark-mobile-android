@@ -9,6 +9,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import io.fabric.sdk.android.Fabric
 import io.intercom.android.sdk.Intercom
+import javax.inject.Inject
 
 
 /**
@@ -18,6 +19,9 @@ import io.intercom.android.sdk.Intercom
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class RegistryApplication : DaggerApplication() {
+
+    @Inject
+    lateinit var appLifecycleHandler: AppLifecycleHandler
 
     private val applicationInjector = DaggerAppComponent.builder()
         .application(this)
@@ -39,5 +43,6 @@ class RegistryApplication : DaggerApplication() {
         }
         Fabric.with(this, Crashlytics())
         Intercom.initialize(this, API_KEY_MANAGER.intercomApiKey, "ejkeunzw")
+        registerActivityLifecycleCallbacks(appLifecycleHandler)
     }
 }

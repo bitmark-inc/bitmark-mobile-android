@@ -1,12 +1,13 @@
 package com.bitmark.registry.feature.realtime
 
+import android.util.Log
 import com.bitmark.apiservice.BitmarkWebSocket
 import com.bitmark.apiservice.BitmarkWebSocketService
 import com.bitmark.apiservice.WebSocket
 import com.bitmark.apiservice.utils.Address
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.data.source.AccountRepository
-import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -17,8 +18,15 @@ import io.reactivex.subjects.PublishSubject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class WebSocketEventBus(private val accountRepo: AccountRepository) : Bus(),
+class WebSocketEventBus(
+    private val accountRepo: AccountRepository,
+    appLifecycleHandler: AppLifecycleHandler
+) : Bus(), AppLifecycleHandler.AppStateChangedListener,
     WebSocket.ConnectionEvent {
+
+    companion object {
+        private const val TAG = "WebSocketEventBus"
+    }
 
     private var connectListener: ((Throwable?) -> Unit)? = null
 
@@ -34,6 +42,10 @@ class WebSocketEventBus(private val accountRepo: AccountRepository) : Bus(),
     val bitmarkChangedPublisher =
         Publisher(PublishSubject.create<Map<String, Any>>())
 
+    init {
+        appLifecycleHandler.addAppStateChangedListener(this)
+    }
+
     fun setConnectListener(listener: ((Throwable?) -> Unit)?) {
         this.connectListener = listener
     }
@@ -47,14 +59,9 @@ class WebSocketEventBus(private val accountRepo: AccountRepository) : Bus(),
     }
 
     fun disconnect(onDone: (() -> Unit)? = null) {
-        getAccountNumber { accountNumber ->
-            try {
-                unsubscribeNewPendingTx(accountNumber)
-                unsubscribeBitmarkChanged(accountNumber)
-                webSocketService.disconnect()
-                onDone?.invoke()
-            } catch (ignore: Throwable) {
-            }
+        unsubscribeEvents {
+            webSocketService.disconnect()
+            onDone?.invoke()
         }
     }
 
@@ -120,21 +127,41 @@ class WebSocketEventBus(private val accountRepo: AccountRepository) : Bus(),
     }
 
     override fun onConnected() {
+        Log.d(TAG, "onConnected")
         connectListener?.invoke(null)
+        subscribeEvents()
+    }
+
+    private fun subscribeEvents() {
         getAccountNumber { accountNumber ->
             try {
                 subscribeBitmarkChanged(accountNumber)
                 subscribeNewPendingTx(accountNumber)
-            } catch (ignore: DuplicateSubscriptionException) {
+                Log.d(TAG, "subscribe events")
+            } catch (ignore: Throwable) {
+            }
+        }
+    }
+
+    private fun unsubscribeEvents(onDone: (() -> Unit)? = null) {
+        getAccountNumber { accountNumber ->
+            try {
+                unsubscribeNewPendingTx(accountNumber)
+                unsubscribeBitmarkChanged(accountNumber)
+                Log.d(TAG, "unsubscribe events")
+                onDone?.invoke()
+            } catch (ignore: Throwable) {
             }
         }
     }
 
     override fun onConnectionError(e: Throwable?) {
+        Log.d(TAG, "onConnectionError: ${e?.message}")
         connectListener?.invoke(e)
     }
 
     override fun onDisconnected() {
+        Log.d(TAG, "onDisconnected")
         disconnectListener?.invoke()
     }
 
@@ -147,5 +174,13 @@ class WebSocketEventBus(private val accountRepo: AccountRepository) : Bus(),
                     callback.invoke(accountNumber)
                 }
             })
+    }
+
+    override fun onForeground() {
+        subscribeEvents()
+    }
+
+    override fun onBackground() {
+        unsubscribeEvents()
     }
 }

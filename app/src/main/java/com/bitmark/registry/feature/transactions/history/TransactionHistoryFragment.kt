@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.*
@@ -22,7 +23,8 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class TransactionHistoryFragment : BaseSupportFragment() {
+class TransactionHistoryFragment : BaseSupportFragment(),
+    AppLifecycleHandler.AppStateChangedListener {
 
     @Inject
     internal lateinit var viewModel: TransactionHistoryViewModel
@@ -32,6 +34,9 @@ class TransactionHistoryFragment : BaseSupportFragment() {
 
     @Inject
     internal lateinit var dialogController: DialogController
+
+    @Inject
+    internal lateinit var appLifecycleHandler: AppLifecycleHandler
 
     private val adapter = TransactionHistoryAdapter()
 
@@ -97,9 +102,13 @@ class TransactionHistoryFragment : BaseSupportFragment() {
             needDeduplication = true
             viewModel.refreshTxs()
         }
+
+        appLifecycleHandler.addAppStateChangedListener(this)
     }
 
     override fun deinitComponents() {
+        visibled = false
+        appLifecycleHandler.removeAppStateChangedListener(this)
         dialogController.dismiss()
         super.deinitComponents()
     }
@@ -192,7 +201,11 @@ class TransactionHistoryFragment : BaseSupportFragment() {
         if (isVisibleToUser && !visibled) {
             visibled = true
             viewModel.listTxs()
-            viewModel.fetchLatestTxs()
         }
+    }
+
+    override fun onForeground() {
+        super.onForeground()
+        viewModel.fetchLatestTxs()
     }
 }

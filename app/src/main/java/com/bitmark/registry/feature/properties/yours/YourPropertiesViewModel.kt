@@ -157,9 +157,7 @@ class YourPropertiesViewModel(
     internal fun fetchLatestBitmarks() {
         fetchLatestBitmarksLiveData.add(
             rxLiveDataTransformer.maybe(
-                bitmarkRepo.maxStoredBitmarkOffset().flatMapMaybe { offset ->
-                    if (offset == -1L) Maybe.empty() else fetchBitmarksStream()
-                }
+                fetchBitmarksStream()
             )
         )
     }

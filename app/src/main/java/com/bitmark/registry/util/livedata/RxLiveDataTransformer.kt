@@ -1,5 +1,6 @@
 package com.bitmark.registry.util.livedata
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.reactivex.*
@@ -17,6 +18,10 @@ import javax.inject.Inject
  */
 class RxLiveDataTransformer @Inject constructor() {
 
+    companion object {
+        private const val TAG = "RxLiveDataTransformer"
+    }
+
     private val compositeDisposable = CompositeDisposable()
 
     fun dispose() {
@@ -31,6 +36,7 @@ class RxLiveDataTransformer @Inject constructor() {
             }.subscribe({ data ->
                 result.value = Resource.success(data)
             }, { throwable ->
+                Log.e(TAG, throwable.message)
                 result.value = Resource.error(throwable, null)
             }, {
                 result.value = Resource.success(null)
@@ -46,6 +52,7 @@ class RxLiveDataTransformer @Inject constructor() {
                 result.value = Resource.loading(null)
             }.subscribe { data, throwable ->
                 if (null != throwable) {
+                    Log.e(TAG, throwable.message)
                     result.value = Resource.error(throwable, null)
                 } else {
                     result.value = Resource.success(data)
@@ -62,6 +69,7 @@ class RxLiveDataTransformer @Inject constructor() {
             }.subscribe({
                 result.value = Resource.success(null)
             }, { throwable ->
+                Log.e(TAG, throwable.message)
                 result.value = Resource.error(throwable, null)
             })
         )
@@ -76,6 +84,7 @@ class RxLiveDataTransformer @Inject constructor() {
             }.subscribe({ data ->
                 result.value = Resource.success(data)
             }, { throwable ->
+                Log.e(TAG, throwable.message)
                 result.value = Resource.error(throwable, null)
             }, {
                 result.value = Resource.success(null)
@@ -92,6 +101,7 @@ class RxLiveDataTransformer @Inject constructor() {
             }.subscribe({ data ->
                 result.value = Resource.success(data)
             }, { throwable ->
+                Log.e(TAG, throwable.message)
                 result.value = Resource.error(throwable, null)
             }, {
                 result.value = Resource.success(null)
