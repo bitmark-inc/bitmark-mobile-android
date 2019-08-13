@@ -32,6 +32,8 @@ class OptionsDialog(
     override fun initComponents() {
         super.initComponents()
 
+        setCancelable(false)
+
         tvTitle.text = title
 
         val layoutManager =

@@ -24,6 +24,7 @@ import com.bitmark.registry.feature.transfer.TransferActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
+import com.bitmark.registry.util.view.OptionsDialog
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
@@ -243,16 +244,29 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 // delete
                 popupWindow.dismiss()
                 if (blocked) return@setOnClickListener
-                dialogController.confirm(
-                    "",
-                    getString(R.string.this_bitmark_will_be_deleted),
-                    false,
-                    getString(R.string.delete),
-                    {
-                        deleteBitmark(bitmark, keyAlias)
-                    },
-                    getString(R.string.cancel)
+
+                val opts = listOf(
+                    OptionsDialog.OptionsAdapter.Item(
+                        R.drawable.ic_delete_2,
+                        getString(R.string.delete),
+                        R.color.torch_red
+                    ),
+                    OptionsDialog.OptionsAdapter.Item(
+                        R.drawable.ic_cancel_2,
+                        getString(R.string.cancel)
+                    )
                 )
+                val optDialog = OptionsDialog(
+                    context,
+                    getString(R.string.this_bitmark_will_be_deleted),
+                    opts
+                ) { item ->
+                    if (item.icon == R.drawable.ic_delete_2) {
+                        deleteBitmark(bitmark, keyAlias)
+                    }
+                }
+
+                optDialog.show()
             }
         }
 
