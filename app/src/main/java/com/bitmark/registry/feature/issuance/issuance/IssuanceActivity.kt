@@ -2,7 +2,6 @@ package com.bitmark.registry.feature.issuance.issuance
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
@@ -12,7 +11,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -446,24 +444,11 @@ class IssuanceActivity : BaseAppCompatActivity() {
     }
 
     private fun setRegisterState(enable: Boolean) {
-        val drawable: Drawable
         if (enable) {
-            drawable = ContextCompat.getDrawable(
-                this,
-                R.drawable.bg_blue_ribbon_stroke
-            )!!
             btnRegister.enable()
         } else {
-            drawable =
-                ContextCompat.getDrawable(this, R.drawable.bg_silver_stroke)!!
             btnRegister.disable()
         }
-        btnRegister.setCompoundDrawablesWithIntrinsicBounds(
-            null,
-            drawable,
-            null,
-            null
-        )
     }
 
     private fun setAddMetadataState(enable: Boolean) {

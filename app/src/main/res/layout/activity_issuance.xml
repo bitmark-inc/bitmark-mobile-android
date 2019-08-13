@@ -401,7 +401,7 @@
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
       android:background="@drawable/bg_alice_blue_stateful"
-      android:drawableTop="@drawable/bg_blue_ribbon_stroke"
+      android:drawableTop="@drawable/bg_blue_ribbon_stroke_stateful"
       android:enabled="false"
       android:fontFamily="@font/avenir_bold"
       android:text="@string/register"

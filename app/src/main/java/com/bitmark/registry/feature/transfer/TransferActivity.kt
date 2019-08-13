@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.widget.TextView
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
@@ -103,6 +104,16 @@ class TransferActivity : BaseAppCompatActivity() {
             navigator.anim(RIGHT_LEFT).finishActivity()
         }
 
+        etRecipient.doOnTextChanged { text, _, _, _ ->
+            if (text?.isNotBlank() == true) {
+                ivClear.visible()
+                btnTransfer.enable()
+            } else {
+                ivClear.invisible()
+                btnTransfer.disable()
+            }
+        }
+
     }
 
     override fun deinitComponents() {
@@ -149,7 +160,8 @@ class TransferActivity : BaseAppCompatActivity() {
                         Snackbar.LENGTH_SHORT
                     )
                     val view = snackbar.view
-                    view.background = getDrawable(R.drawable.bg_wild_sand_shadow)
+                    view.background =
+                        getDrawable(R.drawable.bg_wild_sand_shadow)
                     view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
                         ?.setTextColorRes(android.R.color.black)
                     snackbar.show()
