@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
@@ -21,7 +20,7 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.feature.transfer.TransferFragment
+import com.bitmark.registry.feature.transfer.TransferActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
@@ -29,7 +28,7 @@ import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_property_detail.*
+import kotlinx.android.synthetic.main.activity_property_detail.*
 import kotlinx.android.synthetic.main.layout_property_menu.view.*
 import java.io.File
 import javax.inject.Inject
@@ -41,18 +40,16 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class PropertyDetailFragment : BaseSupportFragment() {
+class PropertyDetailActivity : BaseAppCompatActivity() {
 
     companion object {
 
         private const val BITMARK = "bitmark"
 
-        fun newInstance(bitmark: BitmarkModelView): PropertyDetailFragment {
+        fun getBundle(bitmark: BitmarkModelView): Bundle {
             val bundle = Bundle()
             bundle.putParcelable(BITMARK, bitmark)
-            val fragment = PropertyDetailFragment()
-            fragment.arguments = bundle
-            return fragment
+            return bundle
         }
     }
 
@@ -77,14 +74,14 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private var progressDialog: ProgressAppCompatDialog? = null
 
-    override fun layoutRes(): Int = R.layout.fragment_property_detail
+    override fun layoutRes(): Int = R.layout.activity_property_detail
 
     override fun viewModel(): BaseViewModel? = viewModel
 
     private val metadataAdapter = MetadataRecyclerViewAdapter()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         viewModel.getKeyAlias()
         viewModel.getProvenance(bitmark.id)
         viewModel.syncProvenance(bitmark.id)
@@ -93,11 +90,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
     override fun initComponents() {
         super.initComponents()
 
-        bitmark = arguments?.getParcelable(BITMARK)!!
+        bitmark = intent?.extras?.getParcelable(BITMARK) as BitmarkModelView
         viewModel.setBitmarkId(bitmark.id)
-        val context = this.context!!
 
-        showAssetType(bitmark.assetType)
+        ivAssetType.setImageResource(bitmark.getThumbnailRes())
 
         tvToolbarTitle.text =
             if (bitmark.name.isNullOrBlank()) getString(R.string.your_properties) else bitmark.name
@@ -115,14 +111,14 @@ class PropertyDetailFragment : BaseSupportFragment() {
         tvIssuedOn.setTextColorRes(color)
 
         val rvMetadataLayoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         metadataAdapter.changeTextColor(color)
         rvMetadata.layoutManager = rvMetadataLayoutManager
         rvMetadata.adapter = metadataAdapter
         metadataAdapter.set(bitmark.metadata ?: mapOf())
 
         val rvProvenanceLayoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         rvProvenance.layoutManager = rvProvenanceLayoutManager
         rvProvenance.adapter = provenanceAdapter
 
@@ -155,23 +151,9 @@ class PropertyDetailFragment : BaseSupportFragment() {
         super.deinitComponents()
     }
 
-    private fun showAssetType(type: BitmarkModelView.AssetType) {
-        ivAssetType.setImageResource(
-            when (type) {
-                BitmarkModelView.AssetType.IMAGE -> R.drawable.ic_asset_image
-                BitmarkModelView.AssetType.VIDEO -> R.drawable.ic_asset_video
-                BitmarkModelView.AssetType.HEALTH -> R.drawable.ic_asset_health_data
-                BitmarkModelView.AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
-                BitmarkModelView.AssetType.ZIP -> R.drawable.ic_asset_zip
-                BitmarkModelView.AssetType.DOC -> R.drawable.ic_asset_doc
-                BitmarkModelView.AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
-            }
-        )
-    }
-
     private fun showPopupMenu(bitmark: BitmarkModelView) {
         val inflater =
-            context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.layout_property_menu, null)
         val popupWindow = PopupWindow(
             view,
@@ -240,10 +222,21 @@ class PropertyDetailFragment : BaseSupportFragment() {
                 // transfer
                 popupWindow.dismiss()
                 if (blocked) return@setOnClickListener
-                navigator.anim(RIGHT_LEFT).replaceFragment(
-                    R.id.layoutContainer,
-                    TransferFragment.newInstance(bitmark)
-                )
+                if (downloadable) {
+                    dialogController.confirm(
+                        R.string.warning,
+                        R.string.to_be_able_to_transfer_this_bitmark,
+                        false,
+                        R.string.download,
+                        { downloadAssetFile(bitmark, keyAlias) },
+                        R.string.cancel
+                    )
+                } else {
+                    navigator.anim(RIGHT_LEFT).startActivity(
+                        TransferActivity::class.java,
+                        TransferActivity.getBundle(bitmark)
+                    )
+                }
             }
 
             item4.setOnClickListener {
@@ -306,7 +299,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                     blocked = false
 
                     val dialog = InfoAppCompatDialog(
-                        context!!,
+                        this,
                         getString(R.string.your_property_rights_has_been_deleted)
                     )
                     dialogController.show(dialog)
@@ -345,13 +338,12 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
             when {
                 res.isSuccess() -> {
-                    dialogController.dismiss(progressDialog ?: return@Observer)
                     val file = res.data()
                     if (file != null) {
                         bitmark.assetFile = file
                         bitmark.assetType =
                             BitmarkModelView.determineAssetType(assetFile = bitmark.assetFile)
-                        showAssetType(bitmark.assetType)
+                        ivAssetType.setImageResource(bitmark.getThumbnailRes())
                         shareFile(bitmark.name ?: "", file)
                     }
 
@@ -379,7 +371,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
                         bitmark.name ?: ""
                     )
                     progressDialog = ProgressAppCompatDialog(
-                        context!!,
+                        this,
                         title = getString(R.string.preparing_to_export),
                         message = message
                     )
@@ -415,6 +407,9 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
         viewModel.downloadProgressLiveData.observe(this, Observer { percent ->
             progressDialog?.setProgress(percent)
+            if (percent >= 100) {
+                dialogController.dismiss(progressDialog ?: return@Observer)
+            }
         })
 
         viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmark ->
@@ -434,6 +429,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
             bitmark.previousOwner = txs[0].previousOwner
             provenanceAdapter.set(txs)
         })
+
+        viewModel.bitmarkDeletedLiveData.observe(
+            this,
+            Observer { navigator.anim(RIGHT_LEFT).finishActivity() })
     }
 
     private fun deleteBitmark(bitmark: BitmarkModelView, keyAlias: String) {
@@ -471,7 +470,7 @@ class PropertyDetailFragment : BaseSupportFragment() {
 
     private fun shareFile(assetName: String, file: File) {
         val uri = FileProvider.getUriForFile(
-            context!!,
+            this,
             BuildConfig.APPLICATION_ID + ".file_provider",
             file
         )
@@ -491,11 +490,11 @@ class PropertyDetailFragment : BaseSupportFragment() {
         action: (Account) -> Unit
     ) {
         val spec =
-            KeyAuthenticationSpec.Builder(context).setKeyAlias(keyAlias)
+            KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
                 .setAuthenticationDescription(message)
                 .build()
 
-        activity?.loadAccount(
+        loadAccount(
             accountNumber,
             spec,
             dialogController,
@@ -507,5 +506,10 @@ class PropertyDetailFragment : BaseSupportFragment() {
                     R.string.unexpected_error
                 )
             })
+    }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
     }
 }

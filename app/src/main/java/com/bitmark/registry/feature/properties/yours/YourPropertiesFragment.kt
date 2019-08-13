@@ -12,9 +12,11 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
-import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
+import com.bitmark.registry.feature.music_claiming.MusicClaimingActivity
+import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -42,9 +44,6 @@ class YourPropertiesFragment : BaseSupportFragment(),
     internal lateinit var appLifecycleHandler: AppLifecycleHandler
 
     private val adapter = YourPropertiesRecyclerViewAdapter()
-
-    // FIXME : optimize the deduplication when adding new items to the adapter
-    private var needDeduplication: Boolean = false
 
     private lateinit var endlessScrollListener: EndlessScrollListener
 
@@ -79,12 +78,20 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
         adapter.setOnItemClickListener { bitmark ->
             viewModel.markSeen(bitmark.id)
-            val bundle = PropertyDetailContainerActivity.getBundle(bitmark)
-            navigator.anim(RIGHT_LEFT)
-                .startActivity(
-                    PropertyDetailContainerActivity::class.java,
-                    bundle
-                )
+
+            if (bitmark.isMusicClaiming()) {
+                val bundle = MusicClaimingActivity.getBundle(bitmark)
+                navigator.anim(BOTTOM_UP)
+                    .startActivity(MusicClaimingActivity::class.java, bundle)
+            } else {
+                val bundle = PropertyDetailActivity.getBundle(bitmark)
+                navigator.anim(RIGHT_LEFT)
+                    .startActivity(
+                        PropertyDetailActivity::class.java,
+                        bundle
+                    )
+            }
+
         }
 
         endlessScrollListener =
@@ -94,7 +101,6 @@ class YourPropertiesFragment : BaseSupportFragment(),
                     totalItemsCount: Int,
                     view: RecyclerView
                 ) {
-                    needDeduplication = false
                     viewModel.listBitmark()
                 }
 
@@ -109,7 +115,6 @@ class YourPropertiesFragment : BaseSupportFragment(),
         }
 
         layoutSwipeRefresh.setOnRefreshListener {
-            needDeduplication = true
             viewModel.refreshBitmarks()
         }
 
@@ -132,7 +137,7 @@ class YourPropertiesFragment : BaseSupportFragment(),
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
                         hideEmptyView()
-                        adapter.add(data, needDeduplication)
+                        adapter.add(data)
                     } else if (adapter.isEmpty()) {
                         showEmptyView()
                     }

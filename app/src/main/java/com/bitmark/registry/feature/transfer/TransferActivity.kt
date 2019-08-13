@@ -4,12 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
 import com.bitmark.registry.R
-import com.bitmark.registry.feature.BaseSupportFragment
+import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
@@ -21,7 +20,7 @@ import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_transfer.*
+import kotlinx.android.synthetic.main.activity_transfer.*
 import javax.inject.Inject
 
 
@@ -31,17 +30,15 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class TransferFragment : BaseSupportFragment() {
+class TransferActivity : BaseAppCompatActivity() {
 
     companion object {
         const val BITMARK = "BITMARK"
 
-        fun newInstance(bitmark: BitmarkModelView): TransferFragment {
+        fun getBundle(bitmark: BitmarkModelView): Bundle {
             val bundle = Bundle()
             bundle.putParcelable(BITMARK, bitmark)
-            val fragment = TransferFragment()
-            fragment.arguments = bundle
-            return fragment
+            return bundle
         }
     }
 
@@ -62,19 +59,19 @@ class TransferFragment : BaseSupportFragment() {
 
     private val handler = Handler()
 
-    override fun layoutRes(): Int = R.layout.fragment_transfer
+    override fun layoutRes(): Int = R.layout.activity_transfer
 
     override fun viewModel(): BaseViewModel? = viewModel
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         viewModel.getKeyAlias()
     }
 
     override fun initComponents() {
         super.initComponents()
 
-        bitmark = arguments?.getParcelable(BITMARK)!!
+        bitmark = intent?.extras?.getParcelable(BITMARK) as BitmarkModelView
 
         tvToolbarTitle.text =
             if (bitmark.name.isNullOrBlank()) getString(R.string.transfer) else bitmark.name
@@ -84,7 +81,7 @@ class TransferFragment : BaseSupportFragment() {
             val recipient = etRecipient.text.toString()
             if (Address.isValidAccountNumber(recipient) && bitmark.accountNumber != recipient) {
                 tvError.invisible()
-                activity?.hideKeyBoard()
+                hideKeyBoard()
                 transfer(bitmark, keyAlias, recipient)
             } else {
                 tvError.visible()
@@ -101,7 +98,9 @@ class TransferFragment : BaseSupportFragment() {
 
         ivClear.setOnClickListener { etRecipient.text?.clear() }
 
-        ivBack.setOnClickListener { navigator.popFragment() }
+        ivBack.setOnClickListener {
+            navigator.anim(RIGHT_LEFT).finishActivity()
+        }
 
     }
 
@@ -118,7 +117,7 @@ class TransferFragment : BaseSupportFragment() {
                 res.isSuccess() -> {
                     blocked = false
                     val dialog = InfoAppCompatDialog(
-                        context!!,
+                        this,
                         getString(R.string.your_property_rights_has_been_transferred)
                     )
                     dialogController.show(dialog)
@@ -210,10 +209,10 @@ class TransferFragment : BaseSupportFragment() {
         action: (Account) -> Unit
     ) {
         val spec =
-            KeyAuthenticationSpec.Builder(context).setKeyAlias(keyAlias)
+            KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
                 .setAuthenticationDescription(message)
                 .build()
-        activity?.loadAccount(accountNumber,
+        loadAccount(accountNumber,
             spec,
             dialogController,
             successAction = action,
@@ -245,5 +244,9 @@ class TransferFragment : BaseSupportFragment() {
         }
     }
 
-    override fun onBackPressed() = navigator.popFragment() ?: false
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
+    }
+
 }

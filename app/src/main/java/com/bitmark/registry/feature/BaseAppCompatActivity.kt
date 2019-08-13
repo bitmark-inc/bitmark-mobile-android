@@ -18,6 +18,7 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
         if (viewModel() != null) {
             lifecycle.addObserver(viewModel()!!)
         }
+        requestFeatures()
         setContentView(layoutRes())
         initComponents()
         observe()
@@ -73,5 +74,7 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
      * Unobserve data change from ViewModel
      */
     protected open fun unobserve() {}
+
+    protected open fun requestFeatures() {}
 
 }

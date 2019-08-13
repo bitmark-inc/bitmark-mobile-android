@@ -2,6 +2,7 @@ package com.bitmark.registry.util.extension
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.provider.Settings
 import com.bitmark.registry.feature.Navigator
 import com.google.gson.Gson
@@ -42,6 +43,15 @@ fun BitMatrix.toBitmap(size: Int): Bitmap {
 fun Navigator.gotoSecuritySetting() {
     val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
     anim(Navigator.BOTTOM_UP).startActivity(intent)
+}
+
+fun Navigator.openBrowser(url: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
+    } catch (ignore: Throwable) {
+
+    }
 }
 
 fun JSONArray.toStringArray() = try {

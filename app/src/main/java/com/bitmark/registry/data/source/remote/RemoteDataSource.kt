@@ -1,10 +1,7 @@
 package com.bitmark.registry.data.source.remote
 
 import com.bitmark.registry.data.source.remote.api.converter.Converter
-import com.bitmark.registry.data.source.remote.api.service.CoreApi
-import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
-import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
-import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import com.bitmark.registry.data.source.remote.api.service.*
 
 
 /**
@@ -18,6 +15,7 @@ abstract class RemoteDataSource(
     protected val mobileServerApi: MobileServerApi,
     protected val fileCourierServerApi: FileCourierServerApi,
     protected val keyAccountServerApi: KeyAccountServerApi,
+    protected val registryApi: RegistryApi,
     protected val converter: Converter
 ) {
 }

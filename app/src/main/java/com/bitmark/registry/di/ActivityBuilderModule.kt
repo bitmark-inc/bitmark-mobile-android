@@ -6,16 +6,20 @@ import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.feature.issuance.issuance.IssuanceModule
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.main.MainModule
+import com.bitmark.registry.feature.music_claiming.MusicClaimingActivity
+import com.bitmark.registry.feature.music_claiming.MusicClaimingModule
 import com.bitmark.registry.feature.partner_authorization.PartnerAuthorizationActivity
 import com.bitmark.registry.feature.partner_authorization.PartnerAuthorizationModule
-import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
-import com.bitmark.registry.feature.property_detail.PropertyDetailContainerModule
+import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
+import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.register.RegisterContainerModule
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeModule
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.feature.splash.SplashModule
+import com.bitmark.registry.feature.transfer.TransferActivity
+import com.bitmark.registry.feature.transfer.TransferModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -41,9 +45,13 @@ abstract class ActivityBuilderModule {
     @ActivityScope
     internal abstract fun bindMainActivity(): MainActivity
 
-    @ContributesAndroidInjector(modules = [PropertyDetailContainerModule::class])
+    @ContributesAndroidInjector(modules = [PropertyDetailModule::class])
     @ActivityScope
-    internal abstract fun bindPropertyDetailContainerActivity(): PropertyDetailContainerActivity
+    internal abstract fun bindPropertyDetailActivity(): PropertyDetailActivity
+
+    @ContributesAndroidInjector(modules = [TransferModule::class])
+    @ActivityScope
+    internal abstract fun bindTransferActivity(): TransferActivity
 
     @ContributesAndroidInjector(modules = [ScanQrCodeModule::class])
     @ActivityScope
@@ -60,4 +68,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [PartnerAuthorizationModule::class])
     @ActivityScope
     internal abstract fun bindPartnerAuthorizationActivity(): PartnerAuthorizationActivity
+
+    @ContributesAndroidInjector(modules = [MusicClaimingModule::class])
+    @ActivityScope
+    internal abstract fun bindMusicClaimingActivity(): MusicClaimingActivity
 }

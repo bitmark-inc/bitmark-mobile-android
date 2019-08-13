@@ -487,4 +487,44 @@ class BitmarkRepository(
             }.andThen(Single.just(assetId))
         }
 
+    fun getAssetClaimingInfo(assetId: String) =
+        remoteDataSource.getAssetClaimingInfo(assetId)
+
+    fun listAssetClaimingRequest(assetId: String, from: String, to: String) =
+        localDataSource.listAssetClaimingRequests(
+            assetId,
+            from,
+            to
+        ).flatMap { claimRequests ->
+            if (claimRequests.isEmpty()) {
+                remoteDataSource.getAssetClaimRequests(
+                    assetId
+                ).map { res -> res.outgoingRequests }
+                    .flatMap { outgoingRequests ->
+                        if (outgoingRequests.isEmpty()) Single.just(
+                            outgoingRequests
+                        ) else localDataSource.saveAssetClaimings(
+                            outgoingRequests
+                        ).andThen(
+                            localDataSource.listAssetClaimingRequests(
+                                assetId,
+                                from,
+                                to
+                            )
+                        )
+                    }
+            } else {
+                Single.just(claimRequests)
+            }
+        }.flatMap { claimRequests ->
+            if (claimRequests.isEmpty()) Single.just(claimRequests)
+            else {
+                getAsset(assetId).flatMap { asset ->
+                    claimRequests.forEach { c -> c.asset = asset }
+                    Single.just(claimRequests)
+                }
+            }
+
+        }
+
 }

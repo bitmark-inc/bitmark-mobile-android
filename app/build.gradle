@@ -142,7 +142,7 @@ android {
 
       buildConfigField "String", "CORE_API_ENDPOINT",
           "\"https://api.test.bitmark.com\""
-      buildConfigField "String", "MOBILE_SERVER_EMPOINT",
+      buildConfigField "String", "MOBILE_SERVER_ENDPOINT",
           "\"https://bm.test.bitmark.com\""
       buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT",
           "\"https://file-courier.test.bitmark.com\""
@@ -162,6 +162,10 @@ android {
           "\"https://bitmark.com/en/legal/terms?env=app\""
       buildConfigField "String", "PRIVACY_POLICY_URL",
           "\"https://bitmark.com/en/legal/privacy?env=app\""
+      buildConfigField 'String', 'REGISTRY_API_ENDPOINT',
+          "\"https://registry.test.bitmark.com/s/api/\""
+      buildConfigField 'String', 'PROFILE_SERVER_ENDPOINT',
+          "\"https://profiles.test.bitmark.com/\""
     }
 
     prd {
@@ -179,7 +183,7 @@ android {
 
       buildConfigField "String", "CORE_API_ENDPOINT",
           "\"https://api.bitmark.com\""
-      buildConfigField "String", "MOBILE_SERVER_EMPOINT",
+      buildConfigField "String", "MOBILE_SERVER_ENDPOINT",
           "\"https://bm.bitmark.com\""
       buildConfigField "String", "FILE_COURIER_SERVER_ENPOINT",
           "\"https://file-courier.bitmark.com\""
@@ -199,6 +203,10 @@ android {
           "\"https://bitmark.com/en/legal/terms?env=app\""
       buildConfigField "String", "PRIVACY_POLICY_URL",
           "\"https://bitmark.com/en/legal/privacy?env=app\""
+      buildConfigField 'String', 'REGISTRY_API_ENDPOINT',
+          "\"https://registry.bitmark.com/s/api/\""
+      buildConfigField 'String', 'PROFILE_SERVER_ENDPOINT',
+          "\"https://profiles.bitmark.com/\""
     }
   }
 
@@ -252,6 +260,10 @@ dependencies {
   implementation 'androidx.room:room-runtime:2.1.0'
   kapt 'androidx.room:room-compiler:2.1.0'
   implementation 'androidx.room:room-rxjava2:2.1.0'
+
+  // Glide
+  implementation 'com.github.bumptech.glide:glide:4.9.0'
+  kapt 'com.github.bumptech.glide:compiler:4.9.0'
 
   // Others
   implementation 'com.bitmark.sdk:android-sdk:2.1.0-SNAPSHOT'

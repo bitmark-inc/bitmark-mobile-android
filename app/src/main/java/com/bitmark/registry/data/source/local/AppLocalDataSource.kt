@@ -19,12 +19,13 @@ class AppLocalDataSource @Inject constructor(
 ) : LocalDataSource(databaseApi, sharedPrefApi, fileStorageApi) {
 
     fun deleteDatabase() = databaseApi.rxCompletable { databaseGateway ->
-        Completable.mergeArray(
+        Completable.mergeArrayDelayError(
             databaseGateway.assetDao().delete(),
             databaseGateway.accountDao().delete(),
             databaseGateway.bitmarkDao().delete(),
             databaseGateway.blockDao().delete(),
-            databaseGateway.transactionDao().delete()
+            databaseGateway.transactionDao().delete(),
+            databaseGateway.assetClaimingDao().delete()
         )
     }
 

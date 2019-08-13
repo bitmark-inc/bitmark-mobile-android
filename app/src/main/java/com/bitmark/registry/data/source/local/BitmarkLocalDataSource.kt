@@ -1,9 +1,6 @@
 package com.bitmark.registry.data.source.local
 
-import com.bitmark.registry.data.model.AssetData
-import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.data.model.BlockData
-import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.*
 import com.bitmark.registry.data.model.TransactionData.Status.CONFIRMED
 import com.bitmark.registry.data.model.TransactionData.Status.PENDING
 import com.bitmark.registry.data.source.local.api.DatabaseApi
@@ -536,5 +533,19 @@ class BitmarkLocalDataSource @Inject constructor(
         }
 
     //endregion Txs
+
+    //region Claim
+
+    fun saveAssetClaimings(assetClaimings: List<AssetClaimingData>) =
+        databaseApi.rxCompletable { db ->
+            db.assetClaimingDao().save(assetClaimings)
+        }
+
+    fun listAssetClaimingRequests(assetId: String, from: String, to: String) =
+        databaseApi.rxSingle { db ->
+            db.assetClaimingDao().listByAssetIdCreatedAtRange(assetId, from, to)
+        }
+
+    //endregion Claim
 
 }

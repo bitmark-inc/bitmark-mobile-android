@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@android:color/black"
+      >
+
+    <WebView
+        android:id="@+id/wvContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbarSize="@dimen/dp_2"
+        android:scrollbarThumbVertical="@drawable/bg_white_corner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivClose"
+        android:layout_width="@dimen/dp_16"
+        android:layout_height="@dimen/dp_16"
+        android:layout_margin="@dimen/dp_20"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_clear"
+        />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_3"
+        android:layout_above="@id/tvLoading"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/dp_44"
+        android:layout_marginTop="@dimen/dp_1"
+        android:progressDrawable="@drawable/bg_progress_blue_ribbon"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:progress="25"
+        tools:visibility="visible"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/andale_mono"
+        android:text="@string/loading_three_dot"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sp_12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+  <include
+      layout="@layout/layout_bitmark_cert"
+      tools:visibility="gone"
+      />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

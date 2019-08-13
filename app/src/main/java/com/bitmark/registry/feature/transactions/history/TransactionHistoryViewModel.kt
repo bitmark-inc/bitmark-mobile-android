@@ -1,20 +1,25 @@
 package com.bitmark.registry.feature.transactions.history
 
 import androidx.lifecycle.Lifecycle
+import com.bitmark.registry.data.model.AssetClaimingData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
+import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
+import com.bitmark.registry.util.DateTimeUtil.Companion.ISO8601_FORMAT
+import com.bitmark.registry.util.DateTimeUtil.Companion.dateToString
 import com.bitmark.registry.util.extension.append
 import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.TransactionModelView
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
+import java.util.*
+import kotlin.Comparator
 
 
 /**
@@ -113,8 +118,60 @@ class TransactionHistoryViewModel(
                     }
                 }
 
-        }.map(mapTxs())
+        }.map(mapTxs()).flatMap { txs ->
+
+            // attach claim requests
+
+            val comparator = Comparator<TransactionModelView> { t1, t2 ->
+                when {
+                    t1.confirmedAt == null && t2.confirmedAt == null -> 0
+                    t1.confirmedAt != null && t2.confirmedAt == null -> 1
+                    t1.confirmedAt == null && t2.confirmedAt != null -> -1
+                    else -> t1.confirmedAt!!.compareTo(t2.confirmedAt!!)
+                }
+
+            }
+
+            val maxConfirmedDate = if (currentOffset == -1L) dateToString(
+                Date(),
+                ISO8601_FORMAT
+            ) else txs.maxWith(comparator)?.confirmedAt
+            val minConfirmedDate = txs.minWith(comparator)?.confirmedAt
+            if (minConfirmedDate != null && maxConfirmedDate != null) {
+                listAssetClaimingRequest(
+                    OMNISCIENT_ASSET_ID,
+                    minConfirmedDate,
+                    maxConfirmedDate
+                ).map { assetClaim ->
+                    mutableListOf<TransactionModelView>().append(
+                        txs,
+                        assetClaim
+                    ).sortedWith(comparator)
+                }
+            } else {
+                Single.just(txs)
+            }
+        }
     }
+
+    private fun listAssetClaimingRequest(
+        assetId: String,
+        from: String,
+        to: String
+    ) = Single.zip(accountRepo.getAccountInfo().map { a -> a.first },
+        bitmarkRepo.listAssetClaimingRequest(
+            assetId,
+            from,
+            to
+        ),
+        BiFunction<String, List<AssetClaimingData>, List<TransactionModelView>> { accountNumber, claimRequests ->
+            claimRequests.map { c ->
+                TransactionModelView.newInstance(
+                    c,
+                    accountNumber
+                )
+            }
+        })
 
     private fun mapTxs(): (Pair<String, List<TransactionData>>) -> List<TransactionModelView> =
         { p ->
@@ -131,13 +188,7 @@ class TransactionHistoryViewModel(
     }
 
     internal fun fetchLatestTxs() {
-        fetchLatestTxsLiveData.add(rxLiveDataTransformer.maybe(accountRepo.getAccountInfo().map { a -> a.first }.flatMap { accountNumber ->
-            bitmarkRepo.maxStoredRelevantTxOffset(
-                accountNumber
-            )
-        }.flatMapMaybe { offset ->
-            if (offset == -1L) Maybe.empty() else fetchTxsStream().toMaybe()
-        }))
+        fetchLatestTxsLiveData.add(rxLiveDataTransformer.single(fetchTxsStream()))
     }
 
     private fun fetchTxsStream(): Single<List<TransactionModelView>> {

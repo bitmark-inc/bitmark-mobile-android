@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.transactions.history
 
+import android.os.Handler
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,8 +45,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
 
     private var visibled = false
 
-    // FIXME : optimize the deduplication when adding new items to the adapter
-    private var needDeduplication: Boolean = false
+    private val handler = Handler()
 
     companion object {
         fun newInstance() = TransactionHistoryFragment()
@@ -72,7 +72,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
             false
 
         adapter.setItemClickListener { item ->
-            if (item.isPending()) return@setItemClickListener
+            if (item.isPending() || item.isAssetClaiming()) return@setItemClickListener
 
             val url = "%s/transaction/%s".format(
                 BuildConfig.REGISTRY_WEBSITE,
@@ -91,7 +91,6 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                     totalItemsCount: Int,
                     view: RecyclerView
                 ) {
-                    needDeduplication = false
                     viewModel.listTxs()
                 }
 
@@ -99,7 +98,6 @@ class TransactionHistoryFragment : BaseSupportFragment(),
         rvTxs.addOnScrollListener(endlessScrollListener)
 
         layoutSwipeRefresh.setOnRefreshListener {
-            needDeduplication = true
             viewModel.refreshTxs()
         }
 
@@ -108,6 +106,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
 
     override fun deinitComponents() {
         visibled = false
+        handler.removeCallbacksAndMessages(null)
         appLifecycleHandler.removeAppStateChangedListener(this)
         dialogController.dismiss()
         super.deinitComponents()
@@ -123,7 +122,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                     val data = res.data()
                     if (!data.isNullOrEmpty()) {
                         hideEmptyView()
-                        adapter.add(data, needDeduplication)
+                        adapter.add(data)
                     } else if (adapter.isEmpty()) {
                         showEmptyView()
                     }
@@ -199,8 +198,11 @@ class TransactionHistoryFragment : BaseSupportFragment(),
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (isVisibleToUser && !visibled) {
-            visibled = true
-            viewModel.listTxs()
+            // bit delay for better ux
+            handler.postDelayed({
+                visibled = true
+                viewModel.listTxs()
+            }, 200)
         }
     }
 

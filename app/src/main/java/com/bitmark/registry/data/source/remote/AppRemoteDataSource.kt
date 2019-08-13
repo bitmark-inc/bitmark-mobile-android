@@ -3,10 +3,7 @@ package com.bitmark.registry.data.source.remote
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.request.RegisterDeviceTokenRequest
-import com.bitmark.registry.data.source.remote.api.service.CoreApi
-import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
-import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
-import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import com.bitmark.registry.data.source.remote.api.service.*
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -22,12 +19,14 @@ class AppRemoteDataSource @Inject constructor(
     mobileServerApi: MobileServerApi,
     fileCourierServerApi: FileCourierServerApi,
     keyAccountServerApi: KeyAccountServerApi,
+    registryApi: RegistryApi,
     converter: Converter
 ) : RemoteDataSource(
     coreApi,
     mobileServerApi,
     fileCourierServerApi,
     keyAccountServerApi,
+    registryApi,
     converter
 ) {
 

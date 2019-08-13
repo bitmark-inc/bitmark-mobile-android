@@ -52,7 +52,7 @@ abstract class TransactionDao {
     @Query("SELECT MAX(`offset`) FROM `Transaction` WHERE owner = :who OR previous_owner = :who")
     abstract fun maxRelevantOffset(who: String): Single<Long>
 
-    @Query("SELECT * FROM `Transaction` WHERE owner = :who OR previous_owner = :who AND status == :status ORDER BY `offset` DESC")
+    @Query("SELECT * FROM `Transaction` WHERE (owner = :who OR previous_owner = :who) AND status == :status ORDER BY `offset` DESC")
     abstract fun listRelevantByStatusDesc(
         who: String,
         status: TransactionData.Status

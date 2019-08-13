@@ -5,12 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.util.extension.append
 import com.bitmark.registry.util.extension.shortenAccountNumber
 import com.bitmark.registry.util.modelview.BitmarkModelView
-import com.bitmark.registry.util.modelview.BitmarkModelView.AssetType.*
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_your_properties.view.*
 
 
@@ -28,19 +29,18 @@ class YourPropertiesRecyclerViewAdapter() :
     private var itemClickListener: ((BitmarkModelView) -> Unit)? = null
 
     internal fun add(
-        items: List<BitmarkModelView>,
-        needDeduplication: Boolean = false
+        items: List<BitmarkModelView>
     ) {
-        if (needDeduplication) {
-            items.forEach { item ->
-                val duplicatedItemIndex =
-                    this.items.indexOfFirst { i -> i.id == item.id }
-                if (duplicatedItemIndex != -1) {
-                    this.items.removeAt(duplicatedItemIndex)
-                    notifyItemRemoved(duplicatedItemIndex)
-                }
+        // FIXME deduplicate items, need to be improved later on
+        items.forEach { item ->
+            val duplicatedItemIndex =
+                this.items.indexOfFirst { i -> i.id == item.id }
+            if (duplicatedItemIndex != -1) {
+                this.items.removeAt(duplicatedItemIndex)
+                notifyItemRemoved(duplicatedItemIndex)
             }
         }
+
         val pos = this.items.size
         this.items.addAll(items)
         notifyItemRangeInserted(pos, items.size)
@@ -179,26 +179,27 @@ class YourPropertiesRecyclerViewAdapter() :
                     )
                 }
 
-                tvName.text = item.name
+                tvName.text =
+                    if (item.isMusicClaiming()) "${item.name} [${item.edition
+                        ?: "?"}/${item.totalEdition ?: "?"}]" else item.name
                 tvIssuer.text =
-                    if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.issuer.shortenAccountNumber()
+                    if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.readableIssuer
+                        ?: item.issuer.shortenAccountNumber()
                 tvConfirmedAt.text = when (item.status) {
                     BitmarkData.Status.ISSUING -> context.getString(R.string.registering).toUpperCase()
                     BitmarkData.Status.TRANSFERRING -> context.getString(R.string.incoming).toUpperCase()
                     BitmarkData.Status.SETTLED -> item.confirmedAt()?.toUpperCase()
                     else -> ""
                 }
-                ivAssetType.setImageResource(
-                    when (item.assetType) {
-                        IMAGE -> R.drawable.ic_asset_image
-                        VIDEO -> R.drawable.ic_asset_video
-                        HEALTH -> R.drawable.ic_asset_health_data
-                        MEDICAL -> R.drawable.ic_asset_medical_record
-                        ZIP -> R.drawable.ic_asset_zip
-                        DOC -> R.drawable.ic_asset_doc
-                        UNKNOWN -> R.drawable.ic_asset_unknow
-                    }
-                )
+
+                if (item.isMusicClaiming()) {
+                    val url =
+                        "${BuildConfig.PROFILE_SERVER_ENDPOINT}/s/asset/thumbnail?asset_id=${item.assetId}"
+                    Glide.with(context).load(url).into(ivAssetType)
+                } else {
+                    ivAssetType.setImageResource(item.getThumbnailRes())
+                }
+
             }
         }
 

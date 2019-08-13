@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutRootCert"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_white_stateful"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingBottom="@dimen/dp_24"
+    android:paddingEnd="@dimen/dp_16"
+    android:paddingStart="@dimen/dp_16"
+    android:paddingTop="@dimen/dp_24"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_hideable="true"
+    >
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivLogo"
+      android:layout_width="@dimen/dp_16"
+      android:layout_height="@dimen/dp_16"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:srcCompat="@drawable/ic_bm_logo"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvSecureByBm"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/dp_6"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/secure_by_bitmark_dot"
+      android:textAllCaps="true"
+      android:textColor="@color/emperor"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintBottom_toBottomOf="@id/ivLogo"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/ivLogo"
+      />
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivPlus"
+      android:layout_width="@dimen/dp_16"
+      android:layout_height="@dimen/dp_16"
+      android:layout_marginTop="@dimen/dp_3"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvSecureByBm"
+      app:srcCompat="@drawable/ic_plus_black"
+      />
+
+  <View
+      android:id="@+id/vDivider"
+      android:layout_width="0dp"
+      android:layout_height="@dimen/dp_3"
+      android:layout_marginEnd="@dimen/dp_10"
+      android:background="@color/emperor"
+      app:layout_constraintBottom_toBottomOf="@id/ivPlus"
+      app:layout_constraintEnd_toStartOf="@id/ivPlus"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@id/ivPlus"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvAssetIdLabel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_16"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/asset_id_colon"
+      android:textAllCaps="true"
+      android:textColor="@color/emperor"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/vDivider"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvAssetId"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/dp_8"
+      android:layout_marginTop="@dimen/dp_16"
+      android:ellipsize="end"
+      android:fontFamily="@font/andale_regular_mono"
+      android:maxLines="1"
+      android:textColor="@color/emperor"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintBottom_toBottomOf="@id/tvAssetIdLabel"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/tvAssetIdLabel"
+      tools:text="9c215c935a641614f5b703034891a"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvIssuanceDateLabel"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_6"
+      android:fontFamily="@font/andale_regular_mono"
+      android:text="@string/date_of_issuance_colon"
+      android:textAllCaps="true"
+      android:textColor="@color/emperor"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvAssetIdLabel"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvIssuanceDate"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/dp_8"
+      android:layout_marginTop="@dimen/dp_16"
+      android:ellipsize="end"
+      android:fontFamily="@font/andale_regular_mono"
+      android:maxLines="1"
+      android:textAllCaps="true"
+      android:textColor="@color/emperor"
+      android:textSize="@dimen/sp_14"
+      app:layout_constraintBottom_toBottomOf="@id/tvIssuanceDateLabel"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/tvIssuanceDateLabel"
+      tools:text="2018 DEC 01"
+      />
+
+  <androidx.appcompat.widget.AppCompatButton
+      android:id="@+id/btnViewBmOpt"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:layout_marginTop="@dimen/dp_16"
+      android:background="@drawable/bg_athens_gray_b3_stateful"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/view_bitmark_opt"
+      android:textColor="@color/blue_ribbon"
+      android:textSize="@dimen/sp_16"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvIssuanceDateLabel"
+      tools:visibility="visible"
+      style="?android:attr/borderlessButtonStyle"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

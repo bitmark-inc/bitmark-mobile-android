@@ -49,7 +49,7 @@
     </activity>
 
     <activity
-        android:name=".feature.property_detail.PropertyDetailContainerActivity"
+        android:name=".feature.property_detail.PropertyDetailActivity"
         android:launchMode="singleTop"
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustResize"/>
@@ -80,6 +80,16 @@
     <activity
         android:name=".feature.partner_authorization.PartnerAuthorizationActivity"
         android:screenOrientation="portrait"/>
+
+    <activity
+        android:name=".feature.music_claiming.MusicClaimingActivity"
+        android:screenOrientation="portrait"
+        />
+
+    <activity
+        android:name=".feature.transfer.TransferActivity"
+        android:screenOrientation="portrait"
+        android:windowSoftInputMode="adjustResize"/>
 
     <!-- Firebase message service -->
     <service

@@ -21,4 +21,8 @@
   <color name="white_trans_aa">#AAFFFFFF</color>
   <color name="silver_trans_aa">#AAC1C1C1</color>
   <color name="alabaster">#F8F8F8</color>
+  <color name="emperor">#545454</color>
+  <color name="athens_gray_b3">#B3EDF0F4</color>
+  <color name="athens_gray">#EDF0F4</color>
+  <color name="dusty_gray_2">#979797</color>
 </resources>

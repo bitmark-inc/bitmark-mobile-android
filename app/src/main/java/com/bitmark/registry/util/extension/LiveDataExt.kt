@@ -3,6 +3,7 @@ package com.bitmark.registry.util.extension
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.MutableLiveData
+import com.bitmark.registry.util.livedata.BufferedLiveData
 
 
 /**
@@ -13,5 +14,17 @@ import androidx.lifecycle.MutableLiveData
  */
 
 fun <T> MutableLiveData<T>.set(value: T) {
-    Handler(Looper.getMainLooper()).post { this.value = value }
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+        Handler(Looper.getMainLooper()).post { this.value = value }
+    } else {
+        this.value = value
+    }
+}
+
+fun <T> BufferedLiveData<T>.set(value: T) {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+        Handler(Looper.getMainLooper()).post { setValue(value) }
+    } else {
+        setValue(value)
+    }
 }

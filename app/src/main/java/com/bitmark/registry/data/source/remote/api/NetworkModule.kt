@@ -49,10 +49,11 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideMobileServerApi(
-        gson: Gson, authInterceptor: MobileServerApiInterceptor
+        gson: Gson,
+        authInterceptor: MobileServerApiInterceptor
     ): MobileServerApi {
         return ServiceGenerator.createService(
-            BuildConfig.MOBILE_SERVER_EMPOINT,
+            BuildConfig.MOBILE_SERVER_ENDPOINT,
             MobileServerApi::class.java,
             gson,
             listOf(authInterceptor)
@@ -92,6 +93,16 @@ class NetworkModule {
         return ServiceGenerator.createService(
             BuildConfig.KEY_ACCOUNT_SERVER_ENDPOINT,
             KeyAccountServerApi::class.java,
+            gson
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideRegistryApi(gson: Gson): RegistryApi {
+        return ServiceGenerator.createService(
+            BuildConfig.REGISTRY_API_ENDPOINT,
+            RegistryApi::class.java,
             gson
         )
     }

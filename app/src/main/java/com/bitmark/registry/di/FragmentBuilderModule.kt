@@ -18,8 +18,6 @@ import com.bitmark.registry.feature.properties.PropertiesFragment
 import com.bitmark.registry.feature.properties.PropertiesModule
 import com.bitmark.registry.feature.properties.yours.YourPropertiesFragment
 import com.bitmark.registry.feature.properties.yours.YourPropertiesModule
-import com.bitmark.registry.feature.property_detail.PropertyDetailFragment
-import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingFragment
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseShowingModule
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
@@ -38,8 +36,6 @@ import com.bitmark.registry.feature.transactions.action_required.ActionRequiredF
 import com.bitmark.registry.feature.transactions.action_required.ActionRequiredModule
 import com.bitmark.registry.feature.transactions.history.TransactionHistoryFragment
 import com.bitmark.registry.feature.transactions.history.TransactionHistoryModule
-import com.bitmark.registry.feature.transfer.TransferFragment
-import com.bitmark.registry.feature.transfer.TransferModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -64,14 +60,6 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [YourPropertiesModule::class])
     @FragmentScope
     internal abstract fun bindYourPropertiesFragment(): YourPropertiesFragment
-
-    @ContributesAndroidInjector(modules = [PropertyDetailModule::class])
-    @FragmentScope
-    internal abstract fun bindPropertyDetailFragment(): PropertyDetailFragment
-
-    @ContributesAndroidInjector(modules = [TransferModule::class])
-    @FragmentScope
-    internal abstract fun bindTransferFragment(): TransferFragment
 
     @ContributesAndroidInjector(modules = [ActionRequiredModule::class])
     @FragmentScope

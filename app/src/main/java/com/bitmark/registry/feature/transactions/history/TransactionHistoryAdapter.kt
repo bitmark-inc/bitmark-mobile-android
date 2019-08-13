@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
+import com.bitmark.registry.util.DateTimeUtil.Companion.ISO8601_FORMAT
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.TransactionModelView
 import kotlinx.android.synthetic.main.item_tx_history.view.*
@@ -29,19 +30,18 @@ class TransactionHistoryAdapter :
     }
 
     fun add(
-        items: List<TransactionModelView>,
-        needDeduplication: Boolean = false
+        items: List<TransactionModelView>
     ) {
-        if (needDeduplication) {
-            items.forEach { item ->
-                val duplicatedItemIndex =
-                    this.items.indexOfFirst { i -> i.id == item.id }
-                if (duplicatedItemIndex != -1) {
-                    this.items.removeAt(duplicatedItemIndex)
-                    notifyItemRemoved(duplicatedItemIndex)
-                }
+        // FIXME deduplicate items, need to be improved later on
+        items.forEach { item ->
+            val duplicatedItemIndex =
+                this.items.indexOfFirst { i -> i.id == item.id }
+            if (duplicatedItemIndex != -1) {
+                this.items.removeAt(duplicatedItemIndex)
+                notifyItemRemoved(duplicatedItemIndex)
             }
         }
+
         val pos = this.items.size
         this.items.addAll(items)
         notifyItemRangeInserted(pos, items.size)
@@ -112,53 +112,86 @@ class TransactionHistoryAdapter :
         fun bind(tx: TransactionModelView) {
             this.tx = tx
             with(itemView) {
-                if (tx.isPending()) {
-                    tvTxTypeShort.visible()
-                    ivConfirmed.gone()
-                    tvConfirmedAt.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.silver
-                        )
-                    )
-                    tvConfirmedAt.text =
-                        "%s...".format(context.getString(R.string.pending))
-                    tvTxTypeShort.setText(if (tx.isIssuance()) R.string.issuance else R.string.transfer)
-
-                } else {
-                    tvTxTypeShort.gone()
-                    ivConfirmed.visible()
-                    tvConfirmedAt.setTextColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.blue_ribbon
-                        )
-                    )
-                    tvConfirmedAt.text = tx.confirmedAt()
-                }
 
                 tvName.text = tx.assetName
 
-                if (tx.isIssuance()) {
-                    tvTxType.text = context.getString(R.string.issuance)
-                    tvTo.invisible()
-                    tvReceiver.invisible()
+                if (tx.isAssetClaiming()) {
+
+                    tvTxInfo.visible()
+                    ivConfirmed.gone()
+                    tvTxType.setText(R.string.claim_request)
                     tvSender.text =
                         context.getString(R.string.you).toUpperCase()
+                    tvReceiver.text = tx.to?.shortenAccountNumber()
+
+                    when {
+                        tx.isAssetClaimingPending() -> {
+                            tvTxInfo.setText(R.string.pending_three_dot)
+                            tvConfirmedAt.setText(R.string.waiting_artist_confirm_three_dot)
+                            tvTxInfo.setTextColorRes(R.color.dusty_gray_2)
+                            tvConfirmedAt.setTextColorRes(R.color.dusty_gray_2)
+                        }
+                        tx.isAssetClaimingAccepted() -> {
+                            tvTxInfo.setText(R.string.accepted)
+                            tvConfirmedAt.text = tx.confirmedAt(ISO8601_FORMAT)
+                            tvTxInfo.setTextColorRes(R.color.blue_ribbon)
+                            tvConfirmedAt.setTextColorRes(R.color.blue_ribbon)
+                        }
+                        tx.isAssetClaimingRejected() -> {
+                            tvTxInfo.setText(R.string.rejected)
+                            tvConfirmedAt.text = tx.confirmedAt(ISO8601_FORMAT)
+                            tvTxInfo.setTextColorRes(R.color.torch_red)
+                            tvConfirmedAt.setTextColorRes(R.color.torch_red)
+                        }
+                    }
+
                 } else {
-                    tvTxType.text = context.getString(R.string.p2p_transfer)
-                    tvTo.visible()
-                    tvReceiver.visible()
-                    if (tx.isOwning()) {
+
+                    if (tx.isPending()) {
+                        tvTxInfo.visible()
+                        ivConfirmed.gone()
+                        tvConfirmedAt.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.silver
+                            )
+                        )
+                        tvConfirmedAt.setText(R.string.pending_three_dot)
+                        tvTxInfo.setText(if (tx.isIssuance()) R.string.issuance else R.string.transfer)
+
+                    } else {
+                        tvTxInfo.gone()
+                        ivConfirmed.visible()
+                        tvConfirmedAt.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.blue_ribbon
+                            )
+                        )
+                        tvConfirmedAt.text = tx.confirmedAt()
+                    }
+
+                    if (tx.isIssuance()) {
+                        tvTxType.setText(R.string.issuance)
+                        tvTo.invisible()
+                        tvReceiver.invisible()
                         tvSender.text =
-                            tx.previousOwner?.shortenAccountNumber() ?: ""
-                        tvReceiver.text =
                             context.getString(R.string.you).toUpperCase()
                     } else {
-                        tvReceiver.text =
-                            tx.previousOwner?.shortenAccountNumber() ?: ""
-                        tvSender.text =
-                            context.getString(R.string.you).toUpperCase()
+                        tvTxType.setText(R.string.p2p_transfer)
+                        tvTo.visible()
+                        tvReceiver.visible()
+                        if (tx.isOwning()) {
+                            tvSender.text =
+                                tx.previousOwner?.shortenAccountNumber() ?: ""
+                            tvReceiver.text =
+                                context.getString(R.string.you).toUpperCase()
+                        } else {
+                            tvReceiver.text =
+                                tx.previousOwner?.shortenAccountNumber() ?: ""
+                            tvSender.text =
+                                context.getString(R.string.you).toUpperCase()
+                        }
                     }
                 }
             }

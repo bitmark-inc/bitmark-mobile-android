@@ -2,6 +2,7 @@ package com.bitmark.registry.data.source.remote.api.service
 
 import com.bitmark.registry.data.source.remote.api.request.RegisterDeviceTokenRequest
 import com.bitmark.registry.data.source.remote.api.request.RegisterJwtRequest
+import com.bitmark.registry.data.source.remote.api.response.AssetClaimingRequestsResponse
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
@@ -32,4 +33,6 @@ interface MobileServerApi {
         @Body request: RegisterDeviceTokenRequest
     ): Completable
 
+    @GET("api/claim_requests")
+    fun getAssetClaimRequests(@Query("asset_id") assetId: String): Single<AssetClaimingRequestsResponse>
 }

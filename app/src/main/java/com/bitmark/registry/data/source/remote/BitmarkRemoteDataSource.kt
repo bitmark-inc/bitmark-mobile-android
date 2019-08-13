@@ -21,10 +21,8 @@ import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.middleware.Progress
 import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
-import com.bitmark.registry.data.source.remote.api.service.CoreApi
-import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
-import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
-import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import com.bitmark.registry.data.source.remote.api.service.*
+import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.sdk.features.Asset
 import com.bitmark.sdk.features.Bitmark
@@ -52,6 +50,7 @@ class BitmarkRemoteDataSource @Inject constructor(
     mobileServerApi: MobileServerApi,
     fileCourierServerApi: FileCourierServerApi,
     keyAccountServerApi: KeyAccountServerApi,
+    registryApi: RegistryApi,
     converter: Converter,
     private val progressPublisher: PublishSubject<Progress>
 ) : RemoteDataSource(
@@ -59,6 +58,7 @@ class BitmarkRemoteDataSource @Inject constructor(
     mobileServerApi,
     fileCourierServerApi,
     keyAccountServerApi,
+    registryApi,
     converter
 ) {
 
@@ -102,7 +102,21 @@ class BitmarkRemoteDataSource @Inject constructor(
                 }
 
             })
-        }).subscribeOn(Schedulers.io())
+        }).subscribeOn(Schedulers.io()).flatMap { p ->
+            val bitmarks = p.first
+            val musicClaimingBm =
+                bitmarks.filter { b -> b.assetId == OMNISCIENT_ASSET_ID }
+            if (musicClaimingBm.isNullOrEmpty()) Single.just(p)
+            else {
+                getAssetClaimingInfo(OMNISCIENT_ASSET_ID).map { res ->
+                    musicClaimingBm.forEach { b ->
+                        b.totalEdition = res.limitedEdition
+                        b.readableIssuer = res.issuer
+                    }
+                    p
+                }
+            }
+        }
     }
 
     fun transfer(params: TransferParams): Single<String> = Single.create(
@@ -144,7 +158,18 @@ class BitmarkRemoteDataSource @Inject constructor(
                         }
                     })
             }
-        ).subscribeOn(Schedulers.io())
+        ).subscribeOn(Schedulers.io()).flatMap { p ->
+            val bitmark = p.first
+            if (OMNISCIENT_ASSET_ID == bitmark?.assetId) {
+                getAssetClaimingInfo(OMNISCIENT_ASSET_ID).map { res ->
+                    bitmark.totalEdition = res.limitedEdition
+                    bitmark.readableIssuer = res.issuer
+                    p
+                }
+            } else {
+                Single.just(p)
+            }
+        }
 
     fun issueBitmark(params: IssuanceParams) =
         Single.create<List<String>> { emt ->
@@ -376,7 +401,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                     )
                 }
             }.onErrorResumeNext { e ->
-                if (e is HttpException && (e.statusCode >= 400 || e.statusCode < 500)) {
+                if (e is HttpException && (e.statusCode in 400 until 500)) {
                     Single.just(AssetFileInfoResponse.newInstance())
                 } else Single.error<AssetFileInfoResponse>(e)
             }.subscribeOn(Schedulers.io())
@@ -409,6 +434,16 @@ class BitmarkRemoteDataSource @Inject constructor(
     }.subscribeOn(Schedulers.io())
 
     //endregion Asset
+
+    //region Claim
+
+    fun getAssetClaimingInfo(assetId: String) =
+        registryApi.getAssetClaimingInfo(assetId).subscribeOn(Schedulers.io())
+
+    fun getAssetClaimRequests(assetId: String) =
+        mobileServerApi.getAssetClaimRequests(assetId).subscribeOn(Schedulers.io())
+
+    //endregion Claim
 
 
 }

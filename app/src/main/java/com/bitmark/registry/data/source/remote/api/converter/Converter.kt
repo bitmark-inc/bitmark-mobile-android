@@ -32,7 +32,8 @@ open class Converter @Inject constructor() {
         b.issuer,
         b.offset,
         b.owner,
-        BitmarkData.map(b.status)
+        BitmarkData.map(b.status),
+        edition = b.edition
     )
 
     fun mapAsset(): (AssetRecord) -> AssetData = { a ->

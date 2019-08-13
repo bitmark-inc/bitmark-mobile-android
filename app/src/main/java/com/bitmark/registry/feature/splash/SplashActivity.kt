@@ -93,7 +93,7 @@ class SplashActivity : BaseAppCompatActivity() {
         viewModel.getExistingAccountLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    val info = res.data()!!
+                    val info = res.data() ?: return@Observer
                     val accountNumber = info.first
                     val authRequired = info.second
                     val keyAlias = info.third

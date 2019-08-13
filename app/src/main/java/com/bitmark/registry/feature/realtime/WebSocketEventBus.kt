@@ -138,7 +138,8 @@ class WebSocketEventBus(
                 subscribeBitmarkChanged(accountNumber)
                 subscribeNewPendingTx(accountNumber)
                 Log.d(TAG, "subscribe events")
-            } catch (ignore: Throwable) {
+            } catch (e: Throwable) {
+                Log.e(TAG, "subscribe events error: $e message ${e.message}")
             }
         }
     }
@@ -150,13 +151,14 @@ class WebSocketEventBus(
                 unsubscribeBitmarkChanged(accountNumber)
                 Log.d(TAG, "unsubscribe events")
                 onDone?.invoke()
-            } catch (ignore: Throwable) {
+            } catch (e: Throwable) {
+                Log.e(TAG, "unsubscribe events error: $e message ${e.message}")
             }
         }
     }
 
     override fun onConnectionError(e: Throwable?) {
-        Log.d(TAG, "onConnectionError: ${e?.message}")
+        Log.d(TAG, "onConnectionError: $e message ${e?.message}")
         connectListener?.invoke(e)
     }
 

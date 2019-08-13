@@ -183,6 +183,21 @@
   <string name="could_not_send_your_authorization">Could not send your authorization. Please try again later.</string>
   <string name="please_sign_in_or_create_bitmark_account">Please sign in or create your Bitmark account to proceed.</string>
   <string name="recovery_phrase_sign_out">Recovery phrase sign-out</string>
+  <string name="secure_by_bitmark_dot">Secured by Bitmark.</string>
+  <string name="asset_id_colon">Asset Id:</string>
+  <string name="date_of_issuance_colon">Date of Issuance:</string>
+  <string name="view_bitmark_opt">View Bitmark options</string>
+  <string name="play_on_streaming_platform">Play on Streaming Platform</string>
+  <string name="download_property">Download Property</string>
+  <string name="transfer_ownership">Transfer Ownership</string>
+  <string name="bitmark_option">Bitmark Option</string>
+  <string name="to_be_able_to_transfer_this_bitmark">To be able to transfer this bitmark, please download the asset first.</string>
+  <string name="you_have_already_downloaded_this_asset">You have already downloaded this asset.</string>
+  <string name="claim_request">Claim Request</string>
+  <string name="waiting_artist_confirm_three_dot">Waiting artist confirm…</string>
+  <string name="accepted">Accepted</string>
+  <string name="rejected">Rejected</string>
+  <string name="pending_three_dot">Pending…</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

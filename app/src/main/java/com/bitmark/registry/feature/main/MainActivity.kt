@@ -12,7 +12,7 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
-import com.bitmark.registry.feature.property_detail.PropertyDetailContainerActivity
+import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.feature.transactions.TransactionsFragment
@@ -333,8 +333,8 @@ class MainActivity : BaseAppCompatActivity() {
     private fun openPropertyDetail(bitmark: BitmarkModelView) {
         switchTab(MainViewPagerAdapter.TAB_PROPERTIES)
         navigator.startActivity(
-            PropertyDetailContainerActivity::class.java,
-            PropertyDetailContainerActivity.getBundle(bitmark)
+            PropertyDetailActivity::class.java,
+            PropertyDetailActivity.getBundle(bitmark)
         )
     }
 

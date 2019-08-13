@@ -33,7 +33,7 @@ class ProvenanceRecyclerViewAdapter :
         val items = provenances.map { p ->
             Item(
                 p.confirmedAt(),
-                p.owner,
+                p.owner!!,
                 accountNumber,
                 p.isPending()
             )
@@ -47,7 +47,7 @@ class ProvenanceRecyclerViewAdapter :
         val items = provenances.map { p ->
             Item(
                 p.confirmedAt(),
-                p.owner,
+                p.owner!!,
                 p.accountNumber!!,
                 p.isPending()
             )

@@ -2,7 +2,9 @@ package com.bitmark.registry.util.modelview
 
 import android.os.Parcelable
 import android.webkit.MimeTypeMap
+import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.util.DateTimeUtil
 import com.bitmark.registry.util.DateTimeUtil.Companion.OFFICIAL_DATE_FORMAT
 import kotlinx.android.parcel.Parcelize
@@ -22,19 +24,24 @@ class BitmarkModelView constructor(
     private val confirmedAt: String?,
     private val createdAt: String? = null,
     val issuer: String,
+    val readableIssuer: String?,
     val headId: String,
     val metadata: Map<String, String>?,
     val accountNumber: String,
     var seen: Boolean = false,
     var assetType: AssetType = AssetType.UNKNOWN,
-    val status: BitmarkData.Status,
+    var status: BitmarkData.Status,
     var assetFile: File? = null,
     val assetId: String,
     var previousOwner: String? = null,
-    val offset: Long
+    val offset: Long,
+    val registrant: String? = null,
+    val edition: Int? = null,
+    val totalEdition: Int? = null
 ) : Parcelable {
 
     companion object {
+
         fun newInstance(
             bitmark: BitmarkData,
             accountNumber: String
@@ -49,6 +56,7 @@ class BitmarkModelView constructor(
                 confirmedAt = bitmark.confirmedAt,
                 createdAt = bitmark.createdAt,
                 issuer = bitmark.issuer,
+                readableIssuer = bitmark.readableIssuer,
                 headId = bitmark.headId,
                 metadata = bitmark.asset?.metadata ?: mapOf(),
                 accountNumber = accountNumber,
@@ -57,7 +65,10 @@ class BitmarkModelView constructor(
                 status = bitmark.status,
                 assetFile = assetFile,
                 assetId = bitmark.assetId,
-                offset = bitmark.offset
+                offset = bitmark.offset,
+                registrant = bitmark.asset?.registrant,
+                edition = bitmark.edition,
+                totalEdition = bitmark.totalEdition
             )
         }
 
@@ -188,4 +199,16 @@ class BitmarkModelView constructor(
 
     fun isPending() =
         status == BitmarkData.Status.TRANSFERRING || status == BitmarkData.Status.ISSUING
+
+    fun isMusicClaiming() = OMNISCIENT_ASSET_ID == assetId
+
+    fun getThumbnailRes() = when (assetType) {
+        AssetType.IMAGE -> R.drawable.ic_asset_image
+        AssetType.VIDEO -> R.drawable.ic_asset_video
+        AssetType.HEALTH -> R.drawable.ic_asset_health_data
+        AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
+        AssetType.ZIP -> R.drawable.ic_asset_zip
+        AssetType.DOC -> R.drawable.ic_asset_doc
+        AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
+    }
 }

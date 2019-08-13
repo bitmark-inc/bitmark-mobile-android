@@ -3,10 +3,7 @@ package com.bitmark.registry.data.source.remote
 import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.request.RegisterEncKeyRequest
 import com.bitmark.registry.data.source.remote.api.request.RegisterJwtRequest
-import com.bitmark.registry.data.source.remote.api.service.CoreApi
-import com.bitmark.registry.data.source.remote.api.service.FileCourierServerApi
-import com.bitmark.registry.data.source.remote.api.service.KeyAccountServerApi
-import com.bitmark.registry.data.source.remote.api.service.MobileServerApi
+import com.bitmark.registry.data.source.remote.api.service.*
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.identity.Registration
 import io.reactivex.Completable
@@ -26,12 +23,14 @@ class AccountRemoteDataSource @Inject constructor(
     mobileServerApi: MobileServerApi,
     fileCourierServerApi: FileCourierServerApi,
     keyAccountServerApi: KeyAccountServerApi,
+    registryApi: RegistryApi,
     converter: Converter
 ) : RemoteDataSource(
     coreApi,
     mobileServerApi,
     fileCourierServerApi,
     keyAccountServerApi,
+    registryApi,
     converter
 ) {
 

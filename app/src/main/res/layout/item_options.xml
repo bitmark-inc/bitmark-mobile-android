@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_56"
+    android:background="@drawable/bg_white_stateful"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingEnd="@dimen/dp_20"
+    android:paddingStart="@dimen/dp_20"
+    >
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/ivIcon"
+      android:layout_width="@dimen/dp_24"
+      android:layout_height="@dimen/dp_24"
+      tools:srcCompat="@drawable/ic_swap"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvOption"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/dp_32"
+      android:fontFamily="@font/avenir_medium"
+      android:textColor="@color/emperor"
+      android:textSize="@dimen/sp_16"
+      tools:text="This is the options text"
+      />
+
+</LinearLayout>

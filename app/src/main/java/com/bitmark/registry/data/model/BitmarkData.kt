@@ -60,7 +60,7 @@ data class BitmarkData(
     val issuedAt: String?,
 
     @Expose
-    val issuer: String,
+    var issuer: String,
 
     @Expose
     val offset: Long,
@@ -72,7 +72,19 @@ data class BitmarkData(
     val status: Status,
 
     @Expose
-    var seen: Boolean = false
+    var seen: Boolean = false,
+
+    @Expose
+    val edition: Int? = null,
+
+    // We are no longer support for music claiming so it would be removed later
+    @Expose
+    @ColumnInfo(name = "total_edition")
+    var totalEdition: Int? = null,
+
+    @Expose
+    @ColumnInfo(name = "readable_issuer")
+    var readableIssuer: String? = null
 
 ) {
 
