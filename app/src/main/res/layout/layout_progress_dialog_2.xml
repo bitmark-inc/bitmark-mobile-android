@@ -31,14 +31,12 @@
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_3"
-        android:layout_marginTop="@dimen/dp_28"
-        android:indeterminateTint="@color/colorAccent"
+        android:layout_width="@dimen/dp_26"
+        android:layout_height="@dimen/dp_36"
+        android:layout_marginTop="@dimen/dp_16"
+        android:indeterminateTint="@android:color/black"
         android:indeterminateTintMode="src_in"
-        android:progressDrawable="@drawable/bg_progress_blue_ribbon"
-        tools:progress="40"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        style="@style/Widget.AppCompat.ProgressBar"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -47,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dp_40"
         android:layout_marginStart="@dimen/dp_40"
-        android:layout_marginTop="@dimen/dp_28"
+        android:layout_marginTop="@dimen/dp_16"
         android:ellipsize="end"
         android:fontFamily="@font/avenir_medium"
         android:gravity="center"
