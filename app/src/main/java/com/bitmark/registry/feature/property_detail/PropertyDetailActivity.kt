@@ -7,6 +7,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
@@ -338,11 +339,16 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
                 res.isLoading() -> {
                     progressBar.visible()
-                    Snackbar.make(
+                    val snackbar = Snackbar.make(
                         rvMetadata,
                         R.string.deleting_your_rights_three_dot,
                         Snackbar.LENGTH_SHORT
-                    ).show()
+                    )
+                    val view = snackbar.view
+                    view.background = getDrawable(R.drawable.bg_wild_sand_shadow)
+                    view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        ?.setTextColorRes(android.R.color.black)
+                    snackbar.show()
                     blocked = true
                 }
             }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.widget.TextView
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
@@ -142,11 +143,16 @@ class TransferActivity : BaseAppCompatActivity() {
 
                 res.isLoading() -> {
                     blocked = true
-                    Snackbar.make(
+                    val snackbar = Snackbar.make(
                         btnTransfer,
                         R.string.transferring_your_rights_three_dot,
                         Snackbar.LENGTH_SHORT
-                    ).show()
+                    )
+                    val view = snackbar.view
+                    view.background = getDrawable(R.drawable.bg_wild_sand_shadow)
+                    view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        ?.setTextColorRes(android.R.color.black)
+                    snackbar.show()
                     progressBar.visible()
                 }
             }

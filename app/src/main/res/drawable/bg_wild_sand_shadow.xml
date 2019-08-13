@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Shadow Stack -->
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#01C1C1C1"/>
+    </shape>
+  </item>
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#07C1C1C1"/>
+    </shape>
+  </item>
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#0FC1C1C1"/>
+    </shape>
+  </item>
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#11C1C1C1"/>
+    </shape>
+  </item>
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#17C1C1C1"/>
+    </shape>
+  </item>
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#1FC1C1C1"/>
+    </shape>
+  </item>
+  <item>
+    <shape>
+      <padding android:top="@dimen/dp_1"/>
+      <solid android:color="#21C1C1C1"/>
+    </shape>
+  </item>
+
+  <!-- Background -->
+  <item>
+    <shape>
+      <solid android:color="@color/wild_sand"/>
+    </shape>
+  </item>
+</layer-list>

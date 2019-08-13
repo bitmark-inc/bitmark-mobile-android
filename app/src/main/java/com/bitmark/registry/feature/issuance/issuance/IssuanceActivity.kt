@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
@@ -327,11 +328,17 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
                 res.isLoading() -> {
                     blocked = true
-                    Snackbar.make(
+                    val snackbar = Snackbar.make(
                         btnRegister,
                         R.string.registering_your_rights_three_dot,
                         Snackbar.LENGTH_SHORT
-                    ).show()
+                    )
+                    val view = snackbar.view
+                    view.background =
+                        getDrawable(R.drawable.bg_wild_sand_shadow)
+                    view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        ?.setTextColorRes(android.R.color.black)
+                    snackbar.show()
                     progressBar.visible()
                 }
             }
