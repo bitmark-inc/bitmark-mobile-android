@@ -13,12 +13,16 @@ import android.os.Bundle
  */
 class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
 
-    private var runningActivities = 0
+    private var runningActivityCount = 0
+
+    private var runningActivity: Activity? = null
 
     private var isConfigChanged = false
 
     private var appStateChangedListeners =
         mutableListOf<AppStateChangedListener>()
+
+    fun getRunningActivity() = runningActivity
 
     fun addAppStateChangedListener(listener: AppStateChangedListener) {
         if (appStateChangedListeners.contains(listener)) return
@@ -36,7 +40,8 @@ class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityStarted(activity: Activity?) {
-        if (++runningActivities == 1 && !isConfigChanged) {
+        if (++runningActivityCount == 1 && !isConfigChanged) {
+            runningActivity = activity
             appStateChangedListeners.forEach { l -> l.onForeground() }
         }
     }
@@ -52,7 +57,8 @@ class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity?) {
         isConfigChanged = activity?.isChangingConfigurations ?: false
-        if (--runningActivities == 0 && !isConfigChanged) {
+        if (--runningActivityCount == 0 && !isConfigChanged) {
+            runningActivity = null
             appStateChangedListeners.forEach { l -> l.onBackground() }
         }
     }

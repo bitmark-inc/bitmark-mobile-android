@@ -3,6 +3,7 @@ package com.bitmark.registry.util.view
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDialog
+import com.bitmark.registry.R
 
 
 /**
@@ -14,7 +15,7 @@ import androidx.appcompat.app.AppCompatDialog
 abstract class BaseAppCompatDialog(context: Context) :
     AppCompatDialog(
         context,
-        android.R.style.Theme_Translucent_NoTitleBar
+        R.style.Theme_AppCompat_Light_NoActionBar_Translucent
     ) {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
+import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import dagger.Module
@@ -43,4 +44,12 @@ class AppModule {
     @Provides
     @Singleton
     fun provideAppLifecycleHandler() = AppLifecycleHandler()
+
+    @Provides
+    @Singleton
+    fun provideBmServerAuthentication(
+        context: Context,
+        appLifecycleHandler: AppLifecycleHandler,
+        accountRepo: AccountRepository
+    ) = BmServerAuthentication(context, appLifecycleHandler, accountRepo)
 }

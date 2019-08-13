@@ -1,6 +1,6 @@
 package com.bitmark.registry.feature
 
-import android.app.Activity
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialog
@@ -13,7 +13,7 @@ import java.util.*
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class DialogController(private val activity: Activity) {
+class DialogController(private val context: Context) {
 
     private val queue = ArrayDeque<AppCompatDialog>()
 
@@ -39,12 +39,12 @@ class DialogController(private val activity: Activity) {
     fun alert(
         title: String,
         message: String,
-        text: String = activity.getString(android.R.string.ok),
+        text: String = context.getString(android.R.string.ok),
         cancelable: Boolean = false,
         clickEvent: () -> Unit = {}
     ) {
         val dialog =
-            AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+            AlertDialog.Builder(context).setTitle(title).setMessage(message)
                 .setPositiveButton(text) { d, _ ->
                     d.dismiss()
                     clickEvent.invoke()
@@ -62,7 +62,7 @@ class DialogController(private val activity: Activity) {
         clickEvent: () -> Unit = {}
     ) {
         val dialog =
-            AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+            AlertDialog.Builder(context).setTitle(title).setMessage(message)
                 .setPositiveButton(text) { d, _ ->
                     d.dismiss()
                     clickEvent.invoke()
@@ -78,13 +78,13 @@ class DialogController(private val activity: Activity) {
         title: String,
         message: String,
         cancelable: Boolean = false,
-        positive: String = activity.getString(android.R.string.ok),
+        positive: String = context.getString(android.R.string.ok),
         positiveEvent: () -> Unit = {},
-        negative: String = activity.getString(android.R.string.cancel),
+        negative: String = context.getString(android.R.string.cancel),
         negativeEvent: () -> Unit = {}
     ) {
         val dialog =
-            AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+            AlertDialog.Builder(context).setTitle(title).setMessage(message)
                 .setPositiveButton(positive) { d, _ ->
                     d.dismiss()
                     positiveEvent.invoke()
@@ -113,7 +113,7 @@ class DialogController(private val activity: Activity) {
         negativeEvent: () -> Unit = {}
     ) {
         val dialog =
-            AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+            AlertDialog.Builder(context).setTitle(title).setMessage(message)
                 .setPositiveButton(positive) { d, _ ->
                     d.dismiss()
                     positiveEvent.invoke()

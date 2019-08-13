@@ -8,6 +8,8 @@ import com.bitmark.registry.data.source.remote.AccountRemoteDataSource
 import com.bitmark.registry.data.source.remote.api.middleware.Cache
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -56,7 +58,11 @@ class AccountRepository(
             timestamp,
             signature,
             requester
-        ).doAfterSuccess { jwt -> Cache.getInstance().mobileServerJwt = jwt }
+        ).doAfterSuccess { jwt ->
+            val cache = Cache.getInstance()
+            cache.mobileServerJwt = jwt
+            cache.expiresAt = timestamp.toLong() + TimeUnit.MINUTES.toMillis(30)
+        }
     }
 
     fun registerMobileServerAccount(
@@ -104,5 +110,9 @@ class AccountRepository(
 
     fun registerIntercomUser(id: String) =
         remoteDataSource.registerIntercomUser(id)
+
+    fun checkMobileServerJwtExpiry() = Single.create<Boolean> { emt ->
+        emt.onSuccess(System.currentTimeMillis() >= Cache.getInstance().expiresAt)
+    }.subscribeOn(Schedulers.computation())
 
 }

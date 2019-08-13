@@ -28,7 +28,10 @@ class Cache private constructor() {
 
     var mobileServerJwt: String = ""
 
+    var expiresAt: Long = -1L
+
     fun clear() {
         mobileServerJwt = ""
+        expiresAt = -1L
     }
 }

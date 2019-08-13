@@ -11,6 +11,7 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.account.AccountContainerFragment
+import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
@@ -37,6 +38,9 @@ class MainActivity : BaseAppCompatActivity() {
 
     @Inject
     lateinit var dialogController: DialogController
+
+    @Inject
+    lateinit var bmServerAuthentication: BmServerAuthentication
 
     private lateinit var adapter: MainViewPagerAdapter
 
@@ -214,6 +218,7 @@ class MainActivity : BaseAppCompatActivity() {
 
     override fun deinitComponents() {
         handler.removeCallbacksAndMessages(null)
+        bmServerAuthentication.destroy()
         super.deinitComponents()
     }
 
