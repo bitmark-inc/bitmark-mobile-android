@@ -109,7 +109,10 @@ class AssetSelectionFragment : BaseSupportFragment() {
                             IssuanceActivity::class.java,
                             IssuanceActivity.getBundle(asset)
                         )
-                        navigator.popChildFragment()
+                        handler.postDelayed(
+                            { navigator.popChildFragment() },
+                            100
+                        )
                     }, 100)
                 }
 
