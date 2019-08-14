@@ -103,7 +103,7 @@ class BmServerAuthentication(
                         val activity =
                             appLifecycleHandler.getRunningActivity()
                                 ?: return@subscribe
-                        DialogController(context).alert(
+                        DialogController(activity).alert(
                             R.string.error,
                             R.string.unexpected_error
                         ) {
@@ -128,7 +128,7 @@ class BmServerAuthentication(
             KeyAuthenticationSpec.Builder(context).setKeyAlias(keyAlias).build()
         activity.loadAccount(accountNumber,
             spec,
-            DialogController(context),
+            DialogController(activity),
             successAction = action,
             setupRequiredAction = { Navigator(activity).gotoSecuritySetting() },
             canceledAction = {
