@@ -5,6 +5,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
@@ -29,7 +30,8 @@ class MainModule {
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         wsEventBus: WebSocketEventBus,
-        realtimeBus: RealtimeBus
+        realtimeBus: RealtimeBus,
+        bmServerAuthentication: BmServerAuthentication
     ) =
         MainViewModel(
             activity.lifecycle,
@@ -37,7 +39,8 @@ class MainModule {
             bitmarkRepo,
             rxLiveDataTransformer,
             wsEventBus,
-            realtimeBus
+            realtimeBus,
+            bmServerAuthentication
         )
 
     @Provides

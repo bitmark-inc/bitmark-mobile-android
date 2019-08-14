@@ -10,6 +10,7 @@ import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.extension.toJson
@@ -43,7 +44,8 @@ class MainViewModel(
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus,
-    private val realtimeBus: RealtimeBus
+    private val realtimeBus: RealtimeBus,
+    private val bmServerAuthentication: BmServerAuthentication
 ) :
     BaseViewModel(lifecycle) {
 
@@ -61,7 +63,8 @@ class MainViewModel(
 
     internal fun getBitmarkLiveData() = getBitmarkLiveData.asLiveData()
 
-    internal fun prepareDeepLinkHandlingLiveData() = prepareDeepLinkHandlingLiveData.asLiveData()
+    internal fun prepareDeepLinkHandlingLiveData() =
+        prepareDeepLinkHandlingLiveData.asLiveData()
 
     internal fun authorizeLiveData() = authorizeLiveData.asLiveData()
 
@@ -84,19 +87,20 @@ class MainViewModel(
         )
     }
 
-    internal fun prepareDeepLinkHandling() = prepareDeepLinkHandlingLiveData.add(
-        rxLiveDataTransformer.single(
-            Single.zip(
-                accountRepo.getAccountInfo().map { a -> a.first },
-                accountRepo.getKeyAlias(),
-                BiFunction { accountNumber, keyAlias ->
-                    Pair(
-                        accountNumber,
-                        keyAlias
-                    )
-                })
+    internal fun prepareDeepLinkHandling() =
+        prepareDeepLinkHandlingLiveData.add(
+            rxLiveDataTransformer.single(
+                Single.zip(
+                    accountRepo.getAccountInfo().map { a -> a.first },
+                    accountRepo.getKeyAlias(),
+                    BiFunction { accountNumber, keyAlias ->
+                        Pair(
+                            accountNumber,
+                            keyAlias
+                        )
+                    })
+            )
         )
-    )
 
     internal fun authorize(
         accountNumber: String,
@@ -285,6 +289,7 @@ class MainViewModel(
     override fun onDestroy() {
         realtimeBus.unsubscribe(this)
         wsEventBus.disconnect()
+        bmServerAuthentication.destroy()
         super.onDestroy()
     }
 }
