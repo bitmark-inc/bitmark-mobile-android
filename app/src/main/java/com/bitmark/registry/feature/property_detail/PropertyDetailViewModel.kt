@@ -65,7 +65,8 @@ class PropertyDetailViewModel(
     internal val txsSavedLiveData =
         BufferedLiveData<List<TransactionModelView>>(lifecycle)
 
-    internal val bitmarkDeletedLiveData = BufferedLiveData<String>(lifecycle)
+    internal val bitmarkTransferredLiveData =
+        BufferedLiveData<String>(lifecycle)
 
     internal fun setBitmarkId(bitmarkId: String) {
         this.bitmarkId = bitmarkId
@@ -310,9 +311,17 @@ class PropertyDetailViewModel(
             )
         }
 
-        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { bitmarkIds ->
-            if (bitmarkIds.contains(bitmarkId)) {
-                bitmarkDeletedLiveData.setValue(bitmarkId)
+        realtimeBus.bitmarkStatusChangedPublisher.subscribe(this) { t ->
+            val bitmarkId = t.first
+            if (this.bitmarkId != bitmarkId) return@subscribe
+
+            when (t.third) {
+                BitmarkData.Status.TO_BE_TRANSFERRED -> {
+                    bitmarkTransferredLiveData.set(bitmarkId)
+                }
+
+                else -> {
+                }
             }
         }
     }

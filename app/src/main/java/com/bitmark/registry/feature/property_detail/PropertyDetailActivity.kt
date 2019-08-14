@@ -345,7 +345,8 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                         Snackbar.LENGTH_SHORT
                     )
                     val view = snackbar.view
-                    view.background = getDrawable(R.drawable.bg_wild_sand_shadow)
+                    view.background =
+                        getDrawable(R.drawable.bg_wild_sand_shadow)
                     view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
                         ?.setTextColorRes(android.R.color.black)
                     snackbar.show()
@@ -450,7 +451,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             provenanceAdapter.set(txs)
         })
 
-        viewModel.bitmarkDeletedLiveData.observe(
+        viewModel.bitmarkTransferredLiveData.observe(
             this,
             Observer { navigator.anim(RIGHT_LEFT).finishActivity() })
     }
