@@ -119,6 +119,11 @@ class SplashViewModel(
                 .flatMapCompletable { accountNumber ->
                     bitmarkRepo.cleanupBitmark(
                         accountNumber
+                    ).andThen(
+                        Completable.mergeArrayDelayError(
+                            bitmarkRepo.syncPendingBitmarks(accountNumber),
+                            bitmarkRepo.syncPendingTxs(accountNumber)
+                        )
                     )
                 }.onErrorResumeNext { Completable.complete() }
 

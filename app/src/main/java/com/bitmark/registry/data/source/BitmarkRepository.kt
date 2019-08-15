@@ -90,6 +90,23 @@ class BitmarkRepository(
         }
     }
 
+    // sync pending bitmarks in local db with server
+    fun syncPendingBitmarks(owner: String) =
+        localDataSource.listBitmarksByOwnerStatus(
+            owner,
+            listOf(BitmarkData.Status.ISSUING, BitmarkData.Status.TRANSFERRING)
+        ).flatMapCompletable { bitmarks ->
+            if (bitmarks.isEmpty()) Completable.complete()
+            else {
+                val bitmarkIds = bitmarks.map { b -> b.id }
+                syncBitmarks(
+                    owner = owner,
+                    bitmarkIds = bitmarkIds,
+                    loadAsset = false
+                ).ignoreElement()
+            }
+        }
+
     // try to clean up bitmarks in local db first
     // then fetch bitmarks from local db and then fetch from server if no bitmark is returned from db
     fun listBitmarks(
@@ -353,6 +370,32 @@ class BitmarkRepository(
             }
 
             txs
+        }
+
+    // sync all pending txs in local database with server
+    fun syncPendingTxs(stakeholder: String) =
+        localDataSource.listRelevantTxsByStatus(
+            stakeholder,
+            TransactionData.Status.PENDING
+        ).flatMapCompletable { txs ->
+            if (txs.isEmpty()) Completable.complete()
+            else {
+                val bitmarkIds =
+                    txs.distinctBy { t -> t.bitmarkId }.map { b -> b.id }
+                val syncTxsStream =
+                    mutableListOf<Single<List<TransactionData>>>()
+                bitmarkIds.forEach { id ->
+                    syncTxsStream.add(
+                        syncTxs(
+                            bitmarkId = id,
+                            loadAsset = false,
+                            loadBlock = true,
+                            sent = true
+                        )
+                    )
+                }
+                Single.merge(syncTxsStream).ignoreElements()
+            }
         }
 
     // fetch txs by bitmark id in local db
