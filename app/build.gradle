@@ -278,6 +278,8 @@ dependencies {
     transitive = true
   }
 
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-2'
+
 
   // Testing
   testImplementation 'junit:junit:4.12'
