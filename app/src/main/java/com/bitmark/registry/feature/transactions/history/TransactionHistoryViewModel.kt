@@ -5,9 +5,9 @@ import com.bitmark.registry.data.model.AssetClaimingData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
+import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
-import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.util.DateTimeUtil.Companion.ISO8601_FORMAT
 import com.bitmark.registry.util.DateTimeUtil.Companion.dateToString
 import com.bitmark.registry.util.extension.append
@@ -143,10 +143,13 @@ class TransactionHistoryViewModel(
                     minConfirmedDate,
                     maxConfirmedDate
                 ).map { assetClaim ->
-                    mutableListOf<TransactionModelView>().append(
-                        txs,
-                        assetClaim
-                    ).sortedWith(comparator)
+                    if (assetClaim.isEmpty()) txs
+                    else {
+                        mutableListOf<TransactionModelView>().append(
+                            txs,
+                            assetClaim
+                        ).sortedWith(comparator).reversed()
+                    }
                 }
             } else {
                 Single.just(txs)
