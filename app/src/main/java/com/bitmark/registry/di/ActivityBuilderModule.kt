@@ -1,7 +1,7 @@
 package com.bitmark.registry.di
 
-import com.bitmark.registry.feature.account.settings.details.WhatsNewActivity
-import com.bitmark.registry.feature.account.settings.details.WhatsNewModule
+import com.bitmark.registry.feature.account.details.WhatsNewActivity
+import com.bitmark.registry.feature.account.details.WhatsNewModule
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.feature.issuance.issuance.IssuanceModule
 import com.bitmark.registry.feature.main.MainActivity

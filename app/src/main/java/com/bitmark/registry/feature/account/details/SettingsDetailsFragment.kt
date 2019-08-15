@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.account.settings.details
+package com.bitmark.registry.feature.account.details
 
 import android.content.Intent
 import android.net.Uri
@@ -24,7 +24,8 @@ import javax.inject.Inject
 class SettingsDetailsFragment : BaseSupportFragment() {
 
     companion object {
-        fun newInstance() = SettingsDetailsFragment()
+        fun newInstance() =
+            SettingsDetailsFragment()
     }
 
     @Inject

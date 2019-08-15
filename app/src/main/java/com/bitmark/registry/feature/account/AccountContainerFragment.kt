@@ -37,7 +37,7 @@ class AccountContainerFragment : BaseSupportFragment() {
         super.initComponents()
         navigator.replaceChildFragment(
             R.id.layoutContainer,
-            AccountFragment.newInstance(), false
+            SettingsFragment.newInstance(), false
         )
     }
 
@@ -61,7 +61,7 @@ class AccountContainerFragment : BaseSupportFragment() {
             && currentFragment !is RecoveryPhraseShowingFragment
             && currentFragment !is RecoveryPhraseTestFragment
         ) {
-            if (currentFragment !is AccountFragment) navigator.popChildFragmentToRoot()
+            if (currentFragment !is SettingsFragment) navigator.popChildFragmentToRoot()
 
             navigator.anim(Navigator.RIGHT_LEFT).replaceChildFragment(
                 R.id.layoutContainer,
@@ -75,9 +75,9 @@ class AccountContainerFragment : BaseSupportFragment() {
     }
 
     fun openIntercom() {
-        if (currentFragment() !is AccountFragment) navigator.popChildFragmentToRoot()
+        if (currentFragment() !is SettingsFragment) navigator.popChildFragmentToRoot()
         handler.postDelayed(
-            { (currentFragment() as? AccountFragment)?.openIntercom() },
+            { (currentFragment() as? SettingsFragment)?.openIntercom() },
             100
         )
     }

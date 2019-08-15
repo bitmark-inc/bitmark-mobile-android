@@ -2,14 +2,10 @@ package com.bitmark.registry.di
 
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.account.AccountContainerModule
-import com.bitmark.registry.feature.account.AccountFragment
-import com.bitmark.registry.feature.account.AccountModule
-import com.bitmark.registry.feature.account.authorized.AuthorizedFragment
-import com.bitmark.registry.feature.account.authorized.AuthorizedModule
-import com.bitmark.registry.feature.account.settings.SettingsFragment
-import com.bitmark.registry.feature.account.settings.SettingsModule
-import com.bitmark.registry.feature.account.settings.details.SettingsDetailsFragment
-import com.bitmark.registry.feature.account.settings.details.SettingsDetailsModule
+import com.bitmark.registry.feature.account.SettingsFragment
+import com.bitmark.registry.feature.account.SettingsModule
+import com.bitmark.registry.feature.account.details.SettingsDetailsFragment
+import com.bitmark.registry.feature.account.details.SettingsDetailsModule
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionModule
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
@@ -73,10 +69,6 @@ abstract class FragmentBuilderModule {
     @FragmentScope
     internal abstract fun bindAccountSettingsFragment(): SettingsFragment
 
-    @ContributesAndroidInjector(modules = [AuthorizedModule::class])
-    @FragmentScope
-    internal abstract fun bindAccountAuthorizedFragment(): AuthorizedFragment
-
     @ContributesAndroidInjector(modules = [RecoveryPhraseSigninModule::class])
     @FragmentScope
     internal abstract fun bindRecoverySigninFragment(): RecoveryPhraseSigninFragment
@@ -104,10 +96,6 @@ abstract class FragmentBuilderModule {
     @ContributesAndroidInjector(modules = [AccountContainerModule::class])
     @FragmentScope
     internal abstract fun bindAccountContainerFragment(): AccountContainerFragment
-
-    @ContributesAndroidInjector(modules = [AccountModule::class])
-    @FragmentScope
-    internal abstract fun bindAccountFragment(): AccountFragment
 
     @ContributesAndroidInjector(modules = [SettingsDetailsModule::class])
     @FragmentScope

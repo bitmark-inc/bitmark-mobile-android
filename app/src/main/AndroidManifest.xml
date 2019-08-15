@@ -69,7 +69,7 @@
         android:screenOrientation="portrait"/>
 
     <activity
-        android:name=".feature.account.settings.details.WhatsNewActivity"
+        android:name=".feature.account.details.WhatsNewActivity"
         android:screenOrientation="portrait"/>
 
     <activity

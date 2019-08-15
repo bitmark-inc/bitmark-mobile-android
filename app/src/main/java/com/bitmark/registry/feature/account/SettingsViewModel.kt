@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.account.settings
+package com.bitmark.registry.feature.account
 
 import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.source.AccountRepository

@@ -7,28 +7,63 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:paddingBottom="@dimen/dp_16"
-    android:paddingEnd="@dimen/dp_20"
-    android:paddingStart="@dimen/dp_20"
-    android:paddingTop="@dimen/dp_20"
     >
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/layoutToolbar"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:background="@color/wild_sand"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingEnd="@dimen/dp_20"
+      android:paddingStart="@dimen/dp_20"
+      app:layout_constraintTop_toTopOf="parent"
+      >
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvToolbarTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="end"
+        android:fontFamily="@font/avenir_bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingEnd="@dimen/dp_36"
+        android:paddingStart="@dimen/dp_36"
+        android:text="@string/account"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvYourBitmarkAccNo"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/dp_4"
+      android:layout_marginStart="@dimen/dp_20"
+      android:layout_marginTop="@dimen/dp_20"
       android:fontFamily="@font/avenir_light"
       android:text="@string/your_bitmark_account_number"
       android:textAllCaps="true"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_14"
+      app:layout_constraintEnd_toStartOf="@id/ivQrCode"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
       />
 
   <androidx.appcompat.widget.AppCompatImageView
       android:id="@+id/ivQrCode"
       android:layout_width="@dimen/dp_20"
       android:layout_height="@dimen/dp_20"
+      android:layout_marginEnd="@dimen/dp_20"
       android:clickable="true"
       android:focusable="true"
       app:layout_constraintBottom_toBottomOf="@id/tvYourBitmarkAccNo"
@@ -39,7 +74,7 @@
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvAccountNumber"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_16"
       android:ellipsize="end"
@@ -48,6 +83,7 @@
       android:paddingTop="@dimen/dp_8"
       android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_12"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
       app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       app:layout_constraintTop_toBottomOf="@id/tvYourBitmarkAccNo"
       tools:text="e4RheyRoYTT42RXfRadj3hZ5wNasP5CBBywVy76SLJS6no8ABo"
@@ -55,10 +91,12 @@
 
   <View
       android:id="@+id/viewDivider1"
-      android:layout_width="match_parent"
+      android:layout_width="0dp"
       android:layout_height="@dimen/dp_1"
       android:layout_marginTop="@dimen/dp_4"
       android:background="@color/blue_ribbon"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       app:layout_constraintTop_toBottomOf="@id/tvAccountNumber"
       />
 
@@ -72,14 +110,14 @@
       android:textColor="@color/blue_ribbon"
       android:textSize="@dimen/sp_8"
       android:visibility="invisible"
-      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
       app:layout_constraintTop_toBottomOf="@id/viewDivider1"
       tools:visibility="visible"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvDes"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_24"
       android:fontFamily="@font/avenir_light"
@@ -87,13 +125,14 @@
       android:text="@string/to_protect_your_privacy"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_17"
-      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       app:layout_constraintTop_toBottomOf="@id/tvCopyClipboard"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvWriteDownPhrase"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_40"
       android:clickable="true"
@@ -103,13 +142,14 @@
       android:textAllCaps="true"
       android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_14"
-      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       app:layout_constraintTop_toBottomOf="@id/tvDes"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvLogout"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_6"
       android:clickable="true"
@@ -119,13 +159,14 @@
       android:textAllCaps="true"
       android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_14"
-      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       app:layout_constraintTop_toBottomOf="@id/tvWriteDownPhrase"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvDetail"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_6"
       android:clickable="true"
@@ -135,23 +176,26 @@
       android:textAllCaps="true"
       android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_14"
-      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       app:layout_constraintTop_toBottomOf="@id/tvLogout"
       />
 
   <View
       android:id="@+id/viewDivider2"
-      android:layout_width="match_parent"
+      android:layout_width="0dp"
       android:layout_height="@dimen/dp_1"
       android:layout_marginBottom="@dimen/dp_12"
       android:layout_marginTop="@dimen/dp_4"
       android:background="@color/silver"
       app:layout_constraintBottom_toTopOf="@id/tvNeedHelp"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvNeedHelp"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/dp_2"
       android:clickable="true"
@@ -162,7 +206,8 @@
       android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_14"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="@id/ivQrCode"
+      app:layout_constraintStart_toStartOf="@id/tvYourBitmarkAccNo"
       />
 
 

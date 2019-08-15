@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.account.settings.details
+package com.bitmark.registry.feature.account.details
 
 import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.Navigator

@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.account.settings
+package com.bitmark.registry.feature.account
 
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.di.FragmentScope
@@ -33,7 +33,7 @@ class SettingsModule {
     @FragmentScope
     fun provideNavigator(fragment: SettingsFragment): Navigator {
         // link to AccountContainerFragment
-        return Navigator(fragment.parentFragment?.parentFragment!!)
+        return Navigator(fragment.parentFragment!!)
     }
 
 }

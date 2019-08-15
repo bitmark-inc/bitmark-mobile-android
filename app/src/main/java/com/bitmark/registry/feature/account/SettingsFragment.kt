@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.account.settings
+package com.bitmark.registry.feature.account
 
 import android.os.Bundle
 import android.os.Handler
@@ -9,7 +9,7 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.feature.account.settings.details.SettingsDetailsFragment
+import com.bitmark.registry.feature.account.details.SettingsDetailsFragment
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
 import com.bitmark.registry.util.extension.copyToClipboard
 import com.bitmark.registry.util.extension.invisible
@@ -30,7 +30,8 @@ import javax.inject.Inject
 class SettingsFragment : BaseSupportFragment() {
 
     companion object {
-        fun newInstance() = SettingsFragment()
+        fun newInstance() =
+            SettingsFragment()
     }
 
     @Inject
