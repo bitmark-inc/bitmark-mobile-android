@@ -8,12 +8,14 @@ import com.bitmark.cryptography.crypto.Sha3512
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.AssetModelView
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.File
@@ -28,6 +30,7 @@ import java.io.File
 class AssetSelectionViewModel(
     lifecycle: Lifecycle,
     private val bitmarkRepo: BitmarkRepository,
+    private val appRepo: AppRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer
 ) : BaseViewModel(lifecycle) {
 
@@ -114,6 +117,9 @@ class AssetSelectionViewModel(
             true
         )
     }
+
+    internal fun deleteUnusableFile(path: String) =
+        rxLiveDataTransformer.completable(appRepo.deleteFiles(path).onErrorResumeNext { Completable.complete() })
 
     override fun onDestroy() {
         rxLiveDataTransformer.dispose()

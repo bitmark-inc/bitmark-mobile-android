@@ -55,4 +55,6 @@ class AppRepository(
         Completable.fromAction { Cache.getInstance().clear() }.subscribeOn(
             Schedulers.io()
         )
+
+    fun deleteFiles(path: String) = localDataSource.deleteFiles(path)
 }

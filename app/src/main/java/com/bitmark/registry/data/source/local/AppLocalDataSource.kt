@@ -41,4 +41,9 @@ class AppLocalDataSource @Inject constructor(
             fileStorageGateway.delete(path)
         }
 
+    fun deleteFiles(path: String) =
+        fileStorageApi.rxCompletable { fileStorageGateway ->
+            fileStorageGateway.delete(path)
+        }
+
 }

@@ -199,6 +199,7 @@
   <string name="rejected">Rejected</string>
   <string name="pending_three_dot">Pending…</string>
   <string name="authenticating_transfer_to_you_three_dot">Authenticating transfer to you…</string>
+  <string name="this_asset_is_too_large">This asset is too large to issue. The largest asset you can issue is 100MB.</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.issuance.selection
 
+import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
@@ -33,10 +34,12 @@ class AssetSelectionModule {
     fun provideViewModel(
         fragment: AssetSelectionFragment,
         bitmarkRepo: BitmarkRepository,
+        appRepo: AppRepository,
         rxLiveDataTransformer: RxLiveDataTransformer
     ) = AssetSelectionViewModel(
         fragment.lifecycle,
         bitmarkRepo,
+        appRepo,
         rxLiveDataTransformer
     )
 }

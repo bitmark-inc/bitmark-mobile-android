@@ -181,8 +181,20 @@ class AssetSelectionFragment : BaseSupportFragment() {
                                     dialogController.dismiss(
                                         progressDialog
                                     )
-                                    val path = p.path
-                                    viewModel.getAssetInfo(File(path))
+                                    val path = p.path ?: return@subscribe
+
+                                    val file = File(path)
+                                    if (file.length() >= 100 * 1024 * 1024) {
+                                        // file reach 100 MB
+                                        viewModel.deleteUnusableFile(path)
+                                        dialogController.alert(
+                                            R.string.error,
+                                            R.string.this_asset_is_too_large
+                                        )
+                                    } else {
+                                        viewModel.getAssetInfo(file)
+                                    }
+
                                 }
                             }, {
                                 dialogController.alert(
