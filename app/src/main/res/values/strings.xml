@@ -198,6 +198,7 @@
   <string name="accepted">Accepted</string>
   <string name="rejected">Rejected</string>
   <string name="pending_three_dot">Pending…</string>
+  <string name="authenticating_transfer_to_you_three_dot">Authenticating transfer to you…</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

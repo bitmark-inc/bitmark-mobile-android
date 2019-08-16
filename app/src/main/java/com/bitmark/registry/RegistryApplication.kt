@@ -2,6 +2,7 @@ package com.bitmark.registry
 
 import com.bitmark.apiservice.configuration.GlobalConfiguration
 import com.bitmark.apiservice.configuration.Network
+import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
 import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGER
 import com.bitmark.sdk.features.BitmarkSDK
 import com.crashlytics.android.Crashlytics
@@ -9,6 +10,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import io.fabric.sdk.android.Fabric
 import io.intercom.android.sdk.Intercom
+import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Inject
 
 
@@ -33,16 +35,26 @@ class RegistryApplication : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
-        if ("prd".equals(BuildConfig.FLAVOR)) {
-            val builder = GlobalConfiguration.builder()
-                .withApiToken(API_KEY_MANAGER.bitmarkApiKey)
-                .withNetwork(Network.LIVE_NET)
-            BitmarkSDK.init(builder)
-        } else {
-            BitmarkSDK.init("bmk-lljpzkhqdkzmblhg")
-        }
+        BitmarkSDK.init(buildBmSdkConfig())
         Fabric.with(this, Crashlytics())
         Intercom.initialize(this, API_KEY_MANAGER.intercomApiKey, "ejkeunzw")
         registerActivityLifecycleCallbacks(appLifecycleHandler)
+    }
+
+    private fun buildBmSdkConfig(): GlobalConfiguration.Builder {
+        val builder = GlobalConfiguration.builder().withConnectionTimeout(
+            ServiceGenerator.CONNECTION_TIMEOUT.toInt()
+        )
+        if (BuildConfig.DEBUG) {
+            builder.withLogLevel(HttpLoggingInterceptor.Level.BODY)
+        }
+        if ("prd".equals(BuildConfig.FLAVOR)) {
+            builder.withApiToken(API_KEY_MANAGER.bitmarkApiKey)
+                .withNetwork(Network.LIVE_NET)
+        } else {
+            builder.withApiToken("bmk-lljpzkhqdkzmblhg")
+                .withNetwork(Network.TEST_NET)
+        }
+        return builder
     }
 }

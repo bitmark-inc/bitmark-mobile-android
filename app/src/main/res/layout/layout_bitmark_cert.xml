@@ -134,7 +134,7 @@
       android:background="@drawable/bg_athens_gray_b3_stateful"
       android:fontFamily="@font/avenir_bold"
       android:text="@string/view_bitmark_opt"
-      android:textColor="@color/blue_ribbon"
+      android:textColor="@drawable/blue_ribbon_stateful"
       android:textSize="@dimen/sp_16"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/tvIssuanceDateLabel"

@@ -2,10 +2,12 @@ package com.bitmark.registry.feature.music_claiming
 
 import androidx.lifecycle.Lifecycle
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.encryption.AssetEncryption
 import com.bitmark.registry.util.encryption.BoxEncryption
 import com.bitmark.registry.util.extension.set
@@ -28,7 +30,8 @@ class MusicClaimingViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val realtimeBus: RealtimeBus
 ) : BaseViewModel(lifecycle) {
 
     private val getMusicClaimingInfoLiveData =
@@ -40,6 +43,14 @@ class MusicClaimingViewModel(
         CompositeLiveData<Pair<String, String>>()
 
     internal val downloadProgressLiveData = BufferedLiveData<Int>(lifecycle)
+
+    internal val bitmarksSavedLiveData =
+        BufferedLiveData<List<BitmarkData>>(lifecycle)
+
+    internal val bitmarkStatusChangedLiveData =
+        BufferedLiveData<Triple<String, BitmarkData.Status, BitmarkData.Status>>(
+            lifecycle
+        )
 
     internal fun getMusicClaimingInfoLiveData() =
         getMusicClaimingInfoLiveData.asLiveData()
@@ -158,5 +169,21 @@ class MusicClaimingViewModel(
             bitmarkRepo.deleteRemoteAssetFile(assetId, sender, receiver)
                 .andThen(Single.just(file))
         }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
+            bitmarksSavedLiveData.set(bitmarks)
+        }
+
+        realtimeBus.bitmarkStatusChangedPublisher.subscribe(this) { t ->
+            bitmarkStatusChangedLiveData.set(t)
+        }
+    }
+
+    override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
+        super.onDestroy()
     }
 }

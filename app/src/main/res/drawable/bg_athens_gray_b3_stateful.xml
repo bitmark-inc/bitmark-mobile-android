@@ -5,7 +5,7 @@
       android:state_pressed="true"/>
   <item android:drawable="@color/athens_gray"
       android:state_focused="true"/>
-  <item android:drawable="@color/dusty_gray"
+  <item android:drawable="@color/athens_gray_b3"
       android:state_enabled="false"/>
   <item android:drawable="@color/athens_gray_b3"/>
 

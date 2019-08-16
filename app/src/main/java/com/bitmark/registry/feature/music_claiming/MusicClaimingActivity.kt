@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
@@ -164,6 +165,17 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
             )
         }
 
+        setBtnViewBmOptsEnable(bitmark.isSettled())
+    }
+
+    private fun setBtnViewBmOptsEnable(enable: Boolean) {
+        if (enable) {
+            btnViewBmOpt.setText(R.string.view_bitmark_opt)
+            btnViewBmOpt.enable()
+        } else {
+            btnViewBmOpt.setText(R.string.authenticating_transfer_to_you_three_dot)
+            btnViewBmOpt.disable()
+        }
     }
 
     override fun deinitComponents() {
@@ -171,6 +183,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
         wvContent.webViewClient = null
         wvContent.webChromeClient = null
         wvContent.reload()
+        wvContent.destroy()
         super.deinitComponents()
     }
 
@@ -333,6 +346,21 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                     )
                     dialogController.show(progressDialog)
                 }
+            }
+        })
+
+        viewModel.bitmarksSavedLiveData.observe(this, Observer { bitmarks ->
+            val index = bitmarks.indexOfFirst { b -> b.id == bitmark.id }
+            if (index == -1) return@Observer
+            bitmark.status = bitmarks[index].status
+            setBtnViewBmOptsEnable(bitmark.isSettled())
+        })
+
+        viewModel.bitmarkStatusChangedLiveData.observe(this, Observer { t ->
+            val bitmarkId = t.first
+            if (bitmarkId != bitmark.id) return@Observer
+            if (t.third == BitmarkData.Status.TO_BE_TRANSFERRED) {
+                navigator.anim(BOTTOM_UP).finishActivity()
             }
         })
     }

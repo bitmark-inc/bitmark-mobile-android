@@ -22,7 +22,7 @@ class ServiceGenerator {
 
     companion object {
 
-        private const val CONNECTION_TIMEOUT = 30L
+        const val CONNECTION_TIMEOUT = 30L
 
         fun <T> createService(
             endPoint: String,
