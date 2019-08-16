@@ -168,10 +168,6 @@ class AssetSelectionFragment : BaseSupportFragment() {
                                 dialogController.show(
                                     progressDialog
                                 )
-                            }.doAfterTerminate {
-                                dialogController.dismiss(
-                                    progressDialog
-                                )
                             }.doOnDispose {
                                 dialogController.dismiss(
                                     progressDialog
@@ -181,6 +177,10 @@ class AssetSelectionFragment : BaseSupportFragment() {
                                 Log.d("progress:", p.progress.toString())
                                 progressDialog.setProgress(p.progress)
                                 if (p.progress >= 100) {
+                                    compositeDisposable.clear()
+                                    dialogController.dismiss(
+                                        progressDialog
+                                    )
                                     val path = p.path
                                     viewModel.getAssetInfo(File(path))
                                 }
