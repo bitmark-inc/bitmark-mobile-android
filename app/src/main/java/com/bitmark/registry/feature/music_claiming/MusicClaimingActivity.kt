@@ -216,6 +216,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
         val optionsDialog = OptionsDialog(
             this,
             getString(R.string.bitmark_option),
+            true,
             opts
         ) { item ->
             when (item.icon) {

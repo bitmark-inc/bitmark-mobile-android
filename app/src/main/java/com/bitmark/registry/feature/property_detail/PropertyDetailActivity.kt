@@ -260,6 +260,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 val optDialog = OptionsDialog(
                     context,
                     getString(R.string.this_bitmark_will_be_deleted),
+                    false,
                     opts
                 ) { item ->
                     if (item.icon == R.drawable.ic_delete_2) {

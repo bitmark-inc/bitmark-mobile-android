@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.layout_options_bottom_sheet.*
 class OptionsDialog(
     context: Context,
     private val title: String,
+    private val cancelable: Boolean = true,
     private val items: List<OptionsAdapter.Item>,
     private val itemClickListener: ((OptionsAdapter.Item) -> Unit)
 ) : BaseBottomSheetDialog(context) {
@@ -32,7 +33,7 @@ class OptionsDialog(
     override fun initComponents() {
         super.initComponents()
 
-        setCancelable(false)
+        setCancelable(cancelable)
 
         tvTitle.text = title
 
