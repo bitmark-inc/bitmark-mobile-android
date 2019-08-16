@@ -13,6 +13,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.feature.sync.Synchronizer
 import com.bitmark.registry.util.extension.toJson
 import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -45,7 +46,8 @@ class MainViewModel(
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus,
     private val realtimeBus: RealtimeBus,
-    private val bmServerAuthentication: BmServerAuthentication
+    private val bmServerAuthentication: BmServerAuthentication,
+    private val synchronizer: Synchronizer
 ) :
     BaseViewModel(lifecycle) {
 
@@ -190,6 +192,8 @@ class MainViewModel(
         realtimeBus.actionRequiredDeletedPublisher.subscribe(this) {
             checkActionRequired()
         }
+
+        synchronizer.start()
     }
 
     internal fun checkUnseenBitmark() {
@@ -287,6 +291,7 @@ class MainViewModel(
         accountRepo.getAccountInfo().map { p -> p.first }
 
     override fun onDestroy() {
+        synchronizer.stop()
         realtimeBus.unsubscribe(this)
         wsEventBus.disconnect()
         bmServerAuthentication.destroy()

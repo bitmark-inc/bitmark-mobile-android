@@ -152,6 +152,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                 }
 
                 res.isError() -> {
+                    layoutSwipeRefresh.isRefreshing = false
                     progressBar.gone()
                 }
             }

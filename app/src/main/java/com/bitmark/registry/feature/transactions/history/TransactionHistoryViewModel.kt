@@ -11,6 +11,7 @@ import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.DateTimeUtil.Companion.ISO8601_FORMAT
 import com.bitmark.registry.util.DateTimeUtil.Companion.dateToString
 import com.bitmark.registry.util.extension.append
+import com.bitmark.registry.util.extension.isNetworkError
 import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
@@ -150,6 +151,8 @@ class TransactionHistoryViewModel(
                             assetClaim
                         ).sortedWith(comparator).reversed()
                     }
+                }.onErrorResumeNext { e ->
+                    if (e.isNetworkError()) Single.just(txs) else Single.error(e)
                 }
             } else {
                 Single.just(txs)
@@ -230,7 +233,12 @@ class TransactionHistoryViewModel(
 
     override fun onCreate() {
         super.onCreate()
+
         realtimeBus.txsSavedPublisher.subscribe(this) { txs ->
+            val maxOffset =
+                txs.maxBy { t -> t.offset }?.offset ?: return@subscribe
+            if (maxOffset < currentOffset) return@subscribe // ignore unloaded txs
+
             subscribe(getAccountNumber().map { accountNumber ->
                 Pair(
                     accountNumber,

@@ -229,6 +229,9 @@ class BitmarkRepository(
     fun maxStoredBitmarkOffset(): Single<Long> =
         localDataSource.maxBitmarkOffset()
 
+    fun minStoredBitmarkOffset(): Single<Long> =
+        localDataSource.minBitmarkOffset()
+
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
         localDataSource.markBitmarkSeen(bitmarkId)
 
@@ -446,6 +449,9 @@ class BitmarkRepository(
     fun maxStoredRelevantTxOffset(owner: String): Single<Long> =
         localDataSource.maxRelevantTxOffset(owner)
 
+    fun minStoredRelevantTxOffset(owner: String): Single<Long> =
+        localDataSource.minRelevantTxOffset(owner)
+
     fun listStoredRelevantPendingTxs(owner: String): Single<List<TransactionData>> =
         localDataSource.listRelevantTxsByStatus(
             owner,
@@ -533,6 +539,22 @@ class BitmarkRepository(
     fun getAssetClaimingInfo(assetId: String) =
         remoteDataSource.getAssetClaimingInfo(assetId)
 
+    fun syncAssetClaimingRequest(assetId: String) =
+        remoteDataSource.getAssetClaimRequests(
+            assetId
+        ).map { res -> res.outgoingRequests }
+            .flatMap { outgoingRequests ->
+                if (outgoingRequests.isEmpty()) Single.just(
+                    outgoingRequests
+                ) else localDataSource.saveAssetClaimings(
+                    outgoingRequests
+                ).andThen(
+                    Single.just(
+                        outgoingRequests
+                    )
+                )
+            }
+
     fun listAssetClaimingRequest(assetId: String, from: String, to: String) =
         localDataSource.listAssetClaimingRequests(
             assetId,
@@ -540,22 +562,13 @@ class BitmarkRepository(
             to
         ).flatMap { claimRequests ->
             if (claimRequests.isEmpty()) {
-                remoteDataSource.getAssetClaimRequests(
-                    assetId
-                ).map { res -> res.outgoingRequests }
-                    .flatMap { outgoingRequests ->
-                        if (outgoingRequests.isEmpty()) Single.just(
-                            outgoingRequests
-                        ) else localDataSource.saveAssetClaimings(
-                            outgoingRequests
-                        ).andThen(
-                            localDataSource.listAssetClaimingRequests(
-                                assetId,
-                                from,
-                                to
-                            )
-                        )
-                    }
+                syncAssetClaimingRequest(assetId).flatMap {
+                    localDataSource.listAssetClaimingRequests(
+                        assetId,
+                        from,
+                        to
+                    )
+                }
             } else {
                 Single.just(claimRequests)
             }

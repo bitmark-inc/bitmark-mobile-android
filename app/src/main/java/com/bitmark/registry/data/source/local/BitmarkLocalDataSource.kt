@@ -218,6 +218,12 @@ class BitmarkLocalDataSource @Inject constructor(
                 .onErrorResumeNext { Single.just(-1) }
         }
 
+    fun minBitmarkOffset(): Single<Long> =
+        databaseApi.rxSingle { db ->
+            db.bitmarkDao().minOffset()
+                .onErrorResumeNext { Single.just(-1) }
+        }
+
     fun countBitmarks(): Single<Long> = databaseApi.rxSingle { db ->
         db.bitmarkDao().count()
     }.onErrorResumeNext { Single.just(0) }
@@ -506,6 +512,12 @@ class BitmarkLocalDataSource @Inject constructor(
     fun maxRelevantTxOffset(who: String): Single<Long> =
         databaseApi.rxSingle { db ->
             db.transactionDao().maxRelevantOffset(who)
+                .onErrorResumeNext { Single.just(-1) }
+        }
+
+    fun minRelevantTxOffset(who: String): Single<Long> =
+        databaseApi.rxSingle { db ->
+            db.transactionDao().minRelevantOffset(who)
                 .onErrorResumeNext { Single.just(-1) }
         }
 
