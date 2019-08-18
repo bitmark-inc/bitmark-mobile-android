@@ -188,7 +188,7 @@ class TransactionHistoryAdapter :
                                 context.getString(R.string.you).toUpperCase()
                         } else {
                             tvReceiver.text =
-                                tx.previousOwner?.shortenAccountNumber() ?: ""
+                                tx.owner?.shortenAccountNumber() ?: ""
                             tvSender.text =
                                 context.getString(R.string.you).toUpperCase()
                         }

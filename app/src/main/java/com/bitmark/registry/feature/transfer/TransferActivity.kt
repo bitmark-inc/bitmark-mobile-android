@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
@@ -189,6 +190,19 @@ class TransferActivity : BaseAppCompatActivity() {
                         R.string.unexpected_error,
                         R.string.ok
                     ) { navigator.finishActivity() }
+                }
+            }
+        })
+
+        viewModel.bitmarkDeletedLiveData.observe(this, Observer { p ->
+            if (bitmark.id != p.first) return@Observer
+            when (p.second) {
+                BitmarkData.Status.TO_BE_TRANSFERRED -> {
+                    // do nothing since it's already handled
+                }
+
+                else -> {
+                    navigator.anim(RIGHT_LEFT).finishActivity()
                 }
             }
         })

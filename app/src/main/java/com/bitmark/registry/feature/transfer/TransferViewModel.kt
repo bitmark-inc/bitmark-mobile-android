@@ -4,13 +4,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.encryption.AssetEncryption
 import com.bitmark.registry.util.encryption.BoxEncryption
 import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.registry.util.extension.set
+import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
@@ -27,7 +30,8 @@ class TransferViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val bitmarkRepo: BitmarkRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val realtimeBus: RealtimeBus
 ) : BaseViewModel(lifecycle) {
 
     private val transferLiveData = CompositeLiveData<Any>()
@@ -35,6 +39,9 @@ class TransferViewModel(
     internal val transferProgressLiveData = MutableLiveData<Int>()
 
     private val getKeyAliasLiveData = CompositeLiveData<String>()
+
+    internal val bitmarkDeletedLiveData =
+        BufferedLiveData<Pair<String, BitmarkData.Status>>(lifecycle)
 
     internal fun transferLiveData() = transferLiveData.asLiveData()
 
@@ -63,7 +70,7 @@ class TransferViewModel(
         assetId: String,
         bitmarkId: String,
         sender: String,
-        encKeyPair: KeyPair
+        senderEncKeyPair: KeyPair
     ): Completable {
         val receiver = params.owner.address!!
         val streamCount = 2
@@ -73,7 +80,7 @@ class TransferViewModel(
             assetId,
             sender,
             receiver,
-            encKeyPair
+            senderEncKeyPair
         ).doOnComplete {
             transferProgressLiveData.set(++progress * 100 / streamCount)
         }.andThen(
@@ -92,7 +99,7 @@ class TransferViewModel(
         assetId: String,
         accountNumber: String,
         receiver: String,
-        encKeyPair: KeyPair
+        senderEncKeyPair: KeyPair
     ) =
         bitmarkRepo.checkExistingRemoteAssetFile(
             assetId,
@@ -104,15 +111,17 @@ class TransferViewModel(
                 accountRepo.getEncPubKey(receiver)
                     .flatMapCompletable { receiverPubKey ->
                         val algorithm = AssetEncryption().getAlgorithm()
-                        val senderPubKey = encKeyPair.publicKey().toBytes()
-                        val senderPrivKey = encKeyPair.privateKey().toBytes()
+                        val senderPubKey =
+                            senderEncKeyPair.publicKey().toBytes()
+                        val senderPrivKey =
+                            senderEncKeyPair.privateKey().toBytes()
                         val keyMaster = BoxEncryption(senderPrivKey)
                         val secretKey =
-                            sessionData.getRawKey(keyMaster, receiverPubKey)
+                            sessionData.getRawKey(keyMaster, senderPubKey)
                         val newSessionData = SessionData.from(
                             secretKey,
                             algorithm,
-                            senderPubKey,
+                            receiverPubKey,
                             keyMaster
                         )
 
@@ -126,14 +135,19 @@ class TransferViewModel(
                             access
                         )
                     }
-            } else uploadStream(assetId, accountNumber, receiver, encKeyPair)
+            } else uploadStream(
+                assetId,
+                accountNumber,
+                receiver,
+                senderEncKeyPair
+            )
         }
 
     private fun uploadStream(
         assetId: String,
         accountNumber: String,
         receiver: String,
-        encKeyPair: KeyPair
+        senderEncKeyPair: KeyPair
     ) = bitmarkRepo.checkAssetFile(accountNumber, assetId).flatMap { p ->
         val file = p.second
         if (file == null) Single.just(Pair(null, null))
@@ -144,24 +158,28 @@ class TransferViewModel(
 
         if (file == null || receiverPubKey == null) Completable.complete()
         else {
-            val keyEncryptor = BoxEncryption(encKeyPair.privateKey().toBytes())
+            val senderPubKey =
+                senderEncKeyPair.publicKey().toBytes()
+            val senderPrivKey =
+                senderEncKeyPair.privateKey().toBytes()
+            val keyEncryptor = BoxEncryption(senderPrivKey)
             val assetEncryptor = AssetEncryption()
 
-            val encryptData =
-                assetEncryptor.encrypt(
-                    file.readBytes(),
-                    receiverPubKey,
-                    keyEncryptor
-                )
-
-            val sessionData = encryptData.first
-            val encryptedFileBytes = encryptData.second
-            val access = "%s:%s".format(receiver, sessionData.encryptedKey)
+            val receiverSessionData =
+                assetEncryptor.getSessionData(receiverPubKey, keyEncryptor)
+            val senderSessionData =
+                assetEncryptor.getSessionData(senderPubKey, keyEncryptor)
+            val encryptedFileBytes = assetEncryptor.encrypt(
+                file.readBytes(),
+                receiverPubKey
+            )
+            val access =
+                "%s:%s".format(receiver, receiverSessionData.encryptedKey)
 
             bitmarkRepo.uploadAssetFile(
                 assetId,
                 accountNumber,
-                sessionData,
+                senderSessionData,
                 access,
                 file.name,
                 encryptedFileBytes
@@ -173,7 +191,16 @@ class TransferViewModel(
     internal fun getKeyAlias() =
         getKeyAliasLiveData.add(rxLiveDataTransformer.single(accountRepo.getKeyAlias()))
 
+    override fun onCreate() {
+        super.onCreate()
+
+        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { p ->
+            bitmarkDeletedLiveData.set(p)
+        }
+    }
+
     override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
         rxLiveDataTransformer.dispose()
         super.onDestroy()
     }

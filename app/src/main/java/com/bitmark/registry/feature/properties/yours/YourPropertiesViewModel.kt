@@ -40,7 +40,7 @@ class YourPropertiesViewModel(
     }
 
     internal val deletedBitmarkLiveData =
-        BufferedLiveData<List<String>>(lifecycle)
+        BufferedLiveData<String>(lifecycle)
 
     internal val bitmarkSavedLiveData =
         BufferedLiveData<List<BitmarkModelView>>(lifecycle)
@@ -248,8 +248,9 @@ class YourPropertiesViewModel(
 
     override fun onCreate() {
         super.onCreate()
-        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { bitmarkIds ->
-            deletedBitmarkLiveData.set(bitmarkIds)
+        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { p ->
+            val bitmarkId = p.first
+            deletedBitmarkLiveData.set(bitmarkId)
         }
 
         realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->

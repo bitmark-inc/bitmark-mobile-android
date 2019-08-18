@@ -27,22 +27,23 @@ class AssetEncryption : SecretKeyEncryption {
 
     override fun encrypt(
         message: ByteArray,
-        receiverPubKey: ByteArray,
-        keyEncryptor: PublicKeyEncryption
-    ): Pair<SessionData, ByteArray> {
-        val cipher =
-            Chacha20Poly1305.aeadIetfEncrypt(message, null, NONCE, secretKey)
-        val sessionData = SessionData.from(
-            secretKey,
-            getAlgorithm(),
-            receiverPubKey,
-            keyEncryptor
-        )
-        return Pair(sessionData, cipher)
+        receiverPubKey: ByteArray
+    ): ByteArray {
+        return Chacha20Poly1305.aeadIetfEncrypt(message, null, NONCE, secretKey)
     }
 
     override fun decrypt(cipher: ByteArray): ByteArray =
         Chacha20Poly1305.aeadIetfDecrypt(cipher, null, NONCE, secretKey)
 
     override fun getAlgorithm(): String = "chacha20poly1305"
+
+    fun getSessionData(
+        receiverPubKey: ByteArray,
+        keyEncryptor: PublicKeyEncryption
+    ) = SessionData.from(
+        secretKey,
+        getAlgorithm(),
+        receiverPubKey,
+        keyEncryptor
+    )
 }

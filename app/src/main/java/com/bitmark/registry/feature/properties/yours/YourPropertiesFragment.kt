@@ -184,8 +184,8 @@ class YourPropertiesFragment : BaseSupportFragment(),
             }
         })
 
-        viewModel.deletedBitmarkLiveData.observe(this, Observer { bitmarkIds ->
-            adapter.remove(bitmarkIds)
+        viewModel.deletedBitmarkLiveData.observe(this, Observer { bitmarkId ->
+            adapter.remove(bitmarkId)
             if (adapter.isEmpty()) {
                 showEmptyView()
             }

@@ -17,12 +17,12 @@ import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.middleware.Progress
 import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.*
-import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.sdk.features.Asset
 import com.bitmark.sdk.features.Bitmark
@@ -432,6 +432,11 @@ class BitmarkRemoteDataSource @Inject constructor(
 
         })
     }.subscribeOn(Schedulers.io())
+
+    fun getDownloadableAssets(receiver: String) =
+        fileCourierServerApi.getDownloadableAssets(receiver).map { res ->
+            res["file_ids"]
+        }.subscribeOn(Schedulers.io())
 
     //endregion Asset
 

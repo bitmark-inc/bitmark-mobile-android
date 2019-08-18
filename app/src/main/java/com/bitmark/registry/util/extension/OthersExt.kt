@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.Settings
+import androidx.room.EmptyResultSetException
 import com.bitmark.registry.feature.Navigator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -68,3 +69,5 @@ fun JSONArray.toStringArray() = try {
 }
 
 fun Throwable.isNetworkError() = this is IOException
+
+fun Throwable.isDbRecNotFoundError() = this is EmptyResultSetException

@@ -42,6 +42,8 @@ class WebSocketEventBus(
     val bitmarkChangedPublisher =
         Publisher(PublishSubject.create<Map<String, Any>>())
 
+    val newPendingIssuancePublisher = Publisher(PublishSubject.create<String>())
+
     init {
         appLifecycleHandler.addAppStateChangedListener(this)
     }
@@ -126,6 +128,27 @@ class WebSocketEventBus(
         )
     }
 
+    private fun subscribeNewPendingIssuance(issuer: String) {
+        webSocketService.subscribeNewPendingIssuance(
+            Address.fromAccountNumber(
+                issuer
+            ), object : BitmarkWebSocket.NewPendingIssuanceEvent() {
+                override fun onNewPendingIssuance(bitmarkId: String?) {
+                    newPendingIssuancePublisher.publisher.onNext(
+                        bitmarkId ?: return
+                    )
+                }
+            })
+    }
+
+    private fun unsubscribeNewPendingIssuance(issuer: String) {
+        webSocketService.unsubscribeNewPendingIssuance(
+            Address.fromAccountNumber(
+                issuer
+            )
+        )
+    }
+
     override fun onConnected() {
         Log.d(TAG, "onConnected")
         connectListener?.invoke(null)
@@ -137,6 +160,7 @@ class WebSocketEventBus(
             try {
                 subscribeBitmarkChanged(accountNumber)
                 subscribeNewPendingTx(accountNumber)
+                subscribeNewPendingIssuance(accountNumber)
                 Log.d(TAG, "subscribe events")
             } catch (e: Throwable) {
                 Log.e(TAG, "subscribe events error: $e message ${e.message}")
@@ -147,6 +171,7 @@ class WebSocketEventBus(
     private fun unsubscribeEvents(onDone: (() -> Unit)? = null) {
         getAccountNumber { accountNumber ->
             try {
+                unsubscribeNewPendingIssuance(accountNumber)
                 unsubscribeNewPendingTx(accountNumber)
                 unsubscribeBitmarkChanged(accountNumber)
                 Log.d(TAG, "unsubscribe events")

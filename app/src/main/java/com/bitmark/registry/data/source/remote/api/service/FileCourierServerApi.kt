@@ -54,4 +54,7 @@ interface FileCourierServerApi {
             "access"
         ) access: RequestBody
     ): Completable
+
+    @GET("v2/files")
+    fun getDownloadableAssets(@Query("receiver") receiver: String): Single<Map<String, Array<String>>>
 }

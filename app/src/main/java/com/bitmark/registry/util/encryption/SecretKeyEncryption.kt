@@ -11,9 +11,8 @@ interface SecretKeyEncryption {
 
     fun encrypt(
         message: ByteArray,
-        receiverPubKey: ByteArray,
-        keyEncryptor: PublicKeyEncryption
-    ): Pair<SessionData, ByteArray>
+        receiverPubKey: ByteArray
+    ): ByteArray
 
     fun decrypt(cipher: ByteArray): ByteArray
 

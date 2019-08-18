@@ -6,6 +6,7 @@ import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
@@ -14,6 +15,7 @@ import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.Synchronizer
+import com.bitmark.registry.util.extension.isDbRecNotFoundError
 import com.bitmark.registry.util.extension.toJson
 import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -173,8 +175,13 @@ class MainViewModel(
         }
 
         wsEventBus.newPendingTxPublisher.subscribe(this) { m ->
-            val owner = m["owner"]
-            processNewPendingTxEvent(owner!!)
+            val owner = m["owner"] ?: return@subscribe
+            val previousTxId = m["prev_tx_id"] ?: return@subscribe
+            processNewPendingTxEvent(owner, previousTxId)
+        }
+
+        wsEventBus.newPendingIssuancePublisher.subscribe(this) { bitmarkId ->
+            processNewPendingIssuance(bitmarkId)
         }
 
         realtimeBus.bitmarkSeenPublisher.subscribe(this) {
@@ -249,42 +256,74 @@ class MainViewModel(
         subscribe(stream.subscribe({}, {}))
     }
 
-    private fun processNewPendingTxEvent(owner: String) {
+    private fun processNewPendingTxEvent(owner: String, prevTxId: String) {
+
+        val deleteBmStream =
+            fun(accountNumber: String) =
+                bitmarkRepo.getStoredTxById(prevTxId).flatMapCompletable { tx ->
+                    bitmarkRepo.deleteStoredBitmark(
+                        accountNumber,
+                        tx.bitmarkId,
+                        tx.assetId
+                    )
+                }
+
+
         subscribe(
-            getAccountNumber().flatMapMaybe { accountNumber ->
-                bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
-                    .flatMap { offset ->
-                        bitmarkRepo.syncTxs(
-                            owner = accountNumber,
-                            sent = true,
-                            isPending = true,
-                            loadAsset = true,
-                            loadBlock = true,
-                            at = offset,
-                            to = "later"
-                        )
-                    }.flatMapMaybe {
-                        if (owner != accountNumber) {
-                            // outgoing tx
-                            Maybe.empty()
-                        } else {
-                            // incoming tx, sync to get latest bitmark
-                            bitmarkRepo.maxStoredBitmarkOffset()
-                                .flatMap { offset ->
-                                    bitmarkRepo.syncBitmarks(
-                                        owner = accountNumber,
-                                        at = offset,
-                                        to = "later",
-                                        pending = true,
-                                        loadAsset = true
-                                    )
-                                }.toMaybe()
+            getAccountNumber().flatMapCompletable { accountNumber ->
+                if (BuildConfig.ZERO_ADDRESS == owner) {
+                    // outgoing tx for delete
+                    deleteBmStream(accountNumber)
+                } else {
+                    bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
+                        .flatMap { offset ->
+                            bitmarkRepo.syncTxs(
+                                owner = accountNumber,
+                                sent = true,
+                                isPending = true,
+                                loadAsset = true,
+                                loadBlock = true,
+                                at = offset,
+                                to = "later"
+                            )
+                        }.flatMapCompletable {
+                            if (owner != accountNumber) {
+                                // outgoing tx
+                                deleteBmStream(accountNumber)
+                            } else {
+                                // incoming tx
+                                bitmarkRepo.maxStoredBitmarkOffset()
+                                    .flatMap { offset ->
+                                        bitmarkRepo.syncBitmarks(
+                                            owner = accountNumber,
+                                            at = offset,
+                                            to = "later",
+                                            pending = true,
+                                            loadAsset = true
+                                        )
+                                    }.ignoreElement()
+                            }
                         }
-                    }
+                }
             }.subscribe(
                 {},
                 {})
         )
+    }
+
+    private fun processNewPendingIssuance(bitmarkId: String) {
+        subscribe(bitmarkRepo.getStoredBitmarkById(bitmarkId).onErrorResumeNext { e ->
+            if (e.isDbRecNotFoundError()) Single.zip(bitmarkRepo.syncBitmark(
+                bitmarkId,
+                true
+            ), bitmarkRepo.syncTxs(
+                bitmarkId = bitmarkId,
+                isPending = true,
+                loadBlock = true,
+                loadAsset = true
+            ), BiFunction { bitmark, _ -> bitmark })
+            else Single.error(e)
+        }.subscribe({}, {}))
     }
 
     private fun getAccountNumber() =

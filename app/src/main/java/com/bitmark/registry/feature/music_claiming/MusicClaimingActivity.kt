@@ -14,7 +14,6 @@ import androidx.lifecycle.Observer
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
@@ -297,8 +296,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                     loadAccount(accountNumber, keyAlias) { account ->
                         viewModel.downloadAssetFile(
                             bitmark.assetId,
-                            bitmark.previousOwner!!,
-                            bitmark.accountNumber,
+                            account.accountNumber,
                             account.encryptionKey
                         )
                     }
@@ -357,12 +355,9 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
             setBtnViewBmOptsEnable(bitmark.isSettled())
         })
 
-        viewModel.bitmarkStatusChangedLiveData.observe(this, Observer { t ->
-            val bitmarkId = t.first
-            if (bitmarkId != bitmark.id) return@Observer
-            if (t.third == BitmarkData.Status.TO_BE_TRANSFERRED) {
-                navigator.anim(BOTTOM_UP).finishActivity()
-            }
+        viewModel.bitmarkDeletedLiveData.observe(this, Observer { p ->
+            if (bitmark.id != p.first) return@Observer
+            navigator.anim(BOTTOM_UP).finishActivity()
         })
     }
 

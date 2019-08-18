@@ -18,6 +18,7 @@ import com.bitmark.apiservice.utils.Address
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
@@ -313,7 +314,6 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 res.isSuccess() -> {
                     progressBar.gone()
                     blocked = false
-
                     val dialog = InfoAppCompatDialog(
                         this,
                         getString(R.string.your_property_rights_has_been_deleted)
@@ -435,6 +435,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         })
 
         viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmark ->
+            this.bitmark = bitmark
             val color =
                 if (bitmark.isSettled()) android.R.color.black else R.color.silver
             tvAssetName.setTextColorRes(color)
@@ -452,9 +453,18 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             provenanceAdapter.set(txs)
         })
 
-        viewModel.bitmarkTransferredLiveData.observe(
-            this,
-            Observer { navigator.anim(RIGHT_LEFT).finishActivity() })
+        viewModel.bitmarkDeletedLiveData.observe(this, Observer { p ->
+            when (p.second) {
+
+                BitmarkData.Status.TO_BE_DELETED -> {
+                    // do nothing since it's already handled
+                }
+
+                else -> {
+                    navigator.anim(RIGHT_LEFT).finishActivity()
+                }
+            }
+        })
     }
 
     private fun deleteBitmark(bitmark: BitmarkModelView, keyAlias: String) {
@@ -483,8 +493,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         ) { account ->
             viewModel.downloadAssetFile(
                 bitmark.assetId,
-                bitmark.previousOwner!!,
-                bitmark.accountNumber,
+                account.accountNumber,
                 account.encryptionKey
             )
         }

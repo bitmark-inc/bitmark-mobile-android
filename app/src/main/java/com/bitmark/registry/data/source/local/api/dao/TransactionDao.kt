@@ -64,4 +64,7 @@ abstract class TransactionDao {
     @Query("DELETE FROM `Transaction`")
     abstract fun delete(): Completable
 
+    @Query("SELECT * FROM `Transaction` WHERE id == :id")
+    abstract fun getById(id: String): Single<TransactionData>
+
 }

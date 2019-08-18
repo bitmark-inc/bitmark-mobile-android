@@ -14,7 +14,7 @@ interface BitmarkChangedListener
 
 interface BitmarkDeletedListener :
     BitmarkChangedListener {
-    fun onDeleted(bitmarkIds: List<String>)
+    fun onDeleted(bitmarkId: String, lastStatus: BitmarkData.Status)
 }
 
 interface BitmarkStatusChangedListener :

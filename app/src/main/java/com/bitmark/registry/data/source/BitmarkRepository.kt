@@ -3,6 +3,7 @@ package com.bitmark.registry.data.source
 import com.bitmark.apiservice.params.IssuanceParams
 import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
+import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_DELETED
 import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_TRANSFERRED
@@ -11,6 +12,7 @@ import com.bitmark.registry.data.source.local.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.registry.util.extension.append
+import com.bitmark.registry.util.extension.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -259,11 +261,15 @@ class BitmarkRepository(
                             assetId
                         )
                     }
+            }.onErrorResumeNext { e ->
+                if (e.isDbRecNotFoundError()) Completable.complete() else Completable.error(
+                    e
+                )
             }
     }
 
     // delete bitmark in local db, also related asset file if needed, txs, asset
-    private fun deleteStoredBitmark(
+    fun deleteStoredBitmark(
         owner: String,
         bitmarkId: String,
         assetId: String
@@ -351,7 +357,12 @@ class BitmarkRepository(
             at = at,
             to = to,
             limit = limit
-        ).observeOn(Schedulers.computation()).flatMap { t ->
+        ).map { t ->
+            // remove delete bitmark txs
+            val txs =
+                t.first.filterNot { tx -> tx.owner == BuildConfig.ZERO_ADDRESS }
+            Triple(txs, t.second, t.third)
+        }.observeOn(Schedulers.computation()).flatMap { t ->
             Completable.mergeArrayDelayError(
                 localDataSource.saveAssets(t.second),
                 localDataSource.saveBlocks(t.third)
@@ -458,6 +469,8 @@ class BitmarkRepository(
             TransactionData.Status.PENDING
         )
 
+    fun getStoredTxById(id: String) = localDataSource.getTxById(id)
+
     fun checkAssetFile(
         owner: String,
         assetId: String
@@ -495,6 +508,9 @@ class BitmarkRepository(
 
     fun grantAccessAssetFile(assetId: String, sender: String, access: String) =
         remoteDataSource.grantAccessAssetFile(assetId, sender, access)
+
+    fun getDownloadableAssets(receiver: String) =
+        remoteDataSource.getDownloadableAssets(receiver)
 
     // save byte array need to be uploaded to local storage then upload to server
     // after that try to clear the encrypted file

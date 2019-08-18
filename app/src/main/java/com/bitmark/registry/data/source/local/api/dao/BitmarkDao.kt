@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.bitmark.registry.data.model.BitmarkData
 import io.reactivex.Completable
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 
@@ -63,7 +62,7 @@ abstract class BitmarkDao {
     ): Completable
 
     @Query("SELECT * FROM Bitmark WHERE id = :bitmarkId")
-    abstract fun getById(bitmarkId: String): Maybe<BitmarkData>
+    abstract fun getById(bitmarkId: String): Single<BitmarkData>
 
     @Query("DELETE FROM Bitmark WHERE id = :bitmarkId")
     abstract fun deleteById(bitmarkId: String): Completable

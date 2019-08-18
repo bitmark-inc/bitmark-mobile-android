@@ -25,7 +25,7 @@ class RealtimeBus(
 
 
     val bitmarkDeletedPublisher =
-        Publisher(PublishSubject.create<List<String>>())
+        Publisher(PublishSubject.create<Pair<String, BitmarkData.Status>>())
 
     val bitmarkStatusChangedPublisher =
         Publisher(PublishSubject.create<Triple<String, BitmarkData.Status, BitmarkData.Status>>())
@@ -67,8 +67,8 @@ class RealtimeBus(
         )
     }
 
-    override fun onDeleted(bitmarkIds: List<String>) {
-        bitmarkDeletedPublisher.publisher.onNext(bitmarkIds)
+    override fun onDeleted(bitmarkId: String, lastStatus: BitmarkData.Status) {
+        bitmarkDeletedPublisher.publisher.onNext(Pair(bitmarkId, lastStatus))
     }
 
     override fun onBitmarksSaved(bitmarks: List<BitmarkData>) {

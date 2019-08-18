@@ -47,10 +47,8 @@ class MusicClaimingViewModel(
     internal val bitmarksSavedLiveData =
         BufferedLiveData<List<BitmarkData>>(lifecycle)
 
-    internal val bitmarkStatusChangedLiveData =
-        BufferedLiveData<Triple<String, BitmarkData.Status, BitmarkData.Status>>(
-            lifecycle
-        )
+    internal val bitmarkDeletedLiveData =
+        BufferedLiveData<Pair<String, BitmarkData.Status>>(lifecycle)
 
     internal fun getMusicClaimingInfoLiveData() =
         getMusicClaimingInfoLiveData.asLiveData()
@@ -106,18 +104,27 @@ class MusicClaimingViewModel(
 
     internal fun downloadAssetFile(
         assetId: String,
-        sender: String,
         receiver: String,
-        encryptionKeyPair: KeyPair
+        receiverEncKeyPair: KeyPair
     ) {
         downloadAssetLiveData.add(
             rxLiveDataTransformer.single(
-                downloadAssetFileStream(
-                    assetId,
-                    sender,
-                    receiver,
-                    encryptionKeyPair
-                )
+                bitmarkRepo.getDownloadableAssets(receiver).flatMap { fileIds ->
+                    val index =
+                        fileIds.indexOfFirst { id -> id.contains(assetId) }
+                    if (index != -1) {
+                        val fileId = fileIds[index]
+                        val sender = fileId.split("/")[1]
+                        downloadAssetFileStream(
+                            assetId,
+                            sender,
+                            receiver,
+                            receiverEncKeyPair
+                        )
+                    } else {
+                        Single.error<File>(Throwable("This asset is not permitted to download"))
+                    }
+                }
             )
         )
     }
@@ -126,7 +133,7 @@ class MusicClaimingViewModel(
         assetId: String,
         sender: String,
         receiver: String,
-        encryptionKeyPair: KeyPair
+        receiverEncKeyPair: KeyPair
     ): Single<File> {
 
         val progress: (Int) -> Unit = { percent ->
@@ -151,7 +158,7 @@ class MusicClaimingViewModel(
             val senderEncPubKey = p.second
 
             val keyDecryptor =
-                BoxEncryption(encryptionKeyPair.privateKey().toBytes())
+                BoxEncryption(receiverEncKeyPair.privateKey().toBytes())
             val secretKey =
                 downloadRes.sessionData.getRawKey(keyDecryptor, senderEncPubKey)
             val assetEncryption = AssetEncryption(secretKey)
@@ -177,8 +184,8 @@ class MusicClaimingViewModel(
             bitmarksSavedLiveData.set(bitmarks)
         }
 
-        realtimeBus.bitmarkStatusChangedPublisher.subscribe(this) { t ->
-            bitmarkStatusChangedLiveData.set(t)
+        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { p ->
+            bitmarkDeletedLiveData.set(p)
         }
     }
 

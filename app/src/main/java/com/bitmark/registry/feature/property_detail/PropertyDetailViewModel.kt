@@ -19,7 +19,6 @@ import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.modelview.TransactionModelView
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
@@ -65,8 +64,8 @@ class PropertyDetailViewModel(
     internal val txsSavedLiveData =
         BufferedLiveData<List<TransactionModelView>>(lifecycle)
 
-    internal val bitmarkTransferredLiveData =
-        BufferedLiveData<String>(lifecycle)
+    internal val bitmarkDeletedLiveData =
+        BufferedLiveData<Pair<String, BitmarkData.Status>>(lifecycle)
 
     internal fun setBitmarkId(bitmarkId: String) {
         this.bitmarkId = bitmarkId
@@ -168,18 +167,27 @@ class PropertyDetailViewModel(
 
     internal fun downloadAssetFile(
         assetId: String,
-        sender: String,
         receiver: String,
-        encryptionKeyPair: KeyPair
+        receiverEncKeyPair: KeyPair
     ) {
         downloadAssetFileLiveData.add(
             rxLiveDataTransformer.single(
-                downloadAssetFileStream(
-                    assetId,
-                    sender,
-                    receiver,
-                    encryptionKeyPair
-                )
+                bitmarkRepo.getDownloadableAssets(receiver).flatMap { fileIds ->
+                    val index =
+                        fileIds.indexOfFirst { id -> id.contains(assetId) }
+                    if (index != -1) {
+                        val fileId = fileIds[index]
+                        val sender = fileId.split("/")[1]
+                        downloadAssetFileStream(
+                            assetId,
+                            sender,
+                            receiver,
+                            receiverEncKeyPair
+                        )
+                    } else {
+                        Single.error<File>(Throwable("This asset is not permitted to download"))
+                    }
+                }
             )
         )
     }
@@ -188,7 +196,7 @@ class PropertyDetailViewModel(
         assetId: String,
         sender: String,
         receiver: String,
-        encryptionKeyPair: KeyPair
+        receiverEncKeyPair: KeyPair
     ): Single<File> {
 
         val progress: (Int) -> Unit = { percent ->
@@ -213,7 +221,7 @@ class PropertyDetailViewModel(
             val senderEncPubKey = p.second
 
             val keyDecryptor =
-                BoxEncryption(encryptionKeyPair.privateKey().toBytes())
+                BoxEncryption(receiverEncKeyPair.privateKey().toBytes())
             val secretKey =
                 downloadRes.sessionData.getRawKey(keyDecryptor, senderEncPubKey)
             val assetEncryption = AssetEncryption(secretKey)
@@ -256,18 +264,26 @@ class PropertyDetailViewModel(
             if (!hasChanged) return@subscribe
 
             val getAccountNumberStream =
-                accountRepo.getAccountInfo().map { a -> a.first }.toMaybe()
+                accountRepo.getAccountInfo().map { a -> a.first }
 
             val getBitmarkStream =
                 bitmarkRepo.getStoredBitmarkById(bitmarks[0].id)
 
             subscribe(
-                Maybe.zip(
+                Single.zip(
                     getAccountNumberStream,
                     getBitmarkStream,
                     BiFunction<String, BitmarkData, BitmarkModelView> { accountNumber, bitmark ->
                         BitmarkModelView.newInstance(bitmark, accountNumber)
-                    }).observeOn(
+                    }).flatMap { bitmark ->
+                    bitmarkRepo.checkAssetFile(
+                        bitmark.accountNumber,
+                        bitmark.assetId
+                    ).map { p ->
+                        bitmark.assetFile = p.second
+                        bitmark
+                    }
+                }.observeOn(
                     AndroidSchedulers.mainThread()
                 ).subscribe({ bitmark ->
                     bitmarkSavedLiveData.setValue(bitmark)
@@ -311,18 +327,9 @@ class PropertyDetailViewModel(
             )
         }
 
-        realtimeBus.bitmarkStatusChangedPublisher.subscribe(this) { t ->
-            val bitmarkId = t.first
-            if (this.bitmarkId != bitmarkId) return@subscribe
-
-            when (t.third) {
-                BitmarkData.Status.TO_BE_TRANSFERRED -> {
-                    bitmarkTransferredLiveData.set(bitmarkId)
-                }
-
-                else -> {
-                }
-            }
+        realtimeBus.bitmarkDeletedPublisher.subscribe(this) { p ->
+            if (bitmarkId != p.first) return@subscribe
+            bitmarkDeletedLiveData.set(p)
         }
     }
 

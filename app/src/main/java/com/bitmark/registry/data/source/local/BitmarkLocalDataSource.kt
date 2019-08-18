@@ -6,6 +6,7 @@ import com.bitmark.registry.data.model.TransactionData.Status.PENDING
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
+import com.bitmark.registry.util.extension.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -162,7 +163,7 @@ class BitmarkLocalDataSource @Inject constructor(
             .ignoreElement()
 
     private fun checkBitmarkSeen(bitmarkId: String) =
-        getBitmarkById(bitmarkId).toSingle().map { b ->
+        getBitmarkById(bitmarkId).map { b ->
             Pair(
                 b.id,
                 b.seen
@@ -199,17 +200,20 @@ class BitmarkLocalDataSource @Inject constructor(
             }
         }
 
-    fun deleteBitmarkById(bitmarkId: String) = databaseApi.rxCompletable { db ->
-        db.bitmarkDao().deleteById(bitmarkId).doOnComplete {
-            bitmarkDeletedListener?.onDeleted(listOf(bitmarkId))
-        }
-    }
-
-    fun deleteBitmarkByIds(bitmarkIds: List<String>) =
-        databaseApi.rxCompletable { db ->
-            db.bitmarkDao().deleteByIds(bitmarkIds).doOnComplete {
-                bitmarkDeletedListener?.onDeleted(bitmarkIds)
+    fun deleteBitmarkById(bitmarkId: String) =
+        getBitmarkById(bitmarkId).map { b -> b.status }.flatMapCompletable { lastStatus ->
+            databaseApi.rxCompletable { db ->
+                db.bitmarkDao().deleteById(bitmarkId).doOnComplete {
+                    bitmarkDeletedListener?.onDeleted(
+                        bitmarkId,
+                        lastStatus
+                    )
+                }
             }
+        }.onErrorResumeNext { e ->
+            if (e.isDbRecNotFoundError()) Completable.complete() else Completable.error(
+                e
+            )
         }
 
     fun maxBitmarkOffset(): Single<Long> =
@@ -253,13 +257,13 @@ class BitmarkLocalDataSource @Inject constructor(
     ).toSingle()
 
     fun getBitmarkById(id: String) =
-        databaseApi.rxMaybe { db ->
+        databaseApi.rxSingle { db ->
             db.bitmarkDao().getById(id)
         }.flatMap { bitmark ->
             getAssetById(bitmark.assetId).map { asset ->
                 bitmark.asset = asset
                 bitmark
-            }.onErrorResumeNext { Single.just(bitmark) }.toMaybe()
+            }.onErrorResumeNext { Single.just(bitmark) }
         }
 
     fun checkUnseenBitmark(owner: String) = databaseApi.rxSingle { db ->
@@ -543,6 +547,9 @@ class BitmarkLocalDataSource @Inject constructor(
                 txs
             )
         }
+
+    fun getTxById(id: String) =
+        databaseApi.rxSingle { db -> db.transactionDao().getById(id) }
 
     //endregion Txs
 
