@@ -381,7 +381,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
     ) {
         val spec = KeyAuthenticationSpec.Builder(this)
             .setKeyAlias(keyAlias)
-            .setAuthenticationDescription(getString(R.string.please_sign_to_register_property_rights))
+            .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
             .build()
         loadAccount(
             accountNumber,

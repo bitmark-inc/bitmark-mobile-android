@@ -56,11 +56,8 @@
   <string name="issued_on">Issued on</string>
   <string name="this_bitmark_will_be_deleted">This bitmark will be deleted.</string>
   <string name="cancel">Cancel</string>
-  <string name="please_sign_to_download_asset">Please sign to download asset.</string>
   <string name="preparing_to_export">Preparing to export…</string>
   <string name="downloading">Downloading</string>
-  <string name="please_sign_to_delete_bitmark">Please sign to delete bitmark.</string>
-  <string name="please_sign_to_transfer_bitmark">Please sign to transfer bitmark.</string>
   <string name="the_asset_is_not_available">The asset is not available to download.</string>
   <string name="could_not_download_asset">Could not download asset. Please try again later.</string>
   <string name="transfer_bitmark">Transfer Bitmark</string>
@@ -105,7 +102,6 @@
   <string name="test_recovery_phrase">Test Recovery Phrase</string>
   <string name="done">Done</string>
   <string name="recovery_phrase">Recovery Phrase</string>
-  <string name="please_sign_to_access_recovery_phrase">Please sign to access your recovery phrase.</string>
   <string name="tap_the_word_to_put_them">Tap the words to put them in the correct order for your recovery phrase:</string>
   <string name="recovery_phrase_test">Recovery Phrase Test</string>
   <string name="retry">Retry</string>
@@ -114,11 +110,9 @@
   <string name="keep_your_written_copy_private">Keep your written copy private in a secure and safe location.</string>
   <string name="remove_access">Remove Access</string>
   <string name="your_recovery_phrase_is_the_only_way_to_access">Your recovery phrase is the only way to access your Bitmark account after signing out. \n\nIf you have not already written down your recovery phrase, you must do so now or you will be permanently lose access to your account and lose ownership of all your digital properties. \n\nYour recovery phrase is a list of words to write on a piece of paper and keep safe. Make sure you are in a private location when you write it down. This will completely remove access to your account on this device. Regular data bitmarking and data donations will be paused until you sign back in with your recovery phrase.</string>
-  <string name="please_sign_to_remove_access">Please sign to remove access.</string>
   <string name="could_not_remove_access_due_to_unexpected_problem">Could not remove access due to unexpected problem. Please try again later.</string>
   <string name="removing_access_three_dot">Removing access…</string>
   <string name="removing_access_for_account">Removing access for account</string>
-  <string name="please_sign_to_register_account">Please sign to register account.</string>
   <string name="you_can_transfer_rights_to_another">You can transfer rights to another Bitmark account by scanning the receiving account\&apos;s QR code. You can view your account QR code by tapping @  at the top of the Account screen. </string>
   <string name="terms_of_service">Terms of Service</string>
   <string name="privacy_policy">Privacy Policy</string>
@@ -162,7 +156,6 @@
   <string name="quote_i_hereby_claim_that_i_am_the_legal">\&quot;I hereby claim that I am the legal owner of this asset and want these property rights to be irrevocably issued and recorded on the Bitmark blockchain. \&quot;</string>
   <string name="could_not_register_property">Could not register property rights. Please try again later.</string>
   <string name="your_rights_to_this_property">Your rights to this property have been registered.</string>
-  <string name="please_sign_to_register_property_rights">Please sign to register property rights.</string>
   <string-array name="asset_type">
     <item>@string/photo</item>
     <item>@string/video</item>
@@ -176,7 +169,6 @@
   <string name="you_can_accept_rights">You can accept rights transfers from certain websites by scanning QR codes. Please only scan QR codes from websites that you already know and trust. </string>
   <string name="unrecognized_qr_code">Unrecognized QR Code</string>
   <string name="please_scan_the_qr_code_again">Please scan the QR code again or contact the QR code provider if you\'re still experiencing problems. </string>
-  <string name="please_sign_to_authorize">Please sign to authorize.</string>
   <string name="to_complete_process">To complete the process, please return to browser.</string>
   <string name="authorize_required">Authorized Required</string>
   <string name="authorize">Authorize</string>
@@ -202,6 +194,7 @@
   <string name="this_asset_is_too_large">This asset is too large to issue. The largest asset you can issue is 100MB.</string>
   <string name="what_is_property_description">What is a property description?</string>
   <string name="the_property_description_consists">The property description consists of KEY &amp; VALUE, it helps to store and categorize your data in the property system. This gives anyone the ability to transact and identify the data without seeing the data itself, making the data economically meaningful.\n\nProperty descriptions are permanently recorded in the Bitmark blockchain and cannot be modified or deleted later.\n\nHere is an example of a property description for a journalist\'s file:</string>
+  <string name="your_authorization_is_required">Your authorization is required.</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

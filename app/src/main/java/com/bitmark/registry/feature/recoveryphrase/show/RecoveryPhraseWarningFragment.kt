@@ -125,7 +125,7 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
         action: (Account) -> Unit
     ) {
         val spec = KeyAuthenticationSpec.Builder(context)
-            .setAuthenticationDescription(getString(R.string.please_sign_to_access_recovery_phrase))
+            .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
             .setKeyAlias(keyAlias).build()
         activity?.loadAccount(
             accountNumber,

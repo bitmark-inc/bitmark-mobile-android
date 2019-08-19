@@ -154,7 +154,7 @@ class AuthenticationFragment : BaseSupportFragment() {
             )
         val spec = KeyAuthenticationSpec.Builder(context)
             .setKeyAlias(keyAlias)
-            .setAuthenticationDescription(getString(R.string.please_sign_to_register_account))
+            .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
             .setAuthenticationRequired(authRequired).build()
         account.saveToKeyStore(activity, spec, object : Callback0 {
             override fun onSuccess() {

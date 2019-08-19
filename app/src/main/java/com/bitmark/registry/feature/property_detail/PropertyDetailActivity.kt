@@ -470,8 +470,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
     private fun deleteBitmark(bitmark: BitmarkModelView, keyAlias: String) {
         loadAccount(
             bitmark.accountNumber,
-            keyAlias,
-            getString(R.string.please_sign_to_delete_bitmark)
+            keyAlias
         ) { account ->
             val zeroAddr = Address.fromAccountNumber(BuildConfig.ZERO_ADDRESS)
             val transferParams = TransferParams(zeroAddr, bitmark.headId)
@@ -488,8 +487,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         if (bitmark.previousOwner == null) return
         loadAccount(
             bitmark.accountNumber,
-            keyAlias,
-            getString(R.string.please_sign_to_download_asset)
+            keyAlias
         ) { account ->
             viewModel.downloadAssetFile(
                 bitmark.assetId,
@@ -517,12 +515,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
     private fun loadAccount(
         accountNumber: String,
         keyAlias: String,
-        message: String,
         action: (Account) -> Unit
     ) {
         val spec =
             KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
-                .setAuthenticationDescription(message)
+                .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
                 .build()
 
         loadAccount(

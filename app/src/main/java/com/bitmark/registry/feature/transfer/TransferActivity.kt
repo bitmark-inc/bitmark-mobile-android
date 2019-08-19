@@ -215,8 +215,7 @@ class TransferActivity : BaseAppCompatActivity() {
     ) {
         loadAccount(
             bitmark.accountNumber,
-            keyAlias,
-            getString(R.string.please_sign_to_transfer_bitmark)
+            keyAlias
         ) { account ->
             val encKeyPair = account.encryptionKey
             val params = TransferParams(
@@ -237,12 +236,11 @@ class TransferActivity : BaseAppCompatActivity() {
     private fun loadAccount(
         accountNumber: String,
         keyAlias: String,
-        message: String,
         action: (Account) -> Unit
     ) {
         val spec =
             KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
-                .setAuthenticationDescription(message)
+                .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
                 .build()
         loadAccount(accountNumber,
             spec,

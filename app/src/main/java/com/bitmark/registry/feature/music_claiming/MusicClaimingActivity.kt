@@ -367,7 +367,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
         action: (Account) -> Unit
     ) {
         val spec = KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
-            .setAuthenticationDescription(getString(R.string.please_sign_to_download_asset))
+            .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
             .build()
         this.loadAccount(accountNumber,
             spec,

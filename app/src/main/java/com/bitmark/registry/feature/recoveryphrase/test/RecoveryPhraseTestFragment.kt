@@ -224,7 +224,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                     accountNumber = info.first
                     val keyAlias = info.second
                     val spec = KeyAuthenticationSpec.Builder(context)
-                        .setAuthenticationDescription(getString(R.string.please_sign_to_remove_access))
+                        .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
                         .setKeyAlias(keyAlias).build()
                     activity?.removeAccount(
                         accountNumber,

@@ -125,7 +125,9 @@ class BmServerAuthentication(
         action: (Account) -> Unit
     ) {
         val spec =
-            KeyAuthenticationSpec.Builder(context).setKeyAlias(keyAlias).build()
+            KeyAuthenticationSpec.Builder(context)
+                .setAuthenticationDescription(context.getString(R.string.your_authorization_is_required))
+                .setKeyAlias(keyAlias).build()
         activity.loadAccount(accountNumber,
             spec,
             DialogController(activity),
