@@ -27,6 +27,7 @@ class SharedPrefApi @Inject constructor(
         const val ACTION_REQUIRED = "action_required"
         const val KEY_ALIAS = "encryption_key_alias"
         const val ACCESS_REMOVED = "access_removed"
+        const val CLOUD_SERVICE_REQUIRED = "cloud_service_required"
     }
 
     fun <T> rxSingle(action: (SharePrefGateway) -> T): Single<T> {

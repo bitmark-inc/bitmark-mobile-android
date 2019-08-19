@@ -10,11 +10,14 @@ import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.*
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.account.AccountContainerFragment
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
+import com.bitmark.registry.feature.sync.GoogleDriveService
 import com.bitmark.registry.feature.transactions.TransactionsFragment
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
@@ -38,6 +41,9 @@ class MainActivity : BaseAppCompatActivity() {
     @Inject
     lateinit var dialogController: DialogController
 
+    @Inject
+    lateinit var googleDriveService: GoogleDriveService
+
     private lateinit var adapter: MainViewPagerAdapter
 
     private val handler = Handler()
@@ -50,6 +56,7 @@ class MainActivity : BaseAppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewModel.checkUnseenBitmark()
         viewModel.checkActionRequired()
+        viewModel.checkCloudServiceRequired()
         val notificationBundle = intent?.getBundleExtra("notification")
         val isDirectFromNotification =
             intent?.getBooleanExtra("direct_from_notification", false) ?: false
@@ -234,6 +241,15 @@ class MainActivity : BaseAppCompatActivity() {
                 bottomNav.setNotification("", 1)
             }
         })
+
+        viewModel.checkCloudServiceRequiredLiveData.observe(
+            this,
+            Observer { required ->
+                if (!required && !googleDriveService.isSignedIn()) {
+                    navigator.anim(BOTTOM_UP)
+                        .startActivity(CloudServiceSignInActivity::class.java)
+                }
+            })
 
         viewModel.getBitmarkLiveData().observe(this, Observer { res ->
             when {

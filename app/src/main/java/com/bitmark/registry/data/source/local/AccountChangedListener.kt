@@ -15,3 +15,7 @@ interface AccountChangedListener
 interface ActionRequiredDeletedListener {
     fun onDeleted(actionId: ActionRequired.Id)
 }
+
+interface CloudServiceRequiredChangedListener {
+    fun onCloudServiceRequiredChanged(required: Boolean)
+}

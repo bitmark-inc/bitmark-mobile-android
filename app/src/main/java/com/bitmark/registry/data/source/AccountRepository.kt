@@ -4,6 +4,7 @@ import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.local.AccountLocalDataSource
 import com.bitmark.registry.data.source.local.ActionRequiredDeletedListener
+import com.bitmark.registry.data.source.local.CloudServiceRequiredChangedListener
 import com.bitmark.registry.data.source.remote.AccountRemoteDataSource
 import com.bitmark.registry.data.source.remote.api.middleware.Cache
 import io.reactivex.Completable
@@ -25,6 +26,10 @@ class AccountRepository(
 
     fun setActionRequiredDeletedListener(listener: ActionRequiredDeletedListener) {
         localDataSource.setActionRequiredDeletedListener(listener)
+    }
+
+    fun setCloudServiceRequiredChangedListener(listener: CloudServiceRequiredChangedListener) {
+        localDataSource.setCloudServiceRequiredChangedListener(listener)
     }
 
     fun getAccountInfo(): Single<Pair<String, Boolean>> {
@@ -114,5 +119,11 @@ class AccountRepository(
     fun checkMobileServerJwtExpiry() = Single.create<Boolean> { emt ->
         emt.onSuccess(System.currentTimeMillis() >= Cache.getInstance().expiresAt)
     }.subscribeOn(Schedulers.computation())
+
+    fun setCloudServiceRequired(required: Boolean) =
+        localDataSource.setCloudServiceRequired(required)
+
+    fun checkCloudServiceRequired() =
+        localDataSource.checkCloudServiceRequired()
 
 }

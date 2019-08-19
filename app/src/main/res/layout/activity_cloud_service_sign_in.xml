@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvBackupToDrive"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/dp_48"
+      android:layout_marginStart="@dimen/dp_48"
+      android:layout_marginTop="@dimen/dp_48"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/backup_to_google_drive"
+      android:textAllCaps="true"
+      android:textColor="@color/colorAccent"
+      android:textSize="@dimen/sp_17"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvBackupToDriveDes"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/dp_28"
+      android:fontFamily="@font/avenir_light"
+      android:text="@string/to_protect_your_assets"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/sp_17"
+      app:layout_constraintEnd_toEndOf="@id/tvBackupToDrive"
+      app:layout_constraintStart_toStartOf="@id/tvBackupToDrive"
+      app:layout_constraintTop_toBottomOf="@id/tvBackupToDrive"
+      />
+
+  <androidx.appcompat.widget.AppCompatImageView
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/dp_64"
+      android:layout_marginEnd="@dimen/dp_24"
+      android:layout_marginStart="@dimen/dp_24"
+      android:layout_marginTop="@dimen/dp_64"
+      android:adjustViewBounds="true"
+      app:layout_constraintBottom_toTopOf="@id/btnAuthorize"
+      app:layout_constraintEnd_toEndOf="@id/tvBackupToDriveDes"
+      app:layout_constraintStart_toStartOf="@id/tvBackupToDriveDes"
+      app:layout_constraintTop_toBottomOf="@id/tvBackupToDriveDes"
+      app:srcCompat="@drawable/bg_cloud_service"
+      />
+
+  <androidx.appcompat.widget.AppCompatButton
+      android:id="@+id/btnAuthorize"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:background="@drawable/bg_blue_ribbon_stateful"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/authorize"
+      android:textColor="@android:color/white"
+      android:textSize="@dimen/sp_16"
+      app:layout_constraintBottom_toTopOf="@id/btnSkip"
+      style="?android:attr/borderlessButtonStyle"
+      />
+
+  <androidx.appcompat.widget.AppCompatButton
+      android:id="@+id/btnSkip"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/dp_44"
+      android:layout_alignParentBottom="true"
+      android:background="@drawable/bg_alice_blue_stateful"
+      android:fontFamily="@font/avenir_bold"
+      android:text="@string/skip"
+      android:textColor="@color/blue_ribbon"
+      android:textSize="@dimen/sp_16"
+      app:layout_constraintBottom_toBottomOf="parent"
+      style="?android:attr/borderlessButtonStyle"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

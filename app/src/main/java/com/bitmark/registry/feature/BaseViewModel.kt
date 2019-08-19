@@ -14,33 +14,39 @@ import io.reactivex.disposables.Disposable
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 abstract class BaseViewModel(protected val lifecycle: Lifecycle) :
-    LifecycleObserver {
+    LifecycleObserver, ComponentLifecycleObserver {
 
     private val compositeDisposable = CompositeDisposable()
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    open fun onCreate() {
+    override fun onCreate() {
+        super.onCreate()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    open fun onStart() {
+    override fun onStart() {
+        super.onStart()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    open fun onResume() {
+    override fun onResume() {
+        super.onResume()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    open fun onPause() {
+    override fun onPause() {
+        super.onPause()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    open fun onStop() {
+    override fun onStop() {
+        super.onStop()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    open fun onDestroy() {
+    override fun onDestroy() {
         compositeDisposable.dispose()
+        super.onDestroy()
     }
 
     protected fun subscribe(disposable: Disposable) {

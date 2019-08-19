@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.account
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -22,11 +23,13 @@ class SettingsModule {
     fun provideViewModel(
         fragment: SettingsFragment,
         accountRepo: AccountRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        realtimeBus: RealtimeBus
     ) = SettingsViewModel(
         fragment.lifecycle,
         accountRepo,
-        rxLiveDataTransformer
+        rxLiveDataTransformer,
+        realtimeBus
     )
 
     @Provides

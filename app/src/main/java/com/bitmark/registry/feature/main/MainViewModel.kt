@@ -58,6 +58,9 @@ class MainViewModel(
     internal val checkActionRequiredLiveData =
         BufferedLiveData<Int>(lifecycle)
 
+    internal val checkCloudServiceRequiredLiveData =
+        BufferedLiveData<Boolean>(lifecycle)
+
     private val getBitmarkLiveData = CompositeLiveData<BitmarkModelView>()
 
     private val prepareDeepLinkHandlingLiveData =
@@ -226,6 +229,17 @@ class MainViewModel(
             ).subscribe { count, e ->
                 if (e == null) {
                     checkActionRequiredLiveData.setValue(count)
+                }
+            })
+    }
+
+    internal fun checkCloudServiceRequired() {
+        subscribe(
+            accountRepo.checkCloudServiceRequired().observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe { required, e ->
+                if (e == null) {
+                    checkCloudServiceRequiredLiveData.setValue(required)
                 }
             })
     }

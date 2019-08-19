@@ -13,8 +13,16 @@ import com.bitmark.registry.di.DaggerAppCompatActivity
  */
 abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
 
+    private val lifecycleObserves = mutableListOf<ComponentLifecycleObserver>()
+
+    protected fun addLifecycleObserver(observer: ComponentLifecycleObserver) {
+        if (lifecycleObserves.contains(observer)) return
+        lifecycleObserves.add(observer)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleObserves.forEach { o -> o.onCreate() }
         if (viewModel() != null) {
             lifecycle.addObserver(viewModel()!!)
         }
@@ -24,18 +32,54 @@ abstract class BaseAppCompatActivity : DaggerAppCompatActivity() {
         observe()
     }
 
+    override fun onStart() {
+        super.onStart()
+        lifecycleObserves.forEach { o -> o.onStart() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleObserves.forEach { o -> o.onResume() }
+    }
+
+    override fun onPause() {
+        lifecycleObserves.forEach { o -> o.onPause() }
+        super.onPause()
+    }
+
+    override fun onStop() {
+        lifecycleObserves.forEach { o -> o.onStop() }
+        super.onStop()
+    }
+
     override fun onDestroy() {
         unobserve()
         deinitComponents()
         if (viewModel() != null) {
             lifecycle.removeObserver(viewModel()!!)
         }
+        lifecycleObserves.forEach { o -> o.onDestroy() }
         super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         this.intent = intent
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        lifecycleObserves.forEach { o ->
+            o.onActivityResult(
+                requestCode,
+                resultCode,
+                data
+            )
+        }
     }
 
     /**

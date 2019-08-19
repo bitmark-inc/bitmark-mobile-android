@@ -8,13 +8,12 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.account.details.SettingsDetailsFragment
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
 import com.bitmark.registry.feature.recoveryphrase.show.RecoveryPhraseWarningFragment
-import com.bitmark.registry.util.extension.copyToClipboard
-import com.bitmark.registry.util.extension.invisible
-import com.bitmark.registry.util.extension.setSafetyOnclickListener
-import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.QrCodeSharingDialog
 import io.intercom.android.sdk.Intercom
 import kotlinx.android.synthetic.main.fragment_settings.*
@@ -51,6 +50,7 @@ class SettingsFragment : BaseSupportFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getAccountNumber()
+        viewModel.checkCloudServiceRequired()
     }
 
     override fun initComponents() {
@@ -70,6 +70,11 @@ class SettingsFragment : BaseSupportFragment() {
                     getString(R.string.your_recovery_phrase_is_the_only)
                 )
             )
+        }
+
+        tvBackupToDrive.setSafetyOnclickListener {
+            navigator.anim(BOTTOM_UP)
+                .startActivity(CloudServiceSignInActivity::class.java)
         }
 
         tvLogout.setSafetyOnclickListener {
@@ -117,6 +122,26 @@ class SettingsFragment : BaseSupportFragment() {
                 }
             }
         })
+
+        viewModel.checkCloudServiceRequiredLiveData.observe(
+            this,
+            Observer { required ->
+                setCloudServiceVisibility(required)
+            })
+
+        viewModel.cloudServiceRequiredChangedLiveData.observe(
+            this,
+            Observer { required ->
+                setCloudServiceVisibility(required)
+            })
+    }
+
+    private fun setCloudServiceVisibility(visible: Boolean) {
+        if (visible) {
+            tvBackupToDrive.visible()
+        } else {
+            tvBackupToDrive.gone()
+        }
     }
 
     fun openIntercom() {

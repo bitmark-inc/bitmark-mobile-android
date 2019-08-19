@@ -21,7 +21,8 @@ class RealtimeBus(
 ) : Bus(),
     BitmarkSavedListener, BitmarkDeletedListener,
     BitmarkStatusChangedListener, AssetFileSavedListener,
-    ActionRequiredDeletedListener, TxsSavedListener, BitmarkSeenListener {
+    ActionRequiredDeletedListener, TxsSavedListener, BitmarkSeenListener,
+    CloudServiceRequiredChangedListener {
 
 
     val bitmarkDeletedPublisher =
@@ -43,6 +44,9 @@ class RealtimeBus(
 
     val bitmarkSeenPublisher = Publisher(PublishSubject.create<String>())
 
+    val cloudServiceRequiredChangedPublisher =
+        Publisher(PublishSubject.create<Boolean>())
+
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
         bitmarkRepo.setBitmarkSavedListener(this)
@@ -51,6 +55,7 @@ class RealtimeBus(
         bitmarkRepo.setTxsSavedListener(this)
         bitmarkRepo.setBitmarkSeenListener(this)
         accountRepo.setActionRequiredDeletedListener(this)
+        accountRepo.setCloudServiceRequiredChangedListener(this)
     }
 
     override fun onChanged(
@@ -89,5 +94,9 @@ class RealtimeBus(
 
     override fun onSeen(bitmarkId: String) {
         bitmarkSeenPublisher.publisher.onNext(bitmarkId)
+    }
+
+    override fun onCloudServiceRequiredChanged(required: Boolean) {
+        cloudServiceRequiredChangedPublisher.publisher.onNext(required)
     }
 }

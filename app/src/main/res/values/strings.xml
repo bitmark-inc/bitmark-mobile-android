@@ -21,7 +21,7 @@
         to protect your data with Touch &amp; Face ID?
     </string>
   <string name="warning">Warning</string>
-  <string name="unexpected_error">Unexpected error. Please try again</string>
+  <string name="unexpected_error">Unexpected error has occurred. We are sorry for the inconvenience</string>
   <string name="properties">Properties</string>
   <string name="transaction">Transactions</string>
   <string name="account">Account</string>
@@ -94,6 +94,7 @@
   <string name="log_out_arrow">Log out »</string>
   <string name="detail_arrow">Detail »</string>
   <string name="write_down_your_recovery_phrase_arrow">Write Down Your Recovery Phrase »</string>
+  <string name="back_up_to_google_drive_arrow">Back up to Google Drive »</string>
   <string name="need_help_question">Need Help?</string>
   <string name="receive_property">Receive Property</string>
   <string name="your_recovery_phrase_is_the_only">Your recovery phrase is the only way to restore your Bitmark account if your phone is lost, stolen, broken, or upgraded. \n\nWe will show you a list of words to write down on a piece of paper and keep safe. \n\nMake sure you are in a private location before writing down your recovery phrase.</string>
@@ -195,6 +196,8 @@
   <string name="what_is_property_description">What is a property description?</string>
   <string name="the_property_description_consists">The property description consists of KEY &amp; VALUE, it helps to store and categorize your data in the property system. This gives anyone the ability to transact and identify the data without seeing the data itself, making the data economically meaningful.\n\nProperty descriptions are permanently recorded in the Bitmark blockchain and cannot be modified or deleted later.\n\nHere is an example of a property description for a journalist\'s file:</string>
   <string name="your_authorization_is_required">Your authorization is required.</string>
+  <string name="backup_to_google_drive">Back up to Google Drive</string>
+  <string name="to_protect_your_assets">To protect your assets from loss and allow asset syncing across devices, please authorize the Bitmark app to back up your assets in your Google Drive account. </string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

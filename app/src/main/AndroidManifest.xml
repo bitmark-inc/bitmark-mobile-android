@@ -96,6 +96,10 @@
         android:name=".feature.issuance.issuance.PropertyDescriptionActivity"
         android:screenOrientation="portrait"/>
 
+    <activity
+        android:name="com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity"
+        android:screenOrientation="portrait"/>
+
     <!-- Firebase message service -->
     <service
         android:name=".feature.notification.AppFirebaseMessageService"

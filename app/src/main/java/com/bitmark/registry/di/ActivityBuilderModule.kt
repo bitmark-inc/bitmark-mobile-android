@@ -14,6 +14,8 @@ import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.register.RegisterContainerModule
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInModule
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeModule
 import com.bitmark.registry.feature.splash.SplashActivity
@@ -72,4 +74,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [MusicClaimingModule::class])
     @ActivityScope
     internal abstract fun bindMusicClaimingActivity(): MusicClaimingActivity
+
+    @ContributesAndroidInjector(modules = [CloudServiceSignInModule::class])
+    @ActivityScope
+    internal abstract fun bindCloudServiceAuthorizationActivity(): CloudServiceSignInActivity
 }

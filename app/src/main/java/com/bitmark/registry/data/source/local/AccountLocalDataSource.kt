@@ -29,8 +29,15 @@ class AccountLocalDataSource @Inject constructor(
     private var actionRequiredDeleteListener: ActionRequiredDeletedListener? =
         null
 
+    private var cloudServiceRequiredChangedListener: CloudServiceRequiredChangedListener? =
+        null
+
     fun setActionRequiredDeletedListener(listener: ActionRequiredDeletedListener) {
         this.actionRequiredDeleteListener = listener
+    }
+
+    fun setCloudServiceRequiredChangedListener(listener: CloudServiceRequiredChangedListener) {
+        this.cloudServiceRequiredChangedListener = listener
     }
 
     fun saveAccountInfo(
@@ -127,6 +134,27 @@ class AccountLocalDataSource @Inject constructor(
                     actionId
                 )
             }
+        }
+
+    fun setCloudServiceRequired(required: Boolean) =
+        sharedPrefApi.rxCompletable { sharePrefGateway ->
+            sharePrefGateway.put(
+                SharedPrefApi.CLOUD_SERVICE_REQUIRED,
+                required
+            )
+        }.doOnComplete {
+            cloudServiceRequiredChangedListener?.onCloudServiceRequiredChanged(
+                required
+            )
+        }
+
+    fun checkCloudServiceRequired() =
+        sharedPrefApi.rxSingle { sharePrefGateway ->
+            sharePrefGateway.get(
+                SharedPrefApi.CLOUD_SERVICE_REQUIRED,
+                Boolean::class,
+                default = true
+            )
         }
 
     private fun gson() = GsonBuilder().excludeFieldsWithoutExposeAnnotation()

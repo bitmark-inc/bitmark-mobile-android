@@ -15,7 +15,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.feature.main.MainActivity
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -109,7 +109,12 @@ class AuthenticationFragment : BaseSupportFragment() {
                 res.isSuccess() -> {
                     blocked = false
                     handler.postDelayed({
-                        val intent = Intent(context, MainActivity::class.java)
+                        val intent = Intent(
+                            context,
+                            CloudServiceSignInActivity::class.java
+                        )
+                        val bundle = CloudServiceSignInActivity.getBundle(true)
+                        intent.putExtras(bundle)
                         val uri = arguments?.getString(URI)
                         if (uri != null) intent.data = Uri.parse(uri)
                         navigator.anim(RIGHT_LEFT).startActivityAsRoot(intent)

@@ -23,13 +23,28 @@ class SharePrefGateway internal constructor(
         )
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> get(key: String, type: KClass<T>): T {
+    fun <T : Any> get(key: String, type: KClass<T>, default: Any? = null): T {
         return when (type) {
-            String::class -> sharedPreferences.getString(key, "") as T
-            Boolean::class -> sharedPreferences.getBoolean(key, false) as T
-            Float::class -> sharedPreferences.getFloat(key, 0f) as T
-            Int::class -> sharedPreferences.getInt(key, 0) as T
-            Long::class -> sharedPreferences.getLong(key, 0) as T
+            String::class -> sharedPreferences.getString(
+                key,
+                default as? String ?: ""
+            ) as T
+            Boolean::class -> sharedPreferences.getBoolean(
+                key,
+                default as? Boolean ?: false
+            ) as T
+            Float::class -> sharedPreferences.getFloat(
+                key,
+                default as? Float ?: 0f
+            ) as T
+            Int::class -> sharedPreferences.getInt(
+                key,
+                default as? Int ?: 0
+            ) as T
+            Long::class -> sharedPreferences.getLong(
+                key,
+                default as? Long ?: 0
+            ) as T
             else -> gson.fromJson(
                 sharedPreferences.getString(key, ""), type.java
             )
