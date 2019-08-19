@@ -20,6 +20,7 @@ abstract class Bus {
         val observers = observerMap[host::class]
         if (observers.isNullOrEmpty()) return
         observers.forEach { o -> o.dispose() }
+        observerMap.remove(host::class)
     }
 
     inner class Publisher<T>(internal val publisher: PublishSubject<T>) {
