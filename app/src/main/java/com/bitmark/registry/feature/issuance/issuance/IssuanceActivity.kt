@@ -119,6 +119,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 asset.metadata?.get("source") ?: asset.metadata?.get("Source")
                         ?: getString(R.string.other)
             tvAssetType.text = assetType
+            tvAssetType.setCompoundDrawablesWithIntrinsicBounds(
+                0,
+                0,
+                R.drawable.ic_arrow_down_inactive,
+                0
+            )
         }
 
         adapter.setItemFilledListener {
@@ -197,7 +203,10 @@ class IssuanceActivity : BaseAppCompatActivity() {
             etIssueQuantity.setText((--quantity).toString())
         }
 
-        tvWhatIsPropDes.setSafetyOnclickListener { }
+        tvWhatIsPropDes.setSafetyOnclickListener {
+            navigator.anim(RIGHT_LEFT)
+                .startActivity(PropertyDescriptionActivity::class.java)
+        }
 
         btnRegister.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener

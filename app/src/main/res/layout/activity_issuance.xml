@@ -183,7 +183,7 @@
           android:layout_height="@dimen/dp_36"
           android:layout_marginTop="@dimen/dp_4"
           android:background="@drawable/bg_border_silver"
-          android:drawableEnd="@drawable/ic_arrow_down"
+          android:drawableEnd="@drawable/ic_arrow_down_2"
           android:fontFamily="@font/avenir_light"
           android:gravity="center_vertical"
           android:paddingEnd="@dimen/dp_10"

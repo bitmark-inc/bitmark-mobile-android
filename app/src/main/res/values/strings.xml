@@ -200,6 +200,8 @@
   <string name="pending_three_dot">Pending…</string>
   <string name="authenticating_transfer_to_you_three_dot">Authenticating transfer to you…</string>
   <string name="this_asset_is_too_large">This asset is too large to issue. The largest asset you can issue is 100MB.</string>
+  <string name="what_is_property_description">What is a property description?</string>
+  <string name="the_property_description_consists">The property description consists of KEY &amp; VALUE, it helps to store and categorize your data in the property system. This gives anyone the ability to transact and identify the data without seeing the data itself, making the data economically meaningful.\n\nProperty descriptions are permanently recorded in the Bitmark blockchain and cannot be modified or deleted later.\n\nHere is an example of a property description for a journalist\'s file:</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
