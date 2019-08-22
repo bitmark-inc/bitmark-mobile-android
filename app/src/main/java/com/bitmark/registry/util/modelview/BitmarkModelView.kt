@@ -76,8 +76,9 @@ class BitmarkModelView constructor(
             return when (metadata["source"] ?: metadata["Source"]) {
                 "Medical Records", "Health Records" -> AssetType.MEDICAL
                 "Health Kit", "Health" -> AssetType.HEALTH
-                "Photo", "photo" -> AssetType.IMAGE
-                "Video", "video" -> AssetType.VIDEO
+                // TODO consider to add it since maybe it's inconsistent
+                /*"Photo", "photo" -> AssetType.IMAGE
+                "Video", "video" -> AssetType.VIDEO*/
                 else -> null
             }
         }

@@ -6,9 +6,10 @@ import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
+import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
-import com.bitmark.registry.feature.sync.GoogleDriveService
+import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.Synchronizer
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
@@ -34,7 +35,8 @@ class MainModule {
         wsEventBus: WebSocketEventBus,
         realtimeBus: RealtimeBus,
         bmServerAuthentication: BmServerAuthentication,
-        synchronizer: Synchronizer
+        synchronizer: Synchronizer,
+        assetSynchronizer: AssetSynchronizer
     ) =
         MainViewModel(
             activity.lifecycle,
@@ -44,7 +46,8 @@ class MainModule {
             wsEventBus,
             realtimeBus,
             bmServerAuthentication,
-            synchronizer
+            synchronizer,
+            assetSynchronizer
         )
 
     @Provides
@@ -58,6 +61,6 @@ class MainModule {
 
     @Provides
     @ActivityScope
-    fun provideGoogleDriveService(activity: MainActivity) =
-        GoogleDriveService(activity)
+    fun provideGoogleDriveSignIn(activity: MainActivity) =
+        GoogleDriveSignIn(activity)
 }

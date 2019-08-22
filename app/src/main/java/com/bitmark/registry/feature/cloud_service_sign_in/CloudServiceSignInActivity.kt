@@ -10,8 +10,8 @@ import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.main.MainActivity
-import com.bitmark.registry.feature.sync.GoogleDriveService
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import kotlinx.android.synthetic.main.activity_cloud_service_sign_in.*
 import javax.inject.Inject
@@ -45,7 +45,7 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
     internal lateinit var dialogController: DialogController
 
     @Inject
-    internal lateinit var googleDriveService: GoogleDriveService
+    internal lateinit var googleDriveSignIn: GoogleDriveSignIn
 
     private var isFirstLaunch: Boolean = false
 
@@ -59,10 +59,10 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
         isFirstLaunch = intent?.extras?.getBoolean(FIRST_LAUNCH) ?: false
 
-        addLifecycleObserver(googleDriveService)
+        addLifecycleObserver(googleDriveSignIn)
 
-        googleDriveService.setSignInCallback(object :
-            GoogleDriveService.SignInCallback {
+        googleDriveSignIn.setSignInCallback(object :
+            GoogleDriveSignIn.SignInCallback {
             override fun onSignedIn() {
                 viewModel.setCloudServiceRequired(false)
             }
@@ -80,7 +80,7 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
         })
 
-        btnAuthorize.setSafetyOnclickListener { googleDriveService.signIn() }
+        btnAuthorize.setSafetyOnclickListener { googleDriveSignIn.signIn() }
 
         btnSkip.setSafetyOnclickListener {
             viewModel.setCloudServiceRequired(true)

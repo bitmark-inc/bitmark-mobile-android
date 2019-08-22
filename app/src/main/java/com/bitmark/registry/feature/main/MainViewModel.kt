@@ -14,6 +14,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.Synchronizer
 import com.bitmark.registry.util.extension.isDbRecNotFoundError
 import com.bitmark.registry.util.extension.toJson
@@ -49,7 +50,8 @@ class MainViewModel(
     private val wsEventBus: WebSocketEventBus,
     private val realtimeBus: RealtimeBus,
     private val bmServerAuthentication: BmServerAuthentication,
-    private val synchronizer: Synchronizer
+    private val synchronizer: Synchronizer,
+    private val assetSynchronizer: AssetSynchronizer
 ) :
     BaseViewModel(lifecycle) {
 
@@ -204,6 +206,8 @@ class MainViewModel(
         }
 
         synchronizer.start()
+
+        assetSynchronizer.start()
     }
 
     internal fun checkUnseenBitmark() {
@@ -343,7 +347,12 @@ class MainViewModel(
     private fun getAccountNumber() =
         accountRepo.getAccountInfo().map { p -> p.first }
 
+    internal fun resumeSyncAsset() = assetSynchronizer.resume()
+
+    internal fun pauseSyncAsset() = assetSynchronizer.pause()
+
     override fun onDestroy() {
+        assetSynchronizer.stop()
         synchronizer.stop()
         realtimeBus.unsubscribe(this)
         wsEventBus.disconnect()

@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.realtime
 
 import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
@@ -22,8 +23,7 @@ class RealtimeBus(
     BitmarkSavedListener, BitmarkDeletedListener,
     BitmarkStatusChangedListener, AssetFileSavedListener,
     ActionRequiredDeletedListener, TxsSavedListener, BitmarkSeenListener,
-    CloudServiceRequiredChangedListener {
-
+    CloudServiceRequiredChangedListener, AssetSavedListener {
 
     val bitmarkDeletedPublisher =
         Publisher(PublishSubject.create<Pair<String, BitmarkData.Status>>())
@@ -47,6 +47,9 @@ class RealtimeBus(
     val cloudServiceRequiredChangedPublisher =
         Publisher(PublishSubject.create<Boolean>())
 
+    val assetsSavedPublisher =
+        Publisher(PublishSubject.create<List<AssetData>>())
+
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
         bitmarkRepo.setBitmarkSavedListener(this)
@@ -54,6 +57,7 @@ class RealtimeBus(
         bitmarkRepo.setAssetFileSavedListener(this)
         bitmarkRepo.setTxsSavedListener(this)
         bitmarkRepo.setBitmarkSeenListener(this)
+        bitmarkRepo.setAssetSavedListener(this)
         accountRepo.setActionRequiredDeletedListener(this)
         accountRepo.setCloudServiceRequiredChangedListener(this)
     }
@@ -98,5 +102,9 @@ class RealtimeBus(
 
     override fun onCloudServiceRequiredChanged(required: Boolean) {
         cloudServiceRequiredChangedPublisher.publisher.onNext(required)
+    }
+
+    override fun onAssetsSaved(assets: List<AssetData>) {
+        assetsSavedPublisher.publisher.onNext(assets)
     }
 }

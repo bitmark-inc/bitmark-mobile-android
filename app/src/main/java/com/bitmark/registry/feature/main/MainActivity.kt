@@ -8,16 +8,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
+import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
+import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
-import com.bitmark.registry.feature.sync.GoogleDriveService
 import com.bitmark.registry.feature.transactions.TransactionsFragment
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
@@ -30,7 +31,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.net.URLDecoder
 import javax.inject.Inject
 
-class MainActivity : BaseAppCompatActivity() {
+class MainActivity : BaseAppCompatActivity(),
+    AppLifecycleHandler.AppStateChangedListener {
 
     @Inject
     lateinit var viewModel: MainViewModel
@@ -42,7 +44,10 @@ class MainActivity : BaseAppCompatActivity() {
     lateinit var dialogController: DialogController
 
     @Inject
-    lateinit var googleDriveService: GoogleDriveService
+    lateinit var googleDriveSignIn: GoogleDriveSignIn
+
+    @Inject
+    internal lateinit var appLifecycleHandler: AppLifecycleHandler
 
     private lateinit var adapter: MainViewPagerAdapter
 
@@ -217,9 +222,12 @@ class MainActivity : BaseAppCompatActivity() {
             true
         }
 
+        appLifecycleHandler.addAppStateChangedListener(this)
+
     }
 
     override fun deinitComponents() {
+        appLifecycleHandler.removeAppStateChangedListener(this)
         handler.removeCallbacksAndMessages(null)
         super.deinitComponents()
     }
@@ -245,7 +253,7 @@ class MainActivity : BaseAppCompatActivity() {
         viewModel.checkCloudServiceRequiredLiveData.observe(
             this,
             Observer { required ->
-                if (!required && !googleDriveService.isSignedIn()) {
+                if (!required && !googleDriveSignIn.isSignedIn()) {
                     navigator.anim(BOTTOM_UP)
                         .startActivity(CloudServiceSignInActivity::class.java)
                 }
@@ -357,5 +365,15 @@ class MainActivity : BaseAppCompatActivity() {
     private fun openTxHistory() {
         switchTab(MainViewPagerAdapter.TAB_TXS)
         (adapter.currentFragment as? TransactionsFragment)?.openTxHistory()
+    }
+
+    override fun onForeground() {
+        super.onForeground()
+        viewModel.resumeSyncAsset()
+    }
+
+    override fun onBackground() {
+        super.onBackground()
+        viewModel.pauseSyncAsset()
     }
 }

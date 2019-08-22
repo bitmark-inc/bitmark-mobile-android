@@ -37,11 +37,15 @@ class FileStorageGateway internal constructor(private val context: Context) {
     fun filesDir() = context.filesDir
 
     fun firstFile(path: String): File? {
+        val files = listFiles(path)
+        return if (files.isNotEmpty()) files[0] else null
+    }
+
+    fun listFiles(path: String): List<File> {
         val file = File(path)
-        if (!file.exists()) return null
-        if (file.isFile) return file
-        val files = file.listFiles() ?: return null
-        return if (files.isEmpty()) null else files[0]
+        if (!file.exists()) return listOf()
+        if (file.isFile) return listOf(file)
+        return file.listFiles()?.toList() ?: listOf()
     }
 
     fun delete(path: String) {

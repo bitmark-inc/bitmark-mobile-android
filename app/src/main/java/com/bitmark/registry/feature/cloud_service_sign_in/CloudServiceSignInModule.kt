@@ -4,7 +4,7 @@ import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.sync.GoogleDriveService
+import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -38,8 +38,8 @@ class CloudServiceSignInModule {
 
     @Provides
     @ActivityScope
-    fun provideGoogleDriveService(activity: CloudServiceSignInActivity) =
-        GoogleDriveService(activity)
+    fun provideGoogleDriveSignIn(activity: CloudServiceSignInActivity) =
+        GoogleDriveSignIn(activity)
 
     @Provides
     @ActivityScope

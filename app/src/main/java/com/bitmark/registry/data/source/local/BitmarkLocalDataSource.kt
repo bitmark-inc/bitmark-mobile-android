@@ -38,6 +38,8 @@ class BitmarkLocalDataSource @Inject constructor(
 
     private var bitmarkSeenListener: BitmarkSeenListener? = null
 
+    private var assetSavedListener: AssetSavedListener? = null
+
     fun setBitmarkDeletedListener(listener: BitmarkDeletedListener?) {
         this.bitmarkDeletedListener = listener
     }
@@ -60,6 +62,10 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun setBitmarkSeenListener(listener: BitmarkSeenListener?) {
         this.bitmarkSeenListener = listener
+    }
+
+    fun setAssetSavedListener(listener: AssetSavedListener?) {
+        this.assetSavedListener = listener
     }
 
     //region Bitmark
@@ -285,10 +291,14 @@ class BitmarkLocalDataSource @Inject constructor(
         if (assets.isEmpty()) Completable.complete()
         else databaseApi.rxCompletable { db ->
             db.assetDao().save(assets)
-        }
+        }.doOnComplete { assetSavedListener?.onAssetsSaved(assets) }
 
     fun saveAsset(asset: AssetData) = databaseApi.rxCompletable { db ->
-        db.assetDao().save(asset)
+        db.assetDao().save(asset).doOnComplete {
+            assetSavedListener?.onAssetsSaved(
+                listOf(asset)
+            )
+        }
     }
 
     fun checkAssetFile(
@@ -323,6 +333,12 @@ class BitmarkLocalDataSource @Inject constructor(
     }.doOnSuccess {
         assetFileSavedListener?.onSaved(assetId)
     }
+
+    fun listStoredAssetFile(accountNumber: String) =
+        fileStorageApi.rxSingle { fileGateway ->
+            val path = "${fileStorageApi.filesDir()}/$accountNumber/assets"
+            fileGateway.listFiles(path)
+        }
 
     fun checkRedundantAsset(assetId: String) =
         countBitmarkRefSameAsset(assetId).map { count ->

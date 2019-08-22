@@ -1,19 +1,12 @@
-package com.bitmark.registry.feature.sync
+package com.bitmark.registry.feature.google_drive
 
 import android.app.Activity
 import android.content.Intent
-import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.feature.ComponentLifecycleObserver
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
-import com.google.api.client.extensions.android.http.AndroidHttp
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.json.gson.GsonFactory
-import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import java.util.*
 
 
 /**
@@ -22,14 +15,12 @@ import java.util.*
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class GoogleDriveService(private val activity: Activity) :
+class GoogleDriveSignIn(private val activity: Activity) :
     ComponentLifecycleObserver {
 
     companion object {
         private const val AUTHORIZE_CODE = 0xAF
     }
-
-    private var service: Drive? = null
 
     private var signInCallback: SignInCallback? = null
 
@@ -48,9 +39,11 @@ class GoogleDriveService(private val activity: Activity) :
                         Scope(DriveScopes.DRIVE_APPDATA)
                     ).build()
             val client = GoogleSignIn.getClient(activity, options)
-            activity.startActivityForResult(client.signInIntent, AUTHORIZE_CODE)
+            activity.startActivityForResult(
+                client.signInIntent,
+                AUTHORIZE_CODE
+            )
         } else {
-            service = buildService(signedInAccount)
             signInCallback?.onSignedIn()
         }
     }
@@ -76,24 +69,10 @@ class GoogleDriveService(private val activity: Activity) :
 
     private fun handleSignInResult(data: Intent) {
         GoogleSignIn.getSignedInAccountFromIntent(data)
-            .addOnSuccessListener { account ->
-                service = buildService(account)
+            .addOnSuccessListener {
                 signInCallback?.onSignedIn()
             }
             .addOnFailureListener { e -> signInCallback?.onError(e) }
-    }
-
-    private fun buildService(account: GoogleSignInAccount): Drive {
-        val credential = GoogleAccountCredential.usingOAuth2(
-            activity,
-            Collections.singleton(DriveScopes.DRIVE_APPDATA)
-        )
-        credential.selectedAccount = account.account
-        return Drive.Builder(
-            AndroidHttp.newCompatibleTransport(),
-            GsonFactory(),
-            credential
-        ).setApplicationName(BuildConfig.APPLICATION_ID).build()
     }
 
     interface SignInCallback {

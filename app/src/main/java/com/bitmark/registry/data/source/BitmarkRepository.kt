@@ -5,8 +5,7 @@ import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_DELETED
-import com.bitmark.registry.data.model.BitmarkData.Status.TO_BE_TRANSFERRED
+import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.local.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
@@ -55,6 +54,10 @@ class BitmarkRepository(
         localDataSource.setBitmarkSeenListener(listener)
     }
 
+    fun setAssetSavedListener(listener: AssetSavedListener?) {
+        localDataSource.setAssetSavedListener(listener)
+    }
+
     // sync bitmarks from server and save to local db
     fun syncBitmarks(
         owner: String? = null,
@@ -96,7 +99,7 @@ class BitmarkRepository(
     fun syncPendingBitmarks(owner: String) =
         localDataSource.listBitmarksByOwnerStatus(
             owner,
-            listOf(BitmarkData.Status.ISSUING, BitmarkData.Status.TRANSFERRING)
+            listOf(ISSUING, TRANSFERRING)
         ).flatMapCompletable { bitmarks ->
             if (bitmarks.isEmpty()) Completable.complete()
             else {
@@ -138,6 +141,12 @@ class BitmarkRepository(
                 }
             }
     }
+
+    fun listStoredOwnedBitmarks(owner: String) =
+        localDataSource.listBitmarksByOwnerStatus(
+            owner,
+            listOf(SETTLED, ISSUING)
+        )
 
     // sync bitmark with remote server then save to local db
     fun syncBitmark(bitmarkId: String, loadAsset: Boolean = false) =
@@ -218,11 +227,11 @@ class BitmarkRepository(
         Single.zip(
             localDataSource.listBitmarksByOwnerStatus(
                 owner,
-                BitmarkData.Status.TRANSFERRING
+                TRANSFERRING
             ),
             localDataSource.listBitmarksByOwnerStatus(
                 owner,
-                BitmarkData.Status.ISSUING
+                ISSUING
             ),
             BiFunction<List<BitmarkData>, List<BitmarkData>, List<BitmarkData>> { transferring, issuing ->
                 mutableListOf<BitmarkData>().append(transferring, issuing)
@@ -279,7 +288,6 @@ class BitmarkRepository(
     ).andThen(localDataSource.checkRedundantAsset(assetId)
         .flatMapCompletable { redundant ->
             if (redundant) {
-                // TODO consider whether need to delete file
                 localDataSource.deleteAssetFile(
                     owner,
                     assetId
@@ -492,6 +500,9 @@ class BitmarkRepository(
         fileName: String,
         content: ByteArray
     ) = localDataSource.saveAssetFile(owner, assetId, fileName, content)
+
+    fun listStoredAssetFile(accountNumber: String) =
+        localDataSource.listStoredAssetFile(accountNumber)
 
     fun deleteRemoteAssetFile(
         assetId: String,

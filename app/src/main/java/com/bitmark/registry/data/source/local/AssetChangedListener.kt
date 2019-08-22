@@ -1,5 +1,7 @@
 package com.bitmark.registry.data.source.local
 
+import com.bitmark.registry.data.model.AssetData
+
 
 /**
  * @author Hieu Pham
@@ -12,4 +14,9 @@ interface AssetChangedListener
 
 interface AssetFileSavedListener : AssetChangedListener {
     fun onSaved(assetId: String)
+}
+
+interface AssetSavedListener : AssetChangedListener {
+
+    fun onAssetsSaved(assets: List<AssetData>)
 }
