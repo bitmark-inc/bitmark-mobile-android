@@ -26,6 +26,7 @@ import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
 import com.bitmark.sdk.features.Account
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.URLDecoder
 import javax.inject.Inject
@@ -319,6 +320,20 @@ class MainActivity : BaseAppCompatActivity(),
                         ).finishActivity()
                     }
                 }
+            }
+        })
+
+        viewModel.assetSyncProcessingErrorLiveData.observe(this, Observer { e ->
+            if (e is UserRecoverableAuthIOException) {
+                // user revoke app from google drive service
+                // sign him in again
+                val bundle =
+                    CloudServiceSignInActivity.getBundle(signInIntent = e.intent)
+                navigator.anim(Navigator.BOTTOM_UP)
+                    .startActivity(
+                        CloudServiceSignInActivity::class.java,
+                        bundle
+                    )
             }
         })
     }

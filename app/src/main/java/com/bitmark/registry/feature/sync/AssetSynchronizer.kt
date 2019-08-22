@@ -43,6 +43,12 @@ class AssetSynchronizer @Inject constructor(
 
     private var compositeDisposable = CompositeDisposable()
 
+    private var taskProcessListener: TaskProcessListener? = null
+
+    fun setTaskProcessingListener(listener: TaskProcessListener?) {
+        this.taskProcessListener = listener
+    }
+
     fun start() {
         Log.d(TAG, "starting...")
         googleDriveService.setServiceReadyListener(object :
@@ -109,16 +115,18 @@ class AssetSynchronizer @Inject constructor(
             }.doOnDispose {
                 isProcessing.set(false)
             }.subscribe(
-                {},
+                { taskProcessListener?.onSuccess() },
                 { e ->
                     if (e is CompositeException) {
                         e.exceptions.forEach { ex ->
+                            taskProcessListener?.onError(ex)
                             Log.e(
                                 TAG,
                                 "${ex.javaClass}-${ex.message}"
                             )
                         }
                     } else {
+                        taskProcessListener?.onError(e)
                         Log.e(TAG, "${e.javaClass}-${e.message}")
                     }
                 })
@@ -313,6 +321,13 @@ class AssetSynchronizer @Inject constructor(
 
     private fun subscribe(disposable: Disposable) {
         compositeDisposable.add(disposable)
+    }
+
+    interface TaskProcessListener {
+
+        fun onSuccess() {}
+
+        fun onError(e: Throwable) {}
     }
 
 }

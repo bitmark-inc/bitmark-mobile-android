@@ -98,6 +98,7 @@
 
     <activity
         android:name="com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity"
+        android:launchMode="singleInstance"
         android:screenOrientation="portrait"/>
 
     <!-- Firebase message service -->

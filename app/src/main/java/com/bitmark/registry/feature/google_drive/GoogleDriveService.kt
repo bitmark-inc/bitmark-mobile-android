@@ -51,10 +51,7 @@ class GoogleDriveService @Inject constructor(
 
         realtimeBus.actionRequiredDeletedPublisher.subscribe(this) { actionId ->
             if (actionId == ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION) {
-                val account = GoogleSignIn.getLastSignedInAccount(context)
-                    ?: return@subscribe
-                service = buildService(account)
-                serviceReadyListener?.onReady()
+                startService()
             }
         }
 

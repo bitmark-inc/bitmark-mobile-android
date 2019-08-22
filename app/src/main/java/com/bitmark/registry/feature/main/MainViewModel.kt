@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.main
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
@@ -18,6 +19,7 @@ import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.Synchronizer
 import com.bitmark.registry.util.extension.isDbRecNotFoundError
+import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.extension.toJson
 import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -67,6 +69,8 @@ class MainViewModel(
         CompositeLiveData<Pair<String, String>>()
 
     private val authorizeLiveData = CompositeLiveData<String>()
+
+    internal val assetSyncProcessingErrorLiveData = MutableLiveData<Throwable>()
 
     internal fun getBitmarkLiveData() = getBitmarkLiveData.asLiveData()
 
@@ -203,7 +207,19 @@ class MainViewModel(
             checkActionRequired()
         }
 
+        realtimeBus.actionRequiredAddedPublisher.subscribe(this) {
+            checkActionRequired()
+        }
+
         synchronizer.start()
+
+        assetSynchronizer.setTaskProcessingListener(object :
+            AssetSynchronizer.TaskProcessListener {
+            override fun onError(e: Throwable) {
+                super.onError(e)
+                assetSyncProcessingErrorLiveData.set(e)
+            }
+        })
 
         assetSynchronizer.start()
     }
@@ -340,6 +356,7 @@ class MainViewModel(
 
     override fun onDestroy() {
         assetSynchronizer.stop()
+        assetSynchronizer.setTaskProcessingListener(null)
         synchronizer.stop()
         realtimeBus.unsubscribe(this)
         wsEventBus.disconnect()

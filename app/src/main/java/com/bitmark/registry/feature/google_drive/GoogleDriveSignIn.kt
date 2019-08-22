@@ -39,13 +39,14 @@ class GoogleDriveSignIn(private val activity: Activity) :
                         Scope(DriveScopes.DRIVE_APPDATA)
                     ).build()
             val client = GoogleSignIn.getClient(activity, options)
-            activity.startActivityForResult(
-                client.signInIntent,
-                AUTHORIZE_CODE
-            )
+            signIn(client.signInIntent)
         } else {
             signInCallback?.onSignedIn()
         }
+    }
+
+    fun signIn(signInIntent: Intent) {
+        activity.startActivityForResult(signInIntent, AUTHORIZE_CODE)
     }
 
     override fun onActivityResult(

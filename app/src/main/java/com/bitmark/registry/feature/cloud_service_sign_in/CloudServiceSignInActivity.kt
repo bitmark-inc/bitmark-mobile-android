@@ -13,6 +13,7 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
+import com.google.android.gms.common.api.ApiException
 import kotlinx.android.synthetic.main.activity_cloud_service_sign_in.*
 import javax.inject.Inject
 
@@ -27,10 +28,18 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val FIRST_LAUNCH = "first_launch"
+        private const val SIGN_IN_INTENT = "sign_in_intent"
 
-        fun getBundle(isFirstLaunch: Boolean = false): Bundle {
+        fun getBundle(
+            isFirstLaunch: Boolean = false,
+            signInIntent: Intent? = null
+        ): Bundle {
             val bundle = Bundle()
             bundle.putBoolean(FIRST_LAUNCH, isFirstLaunch)
+            if (signInIntent != null) bundle.putParcelable(
+                SIGN_IN_INTENT,
+                signInIntent
+            )
             return bundle
         }
     }
@@ -59,6 +68,11 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
         isFirstLaunch = intent?.extras?.getBoolean(FIRST_LAUNCH) ?: false
 
+        val signInIntent = intent?.extras?.getParcelable<Intent>(SIGN_IN_INTENT)
+        if (signInIntent != null) {
+            googleDriveSignIn.signIn(signInIntent)
+        }
+
         addLifecycleObserver(googleDriveSignIn)
 
         googleDriveSignIn.setSignInCallback(object :
@@ -72,10 +86,16 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
             }
 
             override fun onError(e: Throwable) {
-                dialogController.alert(
-                    getString(R.string.error),
-                    e.message ?: getString(R.string.unexpected_error)
-                )
+                // work around since this report bug
+                // https://stackoverflow.com/questions/49223941/googlesigninclient-return-8-internal-error
+                if (e is ApiException && e.statusCode == 8) {
+                    googleDriveSignIn.signIn()
+                } else {
+                    dialogController.alert(
+                        getString(R.string.error),
+                        e.message ?: getString(R.string.unexpected_error)
+                    )
+                }
             }
 
         })
