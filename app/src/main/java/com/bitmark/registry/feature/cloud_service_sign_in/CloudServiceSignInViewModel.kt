@@ -1,11 +1,13 @@
 package com.bitmark.registry.feature.cloud_service_sign_in
 
 import androidx.lifecycle.Lifecycle
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.util.DateTimeUtil
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
-import io.reactivex.Single
+import java.util.*
 
 
 /**
@@ -21,19 +23,26 @@ class CloudServiceSignInViewModel(
 ) :
     BaseViewModel(lifecycle) {
 
-    private val setCloudServiceRequiredLiveData = CompositeLiveData<Boolean>()
+    private val setCloudServiceRequiredLiveData = CompositeLiveData<Any>()
 
     internal fun setCloudServiceRequiredLiveData() =
         setCloudServiceRequiredLiveData.asLiveData()
 
     internal fun setCloudServiceRequired(required: Boolean) {
         setCloudServiceRequiredLiveData.add(
-            rxLiveDataTransformer.single(
-                accountRepo.setCloudServiceRequired(required).andThen(
-                    Single.just(
-                        required
+            rxLiveDataTransformer.completable(
+                if (required) accountRepo.addActionRequired(
+                    listOf(
+                        ActionRequired(
+                            ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION,
+                            ActionRequired.Type.SECURITY_ALERT,
+                            date = DateTimeUtil.dateToString(Date())
+                        )
                     )
                 )
+                else {
+                    accountRepo.deleteActionRequired(ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION)
+                }
             )
         )
     }

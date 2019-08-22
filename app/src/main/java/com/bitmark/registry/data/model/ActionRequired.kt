@@ -19,11 +19,11 @@ data class ActionRequired(
 
     @Expose
     @SerializedName("title_string_res_name")
-    val titleStringResName: String,
+    val titleStringResName: String = "",
 
     @Expose
     @SerializedName("description_string_res_name")
-    val desStringResName: String,
+    val desStringResName: String = "",
 
     @Expose
     val date: String
@@ -38,6 +38,10 @@ data class ActionRequired(
     enum class Id {
         @Expose
         @SerializedName("recovery_phrase")
-        RECOVERY_PHRASE
+        RECOVERY_PHRASE,
+
+        @Expose
+        @SerializedName("cloud_service_authorization")
+        CLOUD_SERVICE_AUTHORIZATION
     }
 }

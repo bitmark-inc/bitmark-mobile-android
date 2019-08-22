@@ -23,7 +23,7 @@ class RealtimeBus(
     BitmarkSavedListener, BitmarkDeletedListener,
     BitmarkStatusChangedListener, AssetFileSavedListener,
     ActionRequiredDeletedListener, TxsSavedListener, BitmarkSeenListener,
-    CloudServiceRequiredChangedListener, AssetSavedListener {
+    AssetSavedListener, ActionRequiredAddedListener {
 
     val bitmarkDeletedPublisher =
         Publisher(PublishSubject.create<Pair<String, BitmarkData.Status>>())
@@ -44,11 +44,11 @@ class RealtimeBus(
 
     val bitmarkSeenPublisher = Publisher(PublishSubject.create<String>())
 
-    val cloudServiceRequiredChangedPublisher =
-        Publisher(PublishSubject.create<Boolean>())
-
     val assetsSavedPublisher =
         Publisher(PublishSubject.create<List<AssetData>>())
+
+    val actionRequiredAddedPublisher =
+        Publisher(PublishSubject.create<List<ActionRequired.Id>>())
 
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
@@ -59,7 +59,7 @@ class RealtimeBus(
         bitmarkRepo.setBitmarkSeenListener(this)
         bitmarkRepo.setAssetSavedListener(this)
         accountRepo.setActionRequiredDeletedListener(this)
-        accountRepo.setCloudServiceRequiredChangedListener(this)
+        accountRepo.setActionRequiredAddedListener(this)
     }
 
     override fun onChanged(
@@ -92,16 +92,16 @@ class RealtimeBus(
         actionRequiredDeletedPublisher.publisher.onNext(actionId)
     }
 
+    override fun onAdded(actionIds: List<ActionRequired.Id>) {
+        actionRequiredAddedPublisher.publisher.onNext(actionIds)
+    }
+
     override fun onTxsSaved(txs: List<TransactionData>) {
         txsSavedPublisher.publisher.onNext(txs)
     }
 
     override fun onSeen(bitmarkId: String) {
         bitmarkSeenPublisher.publisher.onNext(bitmarkId)
-    }
-
-    override fun onCloudServiceRequiredChanged(required: Boolean) {
-        cloudServiceRequiredChangedPublisher.publisher.onNext(required)
     }
 
     override fun onAssetsSaved(assets: List<AssetData>) {

@@ -7,6 +7,7 @@ import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.BuildConfig
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
@@ -58,10 +59,7 @@ class MainViewModel(
     internal val checkBitmarkSeenLiveData = BufferedLiveData<Boolean>(lifecycle)
 
     internal val checkActionRequiredLiveData =
-        BufferedLiveData<Int>(lifecycle)
-
-    internal val checkCloudServiceRequiredLiveData =
-        BufferedLiveData<Boolean>(lifecycle)
+        BufferedLiveData<List<ActionRequired.Id>>(lifecycle)
 
     private val getBitmarkLiveData = CompositeLiveData<BitmarkModelView>()
 
@@ -201,9 +199,9 @@ class MainViewModel(
             checkUnseenBitmark()
         }
 
-//        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) {
-//            checkActionRequired()
-//        }
+        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) {
+            checkActionRequired()
+        }
 
         synchronizer.start()
 
@@ -226,24 +224,13 @@ class MainViewModel(
                 })
     }
 
-//    internal fun checkActionRequired() {
-//        subscribe(
-//            accountRepo.getActionRequired().map { actions -> actions.size }.observeOn(
-//                AndroidSchedulers.mainThread()
-//            ).subscribe { count, e ->
-//                if (e == null) {
-//                    checkActionRequiredLiveData.setValue(count)
-//                }
-//            })
-//    }
-
-    internal fun checkCloudServiceRequired() {
+    internal fun checkActionRequired() {
         subscribe(
-            accountRepo.checkCloudServiceRequired().observeOn(
+            accountRepo.getActionRequired().map { actions -> actions.map { a -> a.id } }.observeOn(
                 AndroidSchedulers.mainThread()
-            ).subscribe { required, e ->
+            ).subscribe { ids, e ->
                 if (e == null) {
-                    checkCloudServiceRequiredLiveData.setValue(required)
+                    checkActionRequiredLiveData.setValue(ids)
                 }
             })
     }

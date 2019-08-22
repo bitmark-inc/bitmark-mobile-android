@@ -6,6 +6,7 @@ import com.bitmark.cryptography.crypto.Sha3256
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION
 import com.bitmark.registry.data.model.ActionRequired.Id.RECOVERY_PHRASE
 import com.bitmark.registry.data.model.ActionRequired.Type.SECURITY_ALERT
 import com.bitmark.registry.data.source.AccountRepository
@@ -148,6 +149,11 @@ class AuthenticationViewModel(
             "write_down_your_recovery_phrase",
             "protect_your_bitmark_account",
             DateTimeUtil.dateToString(Date())
+        ),
+        ActionRequired(
+            CLOUD_SERVICE_AUTHORIZATION,
+            SECURITY_ALERT,
+            date = DateTimeUtil.dateToString(Date())
         )
     )
 

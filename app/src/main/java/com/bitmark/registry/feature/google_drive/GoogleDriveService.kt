@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.google_drive
 import android.content.Context
 import android.webkit.MimeTypeMap
 import com.bitmark.registry.BuildConfig
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -40,12 +41,16 @@ class GoogleDriveService @Inject constructor(
     }
 
     fun start() {
-        realtimeBus.cloudServiceRequiredChangedPublisher.subscribe(this) { required ->
-            if (required) {
+        realtimeBus.actionRequiredAddedPublisher.subscribe(this) { actionIds ->
+            if (actionIds.contains(ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION)) {
                 // end google session or skip authorize google drive
                 service = null
                 serviceReadyListener?.onPause()
-            } else {
+            }
+        }
+
+        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) { actionId ->
+            if (actionId == ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION) {
                 val account = GoogleSignIn.getLastSignedInAccount(context)
                     ?: return@subscribe
                 service = buildService(account)

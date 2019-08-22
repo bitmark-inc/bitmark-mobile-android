@@ -29,15 +29,14 @@ class AccountLocalDataSource @Inject constructor(
     private var actionRequiredDeleteListener: ActionRequiredDeletedListener? =
         null
 
-    private var cloudServiceRequiredChangedListener: CloudServiceRequiredChangedListener? =
-        null
+    private var actionRequiredAddedListener: ActionRequiredAddedListener? = null
 
     fun setActionRequiredDeletedListener(listener: ActionRequiredDeletedListener) {
         this.actionRequiredDeleteListener = listener
     }
 
-    fun setCloudServiceRequiredChangedListener(listener: CloudServiceRequiredChangedListener) {
-        this.cloudServiceRequiredChangedListener = listener
+    fun setActionRequiredAddedListener(listener: ActionRequiredAddedListener) {
+        this.actionRequiredAddedListener = listener
     }
 
     fun saveAccountInfo(
@@ -95,17 +94,30 @@ class AccountLocalDataSource @Inject constructor(
 
     fun addActionRequired(actions: List<ActionRequired>) =
         getActionRequired().flatMapCompletable { existingActions ->
-            sharedPrefApi.rxCompletable { sharePrefGateway ->
-                val persistActions =
-                    if (existingActions.isEmpty()) actions else mutableListOf<ActionRequired>().append(
-                        existingActions,
-                        actions
-                    )
+            val mutableExistingActions = existingActions.toMutableList()
+            // remove duplicate actions
+            actions.forEach { action ->
+                val existingPos =
+                    mutableExistingActions.indexOfFirst { a -> action.id == a.id }
+                if (existingPos != -1) {
+                    mutableExistingActions.removeAt(existingPos)
+                }
+            }
 
+            val persistActions =
+                if (mutableExistingActions.isEmpty()) actions else mutableListOf<ActionRequired>().append(
+                    mutableExistingActions,
+                    actions
+                )
+
+            sharedPrefApi.rxCompletable { sharePrefGateway ->
                 sharePrefGateway.put(
                     SharedPrefApi.ACTION_REQUIRED,
                     gson().toJson<List<ActionRequired>>(persistActions)
                 )
+            }.doOnComplete {
+                actionRequiredAddedListener?.onAdded(
+                    persistActions.map { a -> a.id })
             }
         }
 
@@ -134,27 +146,6 @@ class AccountLocalDataSource @Inject constructor(
                     actionId
                 )
             }
-        }
-
-    fun setCloudServiceRequired(required: Boolean) =
-        sharedPrefApi.rxCompletable { sharePrefGateway ->
-            sharePrefGateway.put(
-                SharedPrefApi.CLOUD_SERVICE_REQUIRED,
-                required
-            )
-        }.doOnComplete {
-            cloudServiceRequiredChangedListener?.onCloudServiceRequiredChanged(
-                required
-            )
-        }
-
-    fun checkCloudServiceRequired() =
-        sharedPrefApi.rxSingle { sharePrefGateway ->
-            sharePrefGateway.get(
-                SharedPrefApi.CLOUD_SERVICE_REQUIRED,
-                Boolean::class,
-                default = true
-            )
         }
 
     private fun gson() = GsonBuilder().excludeFieldsWithoutExposeAnnotation()

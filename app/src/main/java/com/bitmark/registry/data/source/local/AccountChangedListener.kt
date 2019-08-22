@@ -12,10 +12,10 @@ import com.bitmark.registry.data.model.ActionRequired
 
 interface AccountChangedListener
 
-interface ActionRequiredDeletedListener {
+interface ActionRequiredDeletedListener : AccountChangedListener {
     fun onDeleted(actionId: ActionRequired.Id)
 }
 
-interface CloudServiceRequiredChangedListener {
-    fun onCloudServiceRequiredChanged(required: Boolean)
+interface ActionRequiredAddedListener : AccountChangedListener {
+    fun onAdded(actionIds: List<ActionRequired.Id>)
 }

@@ -10,8 +10,8 @@ import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.feature.*
-import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
@@ -59,8 +59,7 @@ class MainActivity : BaseAppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.checkUnseenBitmark()
-        //viewModel.checkActionRequired()
-        viewModel.checkCloudServiceRequired()
+        viewModel.checkActionRequired()
         val notificationBundle = intent?.getBundleExtra("notification")
         val isDirectFromNotification =
             intent?.getBooleanExtra("direct_from_notification", false) ?: false
@@ -235,28 +234,28 @@ class MainActivity : BaseAppCompatActivity(),
         super.observe()
         viewModel.checkBitmarkSeenLiveData.observe(this, Observer { has ->
             if (has) {
-                bottomNav.setNotification(" ", 0)
+                bottomNav.setNotification(
+                    " ",
+                    MainViewPagerAdapter.TAB_PROPERTIES
+                )
             } else {
-                bottomNav.setNotification("", 0)
+                bottomNav.setNotification(
+                    "",
+                    MainViewPagerAdapter.TAB_PROPERTIES
+                )
             }
         })
 
-        viewModel.checkActionRequiredLiveData.observe(this, Observer { count ->
-            if (count > 0) {
-                bottomNav.setNotification(count.toString(), 1)
+        viewModel.checkActionRequiredLiveData.observe(this, Observer { ids ->
+            if (ids.contains(ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION)) {
+                bottomNav.setNotification(" ", MainViewPagerAdapter.TAB_ACCOUNT)
+            } else if (!googleDriveSignIn.isSignedIn()) {
+                navigator.anim(Navigator.BOTTOM_UP)
+                    .startActivity(CloudServiceSignInActivity::class.java)
             } else {
-                bottomNav.setNotification("", 1)
+                bottomNav.setNotification("", MainViewPagerAdapter.TAB_ACCOUNT)
             }
         })
-
-        viewModel.checkCloudServiceRequiredLiveData.observe(
-            this,
-            Observer { required ->
-                if (!required && !googleDriveSignIn.isSignedIn()) {
-                    navigator.anim(BOTTOM_UP)
-                        .startActivity(CloudServiceSignInActivity::class.java)
-                }
-            })
 
         viewModel.getBitmarkLiveData().observe(this, Observer { res ->
             when {

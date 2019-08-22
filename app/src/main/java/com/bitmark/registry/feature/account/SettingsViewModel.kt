@@ -2,6 +2,7 @@ package com.bitmark.registry.feature.account
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus
@@ -42,14 +43,26 @@ class SettingsViewModel(
     }
 
     internal fun checkCloudServiceRequired() = subscribe(
-        accountRepo.checkCloudServiceRequired().observeOn(AndroidSchedulers.mainThread()).subscribe { required, e ->
-            checkCloudServiceRequiredLiveData.setValue(required || e != null)
+        accountRepo.getActionRequired().observeOn(AndroidSchedulers.mainThread()).subscribe { actions, e ->
+            checkCloudServiceRequiredLiveData.setValue(
+                actions.map { a -> a.id }.contains(
+                    ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION
+                ) || e != null
+            )
         })
 
     override fun onStart() {
         super.onStart()
-        realtimeBus.cloudServiceRequiredChangedPublisher.subscribe(this) { required ->
-            cloudServiceRequiredChangedLiveData.set(required)
+        realtimeBus.actionRequiredAddedPublisher.subscribe(this) { actionIds ->
+            if (actionIds.contains(ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION)) {
+                cloudServiceRequiredChangedLiveData.set(true)
+            }
+        }
+
+        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) { actionId ->
+            if (actionId == ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION) {
+                cloudServiceRequiredChangedLiveData.set(false)
+            }
         }
     }
 
