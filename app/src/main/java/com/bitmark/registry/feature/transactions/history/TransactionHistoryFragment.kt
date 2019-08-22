@@ -3,7 +3,6 @@ package com.bitmark.registry.feature.transactions.history
 import android.os.Handler
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.AppLifecycleHandler
@@ -14,6 +13,7 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.view.SpeedyLinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_transaction_history.*
 import javax.inject.Inject
 
@@ -61,7 +61,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
         layoutSwipeRefresh.setColorSchemeResources(R.color.colorAccent)
 
         val layoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            SpeedyLinearLayoutManager(context!!, RecyclerView.VERTICAL, false)
         val itemDecoration =
             DividerItemDecoration(context, layoutManager.orientation)
         rvTxs.layoutManager = layoutManager
