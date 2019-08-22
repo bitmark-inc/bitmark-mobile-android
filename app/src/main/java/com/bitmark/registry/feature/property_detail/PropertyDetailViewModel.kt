@@ -67,6 +67,9 @@ class PropertyDetailViewModel(
     internal val bitmarkDeletedLiveData =
         BufferedLiveData<Pair<String, BitmarkData.Status>>(lifecycle)
 
+    internal val assetFileSavedLiveData =
+        BufferedLiveData<Pair<String, File?>>(lifecycle)
+
     internal fun setBitmarkId(bitmarkId: String) {
         this.bitmarkId = bitmarkId
     }
@@ -263,15 +266,12 @@ class PropertyDetailViewModel(
                 bitmarks.indexOfFirst { b -> b.id == bitmarkId } != -1
             if (!hasChanged) return@subscribe
 
-            val getAccountNumberStream =
-                accountRepo.getAccountInfo().map { a -> a.first }
-
             val getBitmarkStream =
                 bitmarkRepo.getStoredBitmarkById(bitmarks[0].id)
 
             subscribe(
                 Single.zip(
-                    getAccountNumberStream,
+                    getAccountNumber(),
                     getBitmarkStream,
                     BiFunction<String, BitmarkData, BitmarkModelView> { accountNumber, bitmark ->
                         BitmarkModelView.newInstance(bitmark, accountNumber)
@@ -297,9 +297,6 @@ class PropertyDetailViewModel(
                 txs.indexOfFirst { t -> t.bitmarkId == bitmarkId } != -1
             if (!hasChanged) return@subscribe
 
-            val getAccountNumberStream =
-                accountRepo.getAccountInfo().map { a -> a.first }
-
             val syncTxsStream = bitmarkRepo.listTxs(
                 bitmarkId = bitmarkId,
                 isPending = true,
@@ -308,7 +305,7 @@ class PropertyDetailViewModel(
 
             subscribe(
                 Single.zip(
-                    getAccountNumberStream,
+                    getAccountNumber(),
                     syncTxsStream,
                     BiFunction<String, List<TransactionData>, List<TransactionModelView>> { accountNumber, ts ->
                         ts.map { t ->
@@ -331,7 +328,23 @@ class PropertyDetailViewModel(
             if (bitmarkId != p.first) return@subscribe
             bitmarkDeletedLiveData.set(p)
         }
+
+        realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
+            subscribe(getAccountNumber().flatMap { accountNumber ->
+                bitmarkRepo.checkAssetFile(
+                    accountNumber,
+                    assetId
+                )
+            }.subscribe { p, e ->
+                if (e == null) {
+                    assetFileSavedLiveData.set(p)
+                }
+            })
+        }
     }
+
+    private fun getAccountNumber() =
+        accountRepo.getAccountInfo().map { a -> a.first }
 
     override fun onDestroy() {
         realtimeBus.unsubscribe(this)

@@ -203,13 +203,16 @@ class BitmarkModelView constructor(
 
     fun isMusicClaiming() = OMNISCIENT_ASSET_ID == assetId
 
-    fun getThumbnailRes() = when (assetType) {
-        AssetType.IMAGE -> R.drawable.ic_asset_image
-        AssetType.VIDEO -> R.drawable.ic_asset_video
-        AssetType.HEALTH -> R.drawable.ic_asset_health_data
-        AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
-        AssetType.ZIP -> R.drawable.ic_asset_zip
-        AssetType.DOC -> R.drawable.ic_asset_doc
-        AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
+    fun getThumbnailRes(): Int {
+        assetType = determineAssetType(metadata, assetFile)
+        return when (assetType) {
+            AssetType.IMAGE -> R.drawable.ic_asset_image
+            AssetType.VIDEO -> R.drawable.ic_asset_video
+            AssetType.HEALTH -> R.drawable.ic_asset_health_data
+            AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
+            AssetType.ZIP -> R.drawable.ic_asset_zip
+            AssetType.DOC -> R.drawable.ic_asset_doc
+            AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
+        }
     }
 }

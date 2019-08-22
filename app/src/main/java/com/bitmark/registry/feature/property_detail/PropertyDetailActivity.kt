@@ -363,8 +363,6 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     val file = res.data()
                     if (file != null) {
                         bitmark.assetFile = file
-                        bitmark.assetType =
-                            BitmarkModelView.determineAssetType(assetFile = bitmark.assetFile)
                         ivAssetType.setImageResource(bitmark.getThumbnailRes())
                         shareFile(bitmark.name ?: "", file)
                     }
@@ -464,6 +462,13 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     navigator.anim(RIGHT_LEFT).finishActivity()
                 }
             }
+        })
+
+        viewModel.assetFileSavedLiveData.observe(this, Observer { p ->
+            val assetId = p.first
+            if (bitmark.assetId != assetId) return@Observer
+            bitmark.assetFile = p.second
+            ivAssetType.setImageResource(bitmark.getThumbnailRes())
         })
     }
 
