@@ -19,7 +19,6 @@ import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
-import com.bitmark.registry.feature.transactions.TransactionsFragment
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.toHost
@@ -60,7 +59,7 @@ class MainActivity : BaseAppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.checkUnseenBitmark()
-        viewModel.checkActionRequired()
+        //viewModel.checkActionRequired()
         viewModel.checkCloudServiceRequired()
         val notificationBundle = intent?.getBundleExtra("notification")
         val isDirectFromNotification =
@@ -364,7 +363,7 @@ class MainActivity : BaseAppCompatActivity(),
 
     private fun openTxHistory() {
         switchTab(MainViewPagerAdapter.TAB_TXS)
-        (adapter.currentFragment as? TransactionsFragment)?.openTxHistory()
+        //(adapter.currentFragment as? TransactionsFragment)?.openTxHistory()
     }
 
     override fun onForeground() {

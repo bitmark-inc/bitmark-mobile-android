@@ -201,9 +201,9 @@ class MainViewModel(
             checkUnseenBitmark()
         }
 
-        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) {
-            checkActionRequired()
-        }
+//        realtimeBus.actionRequiredDeletedPublisher.subscribe(this) {
+//            checkActionRequired()
+//        }
 
         synchronizer.start()
 
@@ -226,16 +226,16 @@ class MainViewModel(
                 })
     }
 
-    internal fun checkActionRequired() {
-        subscribe(
-            accountRepo.getActionRequired().map { actions -> actions.size }.observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe { count, e ->
-                if (e == null) {
-                    checkActionRequiredLiveData.setValue(count)
-                }
-            })
-    }
+//    internal fun checkActionRequired() {
+//        subscribe(
+//            accountRepo.getActionRequired().map { actions -> actions.size }.observeOn(
+//                AndroidSchedulers.mainThread()
+//            ).subscribe { count, e ->
+//                if (e == null) {
+//                    checkActionRequiredLiveData.setValue(count)
+//                }
+//            })
+//    }
 
     internal fun checkCloudServiceRequired() {
         subscribe(

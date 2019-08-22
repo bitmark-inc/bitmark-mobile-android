@@ -26,8 +26,6 @@ import com.bitmark.registry.feature.register.authentication.AuthenticationFragme
 import com.bitmark.registry.feature.register.authentication.AuthenticationModule
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninFragment
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninModule
-import com.bitmark.registry.feature.transactions.TransactionsFragment
-import com.bitmark.registry.feature.transactions.TransactionsModule
 import com.bitmark.registry.feature.transactions.action_required.ActionRequiredFragment
 import com.bitmark.registry.feature.transactions.action_required.ActionRequiredModule
 import com.bitmark.registry.feature.transactions.history.TransactionHistoryFragment
@@ -49,9 +47,9 @@ abstract class FragmentBuilderModule {
     @FragmentScope
     internal abstract fun bindPropertiesFragment(): PropertiesFragment
 
-    @ContributesAndroidInjector(modules = [TransactionsModule::class])
-    @FragmentScope
-    internal abstract fun bindTransactionsFragment(): TransactionsFragment
+//    @ContributesAndroidInjector(modules = [TransactionsModule::class])
+//    @FragmentScope
+//    internal abstract fun bindTransactionsFragment(): TransactionsFragment
 
     @ContributesAndroidInjector(modules = [YourPropertiesModule::class])
     @FragmentScope

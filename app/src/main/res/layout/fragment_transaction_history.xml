@@ -13,6 +13,34 @@
       android:orientation="vertical"
       >
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_44"
+        android:background="@color/wild_sand"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingEnd="@dimen/dp_20"
+        android:paddingStart="@dimen/dp_20"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+      <androidx.appcompat.widget.AppCompatTextView
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:layout_gravity="center_horizontal"
+          android:fontFamily="@font/avenir_bold"
+          android:gravity="center"
+          android:text="@string/transaction"
+          android:textAllCaps="true"
+          android:textColor="@android:color/black"
+          android:textSize="@dimen/sp_18"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvNoTxs"
         android:layout_width="match_parent"
@@ -27,7 +55,7 @@
         android:textSize="@dimen/sp_17"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
         tools:visibility="visible"
         />
 
@@ -51,11 +79,12 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTxs"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:paddingEnd="@dimen/dp_20"
         android:paddingStart="@dimen/dp_20"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutToolbar"
         />
 
     <ProgressBar
