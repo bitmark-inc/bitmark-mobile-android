@@ -41,7 +41,7 @@ class AssetSynchronizer @Inject constructor(
 
     private val isPaused = AtomicBoolean(false)
 
-    private var compositeDisposable = CompositeDisposable()
+    private val compositeDisposable = CompositeDisposable()
 
     private var taskProcessListener: TaskProcessListener? = null
 
