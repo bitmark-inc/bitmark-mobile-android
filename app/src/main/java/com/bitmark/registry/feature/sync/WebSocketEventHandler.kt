@@ -103,7 +103,7 @@ class WebSocketEventHandler @Inject constructor(
     private fun processBitmarkChangedEvent(
         bitmarkId: String,
         presence: Boolean
-    ) = getAccountNumber().flatMap { accountNumber ->
+    ) = accountRepo.getAccountNumber().flatMap { accountNumber ->
         bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
             .flatMap { offset ->
                 bitmarkRepo.syncTxs(
@@ -139,42 +139,43 @@ class WebSocketEventHandler @Inject constructor(
                 }
 
 
-        return getAccountNumber().flatMapCompletable { accountNumber ->
-            if (BuildConfig.ZERO_ADDRESS == owner) {
-                // outgoing tx for delete
-                deleteBmStream(accountNumber)
-            } else {
-                bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
-                    .flatMap { offset ->
-                        bitmarkRepo.syncTxs(
-                            owner = accountNumber,
-                            sent = true,
-                            isPending = true,
-                            loadAsset = true,
-                            loadBlock = true,
-                            at = offset,
-                            to = "later"
-                        )
-                    }.flatMapCompletable {
-                        if (owner != accountNumber) {
-                            // outgoing tx
-                            deleteBmStream(accountNumber)
-                        } else {
-                            // incoming tx
-                            bitmarkRepo.maxStoredBitmarkOffset()
-                                .flatMap { offset ->
-                                    bitmarkRepo.syncBitmarks(
-                                        owner = accountNumber,
-                                        at = offset,
-                                        to = "later",
-                                        pending = true,
-                                        loadAsset = true
-                                    )
-                                }.ignoreElement()
+        return accountRepo.getAccountNumber()
+            .flatMapCompletable { accountNumber ->
+                if (BuildConfig.ZERO_ADDRESS == owner) {
+                    // outgoing tx for delete
+                    deleteBmStream(accountNumber)
+                } else {
+                    bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
+                        .flatMap { offset ->
+                            bitmarkRepo.syncTxs(
+                                owner = accountNumber,
+                                sent = true,
+                                isPending = true,
+                                loadAsset = true,
+                                loadBlock = true,
+                                at = offset,
+                                to = "later"
+                            )
+                        }.flatMapCompletable {
+                            if (owner != accountNumber) {
+                                // outgoing tx
+                                deleteBmStream(accountNumber)
+                            } else {
+                                // incoming tx
+                                bitmarkRepo.maxStoredBitmarkOffset()
+                                    .flatMap { offset ->
+                                        bitmarkRepo.syncBitmarks(
+                                            owner = accountNumber,
+                                            at = offset,
+                                            to = "later",
+                                            pending = true,
+                                            loadAsset = true
+                                        )
+                                    }.ignoreElement()
+                            }
                         }
-                    }
+                }
             }
-        }
     }
 
     private fun processNewPendingIssuance(bitmarkId: String) =
@@ -193,7 +194,4 @@ class WebSocketEventHandler @Inject constructor(
 
     private fun subscribe(disposable: Disposable) =
         compositeDisposable.add(disposable)
-
-    private fun getAccountNumber() =
-        accountRepo.getAccountInfo().map { a -> a.first }
 }

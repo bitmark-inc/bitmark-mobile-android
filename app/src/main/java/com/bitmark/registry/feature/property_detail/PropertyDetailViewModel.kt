@@ -105,8 +105,7 @@ class PropertyDetailViewModel(
     }
 
     private fun getProvenanceStream(bitmarkId: String): Single<List<TransactionModelView>> {
-        val accountStream =
-            accountRepo.getAccountInfo().map { a -> a.first }
+        val accountStream = accountRepo.getAccountNumber()
         val txsStream = bitmarkRepo.listTxs(
             bitmarkId = bitmarkId,
             loadBlock = true,
@@ -127,8 +126,7 @@ class PropertyDetailViewModel(
     }
 
     private fun syncProvenanceStream(bitmarkId: String): Single<List<TransactionModelView>> {
-        val accountStream =
-            accountRepo.getAccountInfo().map { a -> a.first }
+        val accountStream = accountRepo.getAccountNumber()
         val txsStream = bitmarkRepo.syncTxs(
             bitmarkId = bitmarkId,
             loadBlock = true,
@@ -271,7 +269,7 @@ class PropertyDetailViewModel(
 
             subscribe(
                 Single.zip(
-                    getAccountNumber(),
+                    accountRepo.getAccountNumber(),
                     getBitmarkStream,
                     BiFunction<String, BitmarkData, BitmarkModelView> { accountNumber, bitmark ->
                         BitmarkModelView.newInstance(bitmark, accountNumber)
@@ -305,7 +303,7 @@ class PropertyDetailViewModel(
 
             subscribe(
                 Single.zip(
-                    getAccountNumber(),
+                    accountRepo.getAccountNumber(),
                     syncTxsStream,
                     BiFunction<String, List<TransactionData>, List<TransactionModelView>> { accountNumber, ts ->
                         ts.map { t ->
@@ -330,7 +328,7 @@ class PropertyDetailViewModel(
         }
 
         realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
-            subscribe(getAccountNumber().flatMap { accountNumber ->
+            subscribe(accountRepo.getAccountNumber().flatMap { accountNumber ->
                 bitmarkRepo.checkAssetFile(
                     accountNumber,
                     assetId
@@ -342,9 +340,6 @@ class PropertyDetailViewModel(
             })
         }
     }
-
-    private fun getAccountNumber() =
-        accountRepo.getAccountInfo().map { a -> a.first }
 
     override fun onDestroy() {
         realtimeBus.unsubscribe(this)

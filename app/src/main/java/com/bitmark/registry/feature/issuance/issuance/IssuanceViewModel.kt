@@ -49,10 +49,10 @@ class IssuanceViewModel(
         getAccountNumberLiveData.add(
             rxLiveDataTransformer.single(
                 Single.zip(
-                    accountRepo.getAccountInfo(),
+                    accountRepo.getAccountNumber(),
                     accountRepo.getKeyAlias(),
                     BiFunction { a, k ->
-                        Pair(a.first, k)
+                        Pair(a, k)
                     })
             )
         )
@@ -105,7 +105,7 @@ class IssuanceViewModel(
             )
 
         return registerAssetStream.observeOn(Schedulers.io()).flatMap { id ->
-            accountRepo.getAccountInfo().map { a -> Pair(a.first, id) }
+            accountRepo.getAccountNumber().map { a -> Pair(a, id) }
         }
             .doOnSuccess { progressLiveData.set(++progress * 100 / streamCount) }
             .flatMap { p ->

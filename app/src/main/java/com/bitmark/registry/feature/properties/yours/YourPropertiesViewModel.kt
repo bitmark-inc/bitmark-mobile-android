@@ -95,9 +95,8 @@ class YourPropertiesViewModel(
                 currentOffset - 1
             )
 
-        val pendingBitmarksStream = accountRepo.getAccountInfo()
-            .flatMap { account ->
-                val accountNumber = account.first
+        val pendingBitmarksStream = accountRepo.getAccountNumber()
+            .flatMap { accountNumber ->
                 bitmarkRepo.listStoredPendingBitmarks(accountNumber)
                     .map { bitmarks -> Pair(accountNumber, bitmarks) }
             }
@@ -163,27 +162,11 @@ class YourPropertiesViewModel(
     }
 
     private fun fetchBitmarksStream(): Maybe<List<BitmarkModelView>> {
-        return Single.zip(
-            accountRepo.getAccountInfo(),
-            bitmarkRepo.maxStoredBitmarkOffset(),
-            BiFunction<Pair<String, Boolean>, Long, Pair<String, Long>> { account, maxOffset ->
-
-                Pair(account.first, maxOffset)
-
-            }).flatMap { p ->
-
-            val accountNumber = p.first
-            val maxOffset = p.second
-
-            bitmarkRepo.syncBitmarks(
-                owner = accountNumber,
-                at = maxOffset,
-                to = "later",
-                limit = PAGE_SIZE,
-                pending = true
-            ).map { bitmarks -> Pair(accountNumber, bitmarks) }
-
-        }.flatMap(checkAssetFileStream())
+        return accountRepo.getAccountNumber()
+            .flatMap { accountNumber ->
+                bitmarkRepo.syncLatestBitmarks(accountNumber)
+                    .map { bitmarks -> Pair(accountNumber, bitmarks) }
+            }.flatMap(checkAssetFileStream())
             .map(bitmarkMapFunc()).toMaybe()
     }
 
@@ -232,10 +215,10 @@ class YourPropertiesViewModel(
     private fun refreshAssetType(assetId: String) {
         subscribe(Single.zip(
             bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
-            accountRepo.getAccountInfo(),
-            BiFunction<List<BitmarkData>, Pair<String, Boolean>, Pair<String, List<BitmarkData>>> { bitmarks, account ->
+            accountRepo.getAccountNumber(),
+            BiFunction<List<BitmarkData>, String, Pair<String, List<BitmarkData>>> { bitmarks, accountNumber ->
                 Pair(
-                    account.first,
+                    accountNumber,
                     bitmarks
                 )
             }).flatMap(checkAssetFileStream())
@@ -262,9 +245,9 @@ class YourPropertiesViewModel(
                 bitmarks.maxBy { b -> b.offset }?.offset ?: return@subscribe
             if (maxOffset < currentOffset) return@subscribe // ignore unloaded bitmarks
 
-            subscribe(accountRepo.getAccountInfo().map { a ->
+            subscribe(accountRepo.getAccountNumber().map { accountNumber ->
                 Pair(
-                    a.first,
+                    accountNumber,
                     bitmarks
                 )
             }.flatMap(checkAssetFileStream()).map { p ->

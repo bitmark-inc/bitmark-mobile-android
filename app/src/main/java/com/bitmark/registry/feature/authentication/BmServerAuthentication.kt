@@ -65,7 +65,7 @@ class BmServerAuthentication(
     private fun prepareRefreshJwt() {
         compositeDisposable.add(
             Single.zip(
-                accountRepo.getAccountInfo().map { a -> a.first },
+                accountRepo.getAccountNumber(),
                 accountRepo.getKeyAlias(),
                 BiFunction<String, String, Pair<String, String>> { accountNumber, keyAlias ->
                     Pair(accountNumber, keyAlias)

@@ -245,6 +245,28 @@ class BitmarkRepository(
     fun maxStoredBitmarkOffset(): Single<Long> =
         localDataSource.maxBitmarkOffset()
 
+    fun syncLatestBitmarks(owner: String) =
+        maxStoredBitmarkOffset().flatMap { offset ->
+            syncBitmarks(
+                owner = owner,
+                at = offset,
+                to = "later",
+                pending = true,
+                loadAsset = true
+            )
+        }
+
+    fun syncLatestPendingBitmarks(owner: String) =
+        localDataSource.minBitmarkOffset(arrayOf(ISSUING)).flatMap { offset ->
+            syncBitmarks(
+                owner = owner,
+                at = offset,
+                to = "later",
+                pending = true,
+                loadAsset = true
+            )
+        }
+
     fun minStoredBitmarkOffset(): Single<Long> =
         localDataSource.minBitmarkOffset()
 
@@ -472,6 +494,31 @@ class BitmarkRepository(
 
     fun maxStoredRelevantTxOffset(owner: String): Single<Long> =
         localDataSource.maxRelevantTxOffset(owner)
+
+    fun syncLatestRelevantTxs(owner: String) =
+        maxStoredRelevantTxOffset(owner).flatMap { offset ->
+            syncTxs(
+                owner = owner,
+                at = offset,
+                to = "later",
+                sent = true,
+                isPending = true
+            )
+        }
+
+    fun syncLatestRelevantPendingTxs(owner: String) =
+        localDataSource.minRelevantTxOffset(
+            owner,
+            arrayOf(TransactionData.Status.PENDING)
+        ).flatMap { offset ->
+            syncTxs(
+                owner = owner,
+                at = offset,
+                to = "later",
+                sent = true,
+                isPending = true
+            )
+        }
 
     fun minStoredRelevantTxOffset(owner: String): Single<Long> =
         localDataSource.minRelevantTxOffset(owner)

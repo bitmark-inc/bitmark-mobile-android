@@ -82,7 +82,7 @@ class MainViewModel(
         getBitmarkLiveData.add(
             rxLiveDataTransformer.single(
                 Single.zip(
-                    accountRepo.getAccountInfo().map { a -> a.first },
+                    accountRepo.getAccountNumber(),
                     bitmarkRepo.syncBitmark(
                         bitmarkId, true
                     ),
@@ -101,7 +101,7 @@ class MainViewModel(
         prepareDeepLinkHandlingLiveData.add(
             rxLiveDataTransformer.single(
                 Single.zip(
-                    accountRepo.getAccountInfo().map { a -> a.first },
+                    accountRepo.getAccountNumber(),
                     accountRepo.getKeyAlias(),
                     BiFunction { accountNumber, keyAlias ->
                         Pair(
@@ -211,7 +211,7 @@ class MainViewModel(
 
     internal fun checkUnseenBitmark() {
         subscribe(
-            accountRepo.getAccountInfo().map { a -> a.first }.flatMap { accountNumber ->
+            accountRepo.getAccountNumber().flatMap { accountNumber ->
                 bitmarkRepo.checkUnseenBitmark(
                     accountNumber
                 )

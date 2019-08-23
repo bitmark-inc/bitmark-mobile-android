@@ -195,7 +195,7 @@ class WebSocketEventBus(
     private fun getAccountNumber(
         callback: (String) -> Unit
     ) {
-        compositeDisposable.add(accountRepo.getAccountInfo().map { a -> a.first }
+        compositeDisposable.add(accountRepo.getAccountNumber()
             .subscribe { accountNumber, e ->
                 if (e == null) {
                     callback.invoke(accountNumber)

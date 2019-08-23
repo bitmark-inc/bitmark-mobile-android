@@ -36,6 +36,8 @@ class AccountRepository(
         return localDataSource.getAccountInfo()
     }
 
+    fun getAccountNumber() = getAccountInfo().map { a -> a.first }
+
     fun saveAccountInfo(
         accountNumber: String,
         authRequired: Boolean,

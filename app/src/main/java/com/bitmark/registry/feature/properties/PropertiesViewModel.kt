@@ -41,7 +41,7 @@ class PropertiesViewModel(
         getBitmarkCountLiveData.asLiveData()
 
     internal fun getBitmarkCount() =
-        getBitmarkCountLiveData.add(rxLiveDataTransformer.single(accountRepo.getAccountInfo().map { a -> a.first }.flatMap { accountNumber ->
+        getBitmarkCountLiveData.add(rxLiveDataTransformer.single(accountRepo.getAccountNumber().flatMap { accountNumber ->
             bitmarkRepo.countUsableBitmarks(
                 accountNumber
             )

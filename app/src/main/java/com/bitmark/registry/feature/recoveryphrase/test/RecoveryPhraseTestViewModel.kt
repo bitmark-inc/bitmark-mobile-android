@@ -81,9 +81,9 @@ class RecoveryPhraseTestViewModel(
     internal fun getAccountInfo() = getAccountInfoLiveData.add(
         rxLiveDataTransformer.single(
             Single.zip(
-                accountRepo.getAccountInfo(),
+                accountRepo.getAccountNumber(),
                 accountRepo.getKeyAlias(),
-                BiFunction { a, k -> Pair(a.first, k) })
+                BiFunction { a, k -> Pair(a, k) })
         )
     )
 

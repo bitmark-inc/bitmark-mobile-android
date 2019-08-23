@@ -55,6 +55,12 @@ abstract class TransactionDao {
     @Query("SELECT MIN(`offset`) FROM `Transaction` WHERE owner = :who OR previous_owner = :who")
     abstract fun minRelevantOffset(who: String): Single<Long>
 
+    @Query("SELECT MIN(`offset`) FROM `Transaction` WHERE (owner = :who OR previous_owner = :who) AND status IN (:status)")
+    abstract fun minRelevantOffset(
+        who: String,
+        status: Array<TransactionData.Status>
+    ): Single<Long>
+
     @Query("SELECT * FROM `Transaction` WHERE (owner = :who OR previous_owner = :who) AND status == :status ORDER BY `offset` DESC")
     abstract fun listRelevantByStatusDesc(
         who: String,

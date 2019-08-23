@@ -115,16 +115,16 @@ class SplashViewModel(
         ).ignoreElement()
 
         val cleanupBitmarkStream =
-            accountRepo.getAccountInfo().map { p -> p.first }
+            accountRepo.getAccountNumber()
                 .flatMapCompletable { accountNumber ->
                     bitmarkRepo.cleanupBitmark(
                         accountNumber
-                    )/*.andThen(
-                        Completable.mergeArrayDelayError(
-                            bitmarkRepo.syncPendingBitmarks(accountNumber),
-                            bitmarkRepo.syncPendingTxs(accountNumber)
-                        )
-                    )*/
+                    ).andThen(
+                        Single.mergeDelayError(
+                            bitmarkRepo.syncLatestPendingBitmarks(accountNumber),
+                            bitmarkRepo.syncLatestRelevantPendingTxs(accountNumber)
+                        ).ignoreElements()
+                    )
                 }.onErrorResumeNext { Completable.complete() }
 
         var progress = 0

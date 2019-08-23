@@ -45,7 +45,7 @@ class PropertySynchronizer(
 
     private fun syncBitmarks() {
 
-        compositeDisposable.add(getAccountNumber().flatMap { accountNumber ->
+        compositeDisposable.add(accountRepo.getAccountNumber().flatMap { accountNumber ->
             val offsetStream =
                 if (minBitmarkOffset == -1L) bitmarkRepo.minStoredBitmarkOffset() else Single.just(
                     minBitmarkOffset
@@ -78,7 +78,7 @@ class PropertySynchronizer(
 
     private fun syncTxs() {
 
-        compositeDisposable.add(getAccountNumber().flatMap { accountNumber ->
+        compositeDisposable.add(accountRepo.getAccountNumber().flatMap { accountNumber ->
             val offsetStream =
                 if (minTxsOffset == -1L) bitmarkRepo.minStoredRelevantTxOffset(
                     accountNumber
@@ -122,6 +122,4 @@ class PropertySynchronizer(
             })
     }
 
-    private fun getAccountNumber() =
-        accountRepo.getAccountInfo().map { a -> a.first }
 }

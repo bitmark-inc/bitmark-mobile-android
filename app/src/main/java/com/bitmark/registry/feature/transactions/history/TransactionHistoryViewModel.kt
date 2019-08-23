@@ -67,7 +67,7 @@ class TransactionHistoryViewModel(
 
     private fun listTxsStream(): Single<List<TransactionModelView>> {
 
-        return getAccountNumber().flatMap { accountNumber ->
+        return accountRepo.getAccountNumber().flatMap { accountNumber ->
 
             val offsetStream =
                 if (currentOffset == -1L) bitmarkRepo.maxStoredRelevantTxOffset(
@@ -164,7 +164,7 @@ class TransactionHistoryViewModel(
         assetId: String,
         from: String,
         to: String
-    ) = Single.zip(accountRepo.getAccountInfo().map { a -> a.first },
+    ) = Single.zip(accountRepo.getAccountNumber(),
         bitmarkRepo.listAssetClaimingRequest(
             assetId,
             from,
@@ -198,34 +198,12 @@ class TransactionHistoryViewModel(
     }
 
     private fun fetchTxsStream(): Single<List<TransactionModelView>> {
-        return getAccountNumber().flatMap { accountNumber ->
-            Single.zip(
-                accountRepo.getAccountInfo(),
-                bitmarkRepo.maxStoredRelevantTxOffset(accountNumber),
-                BiFunction<Pair<String, Boolean>, Long, Pair<String, Long>> { account, maxOffset ->
-
-                    Pair(account.first, maxOffset)
-
-                })
-        }.flatMap { p ->
-
-            val accountNumber = p.first
-            val maxOffset = p.second
-
-            bitmarkRepo.syncTxs(
-                owner = accountNumber,
-                at = maxOffset,
-                to = "later",
-                limit = PAGE_SIZE,
-                sent = true,
-                isPending = true
-            ).map { bitmarks -> Pair(accountNumber, bitmarks) }
-
+        return accountRepo.getAccountNumber().flatMap { accountNumber ->
+            bitmarkRepo.syncLatestRelevantTxs(
+                accountNumber
+            ).map { txs -> Pair(accountNumber, txs) }
         }.map(mapTxs())
     }
-
-    private fun getAccountNumber() =
-        accountRepo.getAccountInfo().map { a -> a.first }
 
     internal fun reset() {
         currentOffset = -1L
@@ -239,7 +217,7 @@ class TransactionHistoryViewModel(
                 txs.maxBy { t -> t.offset }?.offset ?: return@subscribe
             if (maxOffset < currentOffset) return@subscribe // ignore unloaded txs
 
-            subscribe(getAccountNumber().map { accountNumber ->
+            subscribe(accountRepo.getAccountNumber().map { accountNumber ->
                 Pair(
                     accountNumber,
                     txs

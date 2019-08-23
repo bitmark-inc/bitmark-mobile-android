@@ -90,7 +90,7 @@ class MusicClaimingViewModel(
         prepareDownloadLiveData.add(
             rxLiveDataTransformer.single(
                 Single.zip(
-                    accountRepo.getAccountInfo().map { a -> a.first },
+                    accountRepo.getAccountNumber(),
                     accountRepo.getKeyAlias(),
                     BiFunction { accountNumber, keyAlias ->
                         Pair(

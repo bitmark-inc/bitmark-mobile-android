@@ -145,7 +145,7 @@ class AssetSynchronizer @Inject constructor(
     }
 
     private fun download(assetId: String) =
-        getAccountNumber().flatMapCompletable { accountNumber ->
+        accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
             bitmarkRepo.checkAssetFile(accountNumber, assetId)
                 .map { p -> p.second != null }.flatMapCompletable { existing ->
                     if (existing) {
@@ -206,7 +206,7 @@ class AssetSynchronizer @Inject constructor(
         }
 
     private fun upload(assetId: String) =
-        getAccountNumber().flatMapCompletable { accountNumber ->
+        accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
             bitmarkRepo.checkAssetFile(accountNumber, assetId)
                 .flatMapCompletable { p ->
                     val assetId = p.first
@@ -267,7 +267,7 @@ class AssetSynchronizer @Inject constructor(
         }
 
     private fun determineUploadAssets() =
-        getAccountNumber().flatMap { accountNumber ->
+        accountRepo.getAccountNumber().flatMap { accountNumber ->
             Single.zip(
                 listCloudStoredAssetIds(accountNumber),
                 listLocalStoredAssetIdsStream(accountNumber),
@@ -283,7 +283,7 @@ class AssetSynchronizer @Inject constructor(
         }
 
     private fun determineDownloadAssets() =
-        getAccountNumber().flatMap { accountNumber ->
+        accountRepo.getAccountNumber().flatMap { accountNumber ->
             Single.zip(
                 listCloudStoredAssetIds(accountNumber),
                 listLocalStoredAssetIdsStream(accountNumber),
@@ -322,9 +322,6 @@ class AssetSynchronizer @Inject constructor(
                         .map { b -> b.assetId }
                 }
             }
-
-    private fun getAccountNumber() =
-        accountRepo.getAccountInfo().map { a -> a.first }
 
     // return a pair of asset id and file name
     private fun parseCloudStorageFileName(name: String): Pair<String, String> {
