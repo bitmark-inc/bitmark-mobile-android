@@ -7,7 +7,6 @@ import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.cryptography.crypto.key.KeyPair
-import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
@@ -18,14 +17,13 @@ import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.PropertySynchronizer
-import com.bitmark.registry.util.extension.isDbRecNotFoundError
+import com.bitmark.registry.feature.sync.WebSocketEventHandler
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.extension.toJson
 import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.BitmarkModelView
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.SingleOnSubscribe
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -54,7 +52,8 @@ class MainViewModel(
     private val realtimeBus: RealtimeBus,
     private val bmServerAuthentication: BmServerAuthentication,
     private val propertySynchronizer: PropertySynchronizer,
-    private val assetSynchronizer: AssetSynchronizer
+    private val assetSynchronizer: AssetSynchronizer,
+    private val wsEventHandler : WebSocketEventHandler
 ) :
     BaseViewModel(lifecycle) {
 
@@ -175,22 +174,6 @@ class MainViewModel(
     override fun onCreate() {
         super.onCreate()
 
-        wsEventBus.bitmarkChangedPublisher.subscribe(this) { m ->
-            val bitmarkId = m["bitmark_id"] as String
-            val presence = m["presence"] as Boolean
-            processBitmarkChangedEvent(bitmarkId, presence)
-        }
-
-        wsEventBus.newPendingTxPublisher.subscribe(this) { m ->
-            val owner = m["owner"] ?: return@subscribe
-            val previousTxId = m["prev_tx_id"] ?: return@subscribe
-            processNewPendingTxEvent(owner, previousTxId)
-        }
-
-        wsEventBus.newPendingIssuancePublisher.subscribe(this) { bitmarkId ->
-            processNewPendingIssuance(bitmarkId)
-        }
-
         realtimeBus.bitmarkSeenPublisher.subscribe(this) {
             checkUnseenBitmark()
         }
@@ -222,6 +205,8 @@ class MainViewModel(
         })
 
         assetSynchronizer.start()
+
+        wsEventHandler.start()
     }
 
     internal fun checkUnseenBitmark() {
@@ -251,115 +236,17 @@ class MainViewModel(
             })
     }
 
-    private fun processBitmarkChangedEvent(
-        bitmarkId: String,
-        presence: Boolean
-    ) {
-        val stream = getAccountNumber().flatMap { accountNumber ->
-            bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
-                .flatMap { offset ->
-                    bitmarkRepo.syncTxs(
-                        owner = accountNumber,
-                        sent = true,
-                        bitmarkId = bitmarkId,
-                        loadAsset = true,
-                        loadBlock = true,
-                        at = offset,
-                        to = "later"
-                    )
-                }
-        }.flatMapMaybe {
-            if (presence) bitmarkRepo.syncBitmark(
-                bitmarkId,
-                true
-            ).toMaybe() else Maybe.empty()
-        }
-        subscribe(stream.subscribe({}, {}))
-    }
-
-    private fun processNewPendingTxEvent(owner: String, prevTxId: String) {
-
-        val deleteBmStream =
-            fun(accountNumber: String) =
-                bitmarkRepo.getStoredTxById(prevTxId).flatMapCompletable { tx ->
-                    bitmarkRepo.deleteStoredBitmark(
-                        accountNumber,
-                        tx.bitmarkId,
-                        tx.assetId
-                    )
-                }
-
-
-        subscribe(
-            getAccountNumber().flatMapCompletable { accountNumber ->
-                if (BuildConfig.ZERO_ADDRESS == owner) {
-                    // outgoing tx for delete
-                    deleteBmStream(accountNumber)
-                } else {
-                    bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
-                        .flatMap { offset ->
-                            bitmarkRepo.syncTxs(
-                                owner = accountNumber,
-                                sent = true,
-                                isPending = true,
-                                loadAsset = true,
-                                loadBlock = true,
-                                at = offset,
-                                to = "later"
-                            )
-                        }.flatMapCompletable {
-                            if (owner != accountNumber) {
-                                // outgoing tx
-                                deleteBmStream(accountNumber)
-                            } else {
-                                // incoming tx
-                                bitmarkRepo.maxStoredBitmarkOffset()
-                                    .flatMap { offset ->
-                                        bitmarkRepo.syncBitmarks(
-                                            owner = accountNumber,
-                                            at = offset,
-                                            to = "later",
-                                            pending = true,
-                                            loadAsset = true
-                                        )
-                                    }.ignoreElement()
-                            }
-                        }
-                }
-            }.subscribe(
-                {},
-                {})
-        )
-    }
-
-    private fun processNewPendingIssuance(bitmarkId: String) {
-        subscribe(bitmarkRepo.getStoredBitmarkById(bitmarkId).onErrorResumeNext { e ->
-            if (e.isDbRecNotFoundError()) Single.zip(bitmarkRepo.syncBitmark(
-                bitmarkId,
-                true
-            ), bitmarkRepo.syncTxs(
-                bitmarkId = bitmarkId,
-                isPending = true,
-                loadBlock = true,
-                loadAsset = true
-            ), BiFunction { bitmark, _ -> bitmark })
-            else Single.error(e)
-        }.subscribe({}, {}))
-    }
-
-    private fun getAccountNumber() =
-        accountRepo.getAccountInfo().map { p -> p.first }
-
     internal fun resumeSyncAsset() = assetSynchronizer.resume()
 
     internal fun pauseSyncAsset() = assetSynchronizer.pause()
 
     override fun onDestroy() {
+        wsEventBus.disconnect()
+        wsEventHandler.stop()
         assetSynchronizer.stop()
         assetSynchronizer.setTaskProcessingListener(null)
         propertySynchronizer.stop()
         realtimeBus.unsubscribe(this)
-        wsEventBus.disconnect()
         bmServerAuthentication.destroy()
         super.onDestroy()
     }

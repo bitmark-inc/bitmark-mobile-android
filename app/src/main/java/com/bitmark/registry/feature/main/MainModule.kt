@@ -11,6 +11,7 @@ import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.PropertySynchronizer
+import com.bitmark.registry.feature.sync.WebSocketEventHandler
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -36,7 +37,8 @@ class MainModule {
         realtimeBus: RealtimeBus,
         bmServerAuthentication: BmServerAuthentication,
         propertySynchronizer: PropertySynchronizer,
-        assetSynchronizer: AssetSynchronizer
+        assetSynchronizer: AssetSynchronizer,
+        wsEventHandler: WebSocketEventHandler
     ) =
         MainViewModel(
             activity.lifecycle,
@@ -47,7 +49,8 @@ class MainModule {
             realtimeBus,
             bmServerAuthentication,
             propertySynchronizer,
-            assetSynchronizer
+            assetSynchronizer,
+            wsEventHandler
         )
 
     @Provides
