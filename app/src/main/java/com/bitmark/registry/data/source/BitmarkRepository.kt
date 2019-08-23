@@ -104,11 +104,16 @@ class BitmarkRepository(
             if (bitmarks.isEmpty()) Completable.complete()
             else {
                 val bitmarkIds = bitmarks.map { b -> b.id }
-                syncBitmarks(
-                    owner = owner,
-                    bitmarkIds = bitmarkIds,
-                    loadAsset = false
-                ).ignoreElement()
+                val streams = mutableListOf<Completable>()
+                bitmarkIds.forEach { id ->
+                    streams.add(
+                        syncBitmark(
+                            id,
+                            false
+                        ).ignoreElement()
+                    )
+                }
+                Completable.mergeDelayError(streams)
             }
         }
 
