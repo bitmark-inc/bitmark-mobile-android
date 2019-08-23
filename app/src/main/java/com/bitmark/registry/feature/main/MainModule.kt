@@ -10,7 +10,7 @@ import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
-import com.bitmark.registry.feature.sync.Synchronizer
+import com.bitmark.registry.feature.sync.PropertySynchronizer
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -35,7 +35,7 @@ class MainModule {
         wsEventBus: WebSocketEventBus,
         realtimeBus: RealtimeBus,
         bmServerAuthentication: BmServerAuthentication,
-        synchronizer: Synchronizer,
+        propertySynchronizer: PropertySynchronizer,
         assetSynchronizer: AssetSynchronizer
     ) =
         MainViewModel(
@@ -46,7 +46,7 @@ class MainModule {
             wsEventBus,
             realtimeBus,
             bmServerAuthentication,
-            synchronizer,
+            propertySynchronizer,
             assetSynchronizer
         )
 

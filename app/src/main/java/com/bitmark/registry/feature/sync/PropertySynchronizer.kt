@@ -14,13 +14,13 @@ import io.reactivex.disposables.CompositeDisposable
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class Synchronizer(
+class PropertySynchronizer(
     private val bitmarkRepo: BitmarkRepository,
     private val accountRepo: AccountRepository
 ) {
 
     companion object {
-        private const val TAG = "Synchronizer"
+        private const val TAG = "PropertySynchronizer"
 
         private const val ITEM_PER_PAGE = 100
     }

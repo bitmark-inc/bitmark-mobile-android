@@ -7,7 +7,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
-import com.bitmark.registry.feature.sync.Synchronizer
+import com.bitmark.registry.feature.sync.PropertySynchronizer
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -59,5 +59,5 @@ class AppModule {
     fun provideSynchronizer(
         accountRepo: AccountRepository,
         bitmarkRepo: BitmarkRepository
-    ) = Synchronizer(bitmarkRepo, accountRepo)
+    ) = PropertySynchronizer(bitmarkRepo, accountRepo)
 }

@@ -17,7 +17,7 @@ import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
-import com.bitmark.registry.feature.sync.Synchronizer
+import com.bitmark.registry.feature.sync.PropertySynchronizer
 import com.bitmark.registry.util.extension.isDbRecNotFoundError
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.extension.toJson
@@ -53,7 +53,7 @@ class MainViewModel(
     private val wsEventBus: WebSocketEventBus,
     private val realtimeBus: RealtimeBus,
     private val bmServerAuthentication: BmServerAuthentication,
-    private val synchronizer: Synchronizer,
+    private val propertySynchronizer: PropertySynchronizer,
     private val assetSynchronizer: AssetSynchronizer
 ) :
     BaseViewModel(lifecycle) {
@@ -211,7 +211,7 @@ class MainViewModel(
             checkActionRequired()
         }
 
-        synchronizer.start()
+        propertySynchronizer.start()
 
         assetSynchronizer.setTaskProcessingListener(object :
             AssetSynchronizer.TaskProcessListener {
@@ -357,7 +357,7 @@ class MainViewModel(
     override fun onDestroy() {
         assetSynchronizer.stop()
         assetSynchronizer.setTaskProcessingListener(null)
-        synchronizer.stop()
+        propertySynchronizer.stop()
         realtimeBus.unsubscribe(this)
         wsEventBus.disconnect()
         bmServerAuthentication.destroy()
