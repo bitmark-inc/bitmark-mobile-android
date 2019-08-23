@@ -45,7 +45,7 @@ class RealtimeBus(
     val bitmarkSeenPublisher = Publisher(PublishSubject.create<String>())
 
     val assetsSavedPublisher =
-        Publisher(PublishSubject.create<List<AssetData>>())
+        Publisher(PublishSubject.create<Pair<AssetData, Boolean>>())
 
     val actionRequiredAddedPublisher =
         Publisher(PublishSubject.create<List<ActionRequired.Id>>())
@@ -104,7 +104,7 @@ class RealtimeBus(
         bitmarkSeenPublisher.publisher.onNext(bitmarkId)
     }
 
-    override fun onAssetsSaved(assets: List<AssetData>) {
-        assetsSavedPublisher.publisher.onNext(assets)
+    override fun onAssetSaved(asset: AssetData, isNewRecord: Boolean) {
+        assetsSavedPublisher.publisher.onNext(Pair(asset, isNewRecord))
     }
 }

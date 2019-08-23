@@ -64,11 +64,14 @@ class AssetSynchronizer @Inject constructor(
         })
 
         realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
+            Log.d(TAG, "asset file save for $assetId, process to upload")
             process(assetId, upload(assetId))
         }
 
-        realtimeBus.assetsSavedPublisher.subscribe(this) { assets ->
-            assets.map { a -> a.id }.forEach { assetId ->
+        realtimeBus.assetsSavedPublisher.subscribe(this) { p ->
+            val isNewRec = p.second
+            if (isNewRec) {
+                val assetId = p.first.id
                 process(assetId, download(assetId))
             }
         }
@@ -107,7 +110,7 @@ class AssetSynchronizer @Inject constructor(
             }
             return
         }
-        Log.d(TAG, "start processing...")
+        Log.d(TAG, "start processing for asset id $assetId...")
         subscribe(task.doOnSubscribe { isProcessing.set(true) }
             .doAfterTerminate {
                 isProcessing.set(false)
@@ -145,14 +148,21 @@ class AssetSynchronizer @Inject constructor(
         getAccountNumber().flatMapCompletable { accountNumber ->
             bitmarkRepo.checkAssetFile(accountNumber, assetId)
                 .map { p -> p.second != null }.flatMapCompletable { existing ->
-                    if (existing) Completable.complete()
-                    else {
+                    if (existing) {
+                        Log.d(TAG, "local file for asset $assetId is existing")
+                        Completable.complete()
+                    } else {
                         googleDriveService.listAppDataFiles(
                             folderName = accountNumber,
                             partialName = assetId
                         ).flatMapCompletable { files ->
-                            if (files.isEmpty()) Completable.complete()
-                            else {
+                            if (files.isEmpty()) {
+                                Log.d(
+                                    TAG,
+                                    "remote file for asset $assetId is not existing"
+                                )
+                                Completable.complete()
+                            } else {
                                 val file = files[0]
                                 val fileId = file.id
                                 val parsedName =
@@ -201,14 +211,21 @@ class AssetSynchronizer @Inject constructor(
                 .flatMapCompletable { p ->
                     val assetId = p.first
                     val file = p.second
-                    if (file == null) Completable.complete()
-                    else {
+                    if (file == null) {
+                        Log.d(TAG, "local file for asset $assetId is null")
+                        Completable.complete()
+                    } else {
                         googleDriveService.checkExistingFile(
                             accountNumber,
                             assetId
                         ).flatMapCompletable { existing ->
-                            if (existing) Completable.complete()
-                            else {
+                            if (existing) {
+                                Log.d(
+                                    TAG,
+                                    "remote file for asset id $assetId is existing"
+                                )
+                                Completable.complete()
+                            } else {
                                 val fileName =
                                     canonicalCloudStorageFileName(
                                         assetId,

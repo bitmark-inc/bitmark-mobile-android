@@ -18,5 +18,5 @@ interface AssetFileSavedListener : AssetChangedListener {
 
 interface AssetSavedListener : AssetChangedListener {
 
-    fun onAssetsSaved(assets: List<AssetData>)
+    fun onAssetSaved(asset: AssetData, isNewRecord: Boolean)
 }

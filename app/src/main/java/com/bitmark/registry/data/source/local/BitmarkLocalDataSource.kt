@@ -289,17 +289,29 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun saveAssets(assets: List<AssetData>): Completable =
         if (assets.isEmpty()) Completable.complete()
-        else databaseApi.rxCompletable { db ->
-            db.assetDao().save(assets)
-        }.doOnComplete { assetSavedListener?.onAssetsSaved(assets) }
-
-    fun saveAsset(asset: AssetData) = databaseApi.rxCompletable { db ->
-        db.assetDao().save(asset).doOnComplete {
-            assetSavedListener?.onAssetsSaved(
-                listOf(asset)
-            )
+        else {
+            val streams = mutableListOf<Completable>()
+            assets.forEach { asset -> streams.add(saveAsset(asset)) }
+            Completable.mergeDelayError(streams)
         }
-    }
+
+    fun saveAsset(asset: AssetData) =
+        checkExistingAsset(asset.id).flatMapCompletable { existing ->
+            databaseApi.rxCompletable { db ->
+                db.assetDao().save(asset).doOnComplete {
+                    assetSavedListener?.onAssetSaved(asset, !existing)
+                }
+            }
+        }
+
+    private fun checkExistingAsset(assetId: String) =
+        databaseApi.rxSingle { db ->
+            db.assetDao().getById(assetId)
+        }.map { true }.onErrorResumeNext { e ->
+            if (e.isDbRecNotFoundError()) Single.just(
+                false
+            ) else Single.error(e)
+        }
 
     fun checkAssetFile(
         accountNumber: String,
