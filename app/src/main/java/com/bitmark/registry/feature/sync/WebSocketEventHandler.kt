@@ -1,20 +1,14 @@
 package com.bitmark.registry.feature.sync
 
-import android.util.Log
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.util.RxCompletableChunkExecutor
 import com.bitmark.registry.util.extension.isDbRecNotFoundError
-import com.bitmark.registry.util.extension.poll
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.exceptions.CompositeException
 import io.reactivex.functions.BiFunction
-import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 
@@ -33,94 +27,59 @@ class WebSocketEventHandler @Inject constructor(
     companion object {
         private const val TAG = "WebSocketEventHandler"
 
-        private const val CONCURRENT_TASKS_COUNT = 5
+        private const val CONCURRENT_TASKS_COUNT = 20
     }
 
-    private val compositeDisposable = CompositeDisposable()
-
-    private val taskQueue = ArrayDeque<Completable>()
-
-    private val isProcessing = AtomicBoolean(false)
+    private val executor =
+        RxCompletableChunkExecutor(CONCURRENT_TASKS_COUNT, TAG)
 
     fun start() {
         wsEventBus.bitmarkChangedPublisher.subscribe(this) { m ->
             val bitmarkId = m["bitmark_id"] as String
             val presence = m["presence"] as Boolean
-            process(processBitmarkChangedEvent(bitmarkId, presence))
+            executor.execute(processBitmarkChangedEvent(bitmarkId, presence))
         }
 
         wsEventBus.newPendingTxPublisher.subscribe(this) { m ->
             val owner = m["owner"] ?: return@subscribe
             val previousTxId = m["prev_tx_id"] ?: return@subscribe
-            process(processNewPendingTxEvent(owner, previousTxId))
+            executor.execute(processNewPendingTxEvent(owner, previousTxId))
         }
 
         wsEventBus.newPendingIssuancePublisher.subscribe(this) { bitmarkId ->
-            process(processNewPendingIssuance(bitmarkId))
+            executor.execute(processNewPendingIssuance(bitmarkId))
         }
     }
 
     fun stop() {
-        compositeDisposable.dispose()
-    }
-
-    private fun process(task: Completable) {
-        if (isProcessing.get()) {
-            taskQueue.add(task)
-        } else {
-            subscribe(task.doOnSubscribe { isProcessing.set(true) }
-                .doAfterTerminate {
-                    isProcessing.set(false)
-                    execute()
-                }
-                .doOnDispose { isProcessing.set(false) }
-                .subscribe({}, { e ->
-                    if (e is CompositeException) {
-                        e.exceptions.forEach { ex ->
-                            Log.e(
-                                TAG,
-                                "${ex.javaClass}-${ex.message}"
-                            )
-                        }
-                    } else {
-                        Log.e(TAG, "${e.javaClass}-${e.message}")
-                    }
-                }))
-        }
-    }
-
-    private fun execute() {
-        if (taskQueue.isEmpty()) return
-        process(
-            Completable.mergeDelayError(
-                taskQueue.poll(
-                    CONCURRENT_TASKS_COUNT
-                )
-            )
-        )
+        executor.shutdown()
     }
 
     private fun processBitmarkChangedEvent(
         bitmarkId: String,
         presence: Boolean
-    ) = accountRepo.getAccountNumber().flatMap { accountNumber ->
-        bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
-            .flatMap { offset ->
+    ): Completable {
+
+        val syncTxsStream =
+            accountRepo.getAccountNumber().flatMap { accountNumber ->
                 bitmarkRepo.syncTxs(
                     owner = accountNumber,
                     sent = true,
                     bitmarkId = bitmarkId,
                     loadAsset = true,
-                    loadBlock = true,
-                    at = offset,
-                    to = "later"
+                    loadBlock = true
                 )
-            }
-    }.flatMapCompletable {
-        if (presence) bitmarkRepo.syncBitmark(
+            }.ignoreElement()
+
+        val syncBitmarkStream = if (presence) bitmarkRepo.syncBitmark(
             bitmarkId,
             true
         ).ignoreElement() else Completable.complete()
+
+        return Completable.mergeArrayDelayError(
+            syncTxsStream,
+            syncBitmarkStream
+        )
     }
 
     private fun processNewPendingTxEvent(
@@ -192,6 +151,4 @@ class WebSocketEventHandler @Inject constructor(
             else Single.error(e)
         }.ignoreElement()
 
-    private fun subscribe(disposable: Disposable) =
-        compositeDisposable.add(disposable)
 }

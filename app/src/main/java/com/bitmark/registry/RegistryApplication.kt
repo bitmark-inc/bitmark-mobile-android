@@ -1,5 +1,6 @@
 package com.bitmark.registry
 
+import android.util.Log
 import com.bitmark.apiservice.configuration.GlobalConfiguration
 import com.bitmark.apiservice.configuration.Network
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
@@ -10,6 +11,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import io.fabric.sdk.android.Fabric
 import io.intercom.android.sdk.Intercom
+import io.reactivex.plugins.RxJavaPlugins
 import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Inject
 
@@ -21,6 +23,10 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class RegistryApplication : DaggerApplication() {
+
+    companion object {
+        private const val TAG = "RegistryApplication"
+    }
 
     @Inject
     lateinit var appLifecycleHandler: AppLifecycleHandler
@@ -39,6 +45,12 @@ class RegistryApplication : DaggerApplication() {
         Fabric.with(this, Crashlytics())
         Intercom.initialize(this, API_KEY_MANAGER.intercomApiKey, "ejkeunzw")
         registerActivityLifecycleCallbacks(appLifecycleHandler)
+        RxJavaPlugins.setErrorHandler { e ->
+            Log.e(
+                TAG,
+                "intercept rx error ${e.javaClass} with message ${e.message} to be sent to thread uncaught exception"
+            )
+        }
     }
 
     private fun buildBmSdkConfig(): GlobalConfiguration.Builder {
