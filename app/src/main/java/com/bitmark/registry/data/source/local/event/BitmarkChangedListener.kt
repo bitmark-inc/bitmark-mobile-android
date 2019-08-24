@@ -1,4 +1,4 @@
-package com.bitmark.registry.data.source.local
+package com.bitmark.registry.data.source.local.event
 
 import com.bitmark.registry.data.model.BitmarkData
 
@@ -12,13 +12,11 @@ import com.bitmark.registry.data.model.BitmarkData
 
 interface BitmarkChangedListener
 
-interface BitmarkDeletedListener :
-    BitmarkChangedListener {
+interface BitmarkDeletedListener : BitmarkChangedListener {
     fun onDeleted(bitmarkId: String, lastStatus: BitmarkData.Status)
 }
 
-interface BitmarkStatusChangedListener :
-    BitmarkChangedListener {
+interface BitmarkStatusChangedListener : BitmarkChangedListener {
     fun onChanged(
         bitmarkId: String,
         oldStatus: BitmarkData.Status,
@@ -26,8 +24,7 @@ interface BitmarkStatusChangedListener :
     )
 }
 
-interface BitmarkSavedListener :
-    BitmarkChangedListener {
+interface BitmarkSavedListener : BitmarkChangedListener {
     fun onBitmarksSaved(bitmarks: List<BitmarkData>)
 }
 

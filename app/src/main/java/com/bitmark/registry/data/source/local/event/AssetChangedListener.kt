@@ -1,4 +1,4 @@
-package com.bitmark.registry.data.source.local
+package com.bitmark.registry.data.source.local.event
 
 import com.bitmark.registry.data.model.AssetData
 

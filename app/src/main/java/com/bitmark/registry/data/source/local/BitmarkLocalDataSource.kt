@@ -6,6 +6,7 @@ import com.bitmark.registry.data.model.TransactionData.Status.PENDING
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
+import com.bitmark.registry.data.source.local.event.*
 import com.bitmark.registry.util.extension.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Maybe

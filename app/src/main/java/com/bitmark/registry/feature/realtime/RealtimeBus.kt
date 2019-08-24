@@ -6,7 +6,7 @@ import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.data.source.local.*
+import com.bitmark.registry.data.source.local.event.*
 import io.reactivex.subjects.PublishSubject
 
 
@@ -20,10 +20,15 @@ class RealtimeBus(
     bitmarkRepo: BitmarkRepository,
     accountRepo: AccountRepository
 ) : Bus(),
-    BitmarkSavedListener, BitmarkDeletedListener,
-    BitmarkStatusChangedListener, AssetFileSavedListener,
-    ActionRequiredDeletedListener, TxsSavedListener, BitmarkSeenListener,
-    AssetSavedListener, ActionRequiredAddedListener {
+    BitmarkSavedListener,
+    BitmarkDeletedListener,
+    BitmarkStatusChangedListener,
+    AssetFileSavedListener,
+    ActionRequiredDeletedListener,
+    TxsSavedListener,
+    BitmarkSeenListener,
+    AssetSavedListener,
+    ActionRequiredAddedListener {
 
     val bitmarkDeletedPublisher =
         Publisher(PublishSubject.create<Pair<String, BitmarkData.Status>>())
