@@ -178,6 +178,7 @@ class YourPropertiesRecyclerViewAdapter() :
                 tvName.text =
                     if (item.isMusicClaiming()) "${item.name} [${item.edition
                         ?: "?"}/${item.totalEdition ?: "?"}]" else item.name
+                tvName.isSelected = true
                 tvIssuer.text =
                     if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.readableIssuer
                         ?: item.issuer.shortenAccountNumber()

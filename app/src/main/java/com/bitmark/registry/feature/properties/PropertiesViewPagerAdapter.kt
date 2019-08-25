@@ -21,6 +21,11 @@ class PropertiesViewPagerAdapter(
     fm: FragmentManager
 ) : ViewPagerAdapter(fm) {
 
+    companion object {
+        const val TAB_YOUR = 0x00
+        const val TAB_GLOBAL = 0x01
+    }
+
     init {
         super.add(
             YourPropertiesFragment.newInstance(), WebViewFragment.newInstance(

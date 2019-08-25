@@ -7,6 +7,7 @@
 	<dimen name="dp_14">11.95dp</dimen>
 	<dimen name="dp_16">13.65dp</dimen>
 	<dimen name="dp_18">15.36dp</dimen>
+	<dimen name="dp_180">153.60dp</dimen>
 	<dimen name="dp_2">1.71dp</dimen>
 	<dimen name="dp_20">17.07dp</dimen>
 	<dimen name="dp_200">170.67dp</dimen>

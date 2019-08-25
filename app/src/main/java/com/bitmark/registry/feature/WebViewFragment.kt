@@ -1,13 +1,12 @@
 package com.bitmark.registry.feature
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
@@ -75,20 +74,15 @@ class WebViewFragment : Fragment(), BehaviorComponent {
         }
 
         webview.settings.javaScriptEnabled = true
-        webview.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                visibled = true
-                progressBar.gone()
-            }
-
-            override fun onPageStarted(
-                view: WebView?,
-                url: String?,
-                favicon: Bitmap?
-            ) {
-                super.onPageStarted(view, url, favicon)
-                progressBar.visible()
+        webview.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                progressBar.progress = newProgress
+                if (newProgress >= 100) {
+                    progressBar.gone()
+                } else {
+                    progressBar.visible()
+                }
             }
         }
 
@@ -103,7 +97,7 @@ class WebViewFragment : Fragment(), BehaviorComponent {
 
     private fun deinitComponents() {
         handler.removeCallbacksAndMessages(null)
-        webview.webViewClient = null
+        webview.webChromeClient = null
         visibled = false
     }
 

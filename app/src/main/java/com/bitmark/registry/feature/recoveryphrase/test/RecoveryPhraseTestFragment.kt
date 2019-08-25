@@ -76,12 +76,8 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
 
         if (removeAccess) {
             toolbarTitle.setText(R.string.recovery_phrase_sign_out)
-            tvCancel.invisible()
-            ivBack.visible()
         } else {
             toolbarTitle.setText(R.string.recovery_phrase_test)
-            tvCancel.visible()
-            ivBack.invisible()
         }
 
         val adapter = RecoveryPhraseAdapter(editable = false)
@@ -168,8 +164,6 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 removeAccess
             )
         }
-
-        tvCancel.setOnClickListener { navigator.popChildFragmentToRoot() }
 
         ivBack.setOnClickListener { navigator.popChildFragmentToRoot() }
     }

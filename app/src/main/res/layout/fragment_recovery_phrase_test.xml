@@ -26,7 +26,6 @@
         android:layout_height="@dimen/dp_16"
         android:clickable="true"
         android:focusable="true"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -50,23 +49,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/recovery_phrase_test"
-        />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvCancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="@font/avenir_light"
-        android:text="@string/cancel"
-        android:textColor="@drawable/blue_ribbon_stateful"
-        android:textSize="@dimen/sp_16"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         />
   </androidx.constraintlayout.widget.ConstraintLayout>
 

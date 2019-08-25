@@ -1,7 +1,5 @@
 package com.bitmark.registry.feature.issuance.issuance
 
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,15 +26,13 @@ class MetadataRecyclerViewAdapter :
 
     private var itemFilledListener: ((Boolean) -> Unit)? = null
 
-    private val handler = Handler(Looper.getMainLooper())
+    private var itemRemovedListener: ((Item) -> Unit)? = null
 
     private val internalItemDeletedListener: (Item) -> Unit = { item ->
         val pos = items.indexOf(item)
-        if (pos != -1) {
-            items.removeAt(pos)
-            notifyItemRemoved(pos)
-            changeRemovableState(isRemovable())
-        }
+        items.removeAt(pos)
+        notifyItemRemoved(pos)
+        itemRemovedListener?.invoke(item)
     }
 
     init {
@@ -48,9 +44,13 @@ class MetadataRecyclerViewAdapter :
         this.itemFilledListener = listener
     }
 
-    internal fun add() {
+    internal fun setItemRemovedListener(listener: (Item) -> Unit) {
+        this.itemRemovedListener = listener
+    }
+
+    internal fun add(requestFocus: Boolean = false) {
         val pos = items.size
-        items.add(Item("", ""))
+        items.add(Item("", "", isFocused = requestFocus))
         notifyItemInserted(pos)
     }
 
@@ -83,10 +83,16 @@ class MetadataRecyclerViewAdapter :
         return map
     }
 
-    internal fun isValid() =
-        (items.size == 1 && items[0].isBlank())
-                || items.find { i -> !i.isValid() } == null
-                && this.items.distinctBy { t -> t.key }.size == this.items.size
+    internal fun isValid() = hasSingleBlankRow() || hasValidRows()
+
+    internal fun hasSingleRow() = items.size == 1
+
+    internal fun hasSingleBlankRow() = hasSingleRow() && items[0].isBlank()
+
+    internal fun hasValidRows() =
+        items.find { i -> !i.isValid() } == null && this.items.distinctBy { t -> t.key }.size == this.items.size
+
+    internal fun isRemoving() = items.indexOfFirst { i -> i.removable } != -1
 
     internal fun disable() {
         items.forEach { i -> i.disable = true }
@@ -168,6 +174,10 @@ class MetadataRecyclerViewAdapter :
 
                 etKey.setText(item.key.toUpperCase())
                 etValue.setText(item.value)
+
+                if (item.isFocused) {
+                    etKey.requestFocus()
+                }
             }
         }
 
@@ -175,6 +185,9 @@ class MetadataRecyclerViewAdapter :
             view: View,
             text: String
         ) {
+
+            val hasSingleRow = hasSingleRow()
+
             with(itemView) {
                 val isDeleted =
                     text.isBlank() && (view == etKey && item.key.isNotBlank()) || (view == etValue && item.value.isNotBlank())
@@ -192,7 +205,10 @@ class MetadataRecyclerViewAdapter :
                 } else {
                     item.value = text
                 }
-                if (isDeleted && item.isMissing() || item.isProhibited() || item.duplicate) {
+
+                if (hasSingleRow && item.isBlank()) {
+                    showInitState()
+                } else if ((isDeleted && item.isMissing()) || item.isProhibited() || item.duplicate) {
                     showInvalidState()
                 } else if (item.isValid()) {
                     showValidState()
@@ -203,18 +219,23 @@ class MetadataRecyclerViewAdapter :
         }
 
         private fun handleFocusState(`this`: View, hasFocus: Boolean) {
+            val hasSingleRow = hasSingleRow()
             with(itemView) {
                 val that = if (`this` == etKey) etValue else etKey
 
-                if (hasFocus && !item.isInvalidState()) {
+                if (hasFocus) {
                     // if it's currently missing, keep that state.
-                    showValidState()
+                    if (!item.isInvalidState()) {
+                        showValidState()
+                    }
+                    item.isFocused = true
                 } else {
                     // bit delay for waiting for ${that}'s focus event
                     handler.postDelayed(
                         {
                             if (!that.isFocused) {
-                                if (!item.isValid()) {
+                                item.isFocused = false
+                                if ((hasSingleRow && item.isMissing()) || (!hasSingleRow && !item.isValid())) {
                                     showInvalidState()
                                 }
                             }
@@ -252,6 +273,14 @@ class MetadataRecyclerViewAdapter :
             }
         }
 
+        private fun showInitState() {
+            item.state = Item.State.INITIALIZE
+            with(itemView) {
+                etKey.setBackgroundDrawable(R.drawable.bg_border_silver)
+                etValue.setBackgroundDrawable(R.drawable.bg_border_silver_top_less)
+            }
+        }
+
     }
 
     data class Item(
@@ -260,6 +289,7 @@ class MetadataRecyclerViewAdapter :
         var removable: Boolean = false,
         var disable: Boolean = false,
         var duplicate: Boolean = false,
+        var isFocused: Boolean = false,
         var state: State = State.INITIALIZE
     ) {
 

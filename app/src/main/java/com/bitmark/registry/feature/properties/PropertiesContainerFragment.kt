@@ -54,7 +54,12 @@ class PropertiesContainerFragment : BaseSupportFragment() {
 
     override fun refresh() {
         super.refresh()
-        (currentFragment() as? BehaviorComponent)?.refresh()
+        val currentFragment = currentFragment()
+        if (currentFragment !is PropertiesFragment) {
+            navigator.popChildFragmentToRoot()
+        } else {
+            (currentFragment as? BehaviorComponent)?.refresh()
+        }
     }
 
     private fun currentFragment() =

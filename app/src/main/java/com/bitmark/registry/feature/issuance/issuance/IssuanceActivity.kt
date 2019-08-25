@@ -96,6 +96,8 @@ class IssuanceActivity : BaseAppCompatActivity() {
         setRegisterState(false)
         setAddMetadataState(false)
         setActionMetadataState(false)
+        setAddMetadataVisibility(false)
+        setActionMetadataVisibility(false)
 
         tvFingerprint.text = asset.fingerprint
         tvFileName.text = asset.fileName
@@ -127,8 +129,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
             )
         }
 
-        adapter.setItemFilledListener {
-            if (adapter.isValid() && !asset.registered) {
+        adapter.setItemFilledListener { filled ->
+            if (adapter.hasSingleRow()) {
+                setActionMetadataVisibility(filled)
+                setAddMetadataVisibility(filled)
+            }
+            if (!adapter.isRemoving() && adapter.hasValidRows() && !asset.registered) {
                 setAddMetadataState(true)
             } else {
                 setAddMetadataState(false)
@@ -136,6 +142,17 @@ class IssuanceActivity : BaseAppCompatActivity() {
             setRegisterState(
                 checkValidData(asset.registered)
             )
+        }
+
+        adapter.setItemRemovedListener {
+            val removable = adapter.isRemovable()
+            if (!removable) {
+                tvActionMetadata.setText(R.string.edit)
+                setActionMetadataState(false)
+                setAddMetadataVisibility(false)
+                setActionMetadataVisibility(false)
+            }
+            adapter.changeRemovableState(removable)
         }
 
         etPropName.setOnFocusChangeListener { _, hasFocus ->
@@ -251,7 +268,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         tvAddMetadata.setOnClickListener {
-            adapter.add()
+            adapter.add(true)
             setAddMetadataState(false)
             setActionMetadataState(true, getString(R.string.edit))
         }
@@ -472,6 +489,16 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
     }
 
+    private fun setAddMetadataVisibility(visible: Boolean) {
+        if (visible) {
+            tvAddMetadata.visible()
+            ivAdd.visible()
+        } else {
+            tvAddMetadata.gone()
+            ivAdd.gone()
+        }
+    }
+
     private fun setActionMetadataState(enable: Boolean, text: String? = null) {
         if (text != null) {
             tvActionMetadata.text = text
@@ -482,6 +509,14 @@ class IssuanceActivity : BaseAppCompatActivity() {
         } else {
             tvActionMetadata.setTextColorRes(R.color.silver)
             tvActionMetadata.disable()
+        }
+    }
+
+    private fun setActionMetadataVisibility(visible: Boolean) {
+        if (visible) {
+            tvActionMetadata.visible()
+        } else {
+            tvActionMetadata.gone()
         }
     }
 

@@ -114,6 +114,7 @@ class TransactionHistoryAdapter :
             with(itemView) {
 
                 tvName.text = tx.assetName
+                tvName.isSelected = true
 
                 if (tx.isAssetClaiming()) {
 

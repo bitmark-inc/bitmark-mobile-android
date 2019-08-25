@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.BehaviorComponent
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
@@ -117,6 +118,10 @@ class PropertiesFragment : BaseSupportFragment() {
 
     override fun refresh() {
         super.refresh()
-        viewPager.currentItem = 0
+        if (viewPager.currentItem != PropertiesViewPagerAdapter.TAB_YOUR) {
+            viewPager.currentItem = PropertiesViewPagerAdapter.TAB_YOUR
+        } else {
+            (adapter.currentFragment as? BehaviorComponent)?.refresh()
+        }
     }
 }
