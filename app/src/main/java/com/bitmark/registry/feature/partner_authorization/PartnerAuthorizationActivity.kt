@@ -137,6 +137,7 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
     ) {
         val spec = KeyAuthenticationSpec.Builder(this).setKeyAlias(keyAlias)
             .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
+            .setUsePossibleAlternativeAuthentication(true)
             .build()
         this.loadAccount(accountNumber,
             spec,

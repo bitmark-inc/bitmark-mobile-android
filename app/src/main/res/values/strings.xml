@@ -7,10 +7,8 @@
     </string>
   <string name="error">Error</string>
   <string name="authentication_required">Authentication required</string>
-  <string name="passcode_pin_required">Device Pass code/PIN is required
-    </string>
-  <string name="fingerprint_required">Fingerprint/Biometric is required
-    </string>
+  <string name="passcode_pin_required">Device PIN is required</string>
+  <string name="fingerprint_required">Fingerprint is required</string>
   <string name="touch_face_id">Touch/Face ID</string>
   <string name="use_touch_face_id">Use Touch/Face ID to sign and encrypt your
         data.

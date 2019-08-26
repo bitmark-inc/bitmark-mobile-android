@@ -21,6 +21,7 @@ import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.extension.visible
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
+import com.bitmark.sdk.authentication.Provider
 import com.bitmark.sdk.authentication.error.AuthenticationException
 import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
@@ -160,6 +161,7 @@ class AuthenticationFragment : BaseSupportFragment() {
         val spec = KeyAuthenticationSpec.Builder(context)
             .setKeyAlias(keyAlias)
             .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
+            .setUsePossibleAlternativeAuthentication(true)
             .setAuthenticationRequired(authRequired).build()
         account.saveToKeyStore(activity, spec, object : Callback0 {
             override fun onSuccess() {
@@ -216,10 +218,10 @@ class AuthenticationFragment : BaseSupportFragment() {
 
                     // missing security requirement
                     is AuthenticationRequiredException -> {
-                        when (throwable.type) {
+                        when (throwable.provider) {
 
                             // did not set up fingerprint/biometric
-                            AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
+                            Provider.FINGERPRINT, Provider.BIOMETRIC -> {
                                 dialogController.alert(
                                     R.string.error,
                                     R.string.fingerprint_required

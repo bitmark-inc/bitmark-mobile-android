@@ -25,6 +25,7 @@ import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
+import com.bitmark.sdk.authentication.Provider
 import com.bitmark.sdk.authentication.error.AuthenticationException
 import com.bitmark.sdk.authentication.error.AuthenticationRequiredException
 import com.bitmark.sdk.features.Account
@@ -154,10 +155,10 @@ fun Activity.loadAccount(
 
                     // missing security requirement
                     is AuthenticationRequiredException -> {
-                        when (throwable.type) {
+                        when (throwable.provider) {
 
                             // did not set up fingerprint/biometric
-                            AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
+                            Provider.FINGERPRINT, Provider.BIOMETRIC -> {
                                 dialogController.alert(
                                     R.string.error,
                                     R.string.fingerprint_required
@@ -215,10 +216,10 @@ fun Activity.removeAccount(
 
                 // missing security requirement
                 is AuthenticationRequiredException -> {
-                    when (throwable.type) {
+                    when (throwable.provider) {
 
                         // did not set up fingerprint/biometric
-                        AuthenticationRequiredException.FINGERPRINT, AuthenticationRequiredException.BIOMETRIC -> {
+                        Provider.FINGERPRINT, Provider.BIOMETRIC -> {
                             dialogController.alert(
                                 R.string.error,
                                 R.string.fingerprint_required
