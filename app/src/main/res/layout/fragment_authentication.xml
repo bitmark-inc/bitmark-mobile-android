@@ -46,7 +46,7 @@
         android:id="@+id/ivTouchId"
         android:layout_width="@dimen/dp_90"
         android:layout_height="@dimen/dp_90"
-        app:srcCompat="@drawable/ic_fingerprint"
+        app:srcCompat="@drawable/ic_fingerprint_1"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
