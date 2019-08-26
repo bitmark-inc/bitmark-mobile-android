@@ -16,7 +16,7 @@
       android:layout_marginStart="@dimen/dp_48"
       android:layout_marginTop="@dimen/dp_48"
       android:fontFamily="@font/avenir_bold"
-      android:text="@string/touch_face_id"
+      android:text="@string/biometric_pin"
       android:textAllCaps="true"
       android:textColor="@color/colorAccent"
       android:textSize="@dimen/sp_17"
@@ -30,7 +30,7 @@
       android:layout_marginStart="@dimen/dp_48"
       android:layout_marginTop="@dimen/dp_28"
       android:fontFamily="@font/avenir_light"
-      android:text="@string/use_touch_face_id"
+      android:text="@string/use_biometric_pin_to"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_17"
       />
@@ -46,7 +46,7 @@
         android:id="@+id/ivTouchId"
         android:layout_width="@dimen/dp_90"
         android:layout_height="@dimen/dp_90"
-        app:srcCompat="@drawable/ic_touch_id"
+        app:srcCompat="@drawable/ic_fingerprint"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -54,19 +54,19 @@
         android:layout_width="@dimen/dp_90"
         android:layout_height="@dimen/dp_90"
         android:layout_marginStart="@dimen/dp_24"
-        app:srcCompat="@drawable/ic_face_id"
+        app:srcCompat="@drawable/ic_biometric"
         />
   </LinearLayout>
 
 
   <androidx.appcompat.widget.AppCompatButton
-      android:id="@+id/btnEnableTouchId"
+      android:id="@+id/btnEnableAuth"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
       android:layout_above="@id/btnSkip"
       android:background="@drawable/bg_blue_ribbon_stateful"
       android:fontFamily="@font/avenir_bold"
-      android:text="@string/enable_touch_face_id"
+      android:text="@string/enable_biometric_pin"
       android:textColor="@android:color/white"
       android:textSize="@dimen/sp_16"
       tools:visibility="visible"
@@ -92,7 +92,7 @@
       android:id="@+id/progressBar"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_3"
-      android:layout_above="@+id/btnEnableTouchId"
+      android:layout_above="@+id/btnEnableAuth"
       android:layout_marginBottom="@dimen/dp_1"
       android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="gone"

@@ -15,9 +15,7 @@
     </string>
   <string name="enable_touch_face_id">Enable touch/face ID</string>
   <string name="skip">Skip</string>
-  <string name="are_you_sure_you_dont_to_protect">Are you sure you don’t want
-        to protect your data with Touch &amp; Face ID?
-    </string>
+  <string name="are_you_sure_you_dont_to_protect">Are you sure you don’t want to protect your data with Biometric/PIN?</string>
   <string name="warning">Warning</string>
   <string name="unexpected_error">Unexpected error has occurred. We are sorry for the inconvenience</string>
   <string name="properties">Properties</string>
@@ -196,6 +194,10 @@
   <string name="your_authorization_is_required">Your authorization is required.</string>
   <string name="backup_to_google_drive">Back up to Google Drive</string>
   <string name="to_protect_your_assets">To protect your assets from loss and allow asset syncing across devices, please authorize the Bitmark app to back up your assets in your Google Drive account. </string>
+  <string name="term_of_service">Terms of Service</string>
+  <string name="biometric_pin">Biometric/PIN</string>
+  <string name="use_biometric_pin_to">Use Biometric/PIN to sign and encrypt your data.</string>
+  <string name="enable_biometric_pin">Enable Biometric/PIN</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
@@ -215,6 +217,6 @@
   <string name="loading_dot">Loading…</string>
   <string name="your_authorization_has_been_format">Your authorization has been sent to \&quot;%1$s\&quot;</string>
   <string name="requires_your_digital_signature_format">\&quot;%1$s\&quot; requires your digital signature to authorize this action. To prevent abuse, please only authorize actions from trusted websites. </string>
-
+  <string name="by_continuing_you_agree_format">By continuing, you agree to the Bitmark %1$s and %2$s.</string>
 
 </resources>

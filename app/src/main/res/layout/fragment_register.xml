@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,7 +11,7 @@
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvAppName"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginEnd="@dimen/dp_48"
       android:layout_marginStart="@dimen/dp_48"
@@ -20,39 +21,65 @@
       android:textAllCaps="true"
       android:textColor="@color/colorAccent"
       android:textSize="@dimen/sp_17"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
-      android:layout_width="wrap_content"
+      android:id="@+id/tvAppDes"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
-      android:layout_below="@id/tvAppName"
-      android:layout_marginEnd="@dimen/dp_48"
-      android:layout_marginStart="@dimen/dp_48"
       android:layout_marginTop="@dimen/dp_28"
       android:fontFamily="@font/avenir_light"
       android:text="@string/protect_the_legal_rights"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_17"
+      app:layout_constraintEnd_toEndOf="@id/tvAppName"
+      app:layout_constraintStart_toStartOf="@id/tvAppName"
+      app:layout_constraintTop_toBottomOf="@id/tvAppName"
       />
 
   <androidx.appcompat.widget.AppCompatImageView
-      android:layout_width="@dimen/dp_320"
-      android:layout_height="wrap_content"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
       android:layout_centerInParent="true"
+      android:layout_marginBottom="@dimen/dp_28"
+      android:layout_marginTop="@dimen/dp_28"
       android:adjustViewBounds="true"
+      android:scaleType="fitXY"
+      app:layout_constraintBottom_toTopOf="@id/tvAppPolicy"
+      app:layout_constraintEnd_toEndOf="@id/tvAppName"
+      app:layout_constraintStart_toStartOf="@id/tvAppName"
+      app:layout_constraintTop_toBottomOf="@id/tvAppDes"
       app:srcCompat="@drawable/bg_onboarding"
+      />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvAppPolicy"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/dp_16"
+      android:layout_marginTop="@dimen/dp_16"
+      android:fontFamily="@font/avenir_light"
+      android:textColor="@android:color/black"
+      android:textColorLink="@drawable/blue_ribbon_stateful"
+      android:textSize="@dimen/sp_13"
+      app:layout_constraintBottom_toTopOf="@id/btnCreateAccount"
+      app:layout_constraintEnd_toEndOf="@id/tvAppName"
+      app:layout_constraintStart_toStartOf="@id/tvAppName"
+      tools:text="@string/by_continuing_you_agree_format"
       />
 
   <androidx.appcompat.widget.AppCompatButton
       android:id="@+id/btnCreateAccount"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
-      android:layout_above="@id/btnAccessAccount"
       android:background="@drawable/bg_blue_ribbon_stateful"
       android:fontFamily="@font/avenir_bold"
       android:text="@string/create_new_account"
       android:textColor="@android:color/white"
       android:textSize="@dimen/sp_16"
+      app:layout_constraintBottom_toTopOf="@id/btnAccessAccount"
       tools:visibility="visible"
       style="?android:attr/borderlessButtonStyle"
       />
@@ -61,14 +88,14 @@
       android:id="@+id/btnAccessAccount"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
-      android:layout_alignParentBottom="true"
       android:background="@drawable/bg_alice_blue_stateful"
       android:fontFamily="@font/avenir_bold"
       android:text="@string/access_existing_account"
       android:textColor="@color/blue_ribbon"
       android:textSize="@dimen/sp_16"
+      app:layout_constraintBottom_toBottomOf="parent"
       tools:visibility="visible"
       style="?android:attr/borderlessButtonStyle"
       />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

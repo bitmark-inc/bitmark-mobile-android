@@ -77,7 +77,7 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         val phrase = arguments?.getStringArray(RECOVERY_PHRASE)
 
-        btnEnableTouchId.setSafetyOnclickListener {
+        btnEnableAuth.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
             createAccount(
                 phrase,
