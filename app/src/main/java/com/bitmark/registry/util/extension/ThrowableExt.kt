@@ -1,7 +1,7 @@
 package com.bitmark.registry.util.extension
 
-import androidx.room.EmptyResultSetException
-import java.io.IOException
+import com.bitmark.registry.data.source.remote.api.error.HttpException
+import com.bitmark.registry.data.source.remote.api.error.NetworkException
 
 
 /**
@@ -11,6 +11,6 @@ import java.io.IOException
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 
-fun Throwable.isNetworkError() = this is IOException
+fun Throwable.isNetworkError() = this is NetworkException
 
-fun Throwable.isDbRecNotFoundError() = this is EmptyResultSetException
+fun Throwable.isHttpError() = this is HttpException

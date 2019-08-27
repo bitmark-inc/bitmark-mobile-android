@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source.remote
 
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.middleware.RxErrorHandlingComposer
 import com.bitmark.registry.data.source.remote.api.request.RegisterEncKeyRequest
 import com.bitmark.registry.data.source.remote.api.request.RegisterJwtRequest
 import com.bitmark.registry.data.source.remote.api.service.*
@@ -24,14 +25,16 @@ class AccountRemoteDataSource @Inject constructor(
     fileCourierServerApi: FileCourierServerApi,
     keyAccountServerApi: KeyAccountServerApi,
     registryApi: RegistryApi,
-    converter: Converter
+    converter: Converter,
+    rxErrorHandlingComposer: RxErrorHandlingComposer
 ) : RemoteDataSource(
     coreApi,
     mobileServerApi,
     fileCourierServerApi,
     keyAccountServerApi,
     registryApi,
-    converter
+    converter,
+    rxErrorHandlingComposer
 ) {
 
     fun registerMobileServerJwt(

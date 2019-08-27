@@ -2,6 +2,7 @@ package com.bitmark.registry.data.source.remote
 
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.middleware.RxErrorHandlingComposer
 import com.bitmark.registry.data.source.remote.api.request.RegisterDeviceTokenRequest
 import com.bitmark.registry.data.source.remote.api.service.*
 import io.reactivex.schedulers.Schedulers
@@ -20,14 +21,16 @@ class AppRemoteDataSource @Inject constructor(
     fileCourierServerApi: FileCourierServerApi,
     keyAccountServerApi: KeyAccountServerApi,
     registryApi: RegistryApi,
-    converter: Converter
+    converter: Converter,
+    rxErrorHandlingComposer: RxErrorHandlingComposer
 ) : RemoteDataSource(
     coreApi,
     mobileServerApi,
     fileCourierServerApi,
     keyAccountServerApi,
     registryApi,
-    converter
+    converter,
+    rxErrorHandlingComposer
 ) {
 
     fun deleteDeviceToken(deviceToken: String) =

@@ -20,6 +20,7 @@ import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.middleware.Progress
+import com.bitmark.registry.data.source.remote.api.middleware.RxErrorHandlingComposer
 import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.*
@@ -52,6 +53,7 @@ class BitmarkRemoteDataSource @Inject constructor(
     keyAccountServerApi: KeyAccountServerApi,
     registryApi: RegistryApi,
     converter: Converter,
+    rxErrorHandlingComposer: RxErrorHandlingComposer,
     private val progressPublisher: PublishSubject<Progress>
 ) : RemoteDataSource(
     coreApi,
@@ -59,7 +61,8 @@ class BitmarkRemoteDataSource @Inject constructor(
     fileCourierServerApi,
     keyAccountServerApi,
     registryApi,
-    converter
+    converter,
+    rxErrorHandlingComposer
 ) {
 
     //region Bitmark
@@ -74,7 +77,7 @@ class BitmarkRemoteDataSource @Inject constructor(
         refAssetId: String? = null,
         loadAsset: Boolean = false
     ): Single<Pair<List<BitmarkData>, List<AssetData>>> {
-        return Single.create(SingleOnSubscribe<Pair<List<BitmarkData>, List<AssetData>>> { emitter ->
+        return rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<List<BitmarkData>, List<AssetData>>> { emt ->
             val builder =
                 BitmarkQueryBuilder().limit(limit).pending(pending)
                     .loadAsset(loadAsset)
@@ -85,7 +88,7 @@ class BitmarkRemoteDataSource @Inject constructor(
             if (null != bitmarkIds) builder.bitmarkIds(bitmarkIds.toTypedArray())
             Bitmark.list(builder, object : Callback1<GetBitmarksResponse> {
                 override fun onSuccess(data: GetBitmarksResponse) {
-                    emitter.onSuccess(
+                    emt.onSuccess(
                         Pair(
                             if (data.bitmarks.isNullOrEmpty()) listOf() else data.bitmarks.map(
                                 converter.mapBitmark()
@@ -98,7 +101,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                 }
 
                 override fun onError(throwable: Throwable) {
-                    emitter.onError(throwable)
+                    emt.onError(throwable)
                 }
 
             })
@@ -119,46 +122,45 @@ class BitmarkRemoteDataSource @Inject constructor(
         }
     }
 
-    fun transfer(params: TransferParams): Single<String> = Single.create(
-        SingleOnSubscribe<String> { emt ->
-            Bitmark.transfer(params, object : Callback1<String> {
-                override fun onSuccess(data: String?) {
-                    if (data == null) emt.onError(UnexpectedException("response is null"))
-                    else emt.onSuccess(data)
-                }
+    fun transfer(params: TransferParams): Single<String> =
+        rxErrorHandlingComposer.single(
+            SingleOnSubscribe<String> { emt ->
+                Bitmark.transfer(params, object : Callback1<String> {
+                    override fun onSuccess(data: String?) {
+                        if (data == null) emt.onError(UnexpectedException("response is null"))
+                        else emt.onSuccess(data)
+                    }
 
-                override fun onError(throwable: Throwable?) {
-                    emt.onError(throwable!!)
-                }
+                    override fun onError(throwable: Throwable?) {
+                        emt.onError(throwable!!)
+                    }
 
-            })
-        }).subscribeOn(Schedulers.io())
+                })
+            }).subscribeOn(Schedulers.io())
 
     fun getBitmark(bitmarkId: String, loadAsset: Boolean = false) =
-        Single.create(
-            SingleOnSubscribe<Pair<BitmarkData?, AssetData?>> { emt ->
-                Bitmark.get(
-                    bitmarkId,
-                    loadAsset,
-                    object : Callback1<GetBitmarkResponse> {
-                        override fun onSuccess(data: GetBitmarkResponse?) {
-                            val bitmark =
-                                if (data?.bitmark == null) null else converter.mapBitmark(
-                                    data.bitmark
-                                )
-                            val asset =
-                                if (data?.asset == null) null else converter.mapAsset(
-                                    data.asset
-                                )
-                            emt.onSuccess(Pair(bitmark, asset))
-                        }
+        rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<BitmarkData?, AssetData?>> { emt ->
+            Bitmark.get(
+                bitmarkId,
+                loadAsset,
+                object : Callback1<GetBitmarkResponse> {
+                    override fun onSuccess(data: GetBitmarkResponse?) {
+                        val bitmark =
+                            if (data?.bitmark == null) null else converter.mapBitmark(
+                                data.bitmark
+                            )
+                        val asset =
+                            if (data?.asset == null) null else converter.mapAsset(
+                                data.asset
+                            )
+                        emt.onSuccess(Pair(bitmark, asset))
+                    }
 
-                        override fun onError(throwable: Throwable?) {
-                            emt.onError(throwable!!)
-                        }
-                    })
-            }
-        ).subscribeOn(Schedulers.io()).flatMap { p ->
+                    override fun onError(throwable: Throwable?) {
+                        emt.onError(throwable!!)
+                    }
+                })
+        }).subscribeOn(Schedulers.io()).flatMap { p ->
             val bitmark = p.first
             if (OMNISCIENT_ASSET_ID == bitmark?.assetId) {
                 getAssetClaimingInfo(OMNISCIENT_ASSET_ID).map { res ->
@@ -172,7 +174,7 @@ class BitmarkRemoteDataSource @Inject constructor(
         }
 
     fun issueBitmark(params: IssuanceParams) =
-        Single.create<List<String>> { emt ->
+        rxErrorHandlingComposer.single(SingleOnSubscribe<List<String>> { emt ->
             Bitmark.issue(params, object : Callback1<List<String>> {
                 override fun onSuccess(data: List<String>?) {
                     emt.onSuccess(data!!)
@@ -183,10 +185,10 @@ class BitmarkRemoteDataSource @Inject constructor(
                 }
 
             })
-        }.subscribeOn(Schedulers.io())
+        }).subscribeOn(Schedulers.io())
 
     fun registerAsset(params: RegistrationParams) =
-        Single.create<String> { emt ->
+        rxErrorHandlingComposer.single(SingleOnSubscribe<String> { emt ->
             Asset.register(params, object : Callback1<RegistrationResponse> {
                 override fun onSuccess(data: RegistrationResponse?) {
                     emt.onSuccess(data!!.assets.first().id)
@@ -197,7 +199,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                 }
 
             })
-        }.subscribeOn(Schedulers.io())
+        }).subscribeOn(Schedulers.io())
 
 
     //endregion Bitmark
@@ -217,54 +219,51 @@ class BitmarkRemoteDataSource @Inject constructor(
         limit: Int = 100,
         loadBlock: Boolean = false
     ): Single<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> =
-        Single.create(
-            SingleOnSubscribe<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> { emt ->
+        rxErrorHandlingComposer.single(SingleOnSubscribe<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> { emt ->
+            val queryBuilder =
+                TransactionQueryBuilder().loadAsset(loadAsset)
+                    .loadBlock(loadBlock).pending(isPending).limit(limit)
+            if (!owner.isNullOrEmpty()) {
+                queryBuilder.ownedBy(owner)
+                if (sent) queryBuilder.ownedByWithTransient(owner)
+            }
+            if (!assetId.isNullOrEmpty()) queryBuilder.referencedAsset(
+                assetId
+            )
+            if (!bitmarkId.isNullOrEmpty()) queryBuilder.referencedBitmark(
+                bitmarkId
+            )
+            if (blockNumber != null) queryBuilder.referencedBlockNumber(
+                blockNumber
+            )
+            if (at > 0) queryBuilder.at(at).to(to)
 
-                val queryBuilder =
-                    TransactionQueryBuilder().loadAsset(loadAsset)
-                        .loadBlock(loadBlock).pending(isPending).limit(limit)
-                if (!owner.isNullOrEmpty()) {
-                    queryBuilder.ownedBy(owner)
-                    if (sent) queryBuilder.ownedByWithTransient(owner)
-                }
-                if (!assetId.isNullOrEmpty()) queryBuilder.referencedAsset(
-                    assetId
-                )
-                if (!bitmarkId.isNullOrEmpty()) queryBuilder.referencedBitmark(
-                    bitmarkId
-                )
-                if (blockNumber != null) queryBuilder.referencedBlockNumber(
-                    blockNumber
-                )
-                if (at > 0) queryBuilder.at(at).to(to)
-
-                Transaction.list(
-                    queryBuilder,
-                    object : Callback1<GetTransactionsResponse> {
-                        override fun onSuccess(data: GetTransactionsResponse?) {
-                            if (data == null) emt.onError(UnexpectedException("response is null"))
-                            else emt.onSuccess(
-                                Triple(
-                                    if (data.transactions.isNullOrEmpty()) listOf() else data.transactions.map(
-                                        converter.mapTx()
-                                    ),
-                                    if (data.assets.isNullOrEmpty()) listOf() else data.assets.map(
-                                        converter.mapAsset()
-                                    ),
-                                    if (data.blocks.isNullOrEmpty()) listOf() else data.blocks.map(
-                                        converter.mapBlk()
-                                    )
+            Transaction.list(
+                queryBuilder,
+                object : Callback1<GetTransactionsResponse> {
+                    override fun onSuccess(data: GetTransactionsResponse?) {
+                        if (data == null) emt.onError(UnexpectedException("response is null"))
+                        else emt.onSuccess(
+                            Triple(
+                                if (data.transactions.isNullOrEmpty()) listOf() else data.transactions.map(
+                                    converter.mapTx()
+                                ),
+                                if (data.assets.isNullOrEmpty()) listOf() else data.assets.map(
+                                    converter.mapAsset()
+                                ),
+                                if (data.blocks.isNullOrEmpty()) listOf() else data.blocks.map(
+                                    converter.mapBlk()
                                 )
                             )
-                        }
+                        )
+                    }
 
-                        override fun onError(throwable: Throwable?) {
-                            emt.onError(throwable!!)
-                        }
+                    override fun onError(throwable: Throwable?) {
+                        emt.onError(throwable!!)
+                    }
 
-                    })
-
-            }).subscribeOn(Schedulers.io())
+                })
+        }).subscribeOn(Schedulers.io())
 
     //endregion Tx
 
@@ -420,18 +419,19 @@ class BitmarkRemoteDataSource @Inject constructor(
         ).subscribeOn(Schedulers.io())
     }
 
-    fun getAsset(id: String) = Single.create<AssetData> { emt ->
-        Asset.get(id, object : Callback1<AssetRecord> {
-            override fun onSuccess(data: AssetRecord?) {
-                emt.onSuccess(converter.mapAsset(data!!))
-            }
+    fun getAsset(id: String) =
+        rxErrorHandlingComposer.single(SingleOnSubscribe<AssetData> { emt ->
+            Asset.get(id, object : Callback1<AssetRecord> {
+                override fun onSuccess(data: AssetRecord?) {
+                    emt.onSuccess(converter.mapAsset(data!!))
+                }
 
-            override fun onError(throwable: Throwable?) {
-                emt.onError(throwable!!)
-            }
+                override fun onError(throwable: Throwable?) {
+                    emt.onError(throwable!!)
+                }
 
-        })
-    }.subscribeOn(Schedulers.io())
+            })
+        }).subscribeOn(Schedulers.io())
 
     fun getDownloadableAssets(receiver: String) =
         fileCourierServerApi.getDownloadableAssets(receiver).map { res ->

@@ -12,7 +12,7 @@ import com.bitmark.registry.data.source.local.event.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.registry.util.extension.append
-import com.bitmark.registry.util.extension.isDbRecNotFoundError
+import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction

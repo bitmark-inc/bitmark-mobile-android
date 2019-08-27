@@ -8,6 +8,7 @@ import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.util.extension.isNetworkError
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
@@ -112,7 +113,14 @@ class SplashViewModel(
             timestamp,
             signature,
             requester
-        ).ignoreElement()
+        ).ignoreElement().onErrorResumeNext { e ->
+            if (e.isNetworkError()) {
+                // for support offline mode
+                Completable.complete()
+            } else {
+                Completable.error(e)
+            }
+        }
 
         val cleanupBitmarkStream =
             accountRepo.getAccountNumber()
@@ -122,7 +130,9 @@ class SplashViewModel(
                     ).andThen(
                         Single.mergeDelayError(
                             bitmarkRepo.syncLatestPendingBitmarks(accountNumber),
-                            bitmarkRepo.syncLatestRelevantPendingTxs(accountNumber)
+                            bitmarkRepo.syncLatestRelevantPendingTxs(
+                                accountNumber
+                            )
                         ).ignoreElements()
                     )
                 }.onErrorResumeNext { Completable.complete() }
