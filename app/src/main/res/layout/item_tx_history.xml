@@ -34,7 +34,7 @@
         />
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivConfirmed"
+        android:id="@+id/ivStatus"
         android:layout_width="@dimen/dp_16"
         android:layout_height="@dimen/dp_16"
         android:visibility="gone"

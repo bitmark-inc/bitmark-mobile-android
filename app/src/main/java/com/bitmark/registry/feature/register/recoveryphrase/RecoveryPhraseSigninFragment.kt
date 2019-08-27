@@ -86,6 +86,9 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 tvSwitchWord.visible()
                 btnSubmit.visible()
                 setSuggestionVisibility(false)
+                if (phraseAdapter.isValid()) {
+                    phraseAdapter.clearFocus()
+                }
             }
         }
 

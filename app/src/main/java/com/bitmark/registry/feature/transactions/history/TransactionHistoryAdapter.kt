@@ -119,7 +119,6 @@ class TransactionHistoryAdapter :
                 if (tx.isAssetClaiming()) {
 
                     tvTxInfo.visible()
-                    ivConfirmed.gone()
                     tvTxType.setText(R.string.claim_request)
                     tvSender.text =
                         context.getString(R.string.you).toUpperCase()
@@ -127,19 +126,22 @@ class TransactionHistoryAdapter :
 
                     when {
                         tx.isAssetClaimingPending() -> {
+                            ivStatus.gone()
                             tvTxInfo.setText(R.string.pending_three_dot)
                             tvConfirmedAt.setText(R.string.waiting_artist_confirm_three_dot)
                             tvTxInfo.setTextColorRes(R.color.dusty_gray_2)
                             tvConfirmedAt.setTextColorRes(R.color.dusty_gray_2)
                         }
                         tx.isAssetClaimingAccepted() -> {
-                            tvTxInfo.setText(R.string.accepted)
+                            ivStatus.visible()
+                            ivStatus.setImageResource(R.drawable.ic_check)
                             tvConfirmedAt.text = tx.confirmedAt(ISO8601_FORMAT)
                             tvTxInfo.setTextColorRes(R.color.blue_ribbon)
                             tvConfirmedAt.setTextColorRes(R.color.blue_ribbon)
                         }
                         tx.isAssetClaimingRejected() -> {
-                            tvTxInfo.setText(R.string.rejected)
+                            ivStatus.visible()
+                            ivStatus.setImageResource(R.drawable.ic_uncheck)
                             tvConfirmedAt.text = tx.confirmedAt(ISO8601_FORMAT)
                             tvTxInfo.setTextColorRes(R.color.torch_red)
                             tvConfirmedAt.setTextColorRes(R.color.torch_red)
@@ -150,7 +152,7 @@ class TransactionHistoryAdapter :
 
                     if (tx.isPending()) {
                         tvTxInfo.visible()
-                        ivConfirmed.gone()
+                        ivStatus.gone()
                         tvConfirmedAt.setTextColor(
                             ContextCompat.getColor(
                                 context,
@@ -162,7 +164,8 @@ class TransactionHistoryAdapter :
 
                     } else {
                         tvTxInfo.gone()
-                        ivConfirmed.visible()
+                        ivStatus.visible()
+                        ivStatus.setImageResource(R.drawable.ic_check)
                         tvConfirmedAt.setTextColor(
                             ContextCompat.getColor(
                                 context,

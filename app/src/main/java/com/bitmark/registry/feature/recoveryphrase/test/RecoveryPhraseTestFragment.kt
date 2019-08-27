@@ -281,7 +281,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                         "%s \"%s\"".format(
                             getString(
                                 R.string.removing_access_for_account
-                            ), accountNumber
+                            ), accountNumber.shortenAccountNumber()
                         ), true
                     )
                     progressDialog.show()

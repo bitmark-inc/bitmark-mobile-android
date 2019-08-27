@@ -29,7 +29,7 @@
   <string name="submit">Submit</string>
   <string name="wrong_recovery_phrase">Wrong Recovery Phrase!</string>
   <string name="please_try_again">Please try again!</string>
-  <string name="create_your_first_property">Create your first property</string>
+  <string name="create_your_first_property">Create first property</string>
   <string name="welcome_to_bitmark">Welcome to Bitmark!</string>
   <string name="register_track_trade">Register, track, and trade property rights for your digital assets.</string>
   <string name="yours">Yours</string>
@@ -79,6 +79,7 @@
   <string name="your_transaction_history_will_be_available">Your transaction history will be available here.</string>
   <string name="security_alert">Security Alert</string>
   <string name="write_down_your_recovery_phrase">Write Down Your Recovery Phrase</string>
+  <string name="write_down_recovery_phrase">Write Down Recovery Phrase</string>
   <string name="protect_your_bitmark_account">Protect your Bitmark account.</string>
   <string name="bitmark_is_the_property_system_for_establishing">Bitmark is the property system for establishing value and legal control over the world’s data. Our mission is to define digital property, defend it, and make it economically divisible. \n\nRegister, track, and trade property rights for your digital assets.</string>
   <string name="your_property_rights_has_been_transferred">Your rights to this property have been transferred.</string>

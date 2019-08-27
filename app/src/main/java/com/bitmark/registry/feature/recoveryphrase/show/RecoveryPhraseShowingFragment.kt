@@ -10,7 +10,7 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.recoveryphrase.test.RecoveryPhraseTestFragment
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseAdapter
-import com.bitmark.registry.util.extension.setSafetyOnclickListener
+import com.bitmark.registry.util.extension.*
 import kotlinx.android.synthetic.main.fragment_recovery_phrase_signin.rvRecoveryPhrase
 import kotlinx.android.synthetic.main.fragment_recovery_showing.*
 import javax.inject.Inject
@@ -55,7 +55,17 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
         val recoveryPhrase = arguments?.getStringArray(RECOVERY_PHRASE)!!
         val removeAccess = arguments?.getBoolean(REMOVE_ACCESS) ?: false
 
-        toolbarTitle.setText(if (removeAccess) R.string.recovery_phrase_sign_out else R.string.recovery_phrase)
+        if (removeAccess) {
+            toolbarTitle.setText(R.string.write_down_recovery_phrase)
+            btnTestRecoveryPhrase.gone()
+            btnDone.setBackgroundDrawable(R.drawable.bg_blue_ribbon_stateful)
+            btnDone.setTextColorRes(android.R.color.white)
+        } else {
+            toolbarTitle.setText(R.string.recovery_phrase)
+            btnTestRecoveryPhrase.visible()
+            btnDone.setBackgroundDrawable(R.drawable.bg_alice_blue_stateful)
+            btnDone.setTextColorRes(R.color.blue_ribbon)
+        }
 
         val adapter = RecoveryPhraseAdapter(
             editable = false,
@@ -68,22 +78,35 @@ class RecoveryPhraseShowingFragment : BaseSupportFragment() {
         rvRecoveryPhrase.adapter = adapter
         adapter.set(recoveryPhrase)
 
-        btnDone.setSafetyOnclickListener { navigator.popChildFragmentToRoot() }
+        btnDone.setSafetyOnclickListener {
+            if (removeAccess) {
+                navigateTestRecoveryPhrase(recoveryPhrase, true)
+            } else {
+                navigator.popChildFragmentToRoot()
+            }
+        }
 
         btnTestRecoveryPhrase.setSafetyOnclickListener {
-            navigator.anim(
-                RIGHT_LEFT
-            ).replaceChildFragment(
-                R.id.layoutContainer,
-                RecoveryPhraseTestFragment.newInstance(
-                    recoveryPhrase,
-                    removeAccess
-                )
-            )
+            navigateTestRecoveryPhrase(recoveryPhrase, removeAccess)
         }
 
         ivBack.setOnClickListener { navigator.popChildFragmentToRoot() }
 
+    }
+
+    private fun navigateTestRecoveryPhrase(
+        recoveryPhrase: Array<String>,
+        removeAccess: Boolean
+    ) {
+        navigator.anim(
+            RIGHT_LEFT
+        ).replaceChildFragment(
+            R.id.layoutContainer,
+            RecoveryPhraseTestFragment.newInstance(
+                recoveryPhrase,
+                removeAccess
+            )
+        )
     }
 
     override fun onBackPressed() =

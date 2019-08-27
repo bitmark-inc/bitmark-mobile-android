@@ -71,6 +71,13 @@ class RecoveryPhraseAdapter(
         return false
     }
 
+    internal fun clearFocus() {
+        val focusedIndex = items.indexOfFirst { i -> i.focused }
+        if (focusedIndex == -1) return
+        items[focusedIndex].focused = false
+        notifyItemChanged(focusedIndex)
+    }
+
     fun setDefault(version: Version = Version.TWELVE) {
         val length = version.value
         if (length % 2 != 0) throw RuntimeException("must be even number")
@@ -222,6 +229,10 @@ class RecoveryPhraseAdapter(
                 edtWord.setOnFocusChangeListener { _, hasFocus ->
                     item.focused = hasFocus
                     val text = edtWord.text
+
+                    edtWord.imeOptions =
+                        if (hasFocus && (isLastItem() || isValid())) EditorInfo.IME_ACTION_DONE else EditorInfo.IME_ACTION_NEXT
+
                     if (!hasFocus && !text.isNullOrBlank()) {
                         edtWord.background = null
                     } else {
@@ -265,9 +276,6 @@ class RecoveryPhraseAdapter(
                     )
                 )
 
-                edtWord.imeOptions =
-                    if (item.sequence == items.size) EditorInfo.IME_ACTION_DONE else EditorInfo.IME_ACTION_NEXT
-
                 if (item.focused) {
                     edtWord.requestFocus()
                 } else {
@@ -277,6 +285,8 @@ class RecoveryPhraseAdapter(
             }
 
         }
+
+        fun isLastItem() = item.sequence == items.size
     }
 }
 

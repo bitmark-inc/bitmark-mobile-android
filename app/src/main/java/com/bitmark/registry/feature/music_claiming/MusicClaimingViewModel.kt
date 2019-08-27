@@ -35,7 +35,7 @@ class MusicClaimingViewModel(
 ) : BaseViewModel(lifecycle) {
 
     private val getMusicClaimingInfoLiveData =
-        CompositeLiveData<Pair<AssetClaimingModelView, String>>()
+        CompositeLiveData<AssetClaimingModelView>()
 
     private val downloadAssetLiveData = CompositeLiveData<File>()
 
@@ -60,30 +60,18 @@ class MusicClaimingViewModel(
 
     internal fun getMusicClaimingInfo(
         assetId: String,
-        bitmarkId: String,
         bitmarkEdition: Int?
     ) =
         getMusicClaimingInfoLiveData.add(
             rxLiveDataTransformer.single(
-                Single.zip(
-                    bitmarkRepo.getAssetClaimingInfo(assetId),
-                    bitmarkRepo.syncTxs(
-                        bitmarkId = bitmarkId,
-                        limit = 2,
-                        loadAsset = false,
-                        loadBlock = false
-                    ).map { txs -> if (txs.size == 2) txs[1].owner else "" },
-                    BiFunction { claimInfo, previousOwner ->
-                        Pair(
-                            AssetClaimingModelView(
-                                assetId,
-                                claimInfo.totalEditionLeft,
-                                claimInfo.limitedEdition,
-                                bitmarkEdition
-                            ), previousOwner
-                        )
-                    })
-            )
+                bitmarkRepo.getAssetClaimingInfo(assetId).map { claimInfo ->
+                    AssetClaimingModelView(
+                        assetId,
+                        claimInfo.totalEditionLeft,
+                        claimInfo.limitedEdition,
+                        bitmarkEdition
+                    )
+                })
         )
 
     internal fun prepareDownload() {

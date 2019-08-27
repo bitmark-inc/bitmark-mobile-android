@@ -75,7 +75,6 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewModel.getMusicClaimingInfo(
             bitmark.assetId,
-            bitmark.id,
             bitmark.edition
         )
     }
@@ -226,7 +225,6 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                 }
 
                 R.drawable.ic_download -> {
-                    if (bitmark.previousOwner == null) return@OptionsDialog
                     if (bitmark.assetFile != null) {
                         dialogController.alert(
                             "",
@@ -245,7 +243,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                             R.string.to_be_able_to_transfer_this_bitmark,
                             false,
                             R.string.download,
-                            { if (bitmark.previousOwner != null) viewModel.prepareDownload() },
+                            { viewModel.prepareDownload() },
                             R.string.cancel
                         )
                     } else {
@@ -267,10 +265,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
         viewModel.getMusicClaimingInfoLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    val data = res.data() ?: return@Observer
-                    assetClaiming = data.first
-                    if (data.second.isNotEmpty()) bitmark.previousOwner =
-                        data.second
+                    assetClaiming = res.data() ?: return@Observer
                     val url =
                         "${BuildConfig.MOBILE_SERVER_ENDPOINT}/api/claim_requests_view/${assetClaiming.assetId}?total=${assetClaiming.limitedEdition}&remaining=${assetClaiming.totalEditionLeft}&edition_number=${assetClaiming.editionNumber
                             ?: "?"}"
