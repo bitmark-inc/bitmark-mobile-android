@@ -15,6 +15,7 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.util.MediaUtil
 import com.bitmark.registry.util.extension.gone
+import com.bitmark.registry.util.extension.openAppSetting
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.extension.visible
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
@@ -90,8 +91,22 @@ class AssetSelectionFragment : BaseSupportFragment() {
 
     private fun requestPermission(action: () -> Unit) {
         val rxPermission = RxPermissions(this)
-        compositeDisposable.add(rxPermission.request(Manifest.permission.READ_EXTERNAL_STORAGE).subscribe { granted ->
-            if (granted) action.invoke()
+        compositeDisposable.add(rxPermission.requestEach(Manifest.permission.READ_EXTERNAL_STORAGE).subscribe { permission ->
+            when {
+                permission.granted -> action.invoke()
+                permission.shouldShowRequestPermissionRationale -> {
+                    // do nothing
+                }
+                else -> {
+                    dialogController.alert(
+                        R.string.enable_photos_access,
+                        R.string.to_get_started_allow_access_photos,
+                        R.string.enable_access
+                    ) {
+                        navigator.openAppSetting(context!!)
+                    }
+                }
+            }
         })
     }
 

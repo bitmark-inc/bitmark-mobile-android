@@ -65,8 +65,20 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
         // a bit delay for better ux
         handler.postDelayed({
             val rxPermission = RxPermissions(this)
-            compositeDisposable.add(rxPermission.request(Manifest.permission.CAMERA).subscribe { granted ->
-                if (!granted) navigator.anim(RIGHT_LEFT).finishActivity()
+            compositeDisposable.add(rxPermission.requestEach(Manifest.permission.CAMERA).subscribe { permission ->
+                if (!permission.granted) {
+                    if (permission.shouldShowRequestPermissionRationale) {
+                        navigator.anim(RIGHT_LEFT).finishActivity()
+                    } else {
+                        dialogController.alert(
+                            R.string.enable_camera_access,
+                            R.string.to_get_started_allow_access_camera,
+                            R.string.enable_access
+                        ) {
+                            navigator.openAppSetting(this)
+                        }
+                    }
+                }
             })
         }, 250)
 

@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.scan_qr_code
 
 import com.bitmark.registry.di.ActivityScope
+import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import dagger.Module
 import dagger.Provides
@@ -18,4 +19,9 @@ class ScanQrCodeModule {
     @Provides
     @ActivityScope
     fun provideNavigator(activity: ScanQrCodeActivity) = Navigator(activity)
+
+    @Provides
+    @ActivityScope
+    fun provideDialogController(activity: ScanQrCodeActivity) =
+        DialogController(activity)
 }

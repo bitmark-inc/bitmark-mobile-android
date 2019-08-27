@@ -1,5 +1,6 @@
 package com.bitmark.registry.util.extension
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -24,5 +25,15 @@ fun Navigator.openBrowser(url: String) {
         startActivity(intent)
     } catch (ignore: Throwable) {
 
+    }
+}
+
+fun Navigator.openAppSetting(context: Context) {
+    try {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", context.packageName, null)
+        intent.data = uri
+        startActivity(intent)
+    } catch (ignore: Throwable) {
     }
 }

@@ -198,6 +198,12 @@
   <string name="biometric_pin">Biometric/PIN</string>
   <string name="use_biometric_pin_to">Use Biometric/PIN to sign and encrypt your data.</string>
   <string name="enable_biometric_pin">Enable Biometric/PIN</string>
+  <string name="enable_photos_access">Enable Photos Access</string>
+  <string name="enable_access">Enable access</string>
+  <string name="enable_camera_access">Enable Camera Access</string>
+  <string name="to_get_started_allow_access_photos">To get started, allow Bitmark to access your photos.</string>
+  <string name="to_get_started_allow_access_camera">To get started, allow Bitmark to access your camera.</string>
+
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
