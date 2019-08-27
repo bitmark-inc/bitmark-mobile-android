@@ -14,15 +14,16 @@ import javax.inject.Inject
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-abstract class DaggerAppCompatActivity : StatefulActivity(), HasAndroidInjector {
+abstract class DaggerAppCompatActivity : StatefulActivity(),
+    HasAndroidInjector {
 
-  @Inject
-  lateinit var androidInjector: DispatchingAndroidInjector<Any>
+    @Inject
+    lateinit var injector: DispatchingAndroidInjector<Any>
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    AndroidInjection.inject(this)
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
+        super.onCreate(savedInstanceState)
+    }
 
-  override fun androidInjector(): AndroidInjector<Any> = androidInjector
+    override fun androidInjector(): AndroidInjector<Any> = injector
 }
