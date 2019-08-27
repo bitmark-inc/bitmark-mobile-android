@@ -4,6 +4,7 @@ import android.util.Log
 import com.bitmark.apiservice.configuration.GlobalConfiguration
 import com.bitmark.apiservice.configuration.Network
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
+import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGER
 import com.bitmark.sdk.features.BitmarkSDK
 import com.crashlytics.android.Crashlytics
@@ -31,6 +32,9 @@ class RegistryApplication : DaggerApplication() {
     @Inject
     lateinit var appLifecycleHandler: AppLifecycleHandler
 
+    @Inject
+    lateinit var connectivityHandler: ConnectivityHandler
+
     private val applicationInjector = DaggerAppComponent.builder()
         .application(this)
         .build()
@@ -51,6 +55,7 @@ class RegistryApplication : DaggerApplication() {
                 "intercept rx error ${e.javaClass} with message ${e.message} to be sent to thread uncaught exception"
             )
         }
+        connectivityHandler.register()
     }
 
     private fun buildBmSdkConfig(): GlobalConfiguration.Builder {
