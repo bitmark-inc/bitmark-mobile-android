@@ -5,6 +5,7 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -35,11 +36,13 @@ class AssetSelectionModule {
         fragment: AssetSelectionFragment,
         bitmarkRepo: BitmarkRepository,
         appRepo: AppRepository,
-        rxLiveDataTransformer: RxLiveDataTransformer
+        rxLiveDataTransformer: RxLiveDataTransformer,
+        realtimeBus: RealtimeBus
     ) = AssetSelectionViewModel(
         fragment.lifecycle,
         bitmarkRepo,
         appRepo,
-        rxLiveDataTransformer
+        rxLiveDataTransformer,
+        realtimeBus
     )
 }

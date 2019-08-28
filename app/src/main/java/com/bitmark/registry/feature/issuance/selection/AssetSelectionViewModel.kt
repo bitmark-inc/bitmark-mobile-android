@@ -7,11 +7,14 @@ import com.bitmark.cryptography.crypto.Sha3512
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.extension.set
+import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.AssetModelView
@@ -31,10 +34,14 @@ class AssetSelectionViewModel(
     lifecycle: Lifecycle,
     private val bitmarkRepo: BitmarkRepository,
     private val appRepo: AppRepository,
-    private val rxLiveDataTransformer: RxLiveDataTransformer
+    private val rxLiveDataTransformer: RxLiveDataTransformer,
+    private val realtimeBus: RealtimeBus
 ) : BaseViewModel(lifecycle) {
 
     private val getAssetInfoLiveData = CompositeLiveData<AssetModelView>()
+
+    internal val bitmarkSavedLiveData =
+        BufferedLiveData<List<BitmarkData>>(lifecycle)
 
     internal val progressLiveData = MutableLiveData<Int>()
 
@@ -121,7 +128,16 @@ class AssetSelectionViewModel(
     internal fun deleteUnusableFile(path: String) =
         rxLiveDataTransformer.completable(appRepo.deleteFiles(path).onErrorResumeNext { Completable.complete() })
 
+    override fun onCreate() {
+        super.onCreate()
+
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
+            bitmarkSavedLiveData.set(bitmarks)
+        }
+    }
+
     override fun onDestroy() {
+        realtimeBus.unsubscribe(this)
         rxLiveDataTransformer.dispose()
         super.onDestroy()
     }

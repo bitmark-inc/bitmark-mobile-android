@@ -12,12 +12,14 @@ import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.util.MediaUtil
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.openAppSetting
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.modelview.AssetModelView
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -56,6 +58,8 @@ class AssetSelectionFragment : BaseSupportFragment() {
     private var blocked = false
 
     private val handler = Handler()
+
+    private var asset: AssetModelView? = null
 
     override fun layoutRes(): Int = R.layout.fragment_asset_selection
 
@@ -116,11 +120,12 @@ class AssetSelectionFragment : BaseSupportFragment() {
         viewModel.getAssetInfoLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
+                    asset = res.data() ?: return@Observer
                     handler.postDelayed({
                         progressBar.gone()
                         val asset = res.data() ?: return@postDelayed
 
-                        navigator.anim(Navigator.RIGHT_LEFT).startActivity(
+                        navigator.anim(RIGHT_LEFT).startActivity(
                             IssuanceActivity::class.java,
                             IssuanceActivity.getBundle(asset)
                         )
@@ -139,6 +144,14 @@ class AssetSelectionFragment : BaseSupportFragment() {
 
         viewModel.progressLiveData.observe(this, Observer { percent ->
             progressBar.progress = percent
+        })
+
+        viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmarks ->
+            // FIXME It's not the good solution to exit this screen after issuing
+            val assetIds = bitmarks.map { b -> b.assetId }.distinct()
+            if (asset != null && assetIds.contains(asset!!.id)) {
+                handler.postDelayed({ navigator.popChildFragment() }, 100)
+            }
         })
     }
 
