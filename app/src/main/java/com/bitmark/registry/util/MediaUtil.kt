@@ -13,6 +13,7 @@ import com.bitmark.cryptography.crypto.Sha3256
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
@@ -166,7 +167,7 @@ class MediaUtil {
             } catch (e: IOException) {
                 emt.onError(e)
             }
-        }
+        }.subscribeOn(Schedulers.io())
 
         fun getAbsolutePath(
             context: Context,
