@@ -1,5 +1,7 @@
 package com.bitmark.registry.util.extension
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -38,16 +40,44 @@ import com.bitmark.sdk.features.Account
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 
-fun View.gone() {
-    this.visibility = View.GONE
+fun View.gone(withAnim: Boolean = false) {
+    if (withAnim) {
+        animate().alpha(0.0f).setDuration(250)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    visibility = View.GONE
+                }
+            })
+    } else {
+        visibility = View.GONE
+    }
+
 }
 
-fun View.visible() {
-    this.visibility = View.VISIBLE
+fun View.visible(withAnim: Boolean = false) {
+    if (withAnim) {
+        animate().alpha(1.0f).setDuration(250)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    visibility = View.VISIBLE
+                }
+            })
+    } else {
+        visibility = View.VISIBLE
+    }
 }
 
-fun View.invisible() {
-    this.visibility = View.INVISIBLE
+fun View.invisible(withAnim: Boolean = false) {
+    if (withAnim) {
+        animate().alpha(0.0f).setDuration(250)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    visibility = View.INVISIBLE
+                }
+            })
+    } else {
+        visibility = View.INVISIBLE
+    }
 }
 
 fun View.setSafetyOnclickListener(action: (View?) -> Unit) {

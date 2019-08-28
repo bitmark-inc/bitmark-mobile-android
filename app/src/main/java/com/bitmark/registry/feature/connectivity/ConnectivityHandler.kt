@@ -18,12 +18,15 @@ import javax.inject.Inject
 class ConnectivityHandler @Inject constructor(private val context: Context) :
     BroadcastReceiver() {
 
+    private var connected = false
+
     private var networkStateChangeListeners =
         mutableListOf<NetworkStateChangeListener>()
 
     fun addNetworkStateChangeListener(listener: NetworkStateChangeListener) {
         if (networkStateChangeListeners.contains(listener)) return
         networkStateChangeListeners.add(listener)
+        listener.onChange(connected)
     }
 
     fun removeNetworkStateChangeListener(listener: NetworkStateChangeListener) {
@@ -33,6 +36,7 @@ class ConnectivityHandler @Inject constructor(private val context: Context) :
     fun register() {
         val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
         context.registerReceiver(this, intentFilter)
+        connected = isConnected(context)
     }
 
     fun unregister() {
@@ -40,16 +44,19 @@ class ConnectivityHandler @Inject constructor(private val context: Context) :
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val cm =
-            context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-        val connected: Boolean =
-            activeNetwork?.isConnectedOrConnecting == true
+        connected = isConnected(context ?: return)
         networkStateChangeListeners.forEach { listener ->
             listener.onChange(
                 connected
             )
         }
+    }
+
+    private fun isConnected(context: Context): Boolean {
+        val cm =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        return activeNetwork?.isConnectedOrConnecting == true
     }
 
     interface NetworkStateChangeListener {

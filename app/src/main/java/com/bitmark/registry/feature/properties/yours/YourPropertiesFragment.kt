@@ -13,6 +13,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
 import com.bitmark.registry.feature.music_claiming.MusicClaimingActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
@@ -43,9 +44,22 @@ class YourPropertiesFragment : BaseSupportFragment(),
     @Inject
     internal lateinit var appLifecycleHandler: AppLifecycleHandler
 
+    @Inject
+    internal lateinit var connectivityHandler: ConnectivityHandler
+
     private val adapter = YourPropertiesRecyclerViewAdapter()
 
     private lateinit var endlessScrollListener: EndlessScrollListener
+
+    private val connectivityChangeListener =
+        object : ConnectivityHandler.NetworkStateChangeListener {
+            override fun onChange(connected: Boolean) {
+                if (connected) {
+                    viewModel.fetchLatestBitmarks()
+                }
+            }
+
+        }
 
     companion object {
         fun newInstance() = YourPropertiesFragment()
@@ -120,9 +134,16 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
         appLifecycleHandler.addAppStateChangedListener(this)
 
+        connectivityHandler.addNetworkStateChangeListener(
+            connectivityChangeListener
+        )
+
     }
 
     override fun deinitComponents() {
+        connectivityHandler.removeNetworkStateChangeListener(
+            connectivityChangeListener
+        )
         appLifecycleHandler.removeAppStateChangedListener(this)
         super.deinitComponents()
     }

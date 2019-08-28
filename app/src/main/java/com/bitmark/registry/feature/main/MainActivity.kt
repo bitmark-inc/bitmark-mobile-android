@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.AppLifecycleHandler
@@ -14,14 +15,13 @@ import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
+import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
-import com.bitmark.registry.util.extension.gotoSecuritySetting
-import com.bitmark.registry.util.extension.loadAccount
-import com.bitmark.registry.util.extension.toHost
+import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
@@ -49,9 +49,26 @@ class MainActivity : BaseAppCompatActivity(),
     @Inject
     internal lateinit var appLifecycleHandler: AppLifecycleHandler
 
+    @Inject
+    internal lateinit var connectivityHandler: ConnectivityHandler
+
     private lateinit var adapter: MainViewPagerAdapter
 
     private val handler = Handler()
+
+    private val connectivityChangeListener =
+        object : ConnectivityHandler.NetworkStateChangeListener {
+            override fun onChange(connected: Boolean) {
+                if (!connected) {
+                    if (layoutNoNetwork.isVisible) return
+                    layoutNoNetwork.visible(true)
+                    handler.postDelayed({ layoutNoNetwork.gone(true) }, 2000)
+                } else {
+                    viewModel.cleanupBitmark()
+                }
+            }
+
+        }
 
     override fun layoutRes(): Int = R.layout.activity_main
 
@@ -230,6 +247,20 @@ class MainActivity : BaseAppCompatActivity(),
         appLifecycleHandler.removeAppStateChangedListener(this)
         handler.removeCallbacksAndMessages(null)
         super.deinitComponents()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        connectivityHandler.addNetworkStateChangeListener(
+            connectivityChangeListener
+        )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        connectivityHandler.removeNetworkStateChangeListener(
+            connectivityChangeListener
+        )
     }
 
     override fun observe() {

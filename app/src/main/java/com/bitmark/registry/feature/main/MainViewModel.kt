@@ -173,6 +173,13 @@ class MainViewModel(
 
     }).subscribeOn(Schedulers.io())
 
+    internal fun cleanupBitmark() =
+        subscribe(accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
+            bitmarkRepo.cleanupBitmark(
+                accountNumber
+            )
+        }.subscribe({}, {}))
+
     override fun onCreate() {
         super.onCreate()
 
