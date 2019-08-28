@@ -15,9 +15,10 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
-import com.bitmark.registry.feature.sync.AssetSynchronizer
-import com.bitmark.registry.feature.sync.PropertySynchronizer
 import com.bitmark.registry.feature.realtime.WebSocketEventHandler
+import com.bitmark.registry.feature.sync.AssetSynchronizer
+import com.bitmark.registry.feature.sync.NewestPropertySynchronizer
+import com.bitmark.registry.feature.sync.PropertySynchronizer
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.extension.toJson
 import com.bitmark.registry.util.livedata.BufferedLiveData
@@ -53,7 +54,8 @@ class MainViewModel(
     private val bmServerAuthentication: BmServerAuthentication,
     private val propertySynchronizer: PropertySynchronizer,
     private val assetSynchronizer: AssetSynchronizer,
-    private val wsEventHandler : WebSocketEventHandler
+    private val wsEventHandler: WebSocketEventHandler,
+    private val newestPropertySynchronizer: NewestPropertySynchronizer
 ) :
     BaseViewModel(lifecycle) {
 
@@ -196,6 +198,8 @@ class MainViewModel(
 
         propertySynchronizer.start()
 
+        newestPropertySynchronizer.start()
+
         assetSynchronizer.setTaskProcessingListener(object :
             AssetSynchronizer.TaskProcessListener {
             override fun onError(e: Throwable) {
@@ -245,6 +249,7 @@ class MainViewModel(
         wsEventHandler.stop()
         assetSynchronizer.stop()
         assetSynchronizer.setTaskProcessingListener(null)
+        newestPropertySynchronizer.stop()
         propertySynchronizer.stop()
         realtimeBus.unsubscribe(this)
         bmServerAuthentication.destroy()

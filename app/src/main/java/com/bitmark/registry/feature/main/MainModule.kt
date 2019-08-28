@@ -9,9 +9,10 @@ import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
-import com.bitmark.registry.feature.sync.AssetSynchronizer
-import com.bitmark.registry.feature.sync.PropertySynchronizer
 import com.bitmark.registry.feature.realtime.WebSocketEventHandler
+import com.bitmark.registry.feature.sync.AssetSynchronizer
+import com.bitmark.registry.feature.sync.NewestPropertySynchronizer
+import com.bitmark.registry.feature.sync.PropertySynchronizer
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -38,7 +39,8 @@ class MainModule {
         bmServerAuthentication: BmServerAuthentication,
         propertySynchronizer: PropertySynchronizer,
         assetSynchronizer: AssetSynchronizer,
-        wsEventHandler: WebSocketEventHandler
+        wsEventHandler: WebSocketEventHandler,
+        newestPropertySynchronizer: NewestPropertySynchronizer
     ) =
         MainViewModel(
             activity.lifecycle,
@@ -50,7 +52,8 @@ class MainModule {
             bmServerAuthentication,
             propertySynchronizer,
             assetSynchronizer,
-            wsEventHandler
+            wsEventHandler,
+            newestPropertySynchronizer
         )
 
     @Provides

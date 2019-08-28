@@ -7,12 +7,12 @@ import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
 import com.bitmark.registry.data.source.local.event.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
 import com.bitmark.registry.util.encryption.SessionData
 import com.bitmark.registry.util.extension.append
-import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -246,19 +246,11 @@ class BitmarkRepository(
     fun maxStoredBitmarkOffset(): Single<Long> =
         localDataSource.maxBitmarkOffset()
 
+    fun minStoredPendingBitmarkOffset() =
+        localDataSource.minBitmarkOffset(arrayOf(ISSUING))
+
     fun syncLatestBitmarks(owner: String) =
         maxStoredBitmarkOffset().flatMap { offset ->
-            syncBitmarks(
-                owner = owner,
-                at = offset,
-                to = "later",
-                pending = true,
-                loadAsset = true
-            )
-        }
-
-    fun syncLatestPendingBitmarks(owner: String) =
-        localDataSource.minBitmarkOffset(arrayOf(ISSUING)).flatMap { offset ->
             syncBitmarks(
                 owner = owner,
                 at = offset,
@@ -496,22 +488,14 @@ class BitmarkRepository(
     fun maxStoredRelevantTxOffset(owner: String): Single<Long> =
         localDataSource.maxRelevantTxOffset(owner)
 
-    fun syncLatestRelevantTxs(owner: String) =
-        maxStoredRelevantTxOffset(owner).flatMap { offset ->
-            syncTxs(
-                owner = owner,
-                at = offset,
-                to = "later",
-                sent = true,
-                isPending = true
-            )
-        }
-
-    fun syncLatestRelevantPendingTxs(owner: String) =
+    fun minStoredRelevantPendingTxs(owner: String) =
         localDataSource.minRelevantTxOffset(
             owner,
             arrayOf(TransactionData.Status.PENDING)
-        ).flatMap { offset ->
+        )
+
+    fun syncLatestRelevantTxs(owner: String) =
+        maxStoredRelevantTxOffset(owner).flatMap { offset ->
             syncTxs(
                 owner = owner,
                 at = offset,
