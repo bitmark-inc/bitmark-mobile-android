@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <color name="colorPrimary">@color/wild_sand</color>
-  <color name="colorPrimaryDark">@color/catskill_white</color>
+  <color name="colorPrimaryDark">@color/wild_sand</color>
   <color name="colorAccent">@color/blue_ribbon</color>
 
   <color name="blue_ribbon">#0060F2</color>
