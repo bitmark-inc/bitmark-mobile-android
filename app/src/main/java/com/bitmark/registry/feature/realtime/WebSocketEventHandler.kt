@@ -1,9 +1,8 @@
-package com.bitmark.registry.feature.sync
+package com.bitmark.registry.feature.realtime
 
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.RxCompletableChunkExecutor
 import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
 import io.reactivex.Completable
@@ -31,7 +30,10 @@ class WebSocketEventHandler @Inject constructor(
     }
 
     private val executor =
-        RxCompletableChunkExecutor(CONCURRENT_TASKS_COUNT, TAG)
+        RxCompletableChunkExecutor(
+            CONCURRENT_TASKS_COUNT,
+            TAG
+        )
 
     fun start() {
         wsEventBus.bitmarkChangedPublisher.subscribe(this) { m ->

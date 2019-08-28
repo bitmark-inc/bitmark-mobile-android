@@ -11,7 +11,7 @@ import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.PropertySynchronizer
-import com.bitmark.registry.feature.sync.WebSocketEventHandler
+import com.bitmark.registry.feature.realtime.WebSocketEventHandler
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
