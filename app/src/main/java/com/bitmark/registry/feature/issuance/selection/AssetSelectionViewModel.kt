@@ -3,13 +3,13 @@ package com.bitmark.registry.feature.issuance.selection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.RegistrationParams
-import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.cryptography.crypto.Sha3512
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
+import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -77,7 +77,7 @@ class AssetSelectionViewModel(
             { assetId, fp ->
                 bitmarkRepo.getAsset(assetId).map(mapAsset(file))
                     .onErrorResumeNext { e ->
-                        if (e is HttpException && e.statusCode == 404) {
+                        if (e is HttpException && e.code == 404) {
                             // asset not found in blockchain
                             Single.just(
                                 AssetModelView(

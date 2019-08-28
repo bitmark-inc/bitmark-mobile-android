@@ -2,10 +2,10 @@ package com.bitmark.registry.data.source
 
 import com.bitmark.registry.data.source.local.AppLocalDataSource
 import com.bitmark.registry.data.source.remote.AppRemoteDataSource
+import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.data.source.remote.api.middleware.Cache
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
-import retrofit2.HttpException
 
 
 /**
@@ -46,9 +46,11 @@ class AppRepository(
 
     fun deleteDeviceToken(deviceToken: String) =
         remoteDataSource.deleteDeviceToken(deviceToken).onErrorResumeNext { e ->
-            if (e is HttpException && e.code() == 404) Completable.complete() else Completable.error(
-                e
-            )
+            if (e is HttpException && e.code == 404) {
+                Completable.complete()
+            } else {
+                Completable.error(e)
+            }
         }
 
     fun deleteCache() =

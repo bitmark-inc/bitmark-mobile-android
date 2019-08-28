@@ -10,7 +10,6 @@ import com.bitmark.apiservice.response.GetBitmarksResponse
 import com.bitmark.apiservice.response.GetTransactionsResponse
 import com.bitmark.apiservice.response.RegistrationResponse
 import com.bitmark.apiservice.utils.callback.Callback1
-import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.apiservice.utils.error.UnexpectedException
 import com.bitmark.apiservice.utils.record.AssetRecord
 import com.bitmark.registry.data.model.AssetData
@@ -19,6 +18,7 @@ import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.data.source.remote.api.converter.Converter
+import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.data.source.remote.api.middleware.Progress
 import com.bitmark.registry.data.source.remote.api.middleware.RxErrorHandlingComposer
 import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
@@ -293,14 +293,8 @@ class BitmarkRemoteDataSource @Inject constructor(
 
             if (!res.isSuccessful) {
                 val code = res.code()
-                val rawBodyString = res.raw().toString()
                 Single.error<DownloadAssetFileResponse>(
-                    HttpException(
-                        code,
-                        "could not download file. the message is: %s".format(
-                            rawBodyString
-                        )
-                    )
+                    HttpException(code)
                 )
             } else {
                 val headers = res.headers()
@@ -369,14 +363,8 @@ class BitmarkRemoteDataSource @Inject constructor(
             .flatMap { res ->
                 if (!res.isSuccessful) {
                     val code = res.code()
-                    val rawBodyString = res.raw().toString()
                     Single.error<AssetFileInfoResponse>(
-                        HttpException(
-                            code,
-                            "could not check asset file. the message is: %s".format(
-                                rawBodyString
-                            )
-                        )
+                        HttpException(code)
                     )
                 } else {
                     val headers = res.headers()
@@ -400,7 +388,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                     )
                 }
             }.onErrorResumeNext { e ->
-                if (e is HttpException && (e.statusCode in 400 until 500)) {
+                if (e is HttpException && (e.code in 400 until 500)) {
                     Single.just(AssetFileInfoResponse.newInstance())
                 } else Single.error<AssetFileInfoResponse>(e)
             }.subscribeOn(Schedulers.io())

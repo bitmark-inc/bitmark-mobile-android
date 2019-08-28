@@ -15,10 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
-import com.bitmark.apiservice.utils.error.HttpException
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
@@ -373,7 +373,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     dialogController.dismiss(progressDialog ?: return@Observer)
                     val e = res.throwable()
                     val errorMessage =
-                        if (e is HttpException && e.statusCode == 404) {
+                        if (e is HttpException && e.code == 404) {
                             R.string.the_asset_is_not_available
                         } else {
                             R.string.could_not_download_asset
