@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import com.bitmark.registry.R
 import com.bitmark.registry.feature.Navigator
 
 
@@ -34,6 +35,21 @@ fun Navigator.openAppSetting(context: Context) {
         val uri = Uri.fromParts("package", context.packageName, null)
         intent.data = uri
         startActivity(intent)
+    } catch (ignore: Throwable) {
+    }
+}
+
+fun Navigator.openMail(context: Context, email: String) {
+    try {
+        val intent =
+            Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null))
+        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+        startActivity(
+            Intent.createChooser(
+                intent,
+                context.getString(R.string.send_to_format).format(email)
+            )
+        )
     } catch (ignore: Throwable) {
     }
 }

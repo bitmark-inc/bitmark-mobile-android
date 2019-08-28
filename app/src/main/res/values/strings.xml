@@ -60,7 +60,7 @@
   <string name="recipient_bitmark_account_number">RECIPIENT BITMARK ACCOUNT NUMBER</string>
   <string name="enter_the_bitmark_account_number">Enter the Bitmark account number to which you would like to transfer ownership of this property.</string>
   <string name="could_not_transfer">Could not transfer bitmark. Please try again later</string>
-  <string name="invalid_bitmark_account_number">Invalid bitmark account number</string>
+  <string name="invalid_bitmark_account_number">Invalid bitmark account number!</string>
   <string name="scan_qr_code">Scan QR Code</string>
   <string name="please_authorize">Please authorize</string>
   <string name="actions_required">Actions Required</string>
@@ -78,7 +78,7 @@
   <string name="no_transaction_history">No Transaction History</string>
   <string name="your_transaction_history_will_be_available">Your transaction history will be available here.</string>
   <string name="security_alert">Security Alert</string>
-  <string name="write_down_your_recovery_phrase">Write Down Your Recovery Phrase</string>
+  <string name="write_down_your_recovery_phrase">Write Down Recovery Phrase</string>
   <string name="write_down_recovery_phrase">Write Down Recovery Phrase</string>
   <string name="protect_your_bitmark_account">Protect your Bitmark account.</string>
   <string name="bitmark_is_the_property_system_for_establishing">Bitmark is the property system for establishing value and legal control over the world’s data. Our mission is to define digital property, defend it, and make it economically divisible. \n\nRegister, track, and trade property rights for your digital assets.</string>
@@ -90,7 +90,7 @@
   <string name="to_protect_your_privacy">To protect your privacy, you are identified in the Bitmark system by a pseudonymous account number. This number is public. You can safely share it with others without compromising your security.</string>
   <string name="log_out_arrow">Log out »</string>
   <string name="detail_arrow">Detail »</string>
-  <string name="write_down_your_recovery_phrase_arrow">Write Down Your Recovery Phrase »</string>
+  <string name="write_down_your_recovery_phrase_arrow">Write Down Recovery Phrase »</string>
   <string name="back_up_to_google_drive_arrow">Back up to Google Drive »</string>
   <string name="need_help_question">Need Help?</string>
   <string name="receive_property">Receive Property</string>
@@ -122,7 +122,7 @@
   <string name="share_with">Share with</string>
   <string name="release_notes">Release Notes</string>
   <string-array name="release_note_info">
-    <item name="content">Highlights of the new features\n---\n\nEnhancements\n---\n\nWe value your feedback, if you have ideas or suggestions on how to make our app even better, please email us at support@bitmark.com.\n</item>
+    <item name="content">Highlights of the new features\n---\n\nEnhancements\n---\n\nWe value your feedback, if you have ideas or suggestions on how to make our app even better, please email us at %1$s.\n</item>
     <item name="date">2018-07-29T15:00:00.000000Z</item>
   </string-array>
   <string name="close">Close</string>
@@ -204,6 +204,7 @@
   <string name="enable_camera_access">Enable Camera Access</string>
   <string name="to_get_started_allow_access_photos">To get started, allow Bitmark to access your photos.</string>
   <string name="to_get_started_allow_access_camera">To get started, allow Bitmark to access your camera.</string>
+  <string name="bitmark_account">Bitmark Account</string>
 
 
   <!--string format-->
@@ -225,5 +226,6 @@
   <string name="your_authorization_has_been_format">Your authorization has been sent to \&quot;%1$s\&quot;</string>
   <string name="requires_your_digital_signature_format">\&quot;%1$s\&quot; requires your digital signature to authorize this action. To prevent abuse, please only authorize actions from trusted websites. </string>
   <string name="by_continuing_you_agree_format">By continuing, you agree to the Bitmark %1$s and %2$s.</string>
+  <string name="send_to_format">Send to %1$s</string>
 
 </resources>

@@ -44,6 +44,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val ASSET = "asset"
+        private const val MIN_ASSET_NAME_LENGTH = 1
         private const val MAX_ASSET_NAME_LENGTH = 64
         private const val MIN_ASSET_QUANTITY = 1
         private const val MAX_ASSET_QUANTITY = 100
@@ -69,6 +70,8 @@ class IssuanceActivity : BaseAppCompatActivity() {
     private var assetType: String? = null
 
     private var quantity = MIN_ASSET_QUANTITY
+
+    private var propName: String? = null
 
     private lateinit var accountInfo: Pair<String, String>
 
@@ -156,18 +159,19 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         etPropName.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) return@setOnFocusChangeListener
-            if (etPropName.text?.length!! > MAX_ASSET_NAME_LENGTH) {
-                etPropName.background =
-                    getDrawable(R.drawable.bg_bottom_line_torch_red)
-            } else {
+            if (hasFocus && propName == null) {
                 etPropName.background =
                     getDrawable(R.drawable.bg_bottom_line_blue_ribbon)
+            } else if (!hasFocus && !isPropNameValid(etPropName.text.toString())) {
+                etPropName.background =
+                    getDrawable(R.drawable.bg_bottom_line_torch_red)
             }
         }
 
         etPropName.doOnTextChanged { text, _, _, _ ->
-            if (text?.length!! > MAX_ASSET_NAME_LENGTH) {
+            val isClear = text.isNullOrEmpty() && !propName.isNullOrEmpty()
+            propName = text.toString()
+            if (isClear || text!!.length > MAX_ASSET_NAME_LENGTH) {
                 etPropName.background =
                     getDrawable(R.drawable.bg_bottom_line_torch_red)
                 etPropName.setTextColorRes(R.color.torch_red)
@@ -278,10 +282,16 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         tvAssetType.setOnClickListener {
-            tvAssetType.isSelected = !tvAType.isSelected
             tvAssetType.background =
-                getDrawable(if (tvAssetType.isSelected) R.drawable.bg_border_blue_ribbon else R.drawable.bg_border_torch_red)
-            if (tvAssetType.isSelected) showAssetTypePopupMenu(asset.registered)
+                getDrawable(R.drawable.bg_border_blue_ribbon)
+            tvAssetType.setTextColorRes(R.color.blue_ribbon)
+            tvAssetType.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                0,
+                0,
+                R.drawable.ic_arrow_down_2,
+                0
+            )
+            showAssetTypePopupMenu(asset.registered)
         }
 
         layoutContent.setOnTouchListener(object : View.OnTouchListener {
@@ -430,7 +440,10 @@ class IssuanceActivity : BaseAppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         recyclerView.addItemDecoration(itemDecoration)
         val adapter =
-            SimpleRecyclerViewAdapter(itemBackground = R.drawable.bg_border_bottom_top_less_white_stateful)
+            SimpleRecyclerViewAdapter(
+                layoutItemRes = R.layout.item_simple_recycler_view_2,
+                itemBackground = R.drawable.bg_border_bottom_top_less_white_stateful
+            )
 
         val assetTypes =
             resources?.getStringArray(R.array.asset_type)?.toList()!!
@@ -523,8 +536,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
     private fun checkValidData(registered: Boolean): Boolean {
         val propertyName = etPropName.text.toString()
-        val validPropertyName =
-            propertyName.isEmpty() || propertyName.length <= MAX_ASSET_NAME_LENGTH
+        val validPropertyName = isPropNameValid(propertyName)
         val validAssetType =
             if (registered) true else !assetType.isNullOrEmpty()
         val validMetadata = adapter.isValid()
@@ -537,5 +549,8 @@ class IssuanceActivity : BaseAppCompatActivity() {
         navigator.anim(RIGHT_LEFT).finishActivity()
         super.onBackPressed()
     }
+
+    private fun isPropNameValid(name: String) =
+        !name.isBlank() && name.length in MIN_ASSET_NAME_LENGTH..MAX_ASSET_NAME_LENGTH
 
 }
