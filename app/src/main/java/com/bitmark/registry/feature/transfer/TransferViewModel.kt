@@ -73,16 +73,14 @@ class TransferViewModel(
         senderEncKeyPair: KeyPair
     ): Completable {
         val receiver = params.owner.address!!
-        val streamCount = 2
-        var progress = 0
 
         return prepareTransferStream(
             assetId,
             sender,
             receiver,
             senderEncKeyPair
-        ).doOnComplete {
-            transferProgressLiveData.set(++progress * 100 / streamCount)
+        ) { p ->
+            transferProgressLiveData.set(p * 50 / 100)
         }.andThen(
             bitmarkRepo.transferBitmark(
                 params,
@@ -90,7 +88,7 @@ class TransferViewModel(
                 bitmarkId,
                 assetId
             ).doOnComplete {
-                transferProgressLiveData.set(++progress * 100 / streamCount)
+                transferProgressLiveData.set(100)
             })
 
     }
@@ -99,12 +97,16 @@ class TransferViewModel(
         assetId: String,
         accountNumber: String,
         receiver: String,
-        senderEncKeyPair: KeyPair
-    ) =
-        bitmarkRepo.checkExistingRemoteAssetFile(
+        senderEncKeyPair: KeyPair,
+        progress: (Int) -> Unit
+    ): Completable {
+
+        return bitmarkRepo.checkExistingRemoteAssetFile(
             assetId,
             accountNumber
-        ).flatMapCompletable { res ->
+        ).doOnSuccess {
+            progress(50)
+        }.flatMapCompletable { res ->
             val sessionData = res.sessionData
             if (sessionData != null) {
                 // asset file is existing
@@ -134,20 +136,26 @@ class TransferViewModel(
                             accountNumber,
                             access
                         )
+                    }.doOnComplete {
+                        progress(100)
                     }
             } else uploadStream(
                 assetId,
                 accountNumber,
                 receiver,
                 senderEncKeyPair
-            )
+            ) { p ->
+                progress(50 + (p * 50 / 100))
+            }
         }
+    }
 
     private fun uploadStream(
         assetId: String,
         accountNumber: String,
         receiver: String,
-        senderEncKeyPair: KeyPair
+        senderEncKeyPair: KeyPair,
+        progressCallback: (Int) -> Unit
     ) = bitmarkRepo.checkAssetFile(accountNumber, assetId).flatMap { p ->
         val file = p.second
         if (file == null) Single.just(Pair(null, null))
@@ -182,7 +190,8 @@ class TransferViewModel(
                 senderSessionData,
                 access,
                 file.name,
-                encryptedFileBytes
+                encryptedFileBytes,
+                progressCallback
             )
         }
 

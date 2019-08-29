@@ -568,7 +568,8 @@ class BitmarkRepository(
         sessionData: SessionData,
         access: String,
         fileName: String,
-        fileBytes: ByteArray
+        fileBytes: ByteArray,
+        progress: (Int) -> Unit
     ): Completable = localDataSource.saveEncryptedAssetFile(
         owner,
         assetId,
@@ -580,7 +581,8 @@ class BitmarkRepository(
             owner,
             sessionData,
             access,
-            file
+            file,
+            progress
         )
     }.andThen(localDataSource.deleteEncryptedAssetFile(owner, assetId))
 

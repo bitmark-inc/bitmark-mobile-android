@@ -21,6 +21,8 @@ import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.data.source.remote.api.middleware.Progress
 import com.bitmark.registry.data.source.remote.api.middleware.RxErrorHandlingComposer
+import com.bitmark.registry.data.source.remote.api.request.ProgressListener
+import com.bitmark.registry.data.source.remote.api.request.ProgressRequestBody
 import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoResponse
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.*
@@ -332,9 +334,22 @@ class BitmarkRemoteDataSource @Inject constructor(
         sender: String,
         sessionData: SessionData,
         access: String,
-        file: File
+        file: File,
+        progress: (Int) -> Unit
     ): Completable {
-        val fileReqBody = file.asRequestBody()
+
+        val fileReqBody = ProgressRequestBody(
+            file.asRequestBody(),
+            object : ProgressListener {
+                override fun update(
+                    bytesRead: Long,
+                    contentLength: Long,
+                    done: Boolean
+                ) {
+                    progress((bytesRead * 100 / contentLength).toInt())
+                }
+
+            })
         val filePart =
             MultipartBody.Part.createFormData("file", file.name, fileReqBody)
         val keyAlgorithmReqBody = sessionData.algorithm.toRequestBody()

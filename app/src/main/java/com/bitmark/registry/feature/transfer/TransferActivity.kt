@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.widget.TextView
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
@@ -173,8 +174,10 @@ class TransferActivity : BaseAppCompatActivity() {
 
         viewModel.transferProgressLiveData.observe(this, Observer { progress ->
             progressBar.progress = progress
+            Log.d("progress", "$progress")
             if (progress >= 100) {
-                progressBar.gone()
+                // delay a bit for visible to user
+                handler.postDelayed({ progressBar.gone() }, 200)
             }
         })
 
