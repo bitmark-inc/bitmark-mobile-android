@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Handler
-import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
@@ -15,10 +14,7 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.util.MediaUtil
-import com.bitmark.registry.util.extension.gone
-import com.bitmark.registry.util.extension.openAppSetting
-import com.bitmark.registry.util.extension.setSafetyOnclickListener
-import com.bitmark.registry.util.extension.visible
+import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetModelView
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.tbruyelle.rxpermissions2.RxPermissions
@@ -70,17 +66,17 @@ class AssetSelectionFragment : BaseSupportFragment() {
 
         layoutPhoto.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            requestPermission { browseMedia("image/*") }
+            requestPermission { navigator.browseMedia("image/*", BROWSE_CODE) }
         }
 
         layoutVideo.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            requestPermission { browseMedia("video/*") }
+            requestPermission { navigator.browseMedia("video/*", BROWSE_CODE) }
         }
 
         layoutFile.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            requestPermission { browseDocument() }
+            requestPermission { navigator.browseDocument(BROWSE_CODE) }
         }
 
         ivBack.setOnClickListener { navigator.popChildFragment() }
@@ -230,32 +226,5 @@ class AssetSelectionFragment : BaseSupportFragment() {
                 }
             }
         }
-    }
-
-    private fun browseMedia(mime: String) {
-        val intent = Intent(Intent.ACTION_PICK)
-        when (mime) {
-            "image/*" -> {
-                intent.setDataAndType(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    mime
-                )
-            }
-
-            "video/*" -> {
-                intent.setDataAndType(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    mime
-                )
-            }
-        }
-        navigator.startActivityForResult(intent, BROWSE_CODE)
-    }
-
-    private fun browseDocument() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "*/*"
-        navigator.startActivityForResult(intent, BROWSE_CODE)
     }
 }

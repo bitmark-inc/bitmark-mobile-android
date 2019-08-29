@@ -3,9 +3,11 @@ package com.bitmark.registry.util.extension
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.MediaStore
 import android.provider.Settings
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.Navigator.Companion.NONE
 
 
 /**
@@ -52,4 +54,31 @@ fun Navigator.openMail(context: Context, email: String) {
         )
     } catch (ignore: Throwable) {
     }
+}
+
+fun Navigator.browseMedia(mime: String, requestCode: Int) {
+    val intent = Intent(Intent.ACTION_PICK)
+    when (mime) {
+        "image/*" -> {
+            intent.setDataAndType(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                mime
+            )
+        }
+
+        "video/*" -> {
+            intent.setDataAndType(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                mime
+            )
+        }
+    }
+    anim(NONE).startActivityForResult(intent, requestCode)
+}
+
+fun Navigator.browseDocument(requestCode: Int) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+    intent.addCategory(Intent.CATEGORY_OPENABLE)
+    intent.type = "*/*"
+    anim(NONE).startActivityForResult(intent, requestCode)
 }

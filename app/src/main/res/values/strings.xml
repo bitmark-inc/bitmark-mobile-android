@@ -206,6 +206,7 @@
   <string name="to_get_started_allow_access_camera">To get started, allow Bitmark to access your camera.</string>
   <string name="bitmark_account">Bitmark Account</string>
   <string name="no_internet_connection">No Internet Connection</string>
+  <string name="could_not_delete_bitmark">Could not delete bitmark. Please try again later.</string>
 
 
   <!--string format-->

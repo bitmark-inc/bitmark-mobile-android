@@ -333,8 +333,8 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     progressBar.gone()
                     blocked = false
                     dialogController.alert(
-                        getString(R.string.error),
-                        res.throwable()?.message!!
+                        R.string.error,
+                        R.string.could_not_delete_bitmark
                     )
                 }
 

@@ -65,10 +65,11 @@ class AccountRepository(
             timestamp,
             signature,
             requester
-        ).doAfterSuccess { jwt ->
+        ).map { jwt ->
             val cache = Cache.getInstance()
             cache.mobileServerJwt = jwt
             cache.expiresAt = timestamp.toLong() + TimeUnit.MINUTES.toMillis(30)
+            jwt
         }
     }
 
