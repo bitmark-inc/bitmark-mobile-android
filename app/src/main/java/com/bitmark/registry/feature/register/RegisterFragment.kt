@@ -66,7 +66,8 @@ class RegisterFragment : BaseSupportFragment() {
                     R.id.layoutContainer,
                     WebViewFragment.newInstance(
                         BuildConfig.TERMS_OF_SERVICE_URL,
-                        getString(R.string.terms_of_service)
+                        getString(R.string.terms_of_service),
+                        true
                     )
                 )
             }
@@ -84,7 +85,8 @@ class RegisterFragment : BaseSupportFragment() {
                     R.id.layoutContainer,
                     WebViewFragment.newInstance(
                         BuildConfig.PRIVACY_POLICY_URL,
-                        getString(R.string.privacy_policy)
+                        getString(R.string.privacy_policy),
+                        true
                     )
                 )
             }

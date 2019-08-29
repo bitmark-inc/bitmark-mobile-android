@@ -29,10 +29,17 @@ class WebViewFragment : Fragment(), BehaviorComponent {
 
         private const val TITLE = "title"
 
-        fun newInstance(url: String, title: String? = null): WebViewFragment {
+        private const val PRELOAD = "preload"
+
+        fun newInstance(
+            url: String,
+            title: String? = null,
+            preload: Boolean = false
+        ): WebViewFragment {
             val fragment = WebViewFragment()
             val bundle = Bundle()
             bundle.putString(URL, url)
+            bundle.putBoolean(PRELOAD, preload)
             if (title != null) bundle.putString(TITLE, title)
             fragment.arguments = bundle
             return fragment
@@ -41,7 +48,9 @@ class WebViewFragment : Fragment(), BehaviorComponent {
 
     private var url: String? = null
 
-    private var visibled = false
+    private var preload = false
+
+    private var loaded = false
 
     private val handler = Handler()
 
@@ -73,6 +82,8 @@ class WebViewFragment : Fragment(), BehaviorComponent {
             layoutToolbar.gone()
         }
 
+        preload = arguments?.getBoolean(PRELOAD) ?: false
+
         webview.settings.javaScriptEnabled = true
         webview.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -80,6 +91,7 @@ class WebViewFragment : Fragment(), BehaviorComponent {
                 progressBar.progress = newProgress
                 if (newProgress >= 100) {
                     progressBar.gone()
+                    loaded = true
                 } else {
                     progressBar.visible()
                 }
@@ -98,19 +110,19 @@ class WebViewFragment : Fragment(), BehaviorComponent {
     private fun deinitComponents() {
         handler.removeCallbacksAndMessages(null)
         webview.webChromeClient = null
-        visibled = false
+        loaded = false
     }
 
     override fun onResume() {
         super.onResume()
-        if (!visibled) {
+        if (preload && !loaded) {
             load()
         }
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser && !visibled) {
+        if (isVisibleToUser && !loaded) {
             load()
         }
     }
@@ -118,7 +130,6 @@ class WebViewFragment : Fragment(), BehaviorComponent {
     private fun load() {
         // a bit delay for better performance
         handler.postDelayed({ webview.loadUrl(url) }, 200)
-        visibled = true
     }
 
     override fun onBackPressed(): Boolean = destroy()
