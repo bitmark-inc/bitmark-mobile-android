@@ -174,7 +174,6 @@ class TransferActivity : BaseAppCompatActivity() {
 
         viewModel.transferProgressLiveData.observe(this, Observer { progress ->
             progressBar.progress = progress
-            Log.d("progress", "$progress")
             if (progress >= 100) {
                 // delay a bit for visible to user
                 handler.postDelayed({ progressBar.gone() }, 200)
