@@ -2,6 +2,9 @@ package com.bitmark.registry.feature.splash
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import com.bitmark.cryptography.crypto.Ed25519
+import com.bitmark.cryptography.crypto.encoder.Hex
+import com.bitmark.cryptography.crypto.encoder.Raw
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
@@ -15,6 +18,7 @@ import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
 
 
 /**
@@ -105,22 +109,35 @@ class SplashViewModel(
 
     internal fun prepareData(
         keyPair: KeyPair,
-        timestamp: String,
-        signature: String,
         requester: String
     ) {
-        val registerJwtStream = accountRepo.registerMobileServerJwt(
-            timestamp,
-            signature,
-            requester
-        ).ignoreElement().onErrorResumeNext { e ->
-            if (e.isNetworkError()) {
-                // for support offline mode
-                Completable.complete()
-            } else {
-                Completable.error(e)
+        val registerJwtStream = Single.fromCallable {
+            val timestamp =
+                System.currentTimeMillis().toString()
+            val signature = Hex.HEX.encode(
+                Ed25519.sign(
+                    Raw.RAW.decode(timestamp),
+                    keyPair.privateKey().toBytes()
+                )
+            )
+            Pair(timestamp, signature)
+        }.subscribeOn(Schedulers.computation()).observeOn(Schedulers.io())
+            .flatMapCompletable { p ->
+                val timestamp = p.first
+                val signature = p.second
+                accountRepo.registerMobileServerJwt(
+                    timestamp,
+                    signature,
+                    requester
+                ).ignoreElement().onErrorResumeNext { e ->
+                    if (e.isNetworkError()) {
+                        // for support offline mode
+                        Completable.complete()
+                    } else {
+                        Completable.error(e)
+                    }
+                }
             }
-        }
 
         val cleanupBitmarkStream =
             accountRepo.getAccountNumber()

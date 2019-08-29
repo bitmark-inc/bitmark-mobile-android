@@ -5,9 +5,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import androidx.lifecycle.Observer
-import com.bitmark.cryptography.crypto.Ed25519
-import com.bitmark.cryptography.crypto.encoder.Hex.HEX
-import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
@@ -107,18 +104,8 @@ class SplashActivity : BaseAppCompatActivity() {
 
                             // prepare data
                             val keyPair = account.keyPair
-                            val timestamp =
-                                System.currentTimeMillis().toString()
-                            val signature = HEX.encode(
-                                Ed25519.sign(
-                                    RAW.decode(timestamp),
-                                    keyPair.privateKey().toBytes()
-                                )
-                            )
                             viewModel.prepareData(
                                 keyPair,
-                                timestamp,
-                                signature,
                                 accountNumber
                             )
                         }

@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.properties.yours
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -51,6 +52,8 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
     private lateinit var endlessScrollListener: EndlessScrollListener
 
+    private val handler = Handler()
+
     private val connectivityChangeListener =
         object : ConnectivityHandler.NetworkStateChangeListener {
             override fun onChange(connected: Boolean) {
@@ -71,7 +74,7 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.listBitmark()
+        handler.postDelayed({ viewModel.listBitmark() }, 250)
     }
 
     override fun initComponents() {
@@ -141,6 +144,7 @@ class YourPropertiesFragment : BaseSupportFragment(),
     }
 
     override fun deinitComponents() {
+        handler.removeCallbacksAndMessages(null)
         connectivityHandler.removeNetworkStateChangeListener(
             connectivityChangeListener
         )
