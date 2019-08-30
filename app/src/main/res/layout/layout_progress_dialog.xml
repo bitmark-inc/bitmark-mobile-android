@@ -27,6 +27,7 @@
         android:text="@string/preparing_to_export"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_16"
+        tools:visibility="gone"
         />
 
     <ProgressBar

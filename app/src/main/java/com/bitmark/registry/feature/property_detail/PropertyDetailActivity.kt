@@ -102,10 +102,13 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             if (bitmark.name.isNullOrBlank()) getString(R.string.your_properties) else bitmark.name
         tvAssetName.text =
             if (bitmark.name.isNullOrBlank()) "" else bitmark.name
-        tvIssuedOn.text =
-            if (bitmark.isSettled()) getString(R.string.issued_on) + " " + bitmark.createdAt() else getString(
-                R.string.pending
-            ) + "...."
+
+        tvIssuedOn.text = when (bitmark.status) {
+            BitmarkData.Status.ISSUING -> getString(R.string.registering).toUpperCase()
+            BitmarkData.Status.TRANSFERRING -> getString(R.string.incoming).toUpperCase()
+            BitmarkData.Status.SETTLED -> getString(R.string.issued_on) + " " + bitmark.createdAt()
+            else -> ""
+        }
 
         // display with corresponding status
         val color =
@@ -386,14 +389,9 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
 
                 res.isLoading() -> {
-                    val message = "%s \"%s\"...".format(
-                        getString(R.string.downloading),
-                        bitmark.name ?: ""
-                    )
                     progressDialog = ProgressAppCompatDialog(
                         this,
-                        title = getString(R.string.preparing_to_export),
-                        message = message
+                        message = getString(R.string.preparing_to_export)
                     )
                     dialogController.show(progressDialog ?: return@Observer)
                 }

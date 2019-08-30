@@ -198,6 +198,7 @@
   <string name="term_of_service">Terms of Service</string>
   <string name="biometric_pin">Biometric/PIN</string>
   <string name="use_biometric_pin_to">Use Biometric/PIN to sign and encrypt your data.</string>
+  <string name="enable_biometric_pin_to_secure">Enable Biometric/PIN to secure access to your app. If you do not enable Biometric/PIN, anyone with access to your device can use the app to control your account and properties.</string>
   <string name="enable_biometric_pin">Enable Biometric/PIN</string>
   <string name="enable_photos_access">Enable Photos Access</string>
   <string name="enable_access">Enable access</string>
@@ -207,7 +208,12 @@
   <string name="bitmark_account">Bitmark Account</string>
   <string name="no_internet_connection">No Internet Connection</string>
   <string name="could_not_delete_bitmark">Could not delete bitmark. Please try again later.</string>
-
+  <string name="discard_registration_question">Discard Registration?</string>
+  <string name="if_you_go_back_now">If you go back now, you will lose the registration information you\'ve entered.</string>
+  <string name="discard">Discard</string>
+  <string name="stay">Stay</string>
+  <string name="please_recheck_your_recovery_phrase">Please recheck your recovery phrase and tap to edit any incorrect words above.</string>
+  <string name="optional_bracket">(Optional)</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

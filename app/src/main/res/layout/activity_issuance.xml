@@ -213,6 +213,21 @@
           />
 
       <androidx.appcompat.widget.AppCompatTextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="@dimen/dp_2"
+          android:layout_marginStart="@dimen/dp_2"
+          android:layout_marginTop="@dimen/dp_24"
+          android:fontFamily="@font/avenir_light"
+          android:text="@string/optional_bracket"
+          android:textAllCaps="true"
+          android:textColor="@color/silver"
+          android:textSize="@dimen/sp_13"
+          app:layout_constraintBottom_toBottomOf="@id/tvPropDes"
+          app:layout_constraintStart_toEndOf="@id/tvPropDes"
+          />
+
+      <androidx.appcompat.widget.AppCompatTextView
           android:id="@+id/tvWhatIsPropDes"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

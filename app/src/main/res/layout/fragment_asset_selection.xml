@@ -215,24 +215,6 @@
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-  <androidx.appcompat.widget.AppCompatTextView
-      android:id="@+id/tvIntroduce"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/dp_18"
-      android:fontFamily="@font/avenir_light"
-      android:paddingEnd="@dimen/dp_20"
-      android:paddingStart="@dimen/dp_20"
-      android:text="@string/to_register_your_media_and_asset"
-      android:textColor="@android:color/black"
-      android:textSize="@dimen/sp_17"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/layoutFile"
-      tools:visibility="visible"
-      />
-
   <ProgressBar
       android:id="@+id/progressBar"
       android:layout_width="match_parent"

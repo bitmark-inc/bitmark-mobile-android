@@ -278,7 +278,9 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         ivBack.setSafetyOnclickListener {
-            navigator.anim(RIGHT_LEFT).finishActivity()
+            showExitConfirmation {
+                navigator.anim(RIGHT_LEFT).finishActivity()
+            }
         }
 
         tvAssetType.setOnClickListener {
@@ -546,8 +548,22 @@ class IssuanceActivity : BaseAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        navigator.anim(RIGHT_LEFT).finishActivity()
-        super.onBackPressed()
+        showExitConfirmation {
+            navigator.anim(RIGHT_LEFT).finishActivity()
+            super.onBackPressed()
+        }
+    }
+
+    private fun showExitConfirmation(discardAction: () -> Unit) {
+        dialogController.confirm(
+            R.string.discard_registration_question,
+            R.string.if_you_go_back_now,
+            false,
+            R.string.stay,
+            {},
+            R.string.discard,
+            discardAction
+        )
     }
 
     private fun isPropNameValid(name: String) =

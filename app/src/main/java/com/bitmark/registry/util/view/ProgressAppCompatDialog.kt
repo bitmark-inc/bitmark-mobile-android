@@ -2,6 +2,8 @@ package com.bitmark.registry.util.view
 
 import android.content.Context
 import com.bitmark.registry.R
+import com.bitmark.registry.util.extension.gone
+import com.bitmark.registry.util.extension.visible
 import kotlinx.android.synthetic.main.layout_progress_dialog.*
 
 
@@ -13,8 +15,8 @@ import kotlinx.android.synthetic.main.layout_progress_dialog.*
  */
 class ProgressAppCompatDialog(
     context: Context,
-    private val title: String? = "",
-    private val message: String? = "",
+    private val title: String? = null,
+    private val message: String,
     private val indeterminate: Boolean = false
 ) :
     BaseAppCompatDialog(context) {
@@ -25,7 +27,12 @@ class ProgressAppCompatDialog(
     override fun initComponents() {
         super.initComponents()
         setCancelable(false)
-        tvTitle.text = title
+        if (title != null) {
+            tvTitle.text = title
+            tvTitle.visible()
+        } else {
+            tvTitle.gone()
+        }
         tvMessage.text = message
     }
 

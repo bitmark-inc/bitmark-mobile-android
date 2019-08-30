@@ -329,14 +329,9 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                 }
 
                 res.isLoading() -> {
-                    val message = "%s \"%s\"...".format(
-                        getString(R.string.downloading),
-                        bitmark.name ?: ""
-                    )
                     progressDialog = ProgressAppCompatDialog(
                         this,
-                        getString(R.string.preparing_to_export),
-                        message
+                        message = getString(R.string.preparing_to_export)
                     )
                     dialogController.show(progressDialog)
                 }

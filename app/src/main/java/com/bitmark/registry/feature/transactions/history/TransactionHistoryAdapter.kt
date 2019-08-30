@@ -176,7 +176,7 @@ class TransactionHistoryAdapter :
                     }
 
                     if (tx.isIssuance()) {
-                        tvTxType.setText(R.string.issuance)
+                        tvTxType.setText(R.string.property_issuance)
                         tvTo.invisible()
                         tvReceiver.invisible()
                         tvSender.text =

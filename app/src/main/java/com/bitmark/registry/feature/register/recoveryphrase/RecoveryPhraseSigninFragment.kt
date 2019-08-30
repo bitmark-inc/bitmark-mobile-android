@@ -97,6 +97,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         }
 
         tvSwitchWord.setOnClickListener {
+            setErrorVisibility(false)
             if (phraseAdapter.itemCount == Version.TWELVE.value) {
                 tvInstruction.setText(R.string.please_type_all_24_word)
                 tvSwitchWord.setText(R.string.are_you_using_12_word)
@@ -185,8 +186,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         }
 
         if (isValid) {
-            tvError.gone()
-            tvTryAgain.gone()
+            setErrorVisibility(false)
             navigator.anim(Navigator.RIGHT_LEFT).replaceFragment(
                 R.id.layoutContainer,
                 AuthenticationFragment.newInstance(
@@ -196,8 +196,17 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 )
             )
         } else {
+            setErrorVisibility(true)
+        }
+    }
+
+    private fun setErrorVisibility(visible: Boolean) {
+        if (visible) {
             tvError.visible()
             tvTryAgain.visible()
+        } else {
+            tvError.gone()
+            tvTryAgain.gone()
         }
     }
 

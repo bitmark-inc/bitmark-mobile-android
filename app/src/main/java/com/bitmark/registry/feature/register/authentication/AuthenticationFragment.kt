@@ -79,21 +79,12 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         btnEnableAuth.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            createAccount(
-                phrase,
-                true
-            )
+            createAccount(phrase, true)
         }
 
         btnSkip.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            dialogController.confirm(
-                title = R.string.warning,
-                message = R.string.are_you_sure_you_dont_to_protect,
-                positive = android.R.string.yes,
-                positiveEvent = { createAccount(phrase, false) },
-                negative = android.R.string.no
-            )
+            createAccount(phrase, false)
         }
     }
 

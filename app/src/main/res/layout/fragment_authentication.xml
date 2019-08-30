@@ -24,18 +24,20 @@
 
   <androidx.appcompat.widget.AppCompatTextView
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
+      android:layout_height="0dp"
+      android:layout_above="@id/layoutIcon"
       android:layout_below="@id/tvAppName"
       android:layout_marginEnd="@dimen/dp_48"
       android:layout_marginStart="@dimen/dp_48"
       android:layout_marginTop="@dimen/dp_28"
       android:fontFamily="@font/avenir_light"
-      android:text="@string/use_biometric_pin_to"
+      android:text="@string/enable_biometric_pin_to_secure"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_17"
       />
 
   <LinearLayout
+      android:id="@+id/layoutIcon"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
