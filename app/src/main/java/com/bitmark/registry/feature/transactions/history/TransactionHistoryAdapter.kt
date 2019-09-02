@@ -58,10 +58,8 @@ class TransactionHistoryAdapter :
             val index = this.items.indexOfFirst { item -> item.id == i.id }
             if (index != -1) {
                 this.items.removeAt(index)
-                this.items.add(index, i)
-            } else {
-                this.items.add(i)
             }
+            this.items.add(i)
         }
         // FIXME bad solution to avoid wrong order
         reorder()
