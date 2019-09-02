@@ -5,7 +5,6 @@
   <string name="bitmark_registry">Bitmark Registry</string>
   <string name="protect_the_legal_rights">守護您的數據與其他數位資產的合法權利。</string>
   <string name="error">發生錯誤</string>
-  <string name="authentication_required">請先身份認證。</string>
   <string name="passcode_pin_required">需要設定PIN碼</string>
   <string name="fingerprint_required">需要設定生物認證辨識</string>
   <string name="skip">略過</string>
@@ -201,6 +200,7 @@
   <string name="stay">保留</string>
   <string name="please_recheck_your_recovery_phrase">請重新檢查您的帳戶復原碼，點擊上方的錯誤單字並進行修改。</string>
   <string name="optional_bracket">(Optional)</string>
+  <string name="authorization_required">授權允許</string>
 
 
   <!--string format-->

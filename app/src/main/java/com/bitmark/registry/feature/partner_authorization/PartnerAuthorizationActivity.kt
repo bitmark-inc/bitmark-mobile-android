@@ -96,7 +96,7 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
                         val url = text[1]
 
                         dialogController.confirm(
-                            getString(R.string.authentication_required),
+                            getString(R.string.authorization_required),
                             getString(R.string.requires_your_digital_signature_format).format(
                                 url.toHost()
                             ), false,

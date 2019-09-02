@@ -7,7 +7,6 @@
         data and other digital assets.
     </string>
   <string name="error">Error</string>
-  <string name="authentication_required">Authentication required</string>
   <string name="passcode_pin_required">Device PIN setup is required</string>
   <string name="fingerprint_required">Biometric authentication setup is required</string>
   <string name="skip">Skip</string>
@@ -203,6 +202,7 @@
   <string name="stay">Stay</string>
   <string name="please_recheck_your_recovery_phrase">Please recheck your recovery phrase and tap to edit any incorrect words above.</string>
   <string name="optional_bracket">(Optional)</string>
+  <string name="authorization_required">Authorization Required</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

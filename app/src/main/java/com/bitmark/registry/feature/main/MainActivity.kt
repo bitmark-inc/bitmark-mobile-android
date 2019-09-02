@@ -146,7 +146,7 @@ class MainActivity : BaseAppCompatActivity(),
 
                 if (accountNumber.isNotEmpty() && keyAlias.isNotEmpty()) {
                     dialogController.confirm(
-                        getString(R.string.authentication_required),
+                        getString(R.string.authorization_required),
                         getString(R.string.requires_your_digital_signature_format).format(
                             url.toHost()
                         ), false,
@@ -158,7 +158,7 @@ class MainActivity : BaseAppCompatActivity(),
                         {})
                 } else {
                     dialogController.alert(
-                        R.string.authentication_required,
+                        R.string.authorization_required,
                         R.string.please_sign_in_or_create_bitmark_account
                     ) {
                         navigator.startActivityAsRoot(
