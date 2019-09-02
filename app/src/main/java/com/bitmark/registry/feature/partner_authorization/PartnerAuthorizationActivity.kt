@@ -91,7 +91,7 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
                 if (result != null && result.text != null) {
                     try {
                         val text = result.text.split("|")
-                        if (text.size != 2) return
+                        if (text.size != 2) throw IllegalStateException("unrecognized QR code")
                         val code = text[0]
                         val url = text[1]
 
