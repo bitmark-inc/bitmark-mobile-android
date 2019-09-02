@@ -3,11 +3,11 @@ package com.bitmark.registry.util.extension
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Activity
+import android.app.admin.DevicePolicyManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
-import android.content.Context.INPUT_METHOD_SERVICE
+import android.content.Context.*
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Handler
@@ -309,6 +309,17 @@ fun Context.getDimension(@DimenRes dimenRes: Int, default: Float = 0f): Float {
         resources.getDimension(dimenRes)
     } catch (e: Throwable) {
         default
+    }
+}
+
+fun Context.isStorageEncryptionInactive(): Boolean {
+    return try {
+        val devicePolicyManager =
+            getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val status = devicePolicyManager.storageEncryptionStatus
+        status == DevicePolicyManager.ENCRYPTION_STATUS_INACTIVE
+    } catch (e: Throwable) {
+        false
     }
 }
 

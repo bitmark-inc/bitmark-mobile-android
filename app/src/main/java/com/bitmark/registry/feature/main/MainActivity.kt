@@ -76,6 +76,14 @@ class MainActivity : BaseAppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (isStorageEncryptionInactive()) {
+            dialogController.alert(
+                R.string.warning_your_phone_is_not_encrypted,
+                R.string.encrypting_your_data
+            ) {
+                navigator.gotoSecuritySetting()
+            }
+        }
         viewModel.checkUnseenBitmark()
         viewModel.checkActionRequired()
         val notificationBundle = intent?.getBundleExtra("notification")

@@ -201,6 +201,8 @@
   <string name="please_recheck_your_recovery_phrase">請重新檢查您的帳戶復原碼，點擊上方的錯誤單字並進行修改。</string>
   <string name="optional_bracket">(Optional)</string>
   <string name="authorization_required">授權允許</string>
+  <string name="warning_your_phone_is_not_encrypted">警告提示：你尚未加密你的手機</string>
+  <string name="encrypting_your_data">"在您的手機上開啟數據加密是極為容易的，並將保護你自己免受廣泛的潛在風險。我们強烈建議您現在開啟。\n\n請到 設定 > 安全性 > 加密手機"</string>
 
 
   <!--string format-->

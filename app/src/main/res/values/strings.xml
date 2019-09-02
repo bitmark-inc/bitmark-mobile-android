@@ -203,6 +203,8 @@
   <string name="please_recheck_your_recovery_phrase">Please recheck your recovery phrase and tap to edit any incorrect words above.</string>
   <string name="optional_bracket">(Optional)</string>
   <string name="authorization_required">Authorization Required</string>
+  <string name="warning_your_phone_is_not_encrypted">Warning: Your phone is not encrypted</string>
+  <string name="encrypting_your_data">Encrypting your data on your phone is easy and will protect yourself from a wide range of potential risks. We strongly recommend you do this now.\n\nSettings > Security > Encrypt phone</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
