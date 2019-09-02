@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/layoutRoot"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
@@ -44,14 +44,19 @@
           android:layout_width="wrap_content"
           android:layout_height="match_parent"
           android:layout_gravity="center_horizontal"
+          android:ellipsize="end"
           android:fontFamily="@font/avenir_bold"
           android:gravity="center"
+          android:maxLines="1"
+          android:paddingEnd="@dimen/dp_36"
+          android:paddingStart="@dimen/dp_36"
           android:text="@string/properties"
           android:textAllCaps="true"
           android:textColor="@android:color/black"
           android:textSize="@dimen/sp_18"
-          app:layout_constraintEnd_toStartOf="@id/ivAdd"
+          app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
+          tools:text="This is very very long toolbar title"
           />
 
       <androidx.appcompat.widget.AppCompatImageView

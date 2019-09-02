@@ -46,7 +46,7 @@
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_18"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/ivBack"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="This is very very long toolbar title"
         />
 

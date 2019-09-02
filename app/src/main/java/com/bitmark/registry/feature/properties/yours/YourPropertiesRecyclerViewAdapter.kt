@@ -183,8 +183,8 @@ class YourPropertiesRecyclerViewAdapter() :
                     if (item.issuer == item.accountNumber) context.getString(R.string.you).toUpperCase() else item.readableIssuer
                         ?: item.issuer.shortenAccountNumber()
                 tvConfirmedAt.text = when (item.status) {
-                    BitmarkData.Status.ISSUING -> context.getString(R.string.registering).toUpperCase()
-                    BitmarkData.Status.TRANSFERRING -> context.getString(R.string.incoming).toUpperCase()
+                    BitmarkData.Status.ISSUING -> "${context.getString(R.string.registering).toUpperCase()}..."
+                    BitmarkData.Status.TRANSFERRING -> "${context.getString(R.string.incoming).toUpperCase()}..."
                     BitmarkData.Status.SETTLED -> item.confirmedAt()?.toUpperCase()
                     else -> ""
                 }

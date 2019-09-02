@@ -7,7 +7,7 @@
     android:background="@android:color/white"
     >
 
-  <LinearLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/layoutToolbar"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
@@ -16,6 +16,8 @@
       android:orientation="horizontal"
       android:paddingEnd="@dimen/dp_20"
       android:paddingStart="@dimen/dp_20"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
       >
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -24,22 +26,35 @@
         android:layout_height="@dimen/dp_16"
         android:clickable="true"
         android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_back"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/toolbarTitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
+        android:ellipsize="end"
         android:fontFamily="@font/avenir_bold"
         android:gravity="center"
+        android:maxLines="1"
+        android:paddingEnd="@dimen/dp_36"
+        android:paddingStart="@dimen/dp_36"
         android:text="@string/recovery_phrase"
         android:textAllCaps="true"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_18"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="This is very very long toolbar title"
         />
-  </LinearLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
 
   <androidx.core.widget.NestedScrollView
       android:layout_width="match_parent"

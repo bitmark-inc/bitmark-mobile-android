@@ -109,7 +109,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
             }
         }
 
-        tvBack.setSafetyOnclickListener {
+        ivBack.setSafetyOnclickListener {
             navigator.popFragment()
         }
 

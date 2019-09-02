@@ -48,8 +48,8 @@
         android:textAllCaps="true"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_18"
-        app:layout_constraintEnd_toStartOf="@id/ivAction"
-        app:layout_constraintStart_toEndOf="@id/ivBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="This is very very long toolbar title"
         />
 
@@ -92,9 +92,9 @@
       android:ellipsize="marquee"
       android:focusable="true"
       android:focusableInTouchMode="true"
-      android:scrollHorizontally="true"
       android:fontFamily="@font/avenir_bold"
       android:marqueeRepeatLimit="marquee_forever"
+      android:scrollHorizontally="true"
       android:singleLine="true"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_18"
