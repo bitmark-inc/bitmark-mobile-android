@@ -174,11 +174,6 @@ class SplashActivity : BaseAppCompatActivity() {
                 res.isError() -> {
                     // TODO show alert and navigate to recovery phrase signin
                 }
-
-                res.isLoading() -> {
-                    tvAction.setText(R.string.clean_up_data)
-                    showLoading()
-                }
             }
         })
 
