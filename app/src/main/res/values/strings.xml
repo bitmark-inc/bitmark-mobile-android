@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="create_new_account">Create New Account</string>
   <string name="access_existing_account">Access Existing Account</string>
@@ -7,15 +8,9 @@
     </string>
   <string name="error">Error</string>
   <string name="authentication_required">Authentication required</string>
-  <string name="passcode_pin_required">Device PIN is required</string>
-  <string name="fingerprint_required">Fingerprint is required</string>
-  <string name="touch_face_id">Touch/Face ID</string>
-  <string name="use_touch_face_id">Use Touch/Face ID to sign and encrypt your
-        data.
-    </string>
-  <string name="enable_touch_face_id">Enable touch/face ID</string>
+  <string name="passcode_pin_required">Device PIN setup is required</string>
+  <string name="fingerprint_required">Biometric authentication setup is required</string>
   <string name="skip">Skip</string>
-  <string name="are_you_sure_you_dont_to_protect">Are you sure you don’t want to protect your data with Biometric/PIN?</string>
   <string name="warning">Warning</string>
   <string name="unexpected_error">Unexpected error has occurred. We are sorry for the inconvenience</string>
   <string name="properties">Properties</string>
@@ -31,7 +26,6 @@
   <string name="please_try_again">Please try again!</string>
   <string name="create_your_first_property">Create first property</string>
   <string name="welcome_to_bitmark">Welcome to Bitmark!</string>
-  <string name="register_track_trade">Register, track, and trade property rights for your digital assets.</string>
   <string name="yours">Yours</string>
   <string name="global">Global</string>
   <string name="you">You</string>
@@ -45,7 +39,6 @@
   <string name="download">Download</string>
   <string name="delete">Delete</string>
   <string name="pending">Pending</string>
-  <string name="wait_to_be_confirmed">Wait to be confirmed</string>
   <string name="timestamp">Timestamp</string>
   <string name="owner">Owner</string>
   <string name="copied_to_clipboard">Copied to clipboard!</string>
@@ -59,7 +52,7 @@
   <string name="transfer_bitmark">Transfer Bitmark</string>
   <string name="recipient_bitmark_account_number">RECIPIENT BITMARK ACCOUNT NUMBER</string>
   <string name="enter_the_bitmark_account_number">Enter the Bitmark account number to which you would like to transfer ownership of this property.</string>
-  <string name="could_not_transfer">Could not transfer bitmark. Please try again later</string>
+  <string name="could_not_transfer">Could not transfer bitmark. Please try again later.</string>
   <string name="invalid_bitmark_account_number">Invalid bitmark account number!</string>
   <string name="scan_qr_code">Scan QR Code</string>
   <string name="please_authorize">Please authorize</string>
@@ -101,7 +94,6 @@
   <string name="done">Done</string>
   <string name="recovery_phrase">Recovery Phrase</string>
   <string name="tap_the_word_to_put_them">Tap the words to put them in the correct order for your recovery phrase:</string>
-  <string name="recovery_phrase_test">Recovery Phrase Test</string>
   <string name="retry">Retry</string>
   <string name="error_exclamation">Error!</string>
   <string name="success_exclamation">Success!</string>
@@ -126,7 +118,6 @@
     <item name="date">2018-07-29T15:00:00.000000Z</item>
   </string-array>
   <string name="close">Close</string>
-  <string name="preparing_data">Preparing data…</string>
   <string name="clean_up_data">Cleanup data…</string>
   <string name="register">Register</string>
   <string name="photo">Photo</string>
@@ -155,9 +146,9 @@
   <string name="could_not_register_property">Could not register property rights. Please try again later.</string>
   <string name="your_rights_to_this_property">Your rights to this property have been registered.</string>
   <string-array name="asset_type">
-    <item>@string/photo</item>
-    <item>@string/video</item>
-    <item>@string/file</item>
+    <item>Photo</item>
+    <item>Video</item>
+    <item>File</item>
   </string-array>
   <string name="other">Other</string>
   <string name="loading_three_dot">Loading…</string>
@@ -168,7 +159,6 @@
   <string name="unrecognized_qr_code">Unrecognized QR Code</string>
   <string name="please_scan_the_qr_code_again">Please scan the QR code again or contact the QR code provider if you\'re still experiencing problems. </string>
   <string name="to_complete_process">To complete the process, please return to browser.</string>
-  <string name="authorize_required">Authorized Required</string>
   <string name="authorize">Authorize</string>
   <string name="could_not_send_your_authorization">Could not send your authorization. Please try again later.</string>
   <string name="please_sign_in_or_create_bitmark_account">Please sign in or create your Bitmark account to proceed.</string>
@@ -197,7 +187,6 @@
   <string name="to_protect_your_assets">To protect your assets from loss and allow asset syncing across devices, please authorize the Bitmark app to back up your assets in your Google Drive account. </string>
   <string name="term_of_service">Terms of Service</string>
   <string name="biometric_pin">Biometric/PIN</string>
-  <string name="use_biometric_pin_to">Use Biometric/PIN to sign and encrypt your data.</string>
   <string name="enable_biometric_pin_to_secure">Enable Biometric/PIN to secure access to your app. If you do not enable Biometric/PIN, anyone with access to your device can use the app to control your account and properties.</string>
   <string name="enable_biometric_pin">Enable Biometric/PIN</string>
   <string name="enable_photos_access">Enable Photos Access</string>
@@ -207,7 +196,7 @@
   <string name="to_get_started_allow_access_camera">To get started, allow Bitmark to access your camera.</string>
   <string name="bitmark_account">Bitmark Account</string>
   <string name="no_internet_connection">No Internet Connection</string>
-  <string name="could_not_delete_bitmark">Could not delete bitmark. Please try again later.</string>
+  <string name="could_not_delete_bitmark">Could not delete Bitmark Certificate. Please try again later.</string>
   <string name="discard_registration_question">Discard Registration?</string>
   <string name="if_you_go_back_now">If you go back now, you will lose the registration information you\'ve entered.</string>
   <string name="discard">Discard</string>

@@ -48,7 +48,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/recovery_phrase_test"
+        tools:text="@string/test_recovery_phrase"
         />
   </androidx.constraintlayout.widget.ConstraintLayout>
 

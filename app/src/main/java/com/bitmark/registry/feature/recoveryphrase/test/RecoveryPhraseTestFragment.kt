@@ -77,7 +77,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         if (removeAccess) {
             toolbarTitle.setText(R.string.recovery_phrase_sign_out)
         } else {
-            toolbarTitle.setText(R.string.recovery_phrase_test)
+            toolbarTitle.setText(R.string.test_recovery_phrase)
         }
 
         val adapter = RecoveryPhraseAdapter(editable = false)
