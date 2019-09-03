@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.widget.TextView
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
@@ -17,6 +16,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
@@ -250,11 +250,16 @@ class TransferActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            unknownErrorAction = {
+            invalidErrorAction = {
                 dialogController.alert(
-                    R.string.error,
-                    R.string.unexpected_error
-                )
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
             })
     }
 

@@ -22,6 +22,7 @@ import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.transfer.TransferActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
@@ -532,11 +533,16 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            unknownErrorAction = {
+            invalidErrorAction = {
                 dialogController.alert(
-                    R.string.error,
-                    R.string.unexpected_error
-                )
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
             })
     }
 

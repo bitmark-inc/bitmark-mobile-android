@@ -155,7 +155,7 @@ fun Activity.loadAccount(
     successAction: (Account) -> Unit,
     canceledAction: () -> Unit = {},
     setupRequiredAction: () -> Unit = {},
-    unknownErrorAction: (Throwable?) -> Unit = {}
+    invalidErrorAction: (Throwable?) -> Unit = {}
 ) {
     Account.loadFromKeyStore(
         this,
@@ -205,7 +205,7 @@ fun Activity.loadAccount(
                         }
                     }
                     else -> {
-                        unknownErrorAction.invoke(throwable)
+                        invalidErrorAction.invoke(throwable)
                     }
                 }
             }
@@ -220,7 +220,7 @@ fun Activity.removeAccount(
     successAction: () -> Unit,
     canceledAction: () -> Unit = {},
     setupRequiredAction: () -> Unit = {},
-    unknownErrorAction: (Throwable?) -> Unit = {}
+    invalidErrorAction: (Throwable?) -> Unit = {}
 ) {
     Account.removeFromKeyStore(this, accountNumber, spec, object : Callback0 {
         override fun onSuccess() {
@@ -266,7 +266,7 @@ fun Activity.removeAccount(
                     }
                 }
                 else -> {
-                    unknownErrorAction.invoke(throwable)
+                    invalidErrorAction.invoke(throwable)
                 }
             }
         }

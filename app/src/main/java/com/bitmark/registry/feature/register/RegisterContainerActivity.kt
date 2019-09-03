@@ -6,6 +6,7 @@ import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseSigninFragment
 import javax.inject.Inject
 
 
@@ -20,9 +21,15 @@ class RegisterContainerActivity : BaseAppCompatActivity() {
     companion object {
         private const val URI = "uri"
 
-        fun getBundle(uri: Uri): Bundle {
+        private const val RECOVER_ACCOUNT = "recover_account"
+
+        fun getBundle(
+            uri: Uri? = null,
+            recoverAccount: Boolean = false
+        ): Bundle {
             val bundle = Bundle()
-            bundle.putString(URI, uri.toString())
+            if (uri != null) bundle.putString(URI, uri.toString())
+            bundle.putBoolean(RECOVER_ACCOUNT, recoverAccount)
             return bundle
         }
     }
@@ -36,10 +43,15 @@ class RegisterContainerActivity : BaseAppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        navigator.replaceFragment(
-            R.id.layoutContainer,
-            RegisterFragment.newInstance(intent?.extras?.getString(URI)),
-            false
-        )
+        val recoverAccount =
+            intent?.extras?.getBoolean(RECOVER_ACCOUNT) ?: false
+        val uri = intent?.extras?.getString(URI)
+        val fragment =
+            if (recoverAccount) {
+                RecoveryPhraseSigninFragment.newInstance(uri, true)
+            } else {
+                RegisterFragment.newInstance(uri)
+            }
+        navigator.replaceFragment(R.id.layoutContainer, fragment, false)
     }
 }

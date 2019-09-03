@@ -23,6 +23,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
@@ -419,11 +420,16 @@ class IssuanceActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = { account -> action.invoke(account.keyPair) },
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            unknownErrorAction = {
+            invalidErrorAction = {
                 dialogController.alert(
-                    R.string.error,
-                    R.string.unexpected_error
-                )
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
             })
     }
 

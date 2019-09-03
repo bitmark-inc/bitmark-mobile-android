@@ -19,6 +19,7 @@ import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
+import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -43,16 +44,21 @@ class AuthenticationFragment : BaseSupportFragment() {
 
     companion object {
         private const val RECOVERY_PHRASE = "recovery_phrase"
+
         private const val URI = "uri"
+
+        private const val RECOVER_ACCOUNT = "recover_account"
 
         fun newInstance(
             phrase: Array<String?>? = null,
-            uri: String? = null
+            uri: String? = null,
+            recoverAccount: Boolean = false
         ): AuthenticationFragment {
             val fragment = AuthenticationFragment()
             val bundle = Bundle()
             if (null != phrase) bundle.putStringArray(RECOVERY_PHRASE, phrase)
             if (null != uri) bundle.putString(URI, uri)
+            bundle.putBoolean(RECOVER_ACCOUNT, recoverAccount)
             fragment.arguments = bundle
             return fragment
         }
@@ -79,6 +85,7 @@ class AuthenticationFragment : BaseSupportFragment() {
         super.initComponents()
 
         val phrase = arguments?.getStringArray(RECOVERY_PHRASE)
+        val recoverAccount = arguments?.getBoolean(RECOVER_ACCOUNT) ?: false
 
         if (isBiometricSupported(context!!)) {
             ivFingerprint.visible()
@@ -98,12 +105,21 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         btnEnableAuth.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            createAccount(phrase, true)
+            if (recoverAccount && phrase != null) {
+                recoverAccount(phrase, true)
+            } else {
+                createAccount(phrase, true)
+            }
+
         }
 
         btnSkip.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
-            createAccount(phrase, false)
+            if (recoverAccount && phrase != null) {
+                recoverAccount(phrase, false)
+            } else {
+                createAccount(phrase, false)
+            }
         }
     }
 
@@ -118,7 +134,6 @@ class AuthenticationFragment : BaseSupportFragment() {
         viewModel.registerAccountLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    blocked = false
                     handler.postDelayed({
                         val intent = Intent(
                             context,
@@ -130,14 +145,15 @@ class AuthenticationFragment : BaseSupportFragment() {
                         if (uri != null) intent.data = Uri.parse(uri)
                         navigator.anim(RIGHT_LEFT).startActivityAsRoot(intent)
                     }, 250)
+                    blocked = false
                 }
                 res.isError() -> {
-                    blocked = false
                     progressBar.gone()
                     dialogController.alert(
-                        getString(R.string.error),
-                        res.throwable()?.message!!
+                        R.string.error,
+                        R.string.could_not_register_account
                     )
+                    blocked = false
                 }
                 res.isLoading() -> {
                     blocked = true
@@ -152,6 +168,43 @@ class AuthenticationFragment : BaseSupportFragment() {
                 progressBar.gone()
             }
         })
+
+        viewModel.updateAccountLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val intent = Intent(context, MainActivity::class.java)
+                    val uri = arguments?.getString(URI)
+                    if (uri != null) intent.data = Uri.parse(uri)
+                    navigator.anim(RIGHT_LEFT).startActivityAsRoot(intent)
+                    blocked = false
+                }
+
+                res.isError() -> {
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.could_not_recover_account
+                    )
+                    blocked = false
+                }
+
+                res.isLoading() -> {
+                    blocked = true
+                }
+            }
+        })
+    }
+
+    private fun recoverAccount(phrase: Array<String?>, authRequired: Boolean) {
+        val account = Account.fromRecoveryPhrase(*phrase)
+
+        saveAccount(account, authRequired) { keyAlias ->
+            viewModel.updateAccount(
+                account.keyPair,
+                account.accountNumber,
+                authRequired,
+                keyAlias
+            )
+        }
     }
 
     private fun createAccount(
@@ -163,6 +216,56 @@ class AuthenticationFragment : BaseSupportFragment() {
         } else {
             Account.fromRecoveryPhrase(*phrase)
         }
+
+        saveAccount(account, authRequired) { keyAlias ->
+            val requester = account.accountNumber
+            val signingKeyPair = account.keyPair
+            val signingPrivateKey = signingKeyPair.privateKey().toBytes()
+
+            // ignore register encryption key in case of recover account
+            var encPubKeyHex: String? = null
+            var encPubKeySig: String? = null
+            if (null == phrase) {
+                val encPubKey =
+                    account.encryptionKey.publicKey().toBytes()
+                encPubKeyHex = HEX.encode(encPubKey)
+                encPubKeySig = HEX.encode(
+                    Ed25519.sign(
+                        encPubKey,
+                        signingPrivateKey
+                    )
+                )
+            }
+
+            val timestamp = System.currentTimeMillis().toString()
+            val mobileServerSig = HEX.encode(
+                Ed25519.sign(
+                    RAW.decode(timestamp),
+                    signingPrivateKey
+                )
+            )
+
+            getFirebaseToken { token ->
+                viewModel.registerAccount(
+                    timestamp,
+                    mobileServerSig,
+                    encPubKeySig,
+                    encPubKeyHex,
+                    requester,
+                    authRequired,
+                    keyAlias,
+                    token,
+                    signingKeyPair
+                )
+            }
+        }
+    }
+
+    private fun saveAccount(
+        account: Account,
+        authRequired: Boolean,
+        successAction: (String) -> Unit
+    ) {
         val keyAlias =
             "%s.%d.encryption_key".format(
                 account.accountNumber,
@@ -173,49 +276,10 @@ class AuthenticationFragment : BaseSupportFragment() {
             .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
             .setUsePossibleAlternativeAuthentication(true)
             .setAuthenticationRequired(authRequired).build()
+
         account.saveToKeyStore(activity, spec, object : Callback0 {
             override fun onSuccess() {
-
-                val requester = account.accountNumber
-                val signingKeyPair = account.keyPair
-                val signingPrivateKey = signingKeyPair.privateKey().toBytes()
-
-                // ignore register encryption key in case of recover account
-                var encPubKeyHex: String? = null
-                var encPubKeySig: String? = null
-                if (null == phrase) {
-                    val encPubKey =
-                        account.encryptionKey.publicKey().toBytes()
-                    encPubKeyHex = HEX.encode(encPubKey)
-                    encPubKeySig = HEX.encode(
-                        Ed25519.sign(
-                            encPubKey,
-                            signingPrivateKey
-                        )
-                    )
-                }
-
-                val timestamp = System.currentTimeMillis().toString()
-                val mobileServerSig = HEX.encode(
-                    Ed25519.sign(
-                        RAW.decode(timestamp),
-                        signingPrivateKey
-                    )
-                )
-
-                getFirebaseToken { token ->
-                    viewModel.registerAccount(
-                        timestamp,
-                        mobileServerSig,
-                        encPubKeySig,
-                        encPubKeyHex,
-                        requester,
-                        authRequired,
-                        keyAlias,
-                        token,
-                        signingKeyPair
-                    )
-                }
+                successAction(keyAlias)
             }
 
             override fun onError(throwable: Throwable?) {

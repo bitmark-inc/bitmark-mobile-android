@@ -17,6 +17,7 @@ import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.transfer.TransferActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetClaimingModelView
@@ -364,7 +365,18 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
             spec,
             dialogController,
             successAction = action,
-            setupRequiredAction = { navigator.gotoSecuritySetting() })
+            setupRequiredAction = { navigator.gotoSecuritySetting() },
+            invalidErrorAction = {
+                dialogController.alert(
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
+            })
     }
 
     private fun shareFile(assetName: String, file: File) {

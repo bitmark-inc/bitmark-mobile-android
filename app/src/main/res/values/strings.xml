@@ -208,6 +208,11 @@
   <string name="pin_password_pattern">PIN/Password/Pattern</string>
   <string name="enable_pin_password_pattern_to_secure">Enable PIN/Password/Pattern to secure access to your app. If you do not enable PIN/Password/Pattern, anyone with access to your device can use the app to control your account and properties.</string>
   <string name="enable_pin_password_pattern">Enable PIN/Password/Pattern</string>
+  <string name="account_is_not_accessible">Account is not accessible</string>
+  <string name="sorry_you_have_changed_or_removed">Sorry, you have changed or removed your fingerprint. For security reason, you have been logged out of the Bitmark app.</string>
+  <string name="could_not_register_account">Could not register account. Please try again later.</string>
+  <string name="could_not_recover_account">Could not recover account. Please try again later.</string>
+
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

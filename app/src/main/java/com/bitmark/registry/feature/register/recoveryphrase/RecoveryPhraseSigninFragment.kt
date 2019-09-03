@@ -30,9 +30,15 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
     companion object {
         private const val URI = "uri"
 
-        fun newInstance(uri: String? = null): RecoveryPhraseSigninFragment {
+        private const val RECOVER_ACCOUNT = "recover_account"
+
+        fun newInstance(
+            uri: String? = null,
+            recoverAccount: Boolean = false
+        ): RecoveryPhraseSigninFragment {
             val bundle = Bundle()
             if (uri != null) bundle.putString(URI, uri)
+            bundle.putBoolean(RECOVER_ACCOUNT, recoverAccount)
             val fragment = RecoveryPhraseSigninFragment()
             fragment.arguments = bundle
             return fragment
@@ -75,6 +81,12 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         (rvSuggestion.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
             false
         rvSuggestion.adapter = suggestionAdapter
+
+        if (arguments?.getBoolean(RECOVER_ACCOUNT) == true) {
+            ivBack.gone()
+        } else {
+            ivBack.visible()
+        }
 
         activity?.detectKeyBoardState { showing ->
             if (view == null) return@detectKeyBoardState
@@ -187,13 +199,11 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
 
         if (isValid) {
             setErrorVisibility(false)
+            val recoverAccount = arguments?.getBoolean(RECOVER_ACCOUNT) ?: false
+            val uri = arguments?.getString(URI)
             navigator.anim(Navigator.RIGHT_LEFT).replaceFragment(
                 R.id.layoutContainer,
-                AuthenticationFragment.newInstance(
-                    phrase, arguments?.getString(
-                        URI
-                    )
-                )
+                AuthenticationFragment.newInstance(phrase, uri, recoverAccount)
             )
         } else {
             setErrorVisibility(true)

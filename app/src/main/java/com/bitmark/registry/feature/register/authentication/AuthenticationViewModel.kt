@@ -37,6 +37,8 @@ class AuthenticationViewModel(
 
     private val registerAccountLiveData = CompositeLiveData<Any>()
 
+    private val updateAccountLiveData = CompositeLiveData<Any>()
+
     internal val progressLiveData = MutableLiveData<Int>()
 
     internal fun registerAccount(
@@ -66,6 +68,27 @@ class AuthenticationViewModel(
             )
         )
     }
+
+    internal fun updateAccount(
+        keyPair: KeyPair,
+        requester: String,
+        authRequired: Boolean,
+        keyAlias: String
+    ) {
+        updateAccountLiveData.add(
+            rxLiveDataTransformer.completable(
+                accountRepo.saveAccountInfo(
+                    requester,
+                    authRequired,
+                    keyAlias
+                ).doOnComplete {
+                    wsEventBus.connect(keyPair)
+                }
+            )
+        )
+    }
+
+    internal fun updateAccountLiveData() = updateAccountLiveData.asLiveData()
 
     internal fun registerAccountLiveData() =
         registerAccountLiveData.asLiveData()

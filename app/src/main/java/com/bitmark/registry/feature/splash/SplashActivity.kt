@@ -215,14 +215,17 @@ class SplashActivity : BaseAppCompatActivity() {
                 dialogController.show(authorizationDialog)
             },
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            unknownErrorAction = { e -> exitWithAlert(e?.message!!) })
-    }
-
-    private fun exitWithAlert(message: String) {
-        dialogController.alert(
-            getString(R.string.error),
-            message
-        ) { navigator.finishActivity() }
+            invalidErrorAction = {
+                dialogController.alert(
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
+            })
     }
 
     private fun getFirebaseToken(action: (String?) -> Unit) {

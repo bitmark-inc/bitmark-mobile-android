@@ -11,6 +11,7 @@ import com.bitmark.registry.R
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
@@ -139,6 +140,16 @@ class BmServerAuthentication(
                 authorizationRequiredDialog =
                     AuthorizationRequiredDialog(activity) { checkJwtExpiry() }
                 authorizationRequiredDialog?.show()
+            }, invalidErrorAction = {
+                DialogController(activity).alert(
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    Navigator(activity).startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
             })
     }
 }

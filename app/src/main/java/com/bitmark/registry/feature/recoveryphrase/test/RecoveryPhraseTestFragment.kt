@@ -231,12 +231,18 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                             }
                         },
                         setupRequiredAction = { navigator.gotoSecuritySetting() },
-                        unknownErrorAction = {
+                        invalidErrorAction = {
                             dialogController.alert(
-                                R.string.error,
-                                R.string.unexpected_error,
-                                R.string.ok
-                            ) { navigator.popChildFragmentToRoot() }
+                                R.string.account_is_not_accessible,
+                                R.string.sorry_you_have_changed_or_removed
+                            ) {
+                                navigator.startActivityAsRoot(
+                                    RegisterContainerActivity::class.java,
+                                    RegisterContainerActivity.getBundle(
+                                        recoverAccount = true
+                                    )
+                                )
+                            }
                         })
                 }
 

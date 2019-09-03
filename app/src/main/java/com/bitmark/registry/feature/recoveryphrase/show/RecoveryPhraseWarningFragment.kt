@@ -8,6 +8,7 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -133,7 +134,18 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
             spec,
             dialogController,
             successAction = action,
-            setupRequiredAction = { navigator.gotoSecuritySetting() }
+            setupRequiredAction = { navigator.gotoSecuritySetting() },
+            invalidErrorAction = {
+                dialogController.alert(
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(recoverAccount = true)
+                    )
+                }
+            }
         )
     }
 
