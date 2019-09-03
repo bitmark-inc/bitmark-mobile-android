@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,30 +10,36 @@
     >
 
   <androidx.appcompat.widget.AppCompatTextView
-      android:id="@+id/tvAppName"
-      android:layout_width="wrap_content"
+      android:id="@+id/tvAuthType"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/dp_48"
       android:layout_marginStart="@dimen/dp_48"
       android:layout_marginTop="@dimen/dp_48"
       android:fontFamily="@font/avenir_bold"
-      android:text="@string/biometric_pin"
       android:textAllCaps="true"
       android:textColor="@color/colorAccent"
       android:textSize="@dimen/sp_17"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="@string/biometric_pin"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
-      android:layout_width="wrap_content"
-      android:layout_height="0dp"
+      android:id="@+id/tvDes"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
       android:layout_above="@id/layoutIcon"
-      android:layout_below="@id/tvAppName"
-      android:layout_marginEnd="@dimen/dp_48"
-      android:layout_marginStart="@dimen/dp_48"
+      android:layout_below="@id/tvAuthType"
       android:layout_marginTop="@dimen/dp_28"
       android:fontFamily="@font/avenir_light"
-      android:text="@string/enable_biometric_pin_to_secure"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_17"
+      app:layout_constraintEnd_toEndOf="@id/tvAuthType"
+      app:layout_constraintStart_toStartOf="@id/tvAuthType"
+      app:layout_constraintTop_toBottomOf="@id/tvAuthType"
+      tools:text="@string/enable_biometric_pin_to_secure"
       />
 
   <LinearLayout
@@ -41,23 +47,41 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
+      android:layout_marginTop="@dimen/dp_48"
       android:orientation="horizontal"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvDes"
       >
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivTouchId"
+        android:id="@+id/ivFingerprint"
         android:layout_width="@dimen/dp_90"
         android:layout_height="@dimen/dp_90"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_fingerprint_1"
+        tools:visibility="visible"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivFaceId"
+        android:id="@+id/ivFace"
         android:layout_width="@dimen/dp_90"
         android:layout_height="@dimen/dp_90"
         android:layout_marginStart="@dimen/dp_24"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_biometric"
+        tools:visibility="visible"
         />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivLock"
+        android:layout_width="@dimen/dp_90"
+        android:layout_height="@dimen/dp_90"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_lock"
+        tools:visibility="gone"
+        />
+
   </LinearLayout>
 
 
@@ -68,9 +92,10 @@
       android:layout_above="@id/btnSkip"
       android:background="@drawable/bg_blue_ribbon_stateful"
       android:fontFamily="@font/avenir_bold"
-      android:text="@string/enable_biometric_pin"
       android:textColor="@android:color/white"
       android:textSize="@dimen/sp_16"
+      app:layout_constraintBottom_toTopOf="@id/btnSkip"
+      tools:text="@string/enable_biometric_pin"
       tools:visibility="visible"
       style="?android:attr/borderlessButtonStyle"
       />
@@ -98,9 +123,10 @@
       android:layout_marginBottom="@dimen/dp_1"
       android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="gone"
+      app:layout_constraintBottom_toTopOf="@id/btnEnableAuth"
       tools:progress="33"
       tools:visibility="visible"
       style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
       />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,12 @@
 package com.bitmark.registry.feature.register.authentication
 
+import android.content.Context
 import android.content.Intent
+import android.hardware.fingerprint.FingerprintManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.lifecycle.Observer
 import com.bitmark.apiservice.utils.callback.Callback0
 import com.bitmark.cryptography.crypto.Ed25519
@@ -76,6 +79,22 @@ class AuthenticationFragment : BaseSupportFragment() {
         super.initComponents()
 
         val phrase = arguments?.getStringArray(RECOVERY_PHRASE)
+
+        if (isBiometricSupported(context!!)) {
+            ivFingerprint.visible()
+            ivFace.visible()
+            ivLock.gone()
+            tvAuthType.setText(R.string.biometric_pin)
+            tvDes.setText(R.string.enable_biometric_pin_to_secure)
+            btnEnableAuth.setText(R.string.enable_biometric_pin)
+        } else {
+            ivFingerprint.gone()
+            ivFace.gone()
+            ivLock.visible()
+            tvAuthType.setText(R.string.pin_password_pattern)
+            tvDes.setText(R.string.enable_pin_password_pattern_to_secure)
+            btnEnableAuth.setText(R.string.enable_pin_password_pattern)
+        }
 
         btnEnableAuth.setSafetyOnclickListener {
             if (blocked) return@setSafetyOnclickListener
@@ -250,5 +269,10 @@ class AuthenticationFragment : BaseSupportFragment() {
             else action.invoke(task.result?.token)
         }
     }
+
+    private fun isBiometricSupported(context: Context) =
+        FingerprintManagerCompat.from(context).isHardwareDetected || (context.getSystemService(
+            Context.FINGERPRINT_SERVICE
+        ) as? FingerprintManager)?.isHardwareDetected ?: false
 
 }
