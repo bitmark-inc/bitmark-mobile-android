@@ -86,17 +86,20 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         rvRecoveryPhrase.layoutManager = layoutManager
         rvRecoveryPhrase.isNestedScrollingEnabled = false
         rvRecoveryPhrase.adapter = adapter
-        val hiddenPhrases =
-            getRandomHiddenPhrase(HIDDEN_ITEM_QUANTITY, recoveryPhrase)
-        tvWord1.text = hiddenPhrases[0]
-        tvWord2.text = hiddenPhrases[1]
-        tvWord3.text = hiddenPhrases[2]
-        tvWord4.text = hiddenPhrases[3]
+        val hiddenSequences =
+            (1..recoveryPhrase.size).shuffled().take(HIDDEN_ITEM_QUANTITY)
+                .toIntArray()
 
         adapter.set(
             recoveryPhrase,
-            hiddenPhrases
+            hiddenSequences
         )
+
+        val hiddenWords = adapter.getHiddenWords().toMutableList().shuffled()
+        tvWord1.text = hiddenWords[0]
+        tvWord2.text = hiddenWords[1]
+        tvWord3.text = hiddenWords[2]
+        tvWord4.text = hiddenWords[3]
 
         btnAction.setSafetyOnclickListener {
             when (btnAction.text.toString()) {
@@ -113,7 +116,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
 
                     adapter.set(
                         recoveryPhrase,
-                        hiddenPhrases
+                        hiddenSequences
                     )
 
                 }
@@ -185,18 +188,6 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 showError(adapter)
             }
         }
-    }
-
-    private fun getRandomHiddenPhrase(
-        size: Int,
-        phrase: Array<String>
-    ): Array<String> {
-        val randomIndexes = (0 until phrase.size).shuffled().take(size)
-        val hiddenPhrases = Array(size) { "" }
-        for (i in 0 until size) {
-            hiddenPhrases[i] = phrase[randomIndexes[i]]
-        }
-        return hiddenPhrases
     }
 
     override fun observe() {

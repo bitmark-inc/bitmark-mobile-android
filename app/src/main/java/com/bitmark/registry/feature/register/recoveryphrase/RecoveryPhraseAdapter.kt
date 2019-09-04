@@ -94,7 +94,7 @@ class RecoveryPhraseAdapter(
         set(words, null)
     }
 
-    fun set(words: Array<String>, hiddenValues: Array<String>? = null) {
+    fun set(words: Array<String>, hiddenSequences: IntArray? = null) {
         if (words.size % 2 != 0) throw RuntimeException("must be even number")
         items.clear()
         val loop = words.size / 2
@@ -108,7 +108,7 @@ class RecoveryPhraseAdapter(
                 Item(
                     sequence1,
                     word1,
-                    hiddenValues?.contains(word1) ?: false,
+                    hiddenSequences?.contains(sequence1) ?: false,
                     textColor = textColor
                 )
             )
@@ -116,13 +116,15 @@ class RecoveryPhraseAdapter(
                 Item(
                     sequence2,
                     word2,
-                    hiddenValues?.contains(word2) ?: false,
+                    hiddenSequences?.contains(sequence2) ?: false,
                     textColor = textColor
                 )
             )
         }
         notifyDataSetChanged()
     }
+
+    fun getHiddenWords() = items.filter { i -> i.hidden }.map { i -> i.word }
 
     fun set(word: String) {
         val focusedIndex = items.indexOfFirst { i -> i.focused }
@@ -149,11 +151,10 @@ class RecoveryPhraseAdapter(
 
     fun compare(words: Array<String>): Boolean {
         if (words.size != items.size) return false
-        for (index in 0 until words.size) {
-            val item = items.find { i -> i.word == words[index] }
-            if (item == null || item.sequence != index + 1) return false
-        }
-        return true
+        val sortedWords =
+            this.items.sortedBy { i -> i.sequence }.map { i -> i.word }
+                .toTypedArray()
+        return words contentDeepEquals sortedWords
     }
 
     fun setColors(@ColorRes color: Int) {
