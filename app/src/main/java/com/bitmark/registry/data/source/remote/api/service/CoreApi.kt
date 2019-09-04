@@ -15,7 +15,7 @@ import retrofit2.http.Path
  */
 interface CoreApi {
 
-    @POST("v1/encryption_keys/{accountNumber}")
+    @POST("v2/encryption_keys/{accountNumber}")
     fun registerEncryptionKey(
         @Path("accountNumber") accountNumber: String, @Body
         request: RegisterEncKeyRequest
