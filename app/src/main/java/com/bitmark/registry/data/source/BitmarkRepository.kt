@@ -548,6 +548,9 @@ class BitmarkRepository(
     ) =
         remoteDataSource.deleteAssetFile(assetId, sender, receiver)
 
+    fun deleteStoredAssetFiles(accountNumber: String) =
+        localDataSource.deleteAssetFiles(accountNumber)
+
     fun checkExistingRemoteAssetFile(
         assetId: String,
         sender: String

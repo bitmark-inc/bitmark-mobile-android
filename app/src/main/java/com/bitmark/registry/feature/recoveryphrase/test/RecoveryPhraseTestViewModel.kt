@@ -4,6 +4,7 @@ import androidx.lifecycle.Lifecycle
 import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
+import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -23,6 +24,7 @@ class RecoveryPhraseTestViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,
     private val appRepo: AppRepository,
+    private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
     private val wsEventBus: WebSocketEventBus
 ) : BaseViewModel(lifecycle) {
@@ -72,6 +74,11 @@ class RecoveryPhraseTestViewModel(
                 appRepo.deleteQrCodeFile(),
                 appRepo.deleteDatabase(),
                 appRepo.deleteCache(),
+                accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
+                    bitmarkRepo.deleteStoredAssetFiles(
+                        accountNumber
+                    )
+                },
                 disconnectWsStream
             )
         ).andThen(appRepo.deleteSharePref())

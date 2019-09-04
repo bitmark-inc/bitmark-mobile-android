@@ -2,6 +2,7 @@ package com.bitmark.registry.feature.recoveryphrase.test
 
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
+import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.di.FragmentScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
@@ -33,12 +34,14 @@ class RecoveryPhraseTestModule {
         fragment: RecoveryPhraseTestFragment,
         accountRepo: AccountRepository,
         appRepo: AppRepository,
+        bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
         wsEventBus: WebSocketEventBus
     ) = RecoveryPhraseTestViewModel(
         fragment.lifecycle,
         accountRepo,
         appRepo,
+        bitmarkRepo,
         rxLiveDataTransformer,
         wsEventBus
     )

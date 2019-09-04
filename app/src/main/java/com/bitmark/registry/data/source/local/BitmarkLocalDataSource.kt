@@ -3,11 +3,11 @@ package com.bitmark.registry.data.source.local
 import com.bitmark.registry.data.model.*
 import com.bitmark.registry.data.model.TransactionData.Status.CONFIRMED
 import com.bitmark.registry.data.model.TransactionData.Status.PENDING
+import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
 import com.bitmark.registry.data.source.local.event.*
-import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -372,7 +372,16 @@ class BitmarkLocalDataSource @Inject constructor(
                 assetId
             )
             fileGateway.delete(path)
-        }.onErrorResumeNext { Completable.complete() }
+        }
+
+    fun deleteAssetFiles(accountNumber: String) =
+        fileStorageApi.rxCompletable { fileGateway ->
+            val path = "%s/%s/assets".format(
+                fileStorageApi.filesDir(),
+                accountNumber
+            )
+            fileGateway.delete(path)
+        }
 
     fun saveEncryptedAssetFile(
         accountNumber: String,
@@ -396,7 +405,7 @@ class BitmarkLocalDataSource @Inject constructor(
                 assetId
             )
             fileGateway.delete(path)
-        }.onErrorResumeNext { Completable.complete() }
+        }
 
     //endregion Asset
 

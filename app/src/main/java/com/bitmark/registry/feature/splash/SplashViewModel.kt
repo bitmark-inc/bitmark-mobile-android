@@ -88,7 +88,12 @@ class SplashViewModel(
                 val deleteDataStream = Completable.mergeArrayDelayError(
                     appRepo.deleteQrCodeFile(),
                     appRepo.deleteDatabase(),
-                    appRepo.deleteCache()
+                    appRepo.deleteCache(),
+                    accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
+                        bitmarkRepo.deleteStoredAssetFiles(
+                            accountNumber
+                        )
+                    }
                 ).andThen(appRepo.deleteSharePref())
 
                 var progress = 0
