@@ -128,7 +128,6 @@ class BmServerAuthentication(
         val spec =
             KeyAuthenticationSpec.Builder(context)
                 .setAuthenticationDescription(context.getString(R.string.your_authorization_is_required))
-                .setUsePossibleAlternativeAuthentication(true)
                 .setKeyAlias(keyAlias).build()
         activity.loadAccount(accountNumber,
             spec,

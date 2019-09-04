@@ -271,57 +271,64 @@ class AuthenticationFragment : BaseSupportFragment() {
                 account.accountNumber,
                 System.currentTimeMillis()
             )
-        val spec = KeyAuthenticationSpec.Builder(context)
+        val accountAuthBuilder = KeyAuthenticationSpec.Builder(context)
             .setKeyAlias(keyAlias)
             .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
-            .setUsePossibleAlternativeAuthentication(true)
-            .setAuthenticationRequired(authRequired).build()
+            .setAuthenticationRequired(authRequired)
 
-        account.saveToKeyStore(activity, spec, object : Callback0 {
-            override fun onSuccess() {
-                successAction(keyAlias)
-            }
+        if (!isBiometricSupported(context!!)) {
+            // use PIN/Password/Pattern as alternative authentication if the device does not support biometric
+            accountAuthBuilder.setUseAlternativeAuthentication(true)
+        }
 
-            override fun onError(throwable: Throwable?) {
-                when (throwable) {
+        account.saveToKeyStore(
+            activity,
+            accountAuthBuilder.build(),
+            object : Callback0 {
+                override fun onSuccess() {
+                    successAction(keyAlias)
+                }
 
-                    // authentication error
-                    is AuthenticationException -> {
-                        // Do nothing
-                    }
+                override fun onError(throwable: Throwable?) {
+                    when (throwable) {
 
-                    // missing security requirement
-                    is AuthenticationRequiredException -> {
-                        when (throwable.provider) {
+                        // authentication error
+                        is AuthenticationException -> {
+                            // Do nothing
+                        }
 
-                            // did not set up fingerprint/biometric
-                            Provider.FINGERPRINT, Provider.BIOMETRIC -> {
-                                dialogController.alert(
-                                    R.string.error,
-                                    R.string.fingerprint_required
-                                ) { navigator.gotoSecuritySetting() }
-                            }
+                        // missing security requirement
+                        is AuthenticationRequiredException -> {
+                            when (throwable.provider) {
 
-                            // did not set up pass code
-                            else -> {
-                                dialogController.alert(
-                                    R.string.error,
-                                    R.string.passcode_pin_required
-                                ) { navigator.gotoSecuritySetting() }
+                                // did not set up fingerprint/biometric
+                                Provider.FINGERPRINT, Provider.BIOMETRIC -> {
+                                    dialogController.alert(
+                                        R.string.error,
+                                        R.string.fingerprint_required
+                                    ) { navigator.gotoSecuritySetting() }
+                                }
+
+                                // did not set up pass code
+                                else -> {
+                                    dialogController.alert(
+                                        R.string.error,
+                                        R.string.passcode_pin_required
+                                    ) { navigator.gotoSecuritySetting() }
+                                }
                             }
                         }
-                    }
-                    else -> {
-                        dialogController.alert(
-                            getString(R.string.error),
-                            throwable?.message
-                                ?: getString(R.string.unexpected_error)
-                        )
+                        else -> {
+                            dialogController.alert(
+                                getString(R.string.error),
+                                throwable?.message
+                                    ?: getString(R.string.unexpected_error)
+                            )
+                        }
                     }
                 }
-            }
 
-        })
+            })
     }
 
     override fun onBackPressed() = navigator.popFragment() ?: false

@@ -411,7 +411,6 @@ class IssuanceActivity : BaseAppCompatActivity() {
     ) {
         val spec = KeyAuthenticationSpec.Builder(this)
             .setKeyAlias(keyAlias)
-            .setUsePossibleAlternativeAuthentication(true)
             .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
             .build()
         loadAccount(

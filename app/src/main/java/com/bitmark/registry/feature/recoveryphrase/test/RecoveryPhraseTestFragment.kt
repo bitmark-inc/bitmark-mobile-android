@@ -219,7 +219,6 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                     val keyAlias = info.second
                     val spec = KeyAuthenticationSpec.Builder(context)
                         .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
-                        .setUsePossibleAlternativeAuthentication(true)
                         .setKeyAlias(keyAlias).build()
                     activity?.removeAccount(
                         accountNumber,
