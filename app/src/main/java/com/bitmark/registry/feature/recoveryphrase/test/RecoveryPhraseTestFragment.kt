@@ -3,6 +3,7 @@ package com.bitmark.registry.feature.recoveryphrase.test
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -96,10 +97,18 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         )
 
         val hiddenWords = adapter.getHiddenWords().toMutableList().shuffled()
-        tvWord1.text = hiddenWords[0]
-        tvWord2.text = hiddenWords[1]
-        tvWord3.text = hiddenWords[2]
-        tvWord4.text = hiddenWords[3]
+        val tvs = listOf<TextView>(tvWord1, tvWord2, tvWord3, tvWord4)
+        tvs.forEachIndexed { i, tv ->
+            tv.text = hiddenWords[i]
+            tv.setOnClickListener { v ->
+                handleRecoveryItemClicked(
+                    v,
+                    recoveryPhrase,
+                    adapter,
+                    removeAccess
+                )
+            }
+        }
 
         btnAction.setSafetyOnclickListener {
             when (btnAction.text.toString()) {
@@ -132,40 +141,10 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             }
         }
 
-        tvWord1.setOnClickListener {
-            handleRecoveryItemClicked(
-                it,
-                recoveryPhrase,
-                adapter,
-                removeAccess
-            )
-        }
-
-        tvWord2.setOnClickListener {
-            handleRecoveryItemClicked(
-                it,
-                recoveryPhrase,
-                adapter,
-                removeAccess
-            )
-        }
-
-        tvWord3.setOnClickListener {
-            handleRecoveryItemClicked(
-                it,
-                recoveryPhrase,
-                adapter,
-                removeAccess
-            )
-        }
-
-        tvWord4.setOnClickListener {
-            handleRecoveryItemClicked(
-                it,
-                recoveryPhrase,
-                adapter,
-                removeAccess
-            )
+        adapter.setOnItemClickListener { item ->
+            if (!hiddenSequences.contains(item.sequence)) return@setOnItemClickListener
+            adapter.hide(item.sequence)
+            tvs.firstOrNull { tv -> tv.text == item.word }?.visible()
         }
 
         ivBack.setOnClickListener { navigator.popChildFragmentToRoot() }

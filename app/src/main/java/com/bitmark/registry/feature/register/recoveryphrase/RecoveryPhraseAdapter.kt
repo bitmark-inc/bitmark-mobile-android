@@ -31,12 +31,22 @@ class RecoveryPhraseAdapter(
 
     private var onDoneListener: (() -> Unit)? = null
 
+    private var onItemClickListener: ((Item) -> Unit)? = null
+
+    private val itemClickListener: (Int) -> Unit = { pos ->
+        onItemClickListener?.invoke(items[pos])
+    }
+
     fun setOnTextChangeListener(listener: OnTextChangeListener?) {
         this.onTextChangeListener = listener
     }
 
     fun setOnDoneListener(listener: () -> Unit) {
         this.onDoneListener = listener
+    }
+
+    fun setOnItemClickListener(listener: (Item) -> Unit) {
+        this.onItemClickListener = listener
     }
 
     internal fun requestNextFocus(): Boolean {
@@ -147,6 +157,13 @@ class RecoveryPhraseAdapter(
         }
     }
 
+    fun hide(sequence: Int) {
+        val item = items.firstOrNull { i -> i.sequence == sequence } ?: return
+        if (item.hidden) return
+        item.hidden = true
+        notifyItemChanged(items.indexOf(item))
+    }
+
     fun isItemsVisible() = this.items.find { i -> i.hidden } == null
 
     fun compare(words: Array<String>): Boolean {
@@ -188,7 +205,7 @@ class RecoveryPhraseAdapter(
     ): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_recovery_phrase, parent, false)
-        return ViewHolder(view, editable, this)
+        return ViewHolder(view, editable, this, itemClickListener)
     }
 
     override fun getItemCount(): Int = items.size
@@ -200,7 +217,8 @@ class RecoveryPhraseAdapter(
     inner class ViewHolder(
         view: View,
         editable: Boolean,
-        private val listener: OnTextChangeListener
+        private val listener: OnTextChangeListener,
+        itemClickListener: (Int) -> Unit
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -210,6 +228,7 @@ class RecoveryPhraseAdapter(
             with(itemView) {
                 if (!editable) {
                     edtWord.isFocusable = false
+                    edtWord.isLongClickable = false
                 }
 
                 edtWord.doOnTextChanged { text, _, _, _ ->
@@ -261,6 +280,10 @@ class RecoveryPhraseAdapter(
                             else -> false
                         }
                     } else false
+                }
+
+                edtWord.setOnClickListener {
+                    itemClickListener(adapterPosition)
                 }
             }
         }

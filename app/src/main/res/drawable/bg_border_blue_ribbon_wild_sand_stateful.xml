@@ -3,11 +3,5 @@
   <item android:drawable="@drawable/bg_border_blue_ribbon"
       android:state_focused="true"/>
 
-  <item android:drawable="@drawable/bg_border_blue_ribbon"
-      android:state_selected="true"/>
-
-  <item android:drawable="@drawable/bg_border_blue_ribbon"
-      android:state_pressed="true"/>
-
   <item android:drawable="@color/wild_sand"/>
 </selector>
