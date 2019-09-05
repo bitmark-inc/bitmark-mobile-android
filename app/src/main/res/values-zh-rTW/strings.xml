@@ -210,6 +210,8 @@
   <string name="sorry_you_have_changed_or_removed">Sorry, you have changed or removed your fingerprint. For security reason, you have been logged out of the Bitmark app.</string>
   <string name="could_not_register_account">創建新帳戶時發生問題。</string>
   <string name="could_not_recover_account">無法復原帳戶，請稍後再試。</string>
+  <string name="you_have_almost_reached_quota">You have almost reached Google Drive quota limitation. Please upgrade your plan to make sure the asset files is backup normally.</string>
+  <string name="you_have_reached_quota">You have reached Google Drive quota limitation. The asset files cannot be backup</string>
 
 
   <!--string format-->

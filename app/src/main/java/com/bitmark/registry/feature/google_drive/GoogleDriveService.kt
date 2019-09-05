@@ -68,6 +68,16 @@ class GoogleDriveService @Inject constructor(
         realtimeBus.unsubscribe(this)
     }
 
+    fun checkQuota() = Single.fromCallable {
+        checkReady()
+        val about = service!!.about().get().setFields("storageQuota").execute()
+        if (about == null) Pair(-1L, -1L)
+        else {
+            val quota = about.storageQuota
+            Pair(quota.limit, quota.usage)
+        }
+    }.subscribeOn(Schedulers.io())
+
     fun listAppDataFiles(folderName: String) =
         listAppDataFiles(folderName, null)
 

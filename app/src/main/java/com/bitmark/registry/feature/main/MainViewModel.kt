@@ -73,6 +73,10 @@ class MainViewModel(
 
     internal val assetSyncProcessingErrorLiveData = MutableLiveData<Throwable>()
 
+    internal val quotaAlmostExceededLiveData = MutableLiveData<Any>()
+
+    internal val quotaExceededLiveData = MutableLiveData<Any>()
+
     internal fun getBitmarkLiveData() = getBitmarkLiveData.asLiveData()
 
     internal fun prepareDeepLinkHandlingLiveData() =
@@ -213,6 +217,19 @@ class MainViewModel(
                 super.onError(e)
                 assetSyncProcessingErrorLiveData.set(e)
             }
+        })
+
+        assetSynchronizer.setCloudServiceListener(object :
+            AssetSynchronizer.CloudServiceListener {
+
+            override fun onQuotaAlmostExceeded() {
+                quotaAlmostExceededLiveData.set(Any())
+            }
+
+            override fun onQuotaExceeded() {
+                quotaExceededLiveData.set(Any())
+            }
+
         })
 
         assetSynchronizer.start()

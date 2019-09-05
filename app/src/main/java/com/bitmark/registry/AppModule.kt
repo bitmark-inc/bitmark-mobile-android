@@ -6,8 +6,10 @@ import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
+import com.bitmark.registry.feature.google_drive.GoogleDriveService
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.feature.sync.PropertySynchronizer
 import dagger.Module
 import dagger.Provides
@@ -66,5 +68,19 @@ class AppModule {
     @Singleton
     fun provideConnectivityHandler(context: Context) =
         ConnectivityHandler(context)
+
+    @Provides
+    @Singleton
+    fun provideAssetSynchronizer(
+        googleDriveService: GoogleDriveService,
+        bitmarkRepo: BitmarkRepository,
+        accountRepo: AccountRepository,
+        realtimeBus: RealtimeBus
+    ) = AssetSynchronizer(
+        googleDriveService,
+        bitmarkRepo,
+        accountRepo,
+        realtimeBus
+    )
 
 }

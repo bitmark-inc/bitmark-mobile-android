@@ -386,6 +386,20 @@ class MainActivity : BaseAppCompatActivity(),
                     )
             }
         })
+
+        viewModel.quotaExceededLiveData.observe(this, Observer {
+            dialogController.alert(
+                R.string.warning,
+                R.string.you_have_reached_quota
+            )
+        })
+
+        viewModel.quotaAlmostExceededLiveData.observe(this, Observer {
+            dialogController.alert(
+                R.string.warning,
+                R.string.you_have_almost_reached_quota
+            )
+        })
     }
 
     override fun onBackPressed() {

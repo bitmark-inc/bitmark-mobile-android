@@ -14,7 +14,6 @@ import io.reactivex.exceptions.CompositeException
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
 
 
 /**
@@ -24,7 +23,7 @@ import javax.inject.Inject
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 
-class AssetSynchronizer @Inject constructor(
+class AssetSynchronizer(
     private val googleDriveService: GoogleDriveService,
     private val bitmarkRepo: BitmarkRepository,
     private val accountRepo: AccountRepository,
@@ -33,6 +32,8 @@ class AssetSynchronizer @Inject constructor(
 
     companion object {
         private const val TAG = "AssetSynchronizer"
+
+        private const val QUOTA_EXCEEDED_BUFFER = 200 * 1024 * 1024 // 200 MB
     }
 
     private val taskQueue = UniqueConcurrentLinkedDeque<Completable>()
@@ -45,8 +46,14 @@ class AssetSynchronizer @Inject constructor(
 
     private var taskProcessListener: TaskProcessListener? = null
 
+    private var cloudServiceListener: CloudServiceListener? = null
+
     fun setTaskProcessingListener(listener: TaskProcessListener?) {
         this.taskProcessListener = listener
+    }
+
+    fun setCloudServiceListener(listener: CloudServiceListener?) {
+        this.cloudServiceListener = listener
     }
 
     fun start() {
@@ -95,6 +102,7 @@ class AssetSynchronizer @Inject constructor(
         Log.d(TAG, "resume")
         isPaused.set(false)
         taskQueue.addFirst(element = sync())
+        taskQueue.addFirst(element = checkServiceQuotaExceeded())
         execute()
     }
 
@@ -103,15 +111,44 @@ class AssetSynchronizer @Inject constructor(
         Log.d(TAG, "paused")
     }
 
-    private fun process(assetId: String, task: Completable) {
+    private fun checkServiceQuotaExceeded() =
+        googleDriveService.checkQuota().map { p ->
+            val limit = p.first
+            val usage = p.second
+            Log.d(
+                TAG,
+                "quota: limit is ${limit / 1024 / 1024}MB and usage is ${usage / 1024 / 1024}MB"
+            )
+            val exceeded = usage >= limit
+            val almostExceeded = usage + QUOTA_EXCEEDED_BUFFER >= limit
+            when {
+                exceeded -> {
+                    cloudServiceListener?.onQuotaExceeded()
+                }
+                almostExceeded -> {
+                    cloudServiceListener?.onQuotaAlmostExceeded()
+                }
+                else -> {
+                    // quota is enough to use
+                }
+            }
+        }.ignoreElement()
+
+    private fun process(taskId: String, task: Completable) {
         if (isProcessing.get() || isPaused.get()) {
-            if (taskQueue.add(assetId, task)) {
-                Log.d(TAG, "added task for $assetId to the pending queue")
+            if (taskQueue.add(taskId, task)) {
+                Log.d(TAG, "added task with id $taskId to the pending queue")
             }
             return
         }
-        Log.d(TAG, "start processing for asset id $assetId...")
-        subscribe(task.doOnSubscribe { isProcessing.set(true) }
+        Log.d(TAG, "start processing for task id $taskId...")
+        subscribe(task.onErrorResumeNext { e ->
+            if (e is IllegalStateException) {
+                // service is not ready, re-add the task
+                taskQueue.add(taskId, task)
+            }
+            Completable.error(e)
+        }.doOnSubscribe { isProcessing.set(true) }
             .doAfterTerminate {
                 isProcessing.set(false)
                 execute()
@@ -342,6 +379,13 @@ class AssetSynchronizer @Inject constructor(
         fun onSuccess() {}
 
         fun onError(e: Throwable) {}
+    }
+
+    interface CloudServiceListener {
+
+        fun onQuotaExceeded()
+
+        fun onQuotaAlmostExceeded()
     }
 
 }
