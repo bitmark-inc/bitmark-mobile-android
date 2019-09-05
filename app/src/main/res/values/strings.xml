@@ -212,8 +212,10 @@
   <string name="sorry_you_have_changed_or_removed">You have been logged out of your Bitmark account to protect your security because you removed or changed your fingerprint.</string>
   <string name="could_not_register_account">Could not register account. Please try again later.</string>
   <string name="could_not_recover_account">Could not recover account. Please try again later.</string>
-  <string name="you_have_almost_reached_quota">You have almost reached Google Drive quota limitation. Please upgrade your plan to make sure the asset files is backup normally.</string>
-  <string name="you_have_reached_quota">You have reached Google Drive quota limitation. The asset files cannot be backup</string>
+  <string name="not_enough_storage">Not Enough Storage</string>
+  <string name="storage_is_almost_full">Storage is almost full</string>
+  <string name="your_google_drive_storage_is_full">Your Google Drive Storage is full. Your assets cannot be backed up and synced across devices. Please free up some space. </string>
+  <string name="your_google_drive_storage_is_almost_full">Your Google Drive Storage is almost full. Please free up some space.</string>
 
 
   <!--string format-->

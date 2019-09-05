@@ -183,9 +183,9 @@
   <string name="backup_to_google_drive">備份至Google雲端硬碟</string>
   <string name="to_protect_your_assets">請授權讓Bitmark應用程式可以備份資產至您的Google雲端硬碟，以保護您的資產免受於遺失並允許資產可以跨裝置同步。</string>
   <string name="term_of_service">服務條款</string>
-  <string name="biometric_pin">Biometric/PIN</string>
-  <string name="enable_biometric_pin_to_secure">Enable Biometric/PIN to secure access to your app. If you do not enable Biometric/PIN, anyone with access to your device can use the app to control your account and properties.</string>
-  <string name="enable_biometric_pin">開啟生物辨識/PIN碼</string>
+  <string name="biometric_pin">生物辨識驗證</string>
+  <string name="enable_biometric_pin_to_secure">請開啟生物辨識驗證以確保存取您帳戶的安全性，如果您沒有開啟生物辨識驗證，任何使用您裝置的人都將能使用此應用程式來掌控您的帳戶和資產。\n\n出於安全考量，若您開啟生物辨識驗證並移除指紋綁定，您的帳戶將會自動登出。</string>
+  <string name="enable_biometric_pin">開啟生物辨識驗證</string>
   <string name="enable_photos_access">開啟相簿權限</string>
   <string name="enable_access">開啟權限</string>
   <string name="enable_camera_access">開啟相機權限</string>
@@ -203,15 +203,17 @@
   <string name="authorization_required">授權允許</string>
   <string name="warning_your_phone_is_not_encrypted">警告提示：你尚未加密你的手機</string>
   <string name="encrypting_your_data">"在您的手機上開啟數據加密是極為容易的，並將保護你自己免受廣泛的潛在風險。我们強烈建議您現在開啟。\n\n請到 設定 > 安全性 > 加密手機"</string>
-  <string name="pin_password_pattern">PIN/Password/Pattern</string>
-  <string name="enable_pin_password_pattern_to_secure">Enable PIN/Password/Pattern to secure access to your app. If you do not enable PIN/Password/Pattern, anyone with access to your device can use the app to control your account and properties.</string>
-  <string name="enable_pin_password_pattern">Enable PIN/Password/Pattern</string>
+  <string name="pin_password_pattern">PIN碼/密碼/圖形鎖</string>
+  <string name="enable_pin_password_pattern_to_secure">請開啟PIN碼/密碼/圖形鎖以確保存取應用程式的安全性，如果您沒有開啟PIN碼/密碼/圖形鎖，任何使用您裝置的人都將能使用此應用程式來掌控您的帳戶和資產</string>
+  <string name="enable_pin_password_pattern">開啟PIN碼/密碼/圖形鎖</string>
   <string name="account_is_not_accessible">無法進入帳戶</string>
-  <string name="sorry_you_have_changed_or_removed">Sorry, you have changed or removed your fingerprint. For security reason, you have been logged out of the Bitmark app.</string>
+  <string name="sorry_you_have_changed_or_removed">我們偵測到您移除或改變了指紋辨識，為了保護安全性，您已登出帳戶。</string>
   <string name="could_not_register_account">創建新帳戶時發生問題。</string>
   <string name="could_not_recover_account">無法復原帳戶，請稍後再試。</string>
-  <string name="you_have_almost_reached_quota">You have almost reached Google Drive quota limitation. Please upgrade your plan to make sure the asset files is backup normally.</string>
-  <string name="you_have_reached_quota">You have reached Google Drive quota limitation. The asset files cannot be backup</string>
+  <string name="not_enough_storage">儲存空間不足</string>
+  <string name="storage_is_almost_full">儲存空間將滿</string>
+  <string name="your_google_drive_storage_is_full">您的Google雲端硬碟儲存空間已滿，您的資產無法被備份和同步到裝置，請釋放一些儲存空間。</string>
+  <string name="your_google_drive_storage_is_almost_full">您的Google雲端硬碟儲存空間快要滿了，請釋放一些儲存空間。</string>
 
 
   <!--string format-->

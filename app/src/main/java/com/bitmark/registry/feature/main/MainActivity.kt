@@ -389,15 +389,15 @@ class MainActivity : BaseAppCompatActivity(),
 
         viewModel.quotaExceededLiveData.observe(this, Observer {
             dialogController.alert(
-                R.string.warning,
-                R.string.you_have_reached_quota
+                R.string.not_enough_storage,
+                R.string.your_google_drive_storage_is_full
             )
         })
 
         viewModel.quotaAlmostExceededLiveData.observe(this, Observer {
             dialogController.alert(
-                R.string.warning,
-                R.string.you_have_almost_reached_quota
+                R.string.storage_is_almost_full,
+                R.string.your_google_drive_storage_is_almost_full
             )
         })
     }
