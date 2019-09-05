@@ -7,6 +7,7 @@ import com.bitmark.registry.di.ActivityScope
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import dagger.Module
 import dagger.Provides
@@ -29,7 +30,8 @@ class SplashModule {
         appRepo: AppRepository,
         bitmarkRepo: BitmarkRepository,
         rxLiveDataTransformer: RxLiveDataTransformer,
-        wsEventBus: WebSocketEventBus
+        wsEventBus: WebSocketEventBus,
+        assetSynchronizer: AssetSynchronizer
     ): SplashViewModel {
         return SplashViewModel(
             activity.lifecycle,
@@ -37,7 +39,8 @@ class SplashModule {
             appRepo,
             bitmarkRepo,
             rxLiveDataTransformer,
-            wsEventBus
+            wsEventBus,
+            assetSynchronizer
         )
     }
 

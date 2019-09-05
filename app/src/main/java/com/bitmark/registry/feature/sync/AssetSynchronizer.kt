@@ -149,13 +149,14 @@ class AssetSynchronizer(
             }
             Completable.error(e)
         }.doOnSubscribe { isProcessing.set(true) }
-            .doAfterTerminate {
-                isProcessing.set(false)
-                execute()
-            }.doOnDispose {
+            .doOnDispose {
                 isProcessing.set(false)
             }.subscribe(
-                { taskProcessListener?.onSuccess() },
+                {
+                    taskProcessListener?.onSuccess()
+                    isProcessing.set(false)
+                    execute()
+                },
                 { e ->
                     if (e is CompositeException) {
                         e.exceptions.forEach { ex ->
@@ -169,6 +170,8 @@ class AssetSynchronizer(
                         taskProcessListener?.onError(e)
                         Log.e(TAG, "${e.javaClass}-${e.message}")
                     }
+                    isProcessing.set(false)
+                    execute()
                 })
         )
     }
@@ -227,7 +230,7 @@ class AssetSynchronizer(
                 }
         }
 
-    private fun download() =
+    fun download() =
         determineDownloadAssets().flatMapCompletable { assetIds ->
             if (assetIds.isEmpty()) {
                 Completable.complete()
@@ -288,7 +291,7 @@ class AssetSynchronizer(
                 }
         }
 
-    private fun upload() =
+    fun upload() =
         determineUploadAssets().flatMapCompletable { assetIds ->
             if (assetIds.isEmpty()) {
                 Completable.complete()

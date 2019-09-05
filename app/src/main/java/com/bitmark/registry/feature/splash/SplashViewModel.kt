@@ -6,11 +6,13 @@ import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex
 import com.bitmark.cryptography.crypto.encoder.Raw
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.util.extension.isNetworkError
 import com.bitmark.registry.util.extension.set
 import com.bitmark.registry.util.livedata.CompositeLiveData
@@ -33,7 +35,8 @@ class SplashViewModel(
     private val appRepo: AppRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
-    private val wsEventBus: WebSocketEventBus
+    private val wsEventBus: WebSocketEventBus,
+    private val assetSynchronizer: AssetSynchronizer
 ) :
     BaseViewModel(lifecycle) {
 
@@ -71,42 +74,52 @@ class SplashViewModel(
 
     private fun cleanupAppDataStream(deviceToken: String?): Single<Boolean> {
         return accountRepo.checkAccessRemoved().flatMap { removed ->
-            if (!removed) Single.just(false).doOnSuccess {
-                progressLiveData.set(
-                    100
-                )
-            }
+            if (!removed) Single.just(false)
             else {
 
                 val deleteDeviceTokenStream =
-                    if (deviceToken == null) Completable.complete() else appRepo.deleteDeviceToken(
-                        deviceToken
-                    ).onErrorResumeNext {
-                        Completable.complete() // ignore error since it's not important
+                    if (deviceToken == null) {
+                        Completable.complete()
+                    } else {
+                        appRepo.deleteDeviceToken(
+                            deviceToken
+                        ).onErrorResumeNext {
+                            Completable.complete() // ignore error since it's not important
+                        }
                     }
 
-                val deleteDataStream = Completable.mergeArrayDelayError(
-                    appRepo.deleteQrCodeFile(),
-                    appRepo.deleteDatabase(),
-                    appRepo.deleteCache(),
-                    accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
-                        bitmarkRepo.deleteStoredAssetFiles(
-                            accountNumber
-                        )
+                val backupAssetFilesStream = accountRepo.getActionRequired()
+                    .map { actions -> actions.indexOfFirst { a -> a.id == ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION } == -1 }
+                    .flatMapCompletable { authorized ->
+                        if (authorized) {
+                            assetSynchronizer.upload().onErrorResumeNext {
+                                // The final try to backup asset file
+                                // ignore any errors
+                                Completable.complete()
+                            }
+                        } else {
+                            // has not authorized cloud service, ignore the upload
+                            Completable.complete()
+                        }
                     }
-                ).andThen(appRepo.deleteSharePref())
 
-                var progress = 0
-                val streamCount = 2
-                val completeAction =
-                    { progressLiveData.set(++progress / streamCount * 100) }
-
-
-                Completable.mergeArrayDelayError(
-                    deleteDeviceTokenStream.doOnComplete(completeAction),
-                    deleteDataStream.doOnComplete(completeAction)
+                backupAssetFilesStream.andThen(
+                    Completable.mergeArrayDelayError(
+                        deleteDeviceTokenStream,
+                        appRepo.deleteQrCodeFile(),
+                        appRepo.deleteDatabase(),
+                        accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
+                            bitmarkRepo.deleteStoredAssetFiles(
+                                accountNumber
+                            )
+                        }
+                    )
+                ).andThen(
+                    Completable.mergeArrayDelayError(
+                        appRepo.deleteMemCache(),
+                        appRepo.deleteSharePref()
+                    )
                 ).andThen(Single.just(true))
-                    .doOnSubscribe { progressLiveData.set(0) }
 
             }
         }

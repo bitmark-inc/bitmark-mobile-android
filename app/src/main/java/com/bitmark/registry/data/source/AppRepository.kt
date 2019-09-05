@@ -53,7 +53,7 @@ class AppRepository(
             }
         }
 
-    fun deleteCache() =
+    fun deleteMemCache() =
         Completable.fromAction { Cache.getInstance().clear() }.subscribeOn(
             Schedulers.io()
         )

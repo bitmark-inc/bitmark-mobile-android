@@ -7,6 +7,7 @@ import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
+import com.bitmark.registry.feature.sync.AssetSynchronizer
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
@@ -26,7 +27,8 @@ class RecoveryPhraseTestViewModel(
     private val appRepo: AppRepository,
     private val bitmarkRepo: BitmarkRepository,
     private val rxLiveDataTransformer: RxLiveDataTransformer,
-    private val wsEventBus: WebSocketEventBus
+    private val wsEventBus: WebSocketEventBus,
+    private val assetSynchronizer: AssetSynchronizer
 ) : BaseViewModel(lifecycle) {
 
     private val removeRecoveryActionRequiredLiveData = CompositeLiveData<Any>()
@@ -65,23 +67,52 @@ class RecoveryPhraseTestViewModel(
             wsEventBus.disconnect { emt.onComplete() }
         }
 
-        return accountRepo.removeAccess().andThen(
-            if (deviceToken == null) Completable.complete() else appRepo.deleteDeviceToken(
+        val deleteDeviceTokenStream = if (deviceToken == null) {
+            Completable.complete()
+        } else {
+            appRepo.deleteDeviceToken(
                 deviceToken
             )
-        ).andThen(
-            Completable.mergeArrayDelayError(
-                appRepo.deleteQrCodeFile(),
-                appRepo.deleteDatabase(),
-                appRepo.deleteCache(),
-                accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
-                    bitmarkRepo.deleteStoredAssetFiles(
-                        accountNumber
-                    )
-                },
-                disconnectWsStream
+        }
+
+        val backupAssetFilesStream = accountRepo.getActionRequired()
+            .map { actions -> actions.indexOfFirst { a -> a.id == ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION } == -1 }
+            .flatMapCompletable { authorized ->
+                if (authorized) {
+                    assetSynchronizer.upload().onErrorResumeNext { e ->
+                        if (e is IllegalStateException) {
+                            // cloud service is not ready, maybe the session is expired
+                            // rare case so temporarily ignore
+                            Completable.complete()
+                        } else {
+                            Completable.error(e)
+                        }
+                    }
+                } else {
+                    // has not authorized cloud service, ignore the upload
+                    Completable.complete()
+                }
+            }
+
+        return accountRepo.removeAccess().andThen(backupAssetFilesStream)
+            .andThen(
+                Completable.mergeArrayDelayError(
+                    deleteDeviceTokenStream,
+                    appRepo.deleteQrCodeFile(),
+                    appRepo.deleteDatabase(),
+                    accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
+                        bitmarkRepo.deleteStoredAssetFiles(
+                            accountNumber
+                        )
+                    },
+                    disconnectWsStream
+                )
+            ).andThen(
+                Completable.mergeArrayDelayError(
+                    appRepo.deleteMemCache(),
+                    appRepo.deleteSharePref()
+                )
             )
-        ).andThen(appRepo.deleteSharePref())
     }
 
 
