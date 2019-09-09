@@ -31,28 +31,15 @@ class RecoveryPhraseTestViewModel(
     private val assetSynchronizer: AssetSynchronizer
 ) : BaseViewModel(lifecycle) {
 
-    private val removeRecoveryActionRequiredLiveData = CompositeLiveData<Any>()
-
     private val removeAccessLiveData = CompositeLiveData<Any>()
 
     private val getAccountInfoLiveData =
         CompositeLiveData<Pair<String, String>>()
 
-    internal fun removeRecoveryActionRequiredLiveData() =
-        removeRecoveryActionRequiredLiveData.asLiveData()
 
     internal fun removeAccessLiveData() = removeAccessLiveData.asLiveData()
 
     internal fun getAccountInfoLiveData() = getAccountInfoLiveData.asLiveData()
-
-    internal fun removeRecoveryActionRequired() =
-        removeRecoveryActionRequiredLiveData.add(
-            rxLiveDataTransformer.completable(
-                accountRepo.deleteActionRequired(
-                    ActionRequired.Id.RECOVERY_PHRASE
-                )
-            )
-        )
 
     internal fun removeAccess(deviceToken: String?) =
         removeAccessLiveData.add(

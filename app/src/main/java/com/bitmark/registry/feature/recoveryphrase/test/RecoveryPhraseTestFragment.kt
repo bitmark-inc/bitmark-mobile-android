@@ -129,7 +129,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 getString(R.string.done) -> {
-                    viewModel.removeRecoveryActionRequired()
+                    navigator.popChildFragmentToRoot()
                 }
 
                 else -> {
@@ -169,15 +169,6 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
 
     override fun observe() {
         super.observe()
-
-        viewModel.removeRecoveryActionRequiredLiveData()
-            .observe(this, Observer { res ->
-                when {
-                    res.isSuccess() -> {
-                        navigator.popChildFragmentToRoot()
-                    }
-                }
-            })
 
         viewModel.getAccountInfoLiveData().observe(this, Observer { res ->
             when {
@@ -223,20 +214,14 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             }
         })
 
-        val removeAccessProgressDialog = ProgressAppCompatDialog(
-            context!!,
-            getString(R.string.removing_access_three_dot),
-            "%s \"%s\"".format(
-                getString(
-                    R.string.removing_access_for_account
-                ), accountNumber.shortenAccountNumber()
-            ), true
-        )
+        var removeAccessProgressDialog: ProgressAppCompatDialog? = null
 
         viewModel.removeAccessLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    removeAccessProgressDialog.dismiss()
+                    dialogController.dismiss(
+                        removeAccessProgressDialog ?: return@Observer
+                    )
                     val intent = Intent(
                         context,
                         DeleteFirebaseInstanceIdService::class.java
@@ -247,7 +232,9 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
-                    removeAccessProgressDialog.dismiss()
+                    dialogController.dismiss(
+                        removeAccessProgressDialog ?: return@Observer
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.could_not_remove_access_due_to_unexpected_problem,
@@ -258,7 +245,18 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 res.isLoading() -> {
-                    removeAccessProgressDialog.show()
+                    removeAccessProgressDialog = ProgressAppCompatDialog(
+                        context!!,
+                        getString(R.string.removing_access_three_dot),
+                        "%s \"%s\"".format(
+                            getString(
+                                R.string.removing_access_for_account
+                            ), accountNumber.shortenAccountNumber()
+                        ), true
+                    )
+                    dialogController.show(
+                        removeAccessProgressDialog ?: return@Observer
+                    )
                 }
 
             }
