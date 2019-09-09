@@ -328,6 +328,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
     }
 
     override fun deinitComponents() {
+        dialogController.dismiss()
         handler.removeCallbacksAndMessages(null)
         super.deinitComponents()
     }

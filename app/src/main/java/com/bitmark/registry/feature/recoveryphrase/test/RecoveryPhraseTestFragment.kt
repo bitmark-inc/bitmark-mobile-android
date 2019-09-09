@@ -149,6 +149,11 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         ivBack.setOnClickListener { navigator.popChildFragmentToRoot() }
     }
 
+    override fun deinitComponents() {
+        dialogController.dismiss()
+        super.deinitComponents()
+    }
+
     private fun handleRecoveryItemClicked(
         v: View,
         phrase: Array<String>,

@@ -264,6 +264,7 @@ class MainActivity : BaseAppCompatActivity(),
     override fun deinitComponents() {
         appLifecycleHandler.removeAppStateChangedListener(this)
         handler.removeCallbacksAndMessages(null)
+        dialogController.dismiss()
         super.deinitComponents()
     }
 

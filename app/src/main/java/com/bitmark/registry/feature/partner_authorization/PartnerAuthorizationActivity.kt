@@ -170,6 +170,7 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
     }
 
     override fun deinitComponents() {
+        dialogController.dismiss()
         compositeDisposable.dispose()
         handler.removeCallbacksAndMessages(null)
         super.deinitComponents()

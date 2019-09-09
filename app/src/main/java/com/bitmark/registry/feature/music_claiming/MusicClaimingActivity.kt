@@ -183,6 +183,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
         wvContent.webChromeClient = null
         wvContent.reload()
         wvContent.destroy()
+        dialogController.dismiss()
         super.deinitComponents()
     }
 
