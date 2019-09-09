@@ -76,8 +76,6 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     private val handler = Handler()
 
-    private var progressDialog: ProgressAppCompatDialog? = null
-
     override fun layoutRes(): Int = R.layout.activity_property_detail
 
     override fun viewModel(): BaseViewModel? = viewModel
@@ -360,6 +358,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             }
         })
 
+        val downloadProgressDialog = ProgressAppCompatDialog(
+            this,
+            message = getString(R.string.preparing_to_export)
+        )
+
         viewModel.downloadAssetFileLiveData().observe(this, Observer { res ->
 
             when {
@@ -374,7 +377,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
-                    dialogController.dismiss(progressDialog ?: return@Observer)
+                    dialogController.dismiss(downloadProgressDialog)
                     val e = res.throwable()
                     val errorMessage =
                         if (e is HttpException && e.code == 404) {
@@ -390,11 +393,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
 
                 res.isLoading() -> {
-                    progressDialog = ProgressAppCompatDialog(
-                        this,
-                        message = getString(R.string.preparing_to_export)
-                    )
-                    dialogController.show(progressDialog ?: return@Observer)
+                    dialogController.show(downloadProgressDialog)
                 }
             }
         })
@@ -425,9 +424,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         })
 
         viewModel.downloadProgressLiveData.observe(this, Observer { percent ->
-            progressDialog?.setProgress(percent)
+            downloadProgressDialog?.setProgress(percent)
             if (percent >= 100) {
-                dialogController.dismiss(progressDialog ?: return@Observer)
+                dialogController.dismiss(
+                    downloadProgressDialog ?: return@Observer
+                )
             }
         })
 
@@ -478,7 +479,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         ) { account ->
             val zeroAddr = Address.fromAccountNumber(BuildConfig.ZERO_ADDRESS)
             val transferParams = TransferParams(zeroAddr, bitmark.headId)
-            transferParams.sign(account.keyPair)
+            transferParams.sign(account.authKeyPair)
             viewModel.deleteBitmark(
                 transferParams,
                 bitmark.id,
@@ -496,7 +497,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             viewModel.downloadAssetFile(
                 bitmark.assetId,
                 account.accountNumber,
-                account.encryptionKey
+                account.encKeyPair
             )
         }
     }

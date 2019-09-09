@@ -193,7 +193,7 @@ class MainActivity : BaseAppCompatActivity(),
                 accountNumber,
                 url,
                 code,
-                account.keyPair
+                account.authKeyPair
             )
         }
     }

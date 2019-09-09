@@ -214,6 +214,10 @@
   <string name="storage_is_almost_full">儲存空間將滿</string>
   <string name="your_google_drive_storage_is_full">您的Google雲端硬碟儲存空間已滿，您的資產無法被備份和同步到裝置，請釋放一些儲存空間。</string>
   <string name="your_google_drive_storage_is_almost_full">您的Google雲端硬碟儲存空間快要滿了，請釋放一些儲存空間。</string>
+  <string name="access_other_account">存取其他帳戶？</string>
+  <string name="the_recovery_phrase_you_entered_is_not_your">您所輸入的復原碼不屬於目前帳戶。您想轉移到此新帳戶並移除此裝置上目前帳戶的所有資產嗎？</string>
+  <string name="do_it">是的</string>
+  <string name="clear_data">清除資料…</string>
 
 
   <!--string format-->

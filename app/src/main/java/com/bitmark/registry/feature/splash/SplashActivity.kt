@@ -103,7 +103,7 @@ class SplashActivity : BaseAppCompatActivity() {
                         ) { account ->
 
                             // prepare data
-                            val keyPair = account.keyPair
+                            val keyPair = account.authKeyPair
                             viewModel.prepareData(
                                 keyPair,
                                 accountNumber

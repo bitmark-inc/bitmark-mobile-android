@@ -417,7 +417,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             accountNumber,
             spec,
             dialogController,
-            successAction = { account -> action.invoke(account.keyPair) },
+            successAction = { account -> action.invoke(account.authKeyPair) },
             setupRequiredAction = { navigator.gotoSecuritySetting() },
             invalidErrorAction = {
                 dialogController.alert(

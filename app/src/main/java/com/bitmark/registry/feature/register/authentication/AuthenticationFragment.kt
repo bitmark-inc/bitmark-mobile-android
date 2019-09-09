@@ -199,7 +199,7 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         saveAccount(account, authRequired) { keyAlias ->
             viewModel.updateAccount(
-                account.keyPair,
+                account.authKeyPair,
                 account.accountNumber,
                 authRequired,
                 keyAlias
@@ -219,7 +219,7 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         saveAccount(account, authRequired) { keyAlias ->
             val requester = account.accountNumber
-            val signingKeyPair = account.keyPair
+            val signingKeyPair = account.authKeyPair
             val signingPrivateKey = signingKeyPair.privateKey().toBytes()
 
             // ignore register encryption key in case of recover account
@@ -227,7 +227,7 @@ class AuthenticationFragment : BaseSupportFragment() {
             var encPubKeySig: String? = null
             if (null == phrase) {
                 val encPubKey =
-                    account.encryptionKey.publicKey().toBytes()
+                    account.encKeyPair.publicKey().toBytes()
                 encPubKeyHex = HEX.encode(encPubKey)
                 encPubKeySig = HEX.encode(
                     Ed25519.sign(

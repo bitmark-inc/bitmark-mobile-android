@@ -72,7 +72,7 @@ class TransferViewModel(
         sender: String,
         senderEncKeyPair: KeyPair
     ): Completable {
-        val receiver = params.owner.address!!
+        val receiver = params.receiver.address!!
 
         return prepareTransferStream(
             assetId,

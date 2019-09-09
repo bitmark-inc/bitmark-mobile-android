@@ -216,7 +216,10 @@
   <string name="storage_is_almost_full">Storage is almost full</string>
   <string name="your_google_drive_storage_is_full">Your Google Drive Storage is full. Your assets cannot be backed up and synced across devices. Please free up some space. </string>
   <string name="your_google_drive_storage_is_almost_full">Your Google Drive Storage is almost full. Please free up some space.</string>
-
+  <string name="access_other_account">Access Other Account?</string>
+  <string name="the_recovery_phrase_you_entered_is_not_your">The recovery phrase you entered is not for your current account. Do you want to switch to this new account and remove all the current account\'s assets from this device?</string>
+  <string name="do_it">Do it</string>
+  <string name="clear_data">Clear data…</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>

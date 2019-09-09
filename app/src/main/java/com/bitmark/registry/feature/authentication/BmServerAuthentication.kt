@@ -74,7 +74,7 @@ class BmServerAuthentication(
                 val activity = appLifecycleHandler.getRunningActivity()
                 if (e == null && activity != null) {
                     loadAccount(activity, p.first, p.second) { account ->
-                        refreshJwt(account.accountNumber, account.keyPair)
+                        refreshJwt(account.accountNumber, account.authKeyPair)
                     }
                 }
             }

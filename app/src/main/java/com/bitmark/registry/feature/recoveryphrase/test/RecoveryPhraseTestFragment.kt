@@ -61,8 +61,6 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
     @Inject
     lateinit var dialogController: DialogController
 
-    private lateinit var progressDialog: ProgressAppCompatDialog
-
     private lateinit var accountNumber: String
 
     override fun layoutRes(): Int = R.layout.fragment_recovery_phrase_test
@@ -225,10 +223,20 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             }
         })
 
+        val removeAccessProgressDialog = ProgressAppCompatDialog(
+            context!!,
+            getString(R.string.removing_access_three_dot),
+            "%s \"%s\"".format(
+                getString(
+                    R.string.removing_access_for_account
+                ), accountNumber.shortenAccountNumber()
+            ), true
+        )
+
         viewModel.removeAccessLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    progressDialog.dismiss()
+                    removeAccessProgressDialog.dismiss()
                     val intent = Intent(
                         context,
                         DeleteFirebaseInstanceIdService::class.java
@@ -239,7 +247,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
-                    progressDialog.dismiss()
+                    removeAccessProgressDialog.dismiss()
                     dialogController.alert(
                         R.string.error,
                         R.string.could_not_remove_access_due_to_unexpected_problem,
@@ -250,16 +258,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 res.isLoading() -> {
-                    progressDialog = ProgressAppCompatDialog(
-                        context!!,
-                        getString(R.string.removing_access_three_dot),
-                        "%s \"%s\"".format(
-                            getString(
-                                R.string.removing_access_for_account
-                            ), accountNumber.shortenAccountNumber()
-                        ), true
-                    )
-                    progressDialog.show()
+                    removeAccessProgressDialog.show()
                 }
 
             }

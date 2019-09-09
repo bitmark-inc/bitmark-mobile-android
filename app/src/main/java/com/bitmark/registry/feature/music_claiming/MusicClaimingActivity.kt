@@ -293,7 +293,7 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                         viewModel.downloadAssetFile(
                             bitmark.assetId,
                             account.accountNumber,
-                            account.encryptionKey
+                            account.encKeyPair
                         )
                     }
                 }

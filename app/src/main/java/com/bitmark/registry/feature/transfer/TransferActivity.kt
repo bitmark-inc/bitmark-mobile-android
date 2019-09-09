@@ -219,12 +219,12 @@ class TransferActivity : BaseAppCompatActivity() {
             bitmark.accountNumber,
             keyAlias
         ) { account ->
-            val encKeyPair = account.encryptionKey
+            val encKeyPair = account.encKeyPair
             val params = TransferParams(
                 Address.fromAccountNumber(recipient),
                 bitmark.headId
             )
-            params.sign(account.keyPair)
+            params.sign(account.authKeyPair)
             viewModel.transfer(
                 params,
                 bitmark.assetId,

@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.register.recoveryphrase
 
 import android.os.Bundle
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -8,12 +9,15 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
+import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
 import com.bitmark.registry.util.extension.*
+import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.registry.util.view.SimpleRecyclerViewAdapter
 import com.bitmark.sdk.features.Account
 import com.bitmark.sdk.features.internal.RecoveryPhrase
+import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.fragment_recovery_phrase_signin.*
 import java.util.*
 import javax.inject.Inject
@@ -48,12 +52,25 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
     @Inject
     internal lateinit var navigator: Navigator
 
+    @Inject
+    internal lateinit var viewModel: RecoveryPhraseSigninViewModel
+
+    @Inject
+    internal lateinit var dialogController: DialogController
+
+    private var uri: String? = null
+
+    private val adapter = RecoveryPhraseAdapter(textColor = R.color.blue_ribbon)
+
     override fun layoutRes(): Int = R.layout.fragment_recovery_phrase_signin
 
-    override fun viewModel(): BaseViewModel? = null
+    override fun viewModel(): BaseViewModel? = viewModel
 
     override fun initComponents() {
         super.initComponents()
+
+        uri = arguments?.getString(URI)
+        val recoverAccount = arguments?.getBoolean(RECOVER_ACCOUNT) ?: false
 
         var locale = Locale.getDefault()
         if (locale != Locale.ENGLISH && locale != Locale.TRADITIONAL_CHINESE) {
@@ -61,16 +78,14 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         }
         val bip39Words = RecoveryPhrase.getWords(locale)
 
-        val phraseAdapter =
-            RecoveryPhraseAdapter(textColor = R.color.blue_ribbon)
         val phraseLayoutManager =
             GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
         rvRecoveryPhrase.layoutManager = phraseLayoutManager
         rvRecoveryPhrase.isNestedScrollingEnabled = false
         (rvRecoveryPhrase.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
             false
-        rvRecoveryPhrase.adapter = phraseAdapter
-        phraseAdapter.setDefault()
+        rvRecoveryPhrase.adapter = adapter
+        adapter.setDefault()
 
         val suggestionAdapter =
             SimpleRecyclerViewAdapter(R.layout.item_text_suggestion)
@@ -98,26 +113,26 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 tvSwitchWord.visible()
                 btnSubmit.visible()
                 setSuggestionVisibility(false)
-                if (phraseAdapter.isValid()) {
-                    phraseAdapter.clearFocus()
+                if (adapter.isValid()) {
+                    adapter.clearFocus()
                 }
             }
         }
 
         btnSubmit.setSafetyOnclickListener {
-            submit(phraseAdapter.getPhrase())
+            submit(adapter.getPhrase(), uri, recoverAccount)
         }
 
         tvSwitchWord.setOnClickListener {
             setErrorVisibility(false)
-            if (phraseAdapter.itemCount == Version.TWELVE.value) {
+            if (adapter.itemCount == Version.TWELVE.value) {
                 tvInstruction.setText(R.string.please_type_all_24_word)
                 tvSwitchWord.setText(R.string.are_you_using_12_word)
-                phraseAdapter.setDefault(Version.TWENTY_FOUR)
+                adapter.setDefault(Version.TWENTY_FOUR)
             } else {
                 tvInstruction.setText(R.string.please_type_all_12_word)
                 tvSwitchWord.setText(R.string.are_you_using_24_word)
-                phraseAdapter.setDefault()
+                adapter.setDefault()
             }
         }
 
@@ -125,9 +140,9 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
             navigator.popFragment()
         }
 
-        phraseAdapter.setOnTextChangeListener(object : OnTextChangeListener {
+        adapter.setOnTextChangeListener(object : OnTextChangeListener {
             override fun onTextChanged(item: Item) {
-                if (phraseAdapter.isValid()) {
+                if (adapter.isValid()) {
                     btnSubmit.enable()
                 } else {
                     btnSubmit.disable()
@@ -152,28 +167,100 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
 
         })
 
-        phraseAdapter.setOnDoneListener {
-            submit(phraseAdapter.getPhrase())
+        adapter.setOnDoneListener {
+            submit(adapter.getPhrase(), uri, recoverAccount)
         }
 
         suggestionAdapter.setItemClickListener { text ->
-            phraseAdapter.set(text)
-            if (!phraseAdapter.requestNextFocus()) {
+            adapter.set(text)
+            if (!adapter.requestNextFocus()) {
                 activity?.hideKeyBoard()
             }
         }
 
         ivUp.setOnClickListener {
-            if (!phraseAdapter.requestPrevFocus()) {
+            if (!adapter.requestPrevFocus()) {
                 activity?.hideKeyBoard()
             }
         }
 
         ivDown.setOnClickListener {
-            if (!phraseAdapter.requestNextFocus()) {
+            if (!adapter.requestNextFocus()) {
                 activity?.hideKeyBoard()
             }
         }
+    }
+
+    override fun deinitComponents() {
+        dialogController.dismiss()
+        super.deinitComponents()
+    }
+
+    override fun observe() {
+        super.observe()
+
+        viewModel.checkSameAccountLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    val same = res.data() ?: false
+                    if (same) {
+                        navigateAuthentication(adapter.getPhrase(), uri, true)
+                    } else {
+                        dialogController.confirm(
+                            R.string.access_other_account,
+                            R.string.the_recovery_phrase_you_entered_is_not_your,
+                            false,
+                            R.string.do_it,
+                            {
+                                getFirebaseToken { token ->
+                                    viewModel.clearData(
+                                        token
+                                    )
+                                }
+                            },
+                            R.string.cancel
+                        )
+                    }
+                }
+
+                res.isError() -> {
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.unexpected_error
+                    )
+                }
+            }
+        })
+
+        val clearDataProgressDialog = ProgressAppCompatDialog(
+            context!!,
+            "",
+            getString(R.string.clear_data),
+            true
+        )
+
+        viewModel.clearDataLiveData().observe(this, Observer { res ->
+
+            when {
+                res.isSuccess() -> {
+                    dialogController.dismiss(clearDataProgressDialog)
+                    navigateAuthentication(adapter.getPhrase(), uri, false)
+                }
+
+                res.isLoading() -> {
+                    dialogController.show(clearDataProgressDialog)
+                }
+
+                res.isError() -> {
+                    dialogController.dismiss(clearDataProgressDialog)
+                    dialogController.alert(
+                        R.string.error,
+                        R.string.unexpected_error
+                    )
+                }
+            }
+        })
+
     }
 
     private fun setSuggestionVisibility(visible: Boolean) {
@@ -188,10 +275,15 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         }
     }
 
-    private fun submit(phrase: Array<String?>) {
+    private fun submit(
+        phrase: Array<String?>,
+        uri: String?,
+        recoverAccount: Boolean
+    ) {
         activity?.hideKeyBoard()
+        var account: Account? = null
         val isValid = try {
-            Account.fromRecoveryPhrase(*phrase)
+            account = Account.fromRecoveryPhrase(*phrase)
             true
         } catch (e: Throwable) {
             false
@@ -199,15 +291,29 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
 
         if (isValid) {
             setErrorVisibility(false)
-            val recoverAccount = arguments?.getBoolean(RECOVER_ACCOUNT) ?: false
-            val uri = arguments?.getString(URI)
-            navigator.anim(Navigator.RIGHT_LEFT).replaceFragment(
-                R.id.layoutContainer,
-                AuthenticationFragment.newInstance(phrase, uri, recoverAccount)
-            )
+            if (recoverAccount) {
+                viewModel.checkSameAccount(account!!.accountNumber)
+            } else {
+                navigateAuthentication(phrase, uri, false)
+            }
         } else {
             setErrorVisibility(true)
         }
+    }
+
+    private fun navigateAuthentication(
+        phrase: Array<String?>,
+        uri: String?,
+        recoverAccount: Boolean
+    ) {
+        navigator.anim(Navigator.RIGHT_LEFT).replaceFragment(
+            R.id.layoutContainer,
+            AuthenticationFragment.newInstance(
+                phrase,
+                uri,
+                recoverAccount
+            )
+        )
     }
 
     private fun setErrorVisibility(visible: Boolean) {
@@ -221,4 +327,12 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
     }
 
     override fun onBackPressed() = navigator.popFragment() ?: false
+
+    private fun getFirebaseToken(action: (String?) -> Unit) {
+        FirebaseInstanceId.getInstance()
+            .instanceId.addOnCompleteListener { task ->
+            if (!task.isSuccessful) action.invoke(null)
+            else action.invoke(task.result?.token)
+        }
+    }
 }
