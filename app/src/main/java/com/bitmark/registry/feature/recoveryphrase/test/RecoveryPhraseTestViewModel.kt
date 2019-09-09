@@ -12,7 +12,7 @@ import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function3
 
 
 /**
@@ -33,13 +33,14 @@ class RecoveryPhraseTestViewModel(
 
     private val removeAccessLiveData = CompositeLiveData<Any>()
 
-    private val getAccountInfoLiveData =
-        CompositeLiveData<Pair<String, String>>()
+    private val prepareRemoveAccessLiveData =
+        CompositeLiveData<Triple<Boolean, String, String>>()
 
 
     internal fun removeAccessLiveData() = removeAccessLiveData.asLiveData()
 
-    internal fun getAccountInfoLiveData() = getAccountInfoLiveData.asLiveData()
+    internal fun prepareRemoveAccessLiveData() =
+        prepareRemoveAccessLiveData.asLiveData()
 
     internal fun removeAccess(deviceToken: String?) =
         removeAccessLiveData.add(
@@ -103,12 +104,20 @@ class RecoveryPhraseTestViewModel(
     }
 
 
-    internal fun getAccountInfo() = getAccountInfoLiveData.add(
+    internal fun getAccountInfo() = prepareRemoveAccessLiveData.add(
         rxLiveDataTransformer.single(
             Single.zip(
+                accountRepo.getActionRequired()
+                    .map { actions -> actions.indexOfFirst { a -> a.id == ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION } == -1 },
                 accountRepo.getAccountNumber(),
                 accountRepo.getKeyAlias(),
-                BiFunction { a, k -> Pair(a, k) })
+                Function3<Boolean, String, String, Triple<Boolean, String, String>> { authorized, accountNumber, keyAlias ->
+                    Triple(
+                        authorized,
+                        accountNumber,
+                        keyAlias
+                    )
+                })
         )
     )
 

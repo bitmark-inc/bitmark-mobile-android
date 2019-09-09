@@ -1,5 +1,6 @@
 package com.bitmark.registry.feature.recoveryphrase.test
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -170,38 +171,51 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
     override fun observe() {
         super.observe()
 
-        viewModel.getAccountInfoLiveData().observe(this, Observer { res ->
+        viewModel.prepareRemoveAccessLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    val info = res.data()!!
-                    accountNumber = info.first
-                    val keyAlias = info.second
-                    val spec = KeyAuthenticationSpec.Builder(context)
-                        .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
-                        .setKeyAlias(keyAlias).build()
-                    activity?.removeAccount(
-                        accountNumber,
-                        spec,
-                        dialogController,
-                        successAction = {
+                    val data = res.data() ?: return@Observer
+                    if (activity == null) return@Observer
+                    val authorized = data.first
+                    accountNumber = data.second
+                    val keyAlias = data.third
+
+                    if (authorized) {
+                        removeAccount(
+                            activity!!,
+                            accountNumber,
+                            keyAlias,
+                            dialogController,
+                            navigator
+                        ) {
                             getFirebaseToken { token ->
                                 viewModel.removeAccess(token)
                             }
-                        },
-                        setupRequiredAction = { navigator.gotoSecuritySetting() },
-                        invalidErrorAction = {
-                            dialogController.alert(
-                                R.string.account_is_not_accessible,
-                                R.string.sorry_you_have_changed_or_removed
-                            ) {
-                                navigator.startActivityAsRoot(
-                                    RegisterContainerActivity::class.java,
-                                    RegisterContainerActivity.getBundle(
-                                        recoverAccount = true
-                                    )
-                                )
+                        }
+                    } else {
+                        dialogController.confirm(
+                            R.string.your_data_will_be_lost,
+                            R.string.if_you_remove_access_now,
+                            false,
+                            R.string.ok,
+                            {
+                                removeAccount(
+                                    activity!!,
+                                    accountNumber,
+                                    keyAlias,
+                                    dialogController,
+                                    navigator
+                                ) {
+                                    getFirebaseToken { token ->
+                                        viewModel.removeAccess(token)
+                                    }
+                                }
+                            },
+                            R.string.cancel, {
+                                navigator.popChildFragmentToRoot()
                             }
-                        })
+                        )
+                    }
                 }
 
                 res.isError() -> {
@@ -261,6 +275,39 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
 
             }
         })
+    }
+
+    private fun removeAccount(
+        activity: Activity,
+        accountNumber: String,
+        keyAlias: String,
+        dialogController: DialogController,
+        navigator: Navigator,
+        successAction: () -> Unit
+    ) {
+
+        val spec = KeyAuthenticationSpec.Builder(activity.applicationContext)
+            .setAuthenticationDescription(getString(R.string.your_authorization_is_required))
+            .setKeyAlias(keyAlias).build()
+        activity.removeAccount(
+            accountNumber,
+            spec,
+            dialogController,
+            successAction = successAction,
+            setupRequiredAction = { navigator.gotoSecuritySetting() },
+            invalidErrorAction = {
+                dialogController.alert(
+                    R.string.account_is_not_accessible,
+                    R.string.sorry_you_have_changed_or_removed
+                ) {
+                    navigator.startActivityAsRoot(
+                        RegisterContainerActivity::class.java,
+                        RegisterContainerActivity.getBundle(
+                            recoverAccount = true
+                        )
+                    )
+                }
+            })
     }
 
     private fun getFirebaseToken(action: (String?) -> Unit) {
