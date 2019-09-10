@@ -29,14 +29,15 @@ class NewestPropertySynchronizer @Inject constructor(
         private const val ITEM_PER_PAGE = 100
     }
 
-    private val compositeDisposable = CompositeDisposable()
+    private lateinit var compositeDisposable: CompositeDisposable
 
     private var bmOffset = -1L
 
     private var txOffset = -1L
 
     fun start() {
-        Log.d(TAG, "Started")
+        Log.d(TAG, "Starting...")
+        compositeDisposable = CompositeDisposable()
         syncNewestPendingBitmarks()
         syncNewestPendingTxs()
     }

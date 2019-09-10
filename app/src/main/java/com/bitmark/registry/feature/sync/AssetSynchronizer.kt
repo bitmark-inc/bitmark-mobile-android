@@ -42,7 +42,7 @@ class AssetSynchronizer(
 
     private val isPaused = AtomicBoolean(false)
 
-    private val compositeDisposable = CompositeDisposable()
+    private lateinit var compositeDisposable : CompositeDisposable
 
     private var taskProcessListener: TaskProcessListener? = null
 
@@ -58,6 +58,7 @@ class AssetSynchronizer(
 
     fun start() {
         Log.d(TAG, "starting...")
+        compositeDisposable = CompositeDisposable()
         googleDriveService.setServiceReadyListener(object :
             GoogleDriveService.ServiceReadyListener {
             override fun onReady() {
@@ -142,13 +143,7 @@ class AssetSynchronizer(
             return
         }
         Log.d(TAG, "start processing for task id $taskId...")
-        subscribe(task.onErrorResumeNext { e ->
-            if (e is IllegalStateException) {
-                // service is not ready, re-add the task
-                taskQueue.add(taskId, task)
-            }
-            Completable.error(e)
-        }.doOnSubscribe { isProcessing.set(true) }
+        subscribe(task.doOnSubscribe { isProcessing.set(true) }
             .doOnDispose {
                 isProcessing.set(false)
             }.subscribe(
