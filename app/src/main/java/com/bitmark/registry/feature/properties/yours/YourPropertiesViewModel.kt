@@ -1,6 +1,7 @@
 package com.bitmark.registry.feature.properties.yours
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.MutableLiveData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.ISSUING
 import com.bitmark.registry.data.model.BitmarkData.Status.TRANSFERRING
@@ -43,7 +44,7 @@ class YourPropertiesViewModel(
         BufferedLiveData<String>(lifecycle)
 
     internal val bitmarkSavedLiveData =
-        BufferedLiveData<List<BitmarkModelView>>(lifecycle)
+        MutableLiveData<List<BitmarkModelView>>()
 
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -54,7 +55,7 @@ class YourPropertiesViewModel(
     private val markSeenLiveData = CompositeLiveData<String>()
 
     internal val refreshAssetTypeLiveData =
-        BufferedLiveData<List<BitmarkModelView>>(lifecycle)
+        MutableLiveData<List<BitmarkModelView>>()
 
     private val fetchLatestBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -181,24 +182,25 @@ class YourPropertiesViewModel(
             } else {
                 val checkAssetFileStreams =
                     mutableListOf<Single<Pair<String, File?>>>()
+
                 bitmarks.forEach { b ->
-
-                    val checkAssetFileStream =
-                        bitmarkRepo.checkAssetFile(accountNumber, b.assetId)
-                            .doOnSuccess { p ->
-
-                                val assetId = p.first
-                                val file = p.second
-                                bitmarks.filter { b -> b.assetId == assetId }
-                                    .forEach { b ->
-                                        b.asset?.file = file
-                                    }
-                            }
-
-                    checkAssetFileStreams.add(checkAssetFileStream)
+                    checkAssetFileStreams.add(
+                        bitmarkRepo.checkAssetFile(
+                            accountNumber,
+                            b.assetId
+                        )
+                    )
                 }
-                Single.merge(checkAssetFileStreams).lastOrError()
-                    .map { Pair(accountNumber, bitmarks) }
+                Single.merge(checkAssetFileStreams)
+                    .collectInto(
+                        mutableListOf<Pair<String, File?>>(),
+                        { c, p -> c.add(p) }).map { collection ->
+                        collection.forEach { p ->
+                            bitmarks.firstOrNull { b -> b.asset?.id == p.first }
+                                ?.asset?.file = p.second
+                        }
+                        Pair(accountNumber, bitmarks)
+                    }
             }
         }
 
