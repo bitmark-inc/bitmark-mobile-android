@@ -226,7 +226,7 @@ class YourPropertiesViewModel(
             }).flatMap(checkAssetFileStream())
             .map(bitmarkMapFunc()).observeOn(AndroidSchedulers.mainThread()).subscribe { bitmarks, e ->
                 if (e == null) {
-                    refreshAssetTypeLiveData.setValue(bitmarks)
+                    refreshAssetTypeLiveData.value = bitmarks
                 }
             })
     }
@@ -259,7 +259,7 @@ class YourPropertiesViewModel(
                 bitmarkMapFunc().invoke(p)
             }.observeOn(AndroidSchedulers.mainThread()).subscribe { b, e ->
                 if (e == null) {
-                    bitmarkSavedLiveData.setValue(b)
+                    bitmarkSavedLiveData.value = b
                 }
             })
         }
