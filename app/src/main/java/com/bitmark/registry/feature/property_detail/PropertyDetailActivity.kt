@@ -18,10 +18,13 @@ import com.bitmark.apiservice.utils.Address
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.transfer.TransferActivity
 import com.bitmark.registry.util.extension.*
@@ -50,6 +53,8 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
         private const val BITMARK = "bitmark"
 
+        private const val TAG = "PropertyDetailActivity"
+
         fun getBundle(bitmark: BitmarkModelView): Bundle {
             val bundle = Bundle()
             bundle.putParcelable(BITMARK, bitmark)
@@ -69,6 +74,9 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
     @Inject
     lateinit var dialogController: DialogController
+
+    @Inject
+    lateinit var logger: EventLogger
 
     private var blocked = false
 
@@ -288,6 +296,13 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     bitmark.previousOwner = txs[0].previousOwner
                     provenanceAdapter.set(txs)
                 }
+
+                res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get provenance failed: ${res.throwable() ?: "unknown"}"
+                    )
+                }
             }
         })
 
@@ -306,6 +321,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "sync provenance failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     progressBar.gone()
                 }
             }
@@ -332,6 +352,14 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "delete bitmark: ${res.throwable() ?: "unknown"}"
+                    )
+                    logger.logError(
+                        Event.PROP_DETAIL_DELETE_ERROR,
+                        res.throwable()
+                    )
                     progressBar.gone()
                     blocked = false
                     dialogController.alert(
@@ -381,8 +409,21 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                     val e = res.throwable()
                     val errorMessage =
                         if (e is HttpException && e.code == 404) {
+                            Tracer.WARNING.log(
+                                TAG,
+                                "asset is not available to download"
+                            )
                             R.string.the_asset_is_not_available
                         } else {
+                            Tracer.ERROR.log(
+                                TAG,
+                                "download asset failed: ${e?.message
+                                    ?: "unknown"}"
+                            )
+                            logger.logError(
+                                Event.PROP_DETAIL_DOWNLOAD_ERROR,
+                                e
+                            )
                             R.string.could_not_download_asset
                         }
                     dialogController.alert(
@@ -399,10 +440,20 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         })
 
         viewModel.getExistingAssetFileLiveData().observe(this, Observer { res ->
-            if (res.isSuccess()) {
-                val file = res.data()
-                if (file != null) {
-                    shareFile(bitmark.name ?: "", file)
+            when {
+                res.isSuccess() -> {
+                    val file = res.data()
+                    if (file != null) {
+                        shareFile(bitmark.name ?: "", file)
+                    }
+                }
+
+                res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get existing asset file failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                 }
             }
         })
@@ -414,6 +465,10 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get key alias failed: ${res.throwable() ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error,
@@ -533,7 +588,12 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

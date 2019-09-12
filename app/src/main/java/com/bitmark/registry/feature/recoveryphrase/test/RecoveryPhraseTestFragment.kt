@@ -10,10 +10,13 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseAdapter
@@ -37,8 +40,12 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
 
     companion object {
         private const val HIDDEN_ITEM_QUANTITY = 4
+
         private const val RECOVERY_PHRASE = "recovery_phrase"
+
         private const val REMOVE_ACCESS = "remove_access"
+
+        private const val TAG = "RecoveryPhraseTestFragment"
 
         fun newInstance(
             recoveryPhrase: Array<String>,
@@ -54,13 +61,16 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
     }
 
     @Inject
-    lateinit var viewModel: RecoveryPhraseTestViewModel
+    internal lateinit var viewModel: RecoveryPhraseTestViewModel
 
     @Inject
-    lateinit var navigator: Navigator
+    internal lateinit var navigator: Navigator
 
     @Inject
-    lateinit var dialogController: DialogController
+    internal lateinit var dialogController: DialogController
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private lateinit var accountNumber: String
 
@@ -224,6 +234,11 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "prepare removing access failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error,
@@ -251,6 +266,11 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "remove access failed: ${res.throwable() ?: "unknown"}"
+                    )
+                    logger.logError(Event.ACCOUNT_LOGOUT_ERROR, res.throwable())
                     dialogController.dismiss(
                         removeAccessProgressDialog ?: return@Observer
                     )

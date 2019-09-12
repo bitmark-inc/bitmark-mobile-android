@@ -18,11 +18,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetModelView
@@ -45,10 +48,16 @@ class IssuanceActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val ASSET = "asset"
+
         private const val MIN_ASSET_NAME_LENGTH = 1
+
         private const val MAX_ASSET_NAME_LENGTH = 64
+
         private const val MIN_ASSET_QUANTITY = 1
+
         private const val MAX_ASSET_QUANTITY = 100
+
+        private const val TAG = "IssuanceActivity"
 
         fun getBundle(asset: AssetModelView): Bundle {
             val bundle = Bundle()
@@ -58,13 +67,16 @@ class IssuanceActivity : BaseAppCompatActivity() {
     }
 
     @Inject
-    lateinit var viewModel: IssuanceViewModel
+    internal lateinit var viewModel: IssuanceViewModel
 
     @Inject
-    lateinit var navigator: Navigator
+    internal lateinit var navigator: Navigator
 
     @Inject
-    lateinit var dialogController: DialogController
+    internal lateinit var dialogController: DialogController
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private val adapter = MetadataRecyclerViewAdapter()
 
@@ -356,6 +368,10 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    logger.logError(
+                        Event.PROP_REGISTRATION_ERROR,
+                        res.throwable()
+                    )
                     blocked = false
                     progressBar.gone()
                     dialogController.alert(
@@ -396,6 +412,11 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get account info failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error
@@ -420,7 +441,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = { account -> action.invoke(account.authKeyPair) },
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

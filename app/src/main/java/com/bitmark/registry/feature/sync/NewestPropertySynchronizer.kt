@@ -1,9 +1,9 @@
 package com.bitmark.registry.feature.sync
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
+import com.bitmark.registry.data.source.logging.Tracer
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.exceptions.CompositeException
@@ -36,7 +36,7 @@ class NewestPropertySynchronizer @Inject constructor(
     private var txOffset = -1L
 
     fun start() {
-        Log.d(TAG, "Starting...")
+        Tracer.DEBUG.log(TAG, "Starting...")
         compositeDisposable = CompositeDisposable()
         syncNewestPendingBitmarks()
         syncNewestPendingTxs()
@@ -44,7 +44,7 @@ class NewestPropertySynchronizer @Inject constructor(
 
     fun stop() {
         compositeDisposable.dispose()
-        Log.d(TAG, "Stopped")
+        Tracer.DEBUG.log(TAG, "Stopped")
     }
 
     private fun syncNewestPendingBitmarks() {
@@ -55,7 +55,7 @@ class NewestPropertySynchronizer @Inject constructor(
                 )
 
             offsetStream.flatMap { offset ->
-                Log.d(TAG, "syncNewestPendingBitmarks with offset $offset")
+                Tracer.DEBUG.log(TAG, "syncNewestPendingBitmarks with offset $offset")
                 if (offset == -1L) {
                     Single.just(listOf())
                 } else {
@@ -72,7 +72,7 @@ class NewestPropertySynchronizer @Inject constructor(
 
         }.subscribe({ bitmarks ->
             if (bitmarks.size < ITEM_PER_PAGE) {
-                Log.d(TAG, "syncNewestPendingBitmarks exit since reached top")
+                Tracer.DEBUG.log(TAG, "syncNewestPendingBitmarks exit since reached top")
                 return@subscribe
             }
             bmOffset =
@@ -82,13 +82,13 @@ class NewestPropertySynchronizer @Inject constructor(
         }, { e ->
             if (e is CompositeException) {
                 e.exceptions.forEach { ex ->
-                    Log.e(
+                    Tracer.ERROR.log(
                         TAG,
                         "${ex.javaClass}-${ex.message}"
                     )
                 }
             } else {
-                Log.e(TAG, "${e.javaClass}-${e.message}")
+                Tracer.ERROR.log(TAG, "${e.javaClass}-${e.message}")
             }
         }))
     }
@@ -103,7 +103,7 @@ class NewestPropertySynchronizer @Inject constructor(
                 ) else Single.just(txOffset)
 
             offsetStream.flatMap { offset ->
-                Log.d(TAG, "syncNewestPendingTxs with offset $offset")
+                Tracer.DEBUG.log(TAG, "syncNewestPendingTxs with offset $offset")
                 if (offset == -1L) {
                     Single.just(listOf())
                 } else {
@@ -120,7 +120,7 @@ class NewestPropertySynchronizer @Inject constructor(
 
         }.subscribe({ txs ->
             if (txs.size < ITEM_PER_PAGE) {
-                Log.d(TAG, "syncNewestPendingTxs exit since reached top")
+                Tracer.DEBUG.log(TAG, "syncNewestPendingTxs exit since reached top")
                 return@subscribe
             }
             txOffset = txs.maxBy { t -> t.offset }?.offset ?: return@subscribe
@@ -129,13 +129,13 @@ class NewestPropertySynchronizer @Inject constructor(
         }, { e ->
             if (e is CompositeException) {
                 e.exceptions.forEach { ex ->
-                    Log.e(
+                    Tracer.ERROR.log(
                         TAG,
                         "${ex.javaClass}-${ex.message}"
                     )
                 }
             } else {
-                Log.e(TAG, "${e.javaClass}-${e.message}")
+                Tracer.ERROR.log(TAG, "${e.javaClass}-${e.message}")
             }
         }))
     }

@@ -3,11 +3,14 @@ package com.bitmark.registry.feature.recoveryphrase.show
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
@@ -30,8 +33,12 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
     companion object {
 
         private const val TOOLBAR_TITLE = "toolbar_title"
+
         private const val WARNING_MESSAGE = "warning_message"
+
         private const val REMOVE_ACCESS = "remove_access"
+
+        private const val TAG = "RecoveryPhraseWarningFragment"
 
         fun newInstance(
             toolBarTitle: String,
@@ -56,6 +63,9 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
 
     @Inject
     lateinit var dialogController: DialogController
+
+    @Inject
+    lateinit var logger: EventLogger
 
     private var removeAccess = false
 
@@ -115,6 +125,11 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get account info failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error,
@@ -139,7 +154,12 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.InfoAppCompatDialog
@@ -34,6 +37,10 @@ import javax.inject.Inject
  */
 class PartnerAuthorizationActivity : BaseAppCompatActivity() {
 
+    companion object {
+        private const val TAG = "PartnerAuthorizationActivity"
+    }
+
     @Inject
     lateinit var viewModel: PartnerAuthorizationViewModel
 
@@ -42,6 +49,9 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
 
     @Inject
     lateinit var dialogController: DialogController
+
+    @Inject
+    lateinit var logger: EventLogger
 
     private val handler = Handler()
 
@@ -112,6 +122,10 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
 
 
                     } catch (e: Throwable) {
+                        Tracer.ERROR.log(
+                            TAG,
+                            "scan authorization QR code failed: ${e.message}"
+                        )
                         dialogController.alert(
                             R.string.unrecognized_qr_code,
                             R.string.please_scan_the_qr_code_again
@@ -156,7 +170,12 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed
@@ -188,6 +207,11 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get account info failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error
@@ -231,6 +255,14 @@ class PartnerAuthorizationActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "authorize error: ${res.throwable() ?: "unknown"}"
+                    )
+                    logger.logError(
+                        Event.CHIBITRONIC_AUTHORIZE_ERROR,
+                        res.throwable()
+                    )
                     progressBar.gone()
                     dialogController.alert(
                         R.string.error,

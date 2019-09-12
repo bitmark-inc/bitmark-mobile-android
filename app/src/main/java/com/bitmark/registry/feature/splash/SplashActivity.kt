@@ -6,11 +6,14 @@ import android.os.Handler
 import android.text.TextUtils
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.RegisterContainerActivity
@@ -34,6 +37,11 @@ import javax.inject.Inject
  */
 class SplashActivity : BaseAppCompatActivity() {
 
+    companion object {
+
+        private const val TAG = "SplashActivity"
+    }
+
     @Inject
     internal lateinit var viewModel: SplashViewModel
 
@@ -42,6 +50,9 @@ class SplashActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var navigator: Navigator
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private lateinit var authorizationDialog: AuthorizationRequiredDialog
 
@@ -118,9 +129,14 @@ class SplashActivity : BaseAppCompatActivity() {
 
                 }
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get existing account failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     dialogController.alert(
-                        getString(R.string.error),
-                        res.throwable()?.message!!
+                        R.string.error,
+                        R.string.unexpected_error
                     )
                 }
             }
@@ -144,6 +160,10 @@ class SplashActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "prepare data failed: ${res.throwable() ?: "unknown"}"
+                    )
                     hideLoading()
                     dialogController.alert(
                         getString(R.string.error),
@@ -172,6 +192,11 @@ class SplashActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "clean up app data failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     // TODO show alert and navigate to recovery phrase signin
                 }
             }
@@ -214,7 +239,12 @@ class SplashActivity : BaseAppCompatActivity() {
                 dialogController.show(authorizationDialog)
             },
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

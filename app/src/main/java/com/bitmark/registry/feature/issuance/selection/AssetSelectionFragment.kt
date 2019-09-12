@@ -4,15 +4,17 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Handler
-import android.util.Log
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.util.MediaUtil
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetModelView
@@ -37,17 +39,22 @@ class AssetSelectionFragment : BaseSupportFragment() {
 
         private const val BROWSE_CODE = 0x98
 
+        private const val TAG = "AssetSelectionFragment"
+
         fun newInstance() = AssetSelectionFragment()
     }
 
     @Inject
-    lateinit var viewModel: AssetSelectionViewModel
+    internal lateinit var viewModel: AssetSelectionViewModel
 
     @Inject
-    lateinit var navigator: Navigator
+    internal lateinit var navigator: Navigator
 
     @Inject
-    lateinit var dialogController: DialogController
+    internal lateinit var dialogController: DialogController
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -133,6 +140,10 @@ class AssetSelectionFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    logger.logError(
+                        Event.ASSET_SELECTION_FILE_ERROR,
+                        res.throwable()
+                    )
                     progressBar.gone()
                 }
             }
@@ -194,7 +205,6 @@ class AssetSelectionFragment : BaseSupportFragment() {
                                 )
                             }
                             .subscribe({ p ->
-                                Log.d("progress:", p.progress.toString())
                                 progressDialog.setProgress(p.progress)
                                 if (p.progress >= 100) {
                                     compositeDisposable.clear()
@@ -206,6 +216,10 @@ class AssetSelectionFragment : BaseSupportFragment() {
                                     val file = File(path)
                                     if (file.length() >= 100 * 1024 * 1024) {
                                         // file reach 100 MB
+                                        Tracer.ERROR.log(
+                                            TAG,
+                                            "reach maximum 100MB"
+                                        )
                                         viewModel.deleteUnusableFile(path)
                                         dialogController.alert(
                                             R.string.error,
@@ -216,7 +230,11 @@ class AssetSelectionFragment : BaseSupportFragment() {
                                     }
 
                                 }
-                            }, {
+                            }, { e ->
+                                logger.logError(
+                                    Event.ASSET_SELECTION_FILE_UNSUPPORTED,
+                                    e
+                                )
                                 dialogController.alert(
                                     R.string.error,
                                     R.string.unsupported_file

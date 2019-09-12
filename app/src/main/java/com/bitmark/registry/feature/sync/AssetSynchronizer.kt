@@ -1,8 +1,8 @@
 package com.bitmark.registry.feature.sync
 
-import android.util.Log
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.google_drive.GoogleDriveService
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.UniqueConcurrentLinkedDeque
@@ -57,7 +57,7 @@ class AssetSynchronizer(
     }
 
     fun start() {
-        Log.d(TAG, "starting...")
+        Tracer.DEBUG.log(TAG, "starting...")
         compositeDisposable = CompositeDisposable()
         googleDriveService.setServiceReadyListener(object :
             GoogleDriveService.ServiceReadyListener {
@@ -72,7 +72,7 @@ class AssetSynchronizer(
         })
 
         realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
-            Log.d(TAG, "asset file save for $assetId, process to upload")
+            Tracer.DEBUG.log(TAG, "asset file save for $assetId, process to upload")
             process(assetId, upload(assetId))
         }
 
@@ -96,11 +96,11 @@ class AssetSynchronizer(
         isProcessing.set(false)
         isPaused.set(false)
         googleDriveService.stop()
-        Log.d(TAG, "stopped")
+        Tracer.DEBUG.log(TAG, "stopped")
     }
 
     fun resume() {
-        Log.d(TAG, "resume")
+        Tracer.DEBUG.log(TAG, "resume")
         isPaused.set(false)
         taskQueue.addFirst(element = sync())
         taskQueue.addFirst(element = checkServiceQuotaExceeded())
@@ -109,14 +109,14 @@ class AssetSynchronizer(
 
     fun pause() {
         isPaused.set(true)
-        Log.d(TAG, "paused")
+        Tracer.DEBUG.log(TAG, "paused")
     }
 
     private fun checkServiceQuotaExceeded() =
         googleDriveService.checkQuota().map { p ->
             val limit = p.first
             val usage = p.second
-            Log.d(
+            Tracer.DEBUG.log(
                 TAG,
                 "quota: limit is ${limit / 1024 / 1024}MB and usage is ${usage / 1024 / 1024}MB"
             )
@@ -138,11 +138,11 @@ class AssetSynchronizer(
     private fun process(taskId: String, task: Completable) {
         if (isProcessing.get() || isPaused.get()) {
             if (taskQueue.add(taskId, task)) {
-                Log.d(TAG, "added task with id $taskId to the pending queue")
+                Tracer.DEBUG.log(TAG, "added task with id $taskId to the pending queue")
             }
             return
         }
-        Log.d(TAG, "start processing for task id $taskId...")
+        Tracer.DEBUG.log(TAG, "start processing for task id $taskId...")
         subscribe(task.doOnSubscribe { isProcessing.set(true) }
             .doOnDispose {
                 isProcessing.set(false)
@@ -156,14 +156,14 @@ class AssetSynchronizer(
                     if (e is CompositeException) {
                         e.exceptions.forEach { ex ->
                             taskProcessListener?.onError(ex)
-                            Log.e(
+                            Tracer.ERROR.log(
                                 TAG,
                                 "${ex.javaClass}-${ex.message}"
                             )
                         }
                     } else {
                         taskProcessListener?.onError(e)
-                        Log.e(TAG, "${e.javaClass}-${e.message}")
+                        Tracer.ERROR.log(TAG, "${e.javaClass}-${e.message}")
                     }
                     isProcessing.set(false)
                     execute()
@@ -184,7 +184,7 @@ class AssetSynchronizer(
             bitmarkRepo.checkAssetFile(accountNumber, assetId)
                 .map { p -> p.second != null }.flatMapCompletable { existing ->
                     if (existing) {
-                        Log.d(TAG, "local file for asset $assetId is existing")
+                        Tracer.DEBUG.log(TAG, "local file for asset $assetId is existing")
                         Completable.complete()
                     } else {
                         googleDriveService.listAppDataFiles(
@@ -192,7 +192,7 @@ class AssetSynchronizer(
                             partialName = assetId
                         ).flatMapCompletable { files ->
                             if (files.isEmpty()) {
-                                Log.d(
+                                Tracer.DEBUG.log(
                                     TAG,
                                     "remote file for asset $assetId is not existing"
                                 )
@@ -202,13 +202,13 @@ class AssetSynchronizer(
                                 val fileId = file.id
                                 val parsedName =
                                     parseCloudStorageFileName(file.name)
-                                Log.d(
+                                Tracer.DEBUG.log(
                                     TAG,
                                     "start downloading file id $fileId, name ${file.name}..."
                                 )
                                 googleDriveService.download(fileId)
                                     .flatMapCompletable { content ->
-                                        Log.d(
+                                        Tracer.DEBUG.log(
                                             TAG,
                                             "downloaded file id $fileId with size ${content.size / 1024} KB"
                                         )
@@ -247,7 +247,7 @@ class AssetSynchronizer(
                     val assetId = p.first
                     val file = p.second
                     if (file == null) {
-                        Log.d(TAG, "local file for asset $assetId is null")
+                        Tracer.DEBUG.log(TAG, "local file for asset $assetId is null")
                         Completable.complete()
                     } else {
                         googleDriveService.checkExistingFile(
@@ -255,7 +255,7 @@ class AssetSynchronizer(
                             assetId
                         ).flatMapCompletable { existing ->
                             if (existing) {
-                                Log.d(
+                                Tracer.DEBUG.log(
                                     TAG,
                                     "remote file for asset id $assetId is existing"
                                 )
@@ -266,7 +266,7 @@ class AssetSynchronizer(
                                         assetId,
                                         file.name
                                     )
-                                Log.d(
+                                Tracer.DEBUG.log(
                                     TAG,
                                     "start uploading $fileName with size ${file.length() / 1024} KB ..."
                                 )
@@ -275,7 +275,7 @@ class AssetSynchronizer(
                                     accountNumber,
                                     file.absolutePath
                                 ).doAfterSuccess {
-                                    Log.d(
+                                    Tracer.DEBUG.log(
                                         TAG,
                                         "uploaded file id ${it.id} with size ${file.length() / 1024} KB"
                                     )

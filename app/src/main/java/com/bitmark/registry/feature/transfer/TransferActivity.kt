@@ -11,11 +11,14 @@ import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.util.extension.*
@@ -37,7 +40,10 @@ import javax.inject.Inject
 class TransferActivity : BaseAppCompatActivity() {
 
     companion object {
-        const val BITMARK = "BITMARK"
+
+        private const val BITMARK = "bitmark"
+
+        private const val TAG = "TransferActivity"
 
         fun getBundle(bitmark: BitmarkModelView): Bundle {
             val bundle = Bundle()
@@ -54,6 +60,9 @@ class TransferActivity : BaseAppCompatActivity() {
 
     @Inject
     lateinit var navigator: Navigator
+
+    @Inject
+    lateinit var logger: EventLogger
 
     private lateinit var bitmark: BitmarkModelView
 
@@ -146,6 +155,12 @@ class TransferActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "transfer bitmark failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
+                    logger.logError(Event.PROP_TRANSFER_ERROR, res.throwable())
                     blocked = false
                     progressBar.gone()
                     dialogController.alert(
@@ -187,6 +202,10 @@ class TransferActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get key alias failed: ${res.throwable() ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error,
@@ -249,7 +268,12 @@ class TransferActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

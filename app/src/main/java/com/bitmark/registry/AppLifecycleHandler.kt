@@ -3,6 +3,7 @@ package com.bitmark.registry
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import com.bitmark.registry.data.source.logging.Tracer
 
 
 /**
@@ -12,6 +13,10 @@ import android.os.Bundle
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
+
+    companion object {
+        private const val TAG = "AppLifecycleHandler"
+    }
 
     private var runningActivityCount = 0
 
@@ -41,6 +46,7 @@ class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStarted(activity: Activity?) {
         if (++runningActivityCount == 1 && !isConfigChanged) {
+            Tracer.INFO.log(TAG, "on foreground")
             runningActivity = activity
             appStateChangedListeners.forEach { l -> l.onForeground() }
         }
@@ -58,6 +64,7 @@ class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
     override fun onActivityStopped(activity: Activity?) {
         isConfigChanged = activity?.isChangingConfigurations ?: false
         if (--runningActivityCount == 0 && !isConfigChanged) {
+            Tracer.INFO.log(TAG, "on background")
             runningActivity = null
             appStateChangedListeners.forEach { l -> l.onBackground() }
         }

@@ -1,6 +1,5 @@
 package com.bitmark.registry.feature.realtime
 
-import android.util.Log
 import com.bitmark.apiservice.BitmarkWebSocket
 import com.bitmark.apiservice.BitmarkWebSocketService
 import com.bitmark.apiservice.WebSocket
@@ -8,6 +7,7 @@ import com.bitmark.apiservice.utils.Address
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.logging.Tracer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -150,7 +150,7 @@ class WebSocketEventBus(
     }
 
     override fun onConnected() {
-        Log.d(TAG, "onConnected")
+        Tracer.DEBUG.log(TAG, "onConnected")
         connectListener?.invoke(null)
         subscribeEvents()
     }
@@ -161,9 +161,9 @@ class WebSocketEventBus(
                 subscribeBitmarkChanged(accountNumber)
                 subscribeNewPendingTx(accountNumber)
                 subscribeNewPendingIssuance(accountNumber)
-                Log.d(TAG, "subscribe events")
+                Tracer.DEBUG.log(TAG, "subscribe events")
             } catch (e: Throwable) {
-                Log.e(TAG, "subscribe events error: $e message ${e.message}")
+                Tracer.ERROR.log(TAG, "subscribe events error: $e message ${e.message}")
             }
         }
     }
@@ -174,21 +174,21 @@ class WebSocketEventBus(
                 unsubscribeNewPendingIssuance(accountNumber)
                 unsubscribeNewPendingTx(accountNumber)
                 unsubscribeBitmarkChanged(accountNumber)
-                Log.d(TAG, "unsubscribe events")
+                Tracer.DEBUG.log(TAG, "unsubscribe events")
                 onDone?.invoke()
             } catch (e: Throwable) {
-                Log.e(TAG, "unsubscribe events error: $e message ${e.message}")
+                Tracer.ERROR.log(TAG, "unsubscribe events error: $e message ${e.message}")
             }
         }
     }
 
     override fun onConnectionError(e: Throwable?) {
-        Log.d(TAG, "onConnectionError: $e message ${e?.message}")
+        Tracer.DEBUG.log(TAG, "onConnectionError: $e message ${e?.message}")
         connectListener?.invoke(e)
     }
 
     override fun onDisconnected() {
-        Log.d(TAG, "onDisconnected")
+        Tracer.DEBUG.log(TAG, "onDisconnected")
         disconnectListener?.invoke()
     }
 

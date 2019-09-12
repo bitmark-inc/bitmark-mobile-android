@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source.remote.api.middleware
 
 import android.text.TextUtils
+import com.bitmark.registry.data.source.logging.Tracer
 import okhttp3.Response
 
 
@@ -24,6 +25,8 @@ class FileCourierServerInterceptor : Interceptor() {
                 "Bearer " + Cache.getInstance().mobileServerJwt
             )
 
-        return chain.proceed(builder.build())
+        val req = builder.build()
+        Tracer.INFO.log("FileCourierServerInterceptor", req.toString())
+        return chain.proceed(req)
     }
 }

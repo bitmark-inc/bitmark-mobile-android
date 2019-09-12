@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import com.bitmark.registry.data.source.logging.Tracer
 import javax.inject.Inject
 
 
@@ -17,6 +18,10 @@ import javax.inject.Inject
  */
 class ConnectivityHandler @Inject constructor(private val context: Context) :
     BroadcastReceiver() {
+
+    companion object {
+        private const val TAG = "ConnectivityHandler"
+    }
 
     private var connected = false
 
@@ -45,6 +50,7 @@ class ConnectivityHandler @Inject constructor(private val context: Context) :
 
     override fun onReceive(context: Context?, intent: Intent?) {
         connected = isConnected(context ?: return)
+        Tracer.INFO.log(TAG, "connected: $connected")
         networkStateChangeListeners.forEach { listener ->
             listener.onChange(
                 connected

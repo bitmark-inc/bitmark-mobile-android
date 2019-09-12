@@ -13,12 +13,15 @@ import com.bitmark.cryptography.crypto.Ed25519
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.gotoSecuritySetting
@@ -49,6 +52,8 @@ class AuthenticationFragment : BaseSupportFragment() {
 
         private const val RECOVER_ACCOUNT = "recover_account"
 
+        private const val TAG = "AuthenticationFragment"
+
         fun newInstance(
             phrase: Array<String?>? = null,
             uri: String? = null,
@@ -72,6 +77,9 @@ class AuthenticationFragment : BaseSupportFragment() {
 
     @Inject
     internal lateinit var navigator: Navigator
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private var blocked = false
 
@@ -148,6 +156,15 @@ class AuthenticationFragment : BaseSupportFragment() {
                     blocked = false
                 }
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "register account failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
+                    logger.logError(
+                        Event.ACCOUNT_SIGN_UP_ERROR,
+                        res.throwable()
+                    )
                     progressBar.gone()
                     dialogController.alert(
                         R.string.error,
@@ -180,6 +197,14 @@ class AuthenticationFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "update account failed: ${res.throwable() ?: "unknown"}"
+                    )
+                    logger.logError(
+                        Event.ACCOUNT_RECOVER_ERROR,
+                        res.throwable()
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.could_not_recover_account
@@ -319,6 +344,12 @@ class AuthenticationFragment : BaseSupportFragment() {
                             }
                         }
                         else -> {
+                            Tracer.ERROR.log(
+                                TAG,
+                                "save account failed: ${throwable?.message
+                                    ?: "unknown"}"
+                            )
+                            logger.logError(Event.AUTH_INVALID_ERROR, throwable)
                             dialogController.alert(
                                 getString(R.string.error),
                                 throwable?.message

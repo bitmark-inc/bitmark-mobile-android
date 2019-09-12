@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
@@ -65,6 +66,9 @@ class YourPropertiesFragment : BaseSupportFragment(),
         }
 
     companion object {
+
+        private const val TAG = "YourPropertiesFragment"
+
         fun newInstance() = YourPropertiesFragment()
     }
 
@@ -169,6 +173,10 @@ class YourPropertiesFragment : BaseSupportFragment(),
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "list bitmark failed: ${res.throwable() ?: "unknown"}"
+                    )
                     progressBar.gone()
                 }
 
@@ -190,6 +198,11 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
                 res.isError() -> {
                     // silence fetching, do nothing when error
+                    Tracer.ERROR.log(
+                        TAG,
+                        "refresh bitmarks failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     layoutSwipeRefresh.isRefreshing = false
                 }
             }
@@ -205,6 +218,11 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
                 res.isError() -> {
                     // ignore error
+                    Tracer.ERROR.log(
+                        TAG,
+                        "mark bitmark seen failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                 }
             }
         })
@@ -241,6 +259,11 @@ class YourPropertiesFragment : BaseSupportFragment(),
 
                 res.isError() -> {
                     // silence fetching so ignore error
+                    Tracer.ERROR.log(
+                        TAG,
+                        "fetch latest bitmark failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                 }
             }
         })

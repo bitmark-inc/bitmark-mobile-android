@@ -13,10 +13,13 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.transfer.TransferActivity
 import com.bitmark.registry.util.extension.*
@@ -44,6 +47,8 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
     companion object {
         private const val BITMARK = "bitmark"
 
+        private const val TAG = "MusicClaimingActivity"
+
         fun getBundle(
             bitmark: BitmarkModelView
         ): Bundle {
@@ -61,6 +66,9 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
 
     @Inject
     lateinit var dialogController: DialogController
+
+    @Inject
+    lateinit var logger: EventLogger
 
     private lateinit var progressDialog: ProgressAppCompatDialog
 
@@ -275,6 +283,10 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                 }
 
                 res.isError() -> {
+                    logger.logError(
+                        Event.MUSIC_CLAIMING_INFO_ERROR,
+                        res.throwable()
+                    )
                     dialogController.alert(
                         getString(R.string.error),
                         res.throwable()?.message
@@ -298,6 +310,14 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                         )
                     }
                 }
+
+                res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "prepare download failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
+                }
             }
         })
 
@@ -319,8 +339,21 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
                     val e = res.throwable()
                     val errorMessage =
                         if (e is HttpException && e.code == 404) {
+                            Tracer.WARNING.log(
+                                TAG,
+                                "asset is not available to download"
+                            )
                             R.string.the_asset_is_not_available
                         } else {
+                            Tracer.ERROR.log(
+                                TAG,
+                                "download asset failed: ${e?.message
+                                    ?: "unknown"}"
+                            )
+                            logger.logError(
+                                Event.MUSIC_CLAIMING_DOWNLOAD_ERROR,
+                                e
+                            )
                             R.string.could_not_download_asset
                         }
                     dialogController.alert(
@@ -366,7 +399,12 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

@@ -1,9 +1,9 @@
 package com.bitmark.registry.feature.sync
 
-import android.util.Log
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.Constant
+import com.bitmark.registry.data.source.logging.Tracer
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 
@@ -32,7 +32,7 @@ class PropertySynchronizer(
     private var minTxsOffset = -1L
 
     fun start() {
-        Log.d(TAG, "Starting...")
+        Tracer.DEBUG.log(TAG, "Starting...")
         compositeDisposable = CompositeDisposable()
         syncBitmarks()
         syncTxs()
@@ -41,7 +41,7 @@ class PropertySynchronizer(
 
     fun stop() {
         compositeDisposable.dispose()
-        Log.d(TAG, "Stopped")
+        Tracer.DEBUG.log(TAG, "Stopped")
     }
 
     private fun syncBitmarks() {
@@ -66,12 +66,12 @@ class PropertySynchronizer(
             if (e == null) {
                 minBitmarkOffset =
                     bitmarks.minBy { b -> b.offset }?.offset ?: return@subscribe
-                Log.d(TAG, "minBitmarkOffset: $minBitmarkOffset")
+                Tracer.DEBUG.log(TAG, "minBitmarkOffset: $minBitmarkOffset")
                 if (bitmarks.size == ITEM_PER_PAGE) {
-                    Log.d(TAG, "resync bitmarks recursively")
+                    Tracer.DEBUG.log(TAG, "resync bitmarks recursively")
                     syncBitmarks()
                 } else {
-                    Log.d(TAG, "stop sync bitmarks since fetched all")
+                    Tracer.DEBUG.log(TAG, "stop sync bitmarks since fetched all")
                 }
             }
         })
@@ -103,12 +103,12 @@ class PropertySynchronizer(
             if (e == null) {
                 minTxsOffset =
                     txs.minBy { t -> t.offset }?.offset ?: return@subscribe
-                Log.d(TAG, "minTxsOffset: $minTxsOffset")
+                Tracer.DEBUG.log(TAG, "minTxsOffset: $minTxsOffset")
                 if (txs.size == ITEM_PER_PAGE) {
-                    Log.d(TAG, "resync txs recursively")
+                    Tracer.DEBUG.log(TAG, "resync txs recursively")
                     syncTxs()
                 } else {
-                    Log.d(TAG, "stop sync txs since fetched all")
+                    Tracer.DEBUG.log(TAG, "stop sync txs since fetched all")
                 }
             }
         })
@@ -119,7 +119,7 @@ class PropertySynchronizer(
             bitmarkRepo.syncAssetClaimingRequest(Constant.OMNISCIENT_ASSET_ID).retry(
                 1
             ).subscribe { _, _ ->
-                Log.d(TAG, "sync claim request done")
+                Tracer.DEBUG.log(TAG, "sync claim request done")
             })
     }
 

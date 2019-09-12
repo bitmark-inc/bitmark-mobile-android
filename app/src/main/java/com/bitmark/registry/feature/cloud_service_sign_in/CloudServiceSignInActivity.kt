@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
@@ -11,6 +12,8 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.google.android.gms.common.api.ApiException
@@ -27,7 +30,11 @@ import javax.inject.Inject
 class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
     companion object {
+
+        private const val TAG = "CloudServiceSignInActivity"
+
         private const val FIRST_LAUNCH = "first_launch"
+
         private const val SIGN_IN_INTENT = "sign_in_intent"
 
         fun getBundle(
@@ -55,6 +62,9 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var googleDriveSignIn: GoogleDriveSignIn
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private var isFirstLaunch: Boolean = false
 
@@ -88,6 +98,7 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
             override fun onError(e: Throwable) {
                 // work around since this report bug
                 // https://stackoverflow.com/questions/49223941/googlesigninclient-return-8-internal-error
+                logger.logError(Event.GOOGLE_DRIVE_ENABLE_ERROR, e)
                 if (e is ApiException && e.statusCode == 8) {
                     googleDriveSignIn.signIn()
                 } else {
@@ -123,10 +134,16 @@ class CloudServiceSignInActivity : BaseAppCompatActivity() {
                     }
 
                     res.isError() -> {
+                        Tracer.ERROR.log(
+                            TAG,
+                            "change cloud service required state failed: ${res.throwable()
+                                ?: ""}"
+                        )
                         dialogController.alert(
                             R.string.error,
                             R.string.unexpected_error
                         )
+
                     }
                 }
             })

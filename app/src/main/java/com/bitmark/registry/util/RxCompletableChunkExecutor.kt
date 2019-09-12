@@ -1,6 +1,6 @@
 package com.bitmark.registry.util
 
-import android.util.Log
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.util.extension.poll
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -81,13 +81,13 @@ class RxCompletableChunkExecutor(
                         errorCallback?.invoke(e)
                         if (e is CompositeException) {
                             e.exceptions.forEach { ex ->
-                                Log.e(
+                                Tracer.ERROR.log(
                                     tag,
                                     "${ex.javaClass}-${ex.message}"
                                 )
                             }
                         } else {
-                            Log.e(
+                            Tracer.ERROR.log(
                                 tag,
                                 "${e.javaClass}-${e.message}"
                             )

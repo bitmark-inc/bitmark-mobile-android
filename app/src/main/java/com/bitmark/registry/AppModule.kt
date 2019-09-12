@@ -7,6 +7,8 @@ import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.feature.authentication.BmServerAuthentication
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.feature.google_drive.GoogleDriveService
+import com.bitmark.registry.feature.logging.EventLogger
+import com.bitmark.registry.feature.logging.SentryEventLogger
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.feature.realtime.WebSocketEventBus
 import com.bitmark.registry.feature.sync.AssetSynchronizer
@@ -54,8 +56,14 @@ class AppModule {
     fun provideBmServerAuthentication(
         context: Context,
         appLifecycleHandler: AppLifecycleHandler,
-        accountRepo: AccountRepository
-    ) = BmServerAuthentication(context, appLifecycleHandler, accountRepo)
+        accountRepo: AccountRepository,
+        eventLogger: EventLogger
+    ) = BmServerAuthentication(
+        context,
+        appLifecycleHandler,
+        accountRepo,
+        eventLogger
+    )
 
     @Provides
     @Singleton
@@ -82,5 +90,10 @@ class AppModule {
         accountRepo,
         realtimeBus
     )
+
+    @Provides
+    @Singleton
+    fun provideEventLogger(accountRepo: AccountRepository): EventLogger =
+        SentryEventLogger(accountRepo)
 
 }

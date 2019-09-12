@@ -12,11 +12,15 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.source.logging.Level
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.properties.PropertiesContainerFragment
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.register.RegisterContainerActivity
@@ -33,6 +37,10 @@ import javax.inject.Inject
 
 class MainActivity : BaseAppCompatActivity(),
     AppLifecycleHandler.AppStateChangedListener {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     @Inject
     lateinit var viewModel: MainViewModel
@@ -51,6 +59,9 @@ class MainActivity : BaseAppCompatActivity(),
 
     @Inject
     internal lateinit var connectivityHandler: ConnectivityHandler
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private lateinit var adapter: MainViewPagerAdapter
 
@@ -77,6 +88,8 @@ class MainActivity : BaseAppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isStorageEncryptionInactive()) {
+            Tracer.WARNING.log(TAG, "device is not encrypted")
+            logger.logEvent(Event.DEVICE_NOT_ENCRYPTED, level = Level.WARNING)
             dialogController.alert(
                 R.string.warning_your_phone_is_not_encrypted,
                 R.string.encrypting_your_data
@@ -211,7 +224,12 @@ class MainActivity : BaseAppCompatActivity(),
             dialogController,
             successAction = action,
             setupRequiredAction = { navigator.gotoSecuritySetting() },
-            invalidErrorAction = {
+            invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 dialogController.alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed
@@ -315,6 +333,14 @@ class MainActivity : BaseAppCompatActivity(),
                     val bitmark = res.data() ?: return@Observer
                     openPropertyDetail(bitmark)
                 }
+
+                res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "get bitmark detail failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
+                }
             }
         })
 
@@ -329,7 +355,11 @@ class MainActivity : BaseAppCompatActivity(),
                     }
 
                     res.isError() -> {
-                        // ignore
+                        Tracer.ERROR.log(
+                            TAG,
+                            "prepare deeplink handling failed: ${res.throwable()
+                                ?: "unknown"}"
+                        )
                     }
                 }
             })
@@ -362,6 +392,14 @@ class MainActivity : BaseAppCompatActivity(),
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "authorize failed: ${res.throwable() ?: "unknown"}"
+                    )
+                    logger.logError(
+                        Event.CHIBITRONIC_AUTHORIZE_ERROR,
+                        res.throwable()
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.could_not_send_your_authorization
@@ -389,6 +427,8 @@ class MainActivity : BaseAppCompatActivity(),
         })
 
         viewModel.quotaExceededLiveData.observe(this, Observer {
+            Tracer.WARNING.log(TAG, "quota is exceeded")
+            logger.logError(Event.GOOGLE_DRIVE_QUOTA_EXCEEDED, null)
             dialogController.alert(
                 R.string.not_enough_storage,
                 R.string.your_google_drive_storage_is_full
@@ -396,6 +436,7 @@ class MainActivity : BaseAppCompatActivity(),
         })
 
         viewModel.quotaAlmostExceededLiveData.observe(this, Observer {
+            Tracer.WARNING.log(TAG, "quota almost exceeded")
             dialogController.alert(
                 R.string.storage_is_almost_full,
                 R.string.your_google_drive_storage_is_almost_full

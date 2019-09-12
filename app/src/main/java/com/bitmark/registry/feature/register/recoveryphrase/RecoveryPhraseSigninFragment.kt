@@ -7,10 +7,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
@@ -36,6 +39,8 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
 
         private const val RECOVER_ACCOUNT = "recover_account"
 
+        private const val TAG = "RecoveryPhraseSigninFragment"
+
         fun newInstance(
             uri: String? = null,
             recoverAccount: Boolean = false
@@ -57,6 +62,9 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
 
     @Inject
     internal lateinit var dialogController: DialogController
+
+    @Inject
+    internal lateinit var logger: EventLogger
 
     private var uri: String? = null
 
@@ -203,6 +211,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
             when {
                 res.isSuccess() -> {
                     val same = res.data() ?: false
+                    Tracer.INFO.log(TAG, "check same account result: $same")
                     if (same) {
                         navigateAuthentication(adapter.getPhrase(), uri, true)
                     } else {
@@ -224,6 +233,11 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "check same account failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                     dialogController.alert(
                         R.string.error,
                         R.string.unexpected_error
@@ -252,6 +266,14 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "clear data failed: ${res.throwable() ?: "unknown"}"
+                    )
+                    logger.logError(
+                        Event.ACCOUNT_RECOVER_CLEAR_DATA_ERROR,
+                        res.throwable()
+                    )
                     dialogController.dismiss(clearDataProgressDialog)
                     dialogController.alert(
                         R.string.error,

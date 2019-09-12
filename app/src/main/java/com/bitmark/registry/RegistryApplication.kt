@@ -1,8 +1,9 @@
 package com.bitmark.registry
 
-import android.util.Log
 import com.bitmark.apiservice.configuration.GlobalConfiguration
 import com.bitmark.apiservice.configuration.Network
+import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.data.source.remote.api.middleware.BitmarkSdkHttpObserver
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGER
@@ -13,6 +14,8 @@ import dagger.android.support.DaggerApplication
 import io.fabric.sdk.android.Fabric
 import io.intercom.android.sdk.Intercom
 import io.reactivex.plugins.RxJavaPlugins
+import io.sentry.Sentry
+import io.sentry.android.AndroidSentryClientFactory
 import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Inject
 
@@ -35,6 +38,9 @@ class RegistryApplication : DaggerApplication() {
     @Inject
     lateinit var connectivityHandler: ConnectivityHandler
 
+    @Inject
+    lateinit var bitmarkSdkHttpObserver: BitmarkSdkHttpObserver
+
     private val applicationInjector = DaggerAppComponent.builder()
         .application(this)
         .build()
@@ -48,9 +54,10 @@ class RegistryApplication : DaggerApplication() {
         BitmarkSDK.init(buildBmSdkConfig())
         Fabric.with(this, Crashlytics())
         Intercom.initialize(this, API_KEY_MANAGER.intercomApiKey, "ejkeunzw")
+        Sentry.init(AndroidSentryClientFactory(this))
         registerActivityLifecycleCallbacks(appLifecycleHandler)
         RxJavaPlugins.setErrorHandler { e ->
-            Log.e(
+            Tracer.DEBUG.log(
                 TAG,
                 "intercept rx error ${e.javaClass} with message ${e.message} to be sent to thread uncaught exception"
             )
@@ -59,9 +66,10 @@ class RegistryApplication : DaggerApplication() {
     }
 
     private fun buildBmSdkConfig(): GlobalConfiguration.Builder {
-        val builder = GlobalConfiguration.builder().withConnectionTimeout(
-            ServiceGenerator.CONNECTION_TIMEOUT.toInt()
-        )
+        val builder = GlobalConfiguration.builder()
+            .withConnectionTimeout(ServiceGenerator.CONNECTION_TIMEOUT.toInt())
+            .withHttpObserver(bitmarkSdkHttpObserver) // TODO turn it on in prd only
+
         if (BuildConfig.DEBUG) {
             builder.withLogLevel(HttpLoggingInterceptor.Level.BODY)
         }

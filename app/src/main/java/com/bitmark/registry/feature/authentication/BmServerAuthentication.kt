@@ -9,8 +9,11 @@ import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
 import com.bitmark.registry.data.source.AccountRepository
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.logging.Event
+import com.bitmark.registry.feature.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.util.extension.gotoSecuritySetting
@@ -34,8 +37,13 @@ import io.reactivex.schedulers.Schedulers
 class BmServerAuthentication(
     private val context: Context,
     private val appLifecycleHandler: AppLifecycleHandler,
-    private val accountRepo: AccountRepository
+    private val accountRepo: AccountRepository,
+    private val logger: EventLogger
 ) : AppLifecycleHandler.AppStateChangedListener {
+
+    companion object {
+        private const val TAG = "BmServerAuthentication"
+    }
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -139,7 +147,12 @@ class BmServerAuthentication(
                 authorizationRequiredDialog =
                     AuthorizationRequiredDialog(activity) { checkJwtExpiry() }
                 authorizationRequiredDialog?.show()
-            }, invalidErrorAction = {
+            }, invalidErrorAction = { e ->
+                Tracer.ERROR.log(
+                    TAG,
+                    "biometric authentication is invalidated: ${e?.message}"
+                )
+                logger.logError(Event.AUTH_INVALID_ERROR, e)
                 DialogController(activity).alert(
                     R.string.account_is_not_accessible,
                     R.string.sorry_you_have_changed_or_removed

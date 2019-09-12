@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
+import com.bitmark.registry.data.source.logging.Tracer
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
@@ -62,6 +63,9 @@ class TransactionHistoryFragment : BaseSupportFragment(),
         }
 
     companion object {
+
+        private const val TAG = "TransactionHistoryFragment"
+
         fun newInstance() = TransactionHistoryFragment()
     }
 
@@ -150,6 +154,10 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "list txs failed: ${res.throwable() ?: "unknown"}"
+                    )
                     progressBar.gone()
                     if (adapter.isEmpty()) {
                         showEmptyView()
@@ -173,6 +181,10 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                 }
 
                 res.isError() -> {
+                    Tracer.ERROR.log(
+                        TAG,
+                        "refresh txs failed: ${res.throwable() ?: "unknown"}"
+                    )
                     layoutSwipeRefresh.isRefreshing = false
                     progressBar.gone()
                 }
@@ -197,6 +209,11 @@ class TransactionHistoryFragment : BaseSupportFragment(),
 
                 res.isError() -> {
                     // silence fetching so ignore error
+                    Tracer.ERROR.log(
+                        TAG,
+                        "fetch latest txs failed: ${res.throwable()
+                            ?: "unknown"}"
+                    )
                 }
             }
         })
