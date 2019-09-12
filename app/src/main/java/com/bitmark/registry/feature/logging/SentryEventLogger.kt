@@ -115,7 +115,8 @@ class SentryEventLogger(private val accountRepo: AccountRepository) :
 
     private fun buildUserBuilder() =
         accountRepo.getAccountNumber().map { accountNumber ->
-            UserBuilder().setId(accountNumber.shortenAccountNumber())
+            UserBuilder().setId(accountNumber)
+                .setUsername(accountNumber.shortenAccountNumber())
         }
 
 
