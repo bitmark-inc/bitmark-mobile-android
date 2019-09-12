@@ -124,4 +124,14 @@ class PropertiesFragment : BaseSupportFragment() {
             (adapter.currentFragment as? BehaviorComponent)?.refresh()
         }
     }
+
+    override fun onBackPressed(): Boolean {
+        super.onBackPressed()
+        return if (viewPager.currentItem != PropertiesViewPagerAdapter.TAB_YOUR) {
+            viewPager.currentItem = PropertiesViewPagerAdapter.TAB_YOUR
+            true
+        } else {
+            false
+        }
+    }
 }
