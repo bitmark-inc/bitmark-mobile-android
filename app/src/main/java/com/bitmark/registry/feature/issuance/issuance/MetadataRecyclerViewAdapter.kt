@@ -186,8 +186,6 @@ class MetadataRecyclerViewAdapter :
             text: String
         ) {
 
-            val hasSingleRow = hasSingleRow()
-
             with(itemView) {
                 val isDeleted =
                     text.isBlank() && (view == etKey && item.key.isNotBlank()) || (view == etValue && item.value.isNotBlank())
@@ -206,20 +204,19 @@ class MetadataRecyclerViewAdapter :
                     item.value = text
                 }
 
-                if (hasSingleRow && item.isBlank()) {
+                if (item.isBlank()) {
                     showInitState()
                 } else if ((isDeleted && item.isMissing()) || item.isProhibited() || item.duplicate) {
                     showInvalidState()
-                } else if (item.isValid()) {
+                } else {
                     showValidState()
                 }
 
-                itemFilledListener?.invoke(item.isValid())
+                itemFilledListener?.invoke(item.isFilled())
             }
         }
 
         private fun handleFocusState(`this`: View, hasFocus: Boolean) {
-            val hasSingleRow = hasSingleRow()
             with(itemView) {
                 val that = if (`this` == etKey) etValue else etKey
 
@@ -235,8 +232,10 @@ class MetadataRecyclerViewAdapter :
                         {
                             if (!that.isFocused) {
                                 item.isFocused = false
-                                if ((hasSingleRow && item.isMissing()) || (!hasSingleRow && !item.isValid())) {
+                                if (item.isMissing() || item.isProhibited() || item.duplicate) {
                                     showInvalidState()
+                                } else if (item.isBlank()) {
+                                    showInitState()
                                 }
                             }
 
@@ -306,7 +305,10 @@ class MetadataRecyclerViewAdapter :
 
         fun isBlank() = key.isBlank() && value.isBlank()
 
-        fun isMissing() = key.isBlank() || value.isBlank()
+        fun isFilled() = !isMissing() && !isBlank()
+
+        fun isMissing() =
+            (key.isBlank() && !value.isBlank()) || (!key.isBlank() && value.isBlank())
 
         fun isValid() = !isMissing() && !isProhibited() && !duplicate
     }

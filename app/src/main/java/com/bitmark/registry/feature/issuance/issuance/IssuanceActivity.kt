@@ -136,13 +136,11 @@ class IssuanceActivity : BaseAppCompatActivity() {
             assetType =
                 asset.metadata?.get("source") ?: asset.metadata?.get("Source")
                         ?: getString(R.string.other)
-            tvAssetType.text = assetType
-            tvAssetType.setCompoundDrawablesWithIntrinsicBounds(
-                0,
-                0,
-                R.drawable.ic_arrow_down_inactive,
-                0
-            )
+            setTvAssetTypeFocused(false)
+        } else {
+            etPropName.requestFocus()
+            etPropName.background =
+                getDrawable(R.drawable.bg_bottom_line_blue_ribbon)
         }
 
         adapter.setItemFilledListener { filled ->
@@ -297,15 +295,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         tvAssetType.setOnClickListener {
-            tvAssetType.background =
-                getDrawable(R.drawable.bg_border_blue_ribbon)
-            tvAssetType.setTextColorRes(R.color.blue_ribbon)
-            tvAssetType.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                0,
-                0,
-                R.drawable.ic_arrow_down_2,
-                0
-            )
+            setTvAssetTypeFocused(true)
             showAssetTypePopupMenu(asset.registered)
         }
 
@@ -426,6 +416,30 @@ class IssuanceActivity : BaseAppCompatActivity() {
         })
     }
 
+    private fun setTvAssetTypeFocused(focused: Boolean) {
+        if (focused) {
+            tvAssetType.background =
+                getDrawable(R.drawable.bg_border_blue_ribbon)
+            tvAssetType.setTextColorRes(R.color.blue_ribbon)
+            tvAssetType.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                0,
+                0,
+                R.drawable.ic_arrow_down_2,
+                0
+            )
+        } else {
+            tvAssetType.background =
+                getDrawable(R.drawable.bg_border_silver)
+            tvAssetType.setTextColorRes(R.color.silver)
+            tvAssetType.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                0,
+                0,
+                R.drawable.ic_arrow_down_inactive,
+                0
+            )
+        }
+    }
+
     private fun loadKey(
         accountNumber: String,
         keyAlias: String,
@@ -499,8 +513,9 @@ class IssuanceActivity : BaseAppCompatActivity() {
         popupWindow.isFocusable = true
         popupWindow.setOnDismissListener {
             tvAssetType.isSelected = false
-            tvAssetType.background =
-                getDrawable(if (tvAssetType.text.isEmpty()) R.drawable.bg_border_torch_red else R.drawable.bg_border_blue_ribbon)
+            if (assetType == null) {
+                setTvAssetTypeFocused(false)
+            }
         }
 
         popupWindow.showAsDropDown(tvAssetType)
