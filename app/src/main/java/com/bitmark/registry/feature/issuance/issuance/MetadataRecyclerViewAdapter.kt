@@ -77,7 +77,7 @@ class MetadataRecyclerViewAdapter :
     internal fun toMap(): Map<String, String> {
         val map = mutableMapOf<String, String>()
         for (i in items) {
-            if (!i.isValid()) continue
+            if (!i.isValid() || !i.isFilled()) continue
             map[i.key.trim()] = i.value.trim()
         }
         return map
