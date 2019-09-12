@@ -1,4 +1,4 @@
-package com.bitmark.registry.data.source.logging
+package com.bitmark.registry.logging
 
 import io.sentry.event.Breadcrumb
 import io.sentry.event.Event

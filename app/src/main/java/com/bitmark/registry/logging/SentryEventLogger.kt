@@ -1,10 +1,8 @@
-package com.bitmark.registry.feature.logging
+package com.bitmark.registry.logging
 
 import android.os.Build
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.AccountRepository
-import com.bitmark.registry.data.source.logging.Level
-import com.bitmark.registry.data.source.logging.toEventLevel
 import com.bitmark.registry.util.extension.shortenAccountNumber
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers

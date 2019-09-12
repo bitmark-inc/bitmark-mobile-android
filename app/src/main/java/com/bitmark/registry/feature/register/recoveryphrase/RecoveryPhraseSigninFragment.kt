@@ -7,13 +7,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.R
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.logging.Event
-import com.bitmark.registry.feature.logging.EventLogger
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.ProgressAppCompatDialog

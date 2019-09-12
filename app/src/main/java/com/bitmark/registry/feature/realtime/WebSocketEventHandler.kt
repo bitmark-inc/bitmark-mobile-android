@@ -4,7 +4,7 @@ import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.util.RxCompletableChunkExecutor
-import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
+import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction

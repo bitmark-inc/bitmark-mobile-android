@@ -1,6 +1,6 @@
 package com.bitmark.registry.data.source.remote.api.middleware
 
-import com.bitmark.registry.data.source.ext.toRemoteError
+import com.bitmark.registry.data.ext.toRemoteError
 import io.reactivex.*
 import io.reactivex.functions.Function
 import retrofit2.Call

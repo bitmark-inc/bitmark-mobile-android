@@ -1,4 +1,4 @@
-package com.bitmark.registry.data.source.ext
+package com.bitmark.registry.data.ext
 
 import androidx.room.EmptyResultSetException
 import com.bitmark.registry.data.source.remote.api.error.HttpException

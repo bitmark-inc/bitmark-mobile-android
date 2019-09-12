@@ -1,6 +1,4 @@
-package com.bitmark.registry.feature.logging
-
-import com.bitmark.registry.data.source.logging.Level
+package com.bitmark.registry.logging
 
 
 /**

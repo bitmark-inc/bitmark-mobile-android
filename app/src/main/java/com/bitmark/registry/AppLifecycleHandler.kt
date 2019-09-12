@@ -3,7 +3,7 @@ package com.bitmark.registry
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 
 
 /**

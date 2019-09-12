@@ -7,7 +7,7 @@ import com.bitmark.apiservice.utils.Address
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.data.source.AccountRepository
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 

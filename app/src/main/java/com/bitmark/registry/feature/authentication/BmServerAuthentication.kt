@@ -9,11 +9,11 @@ import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
 import com.bitmark.registry.data.source.AccountRepository
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.feature.logging.Event
-import com.bitmark.registry.feature.logging.EventLogger
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
 import com.bitmark.registry.util.extension.gotoSecuritySetting

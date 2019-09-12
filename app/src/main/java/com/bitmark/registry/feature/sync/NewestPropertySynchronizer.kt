@@ -3,7 +3,7 @@ package com.bitmark.registry.feature.sync
 import android.annotation.SuppressLint
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.exceptions.CompositeException

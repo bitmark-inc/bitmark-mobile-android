@@ -7,7 +7,7 @@ import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
-import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
+import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
 import com.bitmark.registry.data.source.local.event.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource

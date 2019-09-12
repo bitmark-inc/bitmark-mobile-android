@@ -5,14 +5,14 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.feature.logging.Event
-import com.bitmark.registry.feature.logging.EventLogger
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.InfoAppCompatDialog

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler

@@ -3,7 +3,7 @@ package com.bitmark.registry.data.source.local
 import com.bitmark.registry.data.model.*
 import com.bitmark.registry.data.model.TransactionData.Status.CONFIRMED
 import com.bitmark.registry.data.model.TransactionData.Status.PENDING
-import com.bitmark.registry.data.source.ext.isDbRecNotFoundError
+import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi

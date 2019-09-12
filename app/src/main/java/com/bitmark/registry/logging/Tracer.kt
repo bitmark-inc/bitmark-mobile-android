@@ -1,4 +1,4 @@
-package com.bitmark.registry.data.source.logging
+package com.bitmark.registry.logging
 
 import android.util.Log
 import com.google.gson.GsonBuilder

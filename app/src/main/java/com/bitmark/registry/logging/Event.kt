@@ -1,4 +1,4 @@
-package com.bitmark.registry.feature.logging
+package com.bitmark.registry.logging
 
 
 /**

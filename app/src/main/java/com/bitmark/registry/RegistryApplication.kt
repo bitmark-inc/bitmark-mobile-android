@@ -2,7 +2,7 @@ package com.bitmark.registry
 
 import com.bitmark.apiservice.configuration.GlobalConfiguration
 import com.bitmark.apiservice.configuration.Network
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.data.source.remote.api.middleware.BitmarkSdkHttpObserver
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler

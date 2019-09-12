@@ -1,6 +1,6 @@
 package com.bitmark.registry.util
 
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.poll
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers

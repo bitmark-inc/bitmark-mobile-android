@@ -1,7 +1,7 @@
 package com.bitmark.registry.data.source.remote.api.middleware
 
 import android.text.TextUtils
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import okhttp3.Response
 
 

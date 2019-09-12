@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
@@ -12,8 +12,8 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
-import com.bitmark.registry.feature.logging.Event
-import com.bitmark.registry.feature.logging.EventLogger
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.google.android.gms.common.api.ApiException

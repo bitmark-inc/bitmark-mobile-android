@@ -2,7 +2,7 @@ package com.bitmark.registry.feature.sync
 
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.data.source.logging.Tracer
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.google_drive.GoogleDriveService
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.UniqueConcurrentLinkedDeque
