@@ -46,7 +46,7 @@
   <string name="downloading">下載</string>
   <string name="the_asset_is_not_available">你的 bitmark 資產尚未準備好下載，請稍後再試。</string>
   <string name="could_not_download_asset">無法下載資產，請稍後再試。</string>
-  <string name="transfer_bitmark">轉移 Bitmark 數位資產所有權</string>
+  <string name="transfer_bitmark">轉移Bitmark憑證</string>
   <string name="recipient_bitmark_account_number">資產接受對象的 Bitmark 帳戶號碼</string>
   <string name="enter_the_bitmark_account_number">請在上方輸入對方完整的 Bitmark 帳戶號碼（帳戶號碼可以於個人帳戶中點擊分享）。請注意，動作確認後對方將會收到此數位資產的所有權與資產檔案。</string>
   <string name="could_not_transfer">無法轉移bitmark數位資產所有權，請稍後再試。</string>
@@ -96,7 +96,7 @@
   <string name="success_exclamation">成功！</string>
   <string name="keep_your_written_copy_private">請抄下你的帳戶復原碼並將其保存在安全的地方。</string>
   <string name="remove_access">移除授權</string>
-  <string name="your_recovery_phrase_is_the_only_way_to_access">登出此帳戶後，你將可以在此裝置上讀取和管理其他Bitmark帳戶。\n\n你現有的帳戶將會被從此裝置移除。若你將來希望能恢復此帳戶，你將會需要輸入你的帳戶復原馬碼。</string>
+  <string name="your_recovery_phrase_is_the_only_way_to_access">登出此帳戶後，你將可以在此裝置上讀取和管理其他Bitmark帳戶。\n\n你現有的帳戶將會被從此裝置移除。若你將來希望能恢復此帳戶，你將會需要輸入你的帳戶復原碼。</string>
   <string name="could_not_remove_access_due_to_unexpected_problem">發生無法預期的問題，無法移除授權。請稍後再試。</string>
   <string name="removing_access_three_dot">移除授權中…</string>
   <string name="removing_access_for_account">移除帳戶授權</string>
@@ -119,12 +119,12 @@
   <string name="register">註冊資產</string>
   <string name="photo">照片</string>
   <string name="video">影片</string>
-  <string name="file">電子檔案</string>
+  <string name="file">檔案</string>
   <string name="to_register_your_media_and_asset">可登記的資產所有權包含數位藝術、照片、文字、數位內容、穿戴式裝置所收集的個人資料、電子合約等。在明確數位資產所有權後，您可以藉由系統發行定量的「Bitmark」，進而在數位世界中合理的轉移、授權您的數位資產，並於系統紀錄資產的走向。</string>
   <string name="extracting_file">提取檔案中…</string>
   <string name="extracting">提取</string>
   <string name="unsupported_file">不支援此檔案格式</string>
-  <string name="register_property_rights">登記產權</string>
+  <string name="register_property_rights">註冊資產</string>
   <string name="asset_fingerprint">資產數位辨識碼</string>
   <string name="generated_from">創建自</string>
   <string name="property_name">資產名稱</string>
@@ -145,7 +145,7 @@
   <string-array name="asset_type">
     <item>照片</item>
     <item>影片</item>
-    <item>電子檔案</item>
+    <item>檔案</item>
   </string-array>
   <string name="other">其他</string>
   <string name="loading_three_dot">載入中…</string>
