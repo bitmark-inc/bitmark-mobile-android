@@ -25,6 +25,7 @@ import com.bitmark.registry.util.livedata.BufferedLiveData
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 import com.bitmark.registry.util.modelview.BitmarkModelView
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleOnSubscribe
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -179,8 +180,9 @@ class MainViewModel(
 
     internal fun cleanupBitmark() =
         subscribe(accountRepo.getAccountNumber().flatMapCompletable { accountNumber ->
-            bitmarkRepo.cleanupBitmark(
-                accountNumber
+            Completable.mergeArrayDelayError(
+                bitmarkRepo.syncUpBitmark(accountNumber),
+                bitmarkRepo.cleanupBitmark(accountNumber)
             )
         }.subscribe({}, {}))
 

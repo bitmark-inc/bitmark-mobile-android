@@ -39,6 +39,10 @@ abstract class BitmarkDao {
         status: List<BitmarkData.Status>
     ): Single<List<BitmarkData>>
 
+    @Transaction
+    @Query("SELECT id FROM BitmarkR WHERE owner != :owner")
+    abstract fun listIdNotOwnBy(owner: String): Single<List<String>>
+
     @Query("SELECT MAX(`offset`) FROM BitmarkR")
     abstract fun maxOffset(): Single<Long>
 
@@ -52,7 +56,7 @@ abstract class BitmarkDao {
     abstract fun count(): Single<Long>
 
     @Query("SELECT COUNT(*) FROM BitmarkR WHERE owner = :owner AND status NOT IN ('to_be_deleted', 'to_be_transferred')")
-    abstract fun countUsableBitmarks(owner: String): Single<Long>
+    abstract fun countUsable(owner: String): Single<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveR(bitmark: BitmarkDataR): Completable
@@ -83,11 +87,11 @@ abstract class BitmarkDao {
     abstract fun markSeen(bitmarkId: String): Completable
 
     @Query("SELECT COUNT(*) FROM BitmarkR WHERE asset_id = :assetId")
-    abstract fun countBitmarkRefSameAsset(assetId: String): Single<Long>
+    abstract fun countRefSameAsset(assetId: String): Single<Long>
 
     @Transaction
     @Query("SELECT * FROM BitmarkR WHERE asset_id = :assetId")
-    abstract fun listBitmarkRefSameAsset(assetId: String): Single<List<BitmarkData>>
+    abstract fun listRefSameAsset(assetId: String): Single<List<BitmarkData>>
 
     @Query("DELETE FROM BitmarkR")
     abstract fun deleteR(): Completable

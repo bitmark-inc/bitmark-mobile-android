@@ -201,9 +201,8 @@ class BitmarkLocalDataSource @Inject constructor(
         getBitmarkById(bitmarkId).map { b -> b.status }.flatMapCompletable { lastStatus ->
             databaseApi.rxCompletable { db ->
                 Completable.mergeArrayDelayError(
-                    db.bitmarkDao().deleteRById(
-                        bitmarkId
-                    ), db.bitmarkDao().deleteLById(bitmarkId)
+                    db.bitmarkDao().deleteRById(bitmarkId),
+                    db.bitmarkDao().deleteLById(bitmarkId)
                 ).doOnComplete {
                     bitmarkDeletedListener?.onDeleted(
                         bitmarkId,
@@ -243,7 +242,7 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun countUsableBitmarks(owner: String): Single<Long> =
         databaseApi.rxSingle { db ->
-            db.bitmarkDao().countUsableBitmarks(owner)
+            db.bitmarkDao().countUsable(owner)
         }.onErrorResumeNext { Single.just(0) }
 
     fun markBitmarkSeen(bitmarkId: String): Single<String> =
@@ -254,11 +253,11 @@ class BitmarkLocalDataSource @Inject constructor(
         }
 
     fun countBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
-        db.bitmarkDao().countBitmarkRefSameAsset(assetId)
+        db.bitmarkDao().countRefSameAsset(assetId)
     }.onErrorResumeNext { Single.just(0) }
 
     fun listBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
-        db.bitmarkDao().listBitmarkRefSameAsset(assetId)
+        db.bitmarkDao().listRefSameAsset(assetId)
     }.onErrorResumeNext { Single.just(listOf()) }.flatMapMaybe(
         attachAssetToBitmark()
     ).toSingle()
@@ -276,6 +275,18 @@ class BitmarkLocalDataSource @Inject constructor(
     fun checkUnseenBitmark(owner: String) = databaseApi.rxSingle { db ->
         db.bitmarkDao().countUnseen(owner)
     }.onErrorResumeNext { Single.just(0) }.map { count -> count > 0 }
+
+    fun deleteNotOwnBitmarks(owner: String) = databaseApi.rxSingle { db ->
+        db.bitmarkDao().listIdNotOwnBy(owner)
+    }.flatMapCompletable { ids ->
+        if (ids.isEmpty()) {
+            Completable.complete()
+        } else {
+            val streams = mutableListOf<Completable>()
+            ids.forEach { id -> streams.add(deleteBitmarkById(id)) }
+            Completable.mergeDelayError(streams)
+        }
+    }
 
     //endregion Bitmark
 

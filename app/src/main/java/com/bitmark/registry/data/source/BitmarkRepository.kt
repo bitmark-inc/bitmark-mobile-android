@@ -125,7 +125,10 @@ class BitmarkRepository(
         at: Long,
         limit: Int
     ): Single<List<BitmarkData>> {
-        return cleanupBitmark(owner).andThen(
+        return Completable.mergeArrayDelayError(
+            syncUpBitmark(owner),
+            cleanupBitmark(owner)
+        ).andThen(
             localDataSource.listBitmarksByOwnerOffsetLimitDesc(
                 owner,
                 at,
@@ -181,7 +184,7 @@ class BitmarkRepository(
 
     // clean up bitmark is deleted from server side but not be reflected in local db
     // also update bitmarks to latest state if the previous delete/transfer action could not be sent to server
-    fun cleanupBitmark(owner: String): Completable =
+    fun syncUpBitmark(owner: String): Completable =
         localDataSource.listBitmarksByOwnerStatus(
             owner,
             listOf(TO_BE_DELETED, TO_BE_TRANSFERRED)
@@ -237,6 +240,9 @@ class BitmarkRepository(
                     }.onErrorResumeNext { Completable.complete() }
             }
         }
+
+    fun cleanupBitmark(owner: String) =
+        localDataSource.deleteNotOwnBitmarks(owner)
 
     // find out all pending bitmarks in local db
     fun listStoredPendingBitmarks(owner: String): Single<List<BitmarkData>> =
