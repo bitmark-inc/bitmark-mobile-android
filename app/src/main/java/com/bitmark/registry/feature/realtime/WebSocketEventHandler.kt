@@ -1,10 +1,10 @@
 package com.bitmark.registry.feature.realtime
 
 import com.bitmark.registry.BuildConfig
+import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.util.RxCompletableChunkExecutor
-import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -73,10 +73,14 @@ class WebSocketEventHandler @Inject constructor(
                 )
             }.ignoreElement()
 
-        val syncBitmarkStream = if (presence) bitmarkRepo.syncBitmark(
-            bitmarkId,
-            true
-        ).ignoreElement() else Completable.complete()
+        val syncBitmarkStream = if (presence) {
+            bitmarkRepo.syncBitmark(
+                bitmarkId,
+                true
+            ).ignoreElement()
+        } else {
+            Completable.complete()
+        }
 
         return Completable.mergeArrayDelayError(
             syncTxsStream,
@@ -141,16 +145,19 @@ class WebSocketEventHandler @Inject constructor(
 
     private fun processNewPendingIssuance(bitmarkId: String) =
         bitmarkRepo.getStoredBitmarkById(bitmarkId).onErrorResumeNext { e ->
-            if (e.isDbRecNotFoundError()) Single.zip(bitmarkRepo.syncBitmark(
-                bitmarkId,
-                true
-            ), bitmarkRepo.syncTxs(
-                bitmarkId = bitmarkId,
-                isPending = true,
-                loadBlock = true,
-                loadAsset = true
-            ), BiFunction { bitmark, _ -> bitmark })
-            else Single.error(e)
+            if (e.isDbRecNotFoundError()) {
+                Single.zip(bitmarkRepo.syncBitmark(
+                    bitmarkId,
+                    true
+                ), bitmarkRepo.syncTxs(
+                    bitmarkId = bitmarkId,
+                    isPending = true,
+                    loadBlock = true,
+                    loadAsset = true
+                ), BiFunction { bitmark, _ -> bitmark })
+            } else {
+                Single.error(e)
+            }
         }.ignoreElement()
 
 }

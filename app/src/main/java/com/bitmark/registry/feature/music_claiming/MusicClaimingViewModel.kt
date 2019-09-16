@@ -45,7 +45,7 @@ class MusicClaimingViewModel(
     internal val downloadProgressLiveData = BufferedLiveData<Int>(lifecycle)
 
     internal val bitmarksSavedLiveData =
-        BufferedLiveData<List<BitmarkData>>(lifecycle)
+        BufferedLiveData<BitmarkData>(lifecycle)
 
     internal val bitmarkDeletedLiveData =
         BufferedLiveData<Pair<String, BitmarkData.Status>>(lifecycle)
@@ -168,8 +168,8 @@ class MusicClaimingViewModel(
 
     override fun onCreate() {
         super.onCreate()
-        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
-            bitmarksSavedLiveData.set(bitmarks)
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
+            bitmarksSavedLiveData.set(bitmark)
         }
 
         realtimeBus.bitmarkDeletedPublisher.subscribe(this) { p ->

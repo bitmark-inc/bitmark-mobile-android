@@ -35,7 +35,6 @@ class BitmarkModelView constructor(
     val assetId: String,
     var previousOwner: String? = null,
     val offset: Long,
-    val registrant: String? = null,
     val edition: Int? = null,
     val totalEdition: Int? = null
 ) : Parcelable {
@@ -66,7 +65,6 @@ class BitmarkModelView constructor(
                 assetFile = assetFile,
                 assetId = bitmark.assetId,
                 offset = bitmark.offset,
-                registrant = bitmark.asset?.registrant,
                 edition = bitmark.edition,
                 totalEdition = bitmark.totalEdition
             )

@@ -1,9 +1,9 @@
 package com.bitmark.registry.data.source.local
 
+import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.model.*
 import com.bitmark.registry.data.model.TransactionData.Status.CONFIRMED
 import com.bitmark.registry.data.model.TransactionData.Status.PENDING
-import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
@@ -78,9 +78,7 @@ class BitmarkLocalDataSource @Inject constructor(
     ): Single<List<BitmarkData>> = databaseApi.rxSingle { db ->
         db.bitmarkDao().listByOwnerOffsetLimitDesc(owner, offset, limit)
             .onErrorResumeNext {
-                Single.just(
-                    listOf()
-                )
+                Single.just(listOf())
             }
     }.flatMapMaybe(attachAssetToBitmark()).toSingle()
 
@@ -115,8 +113,7 @@ class BitmarkLocalDataSource @Inject constructor(
                 Maybe.merge(assetStreams).doOnNext { asset ->
                     bitmarks.filter { b -> b.assetId == asset.id }
                         .forEach { b -> b.asset = asset }
-                }.lastOrError()
-                    .flatMapMaybe { Maybe.just(bitmarks) }
+                }.lastOrError().flatMapMaybe { Maybe.just(bitmarks) }
             }
         }
 
@@ -133,62 +130,55 @@ class BitmarkLocalDataSource @Inject constructor(
                 }
         }
 
-    fun saveBitmarks(bitmarks: List<BitmarkData>): Completable =
-        if (bitmarks.isEmpty()) Completable.complete()
-        else {
-            checkBitmarksSeen(bitmarks.map { b -> b.id }).flatMapCompletable { checkSeenResult ->
-                checkSeenResult.forEach { p ->
-                    bitmarks.find { b -> b.id == p.first }?.seen = p.second
-                }
-                databaseApi.rxCompletable { db ->
-                    db.bitmarkDao().save(bitmarks)
-                }
-            }
-                .andThen(attachAssetToBitmark().invoke(bitmarks))
-                .doOnSuccess { b ->
-                    bitmarkSavedListener?.onBitmarksSaved(
-                        b
-                    )
-                }.ignoreElement()
+    fun saveBitmarks(bitmarks: List<BitmarkDataR>): Single<MutableList<BitmarkData>> =
+        if (bitmarks.isEmpty()) {
+            Single.just(mutableListOf())
+        } else {
+            val streams = mutableListOf<Single<BitmarkData>>()
+            bitmarks.forEach { bitmark -> streams.add(saveBitmark(bitmark)) }
+            Single.merge(streams).collectInto(mutableListOf(),
+                { t1, t2 -> t1.add(t2) })
         }
 
-    fun saveBitmark(bitmark: BitmarkData): Completable =
-        checkBitmarkSeen(bitmark.id).flatMapCompletable { p ->
-            bitmark.seen = p.second
-            databaseApi.rxCompletable { db ->
-                db.bitmarkDao().save(bitmark)
+    fun saveBitmark(bitmarkR: BitmarkDataR): Single<BitmarkData> =
+        checkExistingBitmarkL(bitmarkR.id).flatMap { existing ->
+            databaseApi.rxSingle { db ->
+                val bmLStream = if (existing) {
+                    getBitmarkL(bitmarkR.id)
+                } else {
+                    val bitmarkL =
+                        BitmarkDataL(bitmarkId = bitmarkR.id, seen = false)
+                    saveBitmarkL(bitmarkL).andThen(getBitmarkL(bitmarkR.id))
+                }
+                db.bitmarkDao().saveR(bitmarkR).andThen(bmLStream)
+                    .map { bitmarkL -> BitmarkData(bitmarkR, listOf(bitmarkL)) }
             }
-        }
-            .andThen(getAssetById(bitmark.assetId).map { asset ->
+        }.flatMap { bitmark ->
+            getAssetById(bitmark.bitmarkDataR.assetId).map { asset ->
                 bitmark.asset = asset
                 bitmark
-            }.toMaybe().onErrorResumeNext(Maybe.empty())).doOnSuccess { b ->
-                bitmarkSavedListener?.onBitmarksSaved(
-                    listOf(b)
-                )
             }
-            .ignoreElement()
+        }.doOnSuccess { bitmark -> bitmarkSavedListener?.onBitmarkSaved(bitmark) }
 
-    private fun checkBitmarkSeen(bitmarkId: String) =
-        getBitmarkById(bitmarkId).map { b ->
-            Pair(
-                b.id,
-                b.seen
-            )
-        }.onErrorResumeNext {
-            Single.just(
-                Pair(bitmarkId, false)
-            )
+    private fun getBitmarkL(bitmarkId: String) =
+        databaseApi.rxSingle { db ->
+            db.bitmarkDao()
+                .getLById(bitmarkId)
         }
 
-    private fun checkBitmarksSeen(bitmarkIds: List<String>): Single<List<Pair<String, Boolean>>> {
-        val streams = mutableListOf<Single<Pair<String, Boolean>>>()
-        bitmarkIds.forEach { id ->
-            streams.add(checkBitmarkSeen(id))
+    private fun saveBitmarkL(bitmarkL: BitmarkDataL) =
+        databaseApi.rxCompletable { db ->
+            db.bitmarkDao().saveL(bitmarkL)
         }
-        return Single.zip(streams) { s -> s.map { it as Pair<String, Boolean> } }
 
-    }
+    private fun checkExistingBitmarkL(bitmarkId: String) =
+        getBitmarkL(bitmarkId).map { true }.onErrorResumeNext { e ->
+            if (e.isDbRecNotFoundError()) {
+                Single.just(false)
+            } else {
+                Single.error(e)
+            }
+        }
 
     fun updateBitmarkStatus(
         bitmarkId: String,
@@ -210,7 +200,11 @@ class BitmarkLocalDataSource @Inject constructor(
     fun deleteBitmarkById(bitmarkId: String) =
         getBitmarkById(bitmarkId).map { b -> b.status }.flatMapCompletable { lastStatus ->
             databaseApi.rxCompletable { db ->
-                db.bitmarkDao().deleteById(bitmarkId).doOnComplete {
+                Completable.mergeArrayDelayError(
+                    db.bitmarkDao().deleteRById(
+                        bitmarkId
+                    ), db.bitmarkDao().deleteLById(bitmarkId)
+                ).doOnComplete {
                     bitmarkDeletedListener?.onDeleted(
                         bitmarkId,
                         lastStatus
@@ -218,9 +212,11 @@ class BitmarkLocalDataSource @Inject constructor(
                 }
             }
         }.onErrorResumeNext { e ->
-            if (e.isDbRecNotFoundError()) Completable.complete() else Completable.error(
-                e
-            )
+            if (e.isDbRecNotFoundError()) {
+                Completable.complete()
+            } else {
+                Completable.error(e)
+            }
         }
 
     fun maxBitmarkOffset(): Single<Long> =
@@ -254,9 +250,7 @@ class BitmarkLocalDataSource @Inject constructor(
         databaseApi.rxCompletable { db ->
             db.bitmarkDao().markSeen(bitmarkId)
         }.toSingleDefault(bitmarkId).doOnSuccess {
-            bitmarkSeenListener?.onSeen(
-                bitmarkId
-            )
+            bitmarkSeenListener?.onSeen(bitmarkId)
         }
 
     fun countBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->

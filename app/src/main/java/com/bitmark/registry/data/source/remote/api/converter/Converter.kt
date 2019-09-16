@@ -16,11 +16,11 @@ import javax.inject.Inject
  */
 open class Converter @Inject constructor() {
 
-    fun mapBitmark(): (BitmarkRecord) -> BitmarkData = { b ->
+    fun mapBitmark(): (BitmarkRecord) -> BitmarkDataR = { b ->
         mapBitmark(b)
     }
 
-    fun mapBitmark(b: BitmarkRecord) = BitmarkData(
+    fun mapBitmark(b: BitmarkRecord) = BitmarkDataR(
         b.id,
         b.assetId,
         b.blockNumber,

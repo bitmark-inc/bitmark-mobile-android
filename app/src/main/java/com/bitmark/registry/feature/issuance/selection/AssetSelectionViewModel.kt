@@ -41,7 +41,7 @@ class AssetSelectionViewModel(
     private val getAssetInfoLiveData = CompositeLiveData<AssetModelView>()
 
     internal val bitmarkSavedLiveData =
-        BufferedLiveData<List<BitmarkData>>(lifecycle)
+        BufferedLiveData<BitmarkData>(lifecycle)
 
     internal val progressLiveData = MutableLiveData<Int>()
 
@@ -131,8 +131,8 @@ class AssetSelectionViewModel(
     override fun onCreate() {
         super.onCreate()
 
-        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
-            bitmarkSavedLiveData.set(bitmarks)
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
+            bitmarkSavedLiveData.set(bitmark)
         }
     }
 

@@ -258,14 +258,12 @@ class PropertyDetailViewModel(
     override fun onCreate() {
         super.onCreate()
 
-        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
-            if (bitmarks.isEmpty()) return@subscribe
-            val hasChanged =
-                bitmarks.indexOfFirst { b -> b.id == bitmarkId } != -1
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
+            val hasChanged = bitmark.id == bitmarkId
             if (!hasChanged) return@subscribe
 
             val getBitmarkStream =
-                bitmarkRepo.getStoredBitmarkById(bitmarks[0].id)
+                bitmarkRepo.getStoredBitmarkById(bitmark.id)
 
             subscribe(
                 Single.zip(

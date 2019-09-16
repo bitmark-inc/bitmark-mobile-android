@@ -13,15 +13,15 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.logging.Event
-import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.transfer.TransferActivity
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetClaimingModelView
 import com.bitmark.registry.util.modelview.BitmarkModelView
@@ -373,11 +373,10 @@ class MusicClaimingActivity : BaseAppCompatActivity() {
             }
         })
 
-        viewModel.bitmarksSavedLiveData.observe(this, Observer { bitmarks ->
-            val index = bitmarks.indexOfFirst { b -> b.id == bitmark.id }
-            if (index == -1) return@Observer
-            bitmark.status = bitmarks[index].status
-            setBtnViewBmOptsEnable(bitmark.isSettled())
+        viewModel.bitmarksSavedLiveData.observe(this, Observer { bitmark ->
+            if (bitmark.id != this.bitmark.id) return@Observer
+            this.bitmark.status = bitmark.status
+            setBtnViewBmOptsEnable(this.bitmark.isSettled())
         })
 
         viewModel.bitmarkDeletedLiveData.observe(this, Observer { p ->

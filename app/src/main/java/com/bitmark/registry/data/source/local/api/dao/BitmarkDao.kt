@@ -1,10 +1,9 @@
 package com.bitmark.registry.data.source.local.api.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.BitmarkDataL
+import com.bitmark.registry.data.model.BitmarkDataR
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -18,74 +17,85 @@ import io.reactivex.Single
 @Dao
 abstract class BitmarkDao {
 
-    @Query("SELECT * FROM Bitmark WHERE owner = :owner AND `offset` <= :offset ORDER BY `offset` DESC LIMIT :limit")
+    @Transaction
+    @Query("SELECT * FROM BitmarkR WHERE owner = :owner AND `offset` <= :offset ORDER BY `offset` DESC LIMIT :limit")
     abstract fun listByOwnerOffsetLimitDesc(
         owner: String,
         offset: Long,
         limit: Int
     ): Single<List<BitmarkData>>
 
-    @Query("SELECT * FROM Bitmark WHERE owner = :owner AND status == :status ORDER BY `offset` DESC")
+    @Transaction
+    @Query("SELECT * FROM BitmarkR WHERE owner = :owner AND status == :status ORDER BY `offset` DESC")
     abstract fun listByOwnerStatusDesc(
         owner: String,
         status: BitmarkData.Status
     ): Single<List<BitmarkData>>
 
-    @Query("SELECT * FROM Bitmark WHERE owner = :owner AND status IN (:status) ORDER BY `offset` DESC")
+    @Transaction
+    @Query("SELECT * FROM BitmarkR WHERE owner = :owner AND status IN (:status) ORDER BY `offset` DESC")
     abstract fun listByOwnerStatusDesc(
         owner: String,
         status: List<BitmarkData.Status>
     ): Single<List<BitmarkData>>
 
-    @Query("SELECT MAX(`offset`) FROM Bitmark")
+    @Query("SELECT MAX(`offset`) FROM BitmarkR")
     abstract fun maxOffset(): Single<Long>
 
-    @Query("SELECT MIN(`offset`) FROM Bitmark")
+    @Query("SELECT MIN(`offset`) FROM BitmarkR")
     abstract fun minOffset(): Single<Long>
 
-    @Query("SELECT MIN(`offset`) FROM Bitmark WHERE status IN (:status)")
+    @Query("SELECT MIN(`offset`) FROM BitmarkR WHERE status IN (:status)")
     abstract fun minOffset(status: Array<BitmarkData.Status>): Single<Long>
 
-    @Query("SELECT COUNT(*) FROM Bitmark")
+    @Query("SELECT COUNT(*) FROM BitmarkR")
     abstract fun count(): Single<Long>
 
-    @Query("SELECT COUNT(*) FROM Bitmark WHERE owner = :owner AND status NOT IN ('to_be_deleted', 'to_be_transferred')")
+    @Query("SELECT COUNT(*) FROM BitmarkR WHERE owner = :owner AND status NOT IN ('to_be_deleted', 'to_be_transferred')")
     abstract fun countUsableBitmarks(owner: String): Single<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun save(bitmarks: List<BitmarkData>): Completable
+    abstract fun saveR(bitmark: BitmarkDataR): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun save(bitmark: BitmarkData): Completable
+    abstract fun saveL(bitmark: BitmarkDataL): Completable
 
-    @Query("UPDATE Bitmark SET status = :status WHERE id = :bitmarkId")
+    @Query("UPDATE BitmarkR SET status = :status WHERE id = :bitmarkId")
     abstract fun updateStatus(
         bitmarkId: String,
         status: BitmarkData.Status
     ): Completable
 
-    @Query("SELECT * FROM Bitmark WHERE id = :bitmarkId")
+    @Transaction
+    @Query("SELECT * FROM BitmarkR WHERE id = :bitmarkId")
     abstract fun getById(bitmarkId: String): Single<BitmarkData>
 
-    @Query("DELETE FROM Bitmark WHERE id = :bitmarkId")
-    abstract fun deleteById(bitmarkId: String): Completable
+    @Query("SELECT * FROM BitmarkL WHERE bitmark_id = :bitmarkId")
+    abstract fun getLById(bitmarkId: String): Single<BitmarkDataL>
 
-    @Query("DELETE FROM Bitmark WHERE id IN (:bitmarkIds)")
-    abstract fun deleteByIds(bitmarkIds: List<String>): Completable
+    @Query("DELETE FROM BitmarkR WHERE id = :bitmarkId")
+    abstract fun deleteRById(bitmarkId: String): Completable
 
-    @Query("UPDATE Bitmark SET seen = 1 WHERE id = :bitmarkId")
+    @Query("DELETE FROM BitmarkL WHERE bitmark_id = :bitmarkId")
+    abstract fun deleteLById(bitmarkId: String): Completable
+
+    @Query("UPDATE BitmarkL SET seen = 1 WHERE bitmark_id = :bitmarkId")
     abstract fun markSeen(bitmarkId: String): Completable
 
-    @Query("SELECT COUNT(*) FROM Bitmark WHERE asset_id = :assetId")
+    @Query("SELECT COUNT(*) FROM BitmarkR WHERE asset_id = :assetId")
     abstract fun countBitmarkRefSameAsset(assetId: String): Single<Long>
 
-    @Query("SELECT * FROM Bitmark WHERE asset_id = :assetId")
+    @Transaction
+    @Query("SELECT * FROM BitmarkR WHERE asset_id = :assetId")
     abstract fun listBitmarkRefSameAsset(assetId: String): Single<List<BitmarkData>>
 
-    @Query("DELETE FROM Bitmark")
-    abstract fun delete(): Completable
+    @Query("DELETE FROM BitmarkR")
+    abstract fun deleteR(): Completable
 
-    @Query("SELECT COUNT(*) FROM Bitmark WHERE owner = :owner AND seen = 0 ")
+    @Query("DELETE FROM BitmarkL")
+    abstract fun deleteL(): Completable
+
+    @Query("SELECT COUNT(*) FROM BitmarkR R INNER JOIN BitmarkL L ON R.id = L.bitmark_id WHERE R.owner = :owner AND L.seen = 0 ")
     abstract fun countUnseen(owner: String): Single<Int>
 
 }

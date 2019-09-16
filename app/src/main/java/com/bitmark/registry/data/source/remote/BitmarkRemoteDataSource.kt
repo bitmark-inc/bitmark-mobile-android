@@ -13,7 +13,7 @@ import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.UnexpectedException
 import com.bitmark.apiservice.utils.record.AssetRecord
 import com.bitmark.registry.data.model.AssetData
-import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.BitmarkDataR
 import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
@@ -78,8 +78,8 @@ class BitmarkRemoteDataSource @Inject constructor(
         issuer: String? = null,
         refAssetId: String? = null,
         loadAsset: Boolean = false
-    ): Single<Pair<List<BitmarkData>, List<AssetData>>> {
-        return rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<List<BitmarkData>, List<AssetData>>> { emt ->
+    ): Single<Pair<List<BitmarkDataR>, List<AssetData>>> {
+        return rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<List<BitmarkDataR>, List<AssetData>>> { emt ->
             val builder =
                 BitmarkQueryBuilder().limit(limit).pending(pending)
                     .loadAsset(loadAsset)
@@ -141,7 +141,7 @@ class BitmarkRemoteDataSource @Inject constructor(
             }).subscribeOn(Schedulers.io())
 
     fun getBitmark(bitmarkId: String, loadAsset: Boolean = false) =
-        rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<BitmarkData?, AssetData?>> { emt ->
+        rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<BitmarkDataR?, AssetData?>> { emt ->
             Bitmark.get(
                 bitmarkId,
                 loadAsset,

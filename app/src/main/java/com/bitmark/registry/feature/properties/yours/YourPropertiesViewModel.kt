@@ -242,15 +242,14 @@ class YourPropertiesViewModel(
             refreshAssetType(assetId)
         }
 
-        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmarks ->
-            val maxOffset =
-                bitmarks.maxBy { b -> b.offset }?.offset ?: return@subscribe
+        realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
+            val maxOffset = bitmark.offset
             if (maxOffset < currentOffset) return@subscribe // ignore unloaded bitmarks
 
             subscribe(accountRepo.getAccountNumber().map { accountNumber ->
                 Pair(
                     accountNumber,
-                    bitmarks
+                    listOf(bitmark)
                 )
             }.flatMap(checkAssetFileStream()).map { p ->
                 val minOffset = p.second.minBy { b -> b.offset }?.offset ?: -1L

@@ -22,7 +22,8 @@ class AppLocalDataSource @Inject constructor(
         Completable.mergeArrayDelayError(
             databaseGateway.assetDao().delete(),
             databaseGateway.accountDao().delete(),
-            databaseGateway.bitmarkDao().delete(),
+            databaseGateway.bitmarkDao().deleteR(),
+            databaseGateway.bitmarkDao().deleteL(),
             databaseGateway.blockDao().delete(),
             databaseGateway.transactionDao().delete(),
             databaseGateway.assetClaimingDao().delete()

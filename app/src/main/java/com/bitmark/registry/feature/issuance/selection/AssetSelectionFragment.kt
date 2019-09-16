@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Handler
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
@@ -15,6 +14,7 @@ import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.logging.Event
 import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.MediaUtil
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetModelView
@@ -153,10 +153,10 @@ class AssetSelectionFragment : BaseSupportFragment() {
             progressBar.progress = percent
         })
 
-        viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmarks ->
+        viewModel.bitmarkSavedLiveData.observe(this, Observer { bitmark ->
             // FIXME It's not the good solution to exit this screen after issuing
-            val assetIds = bitmarks.map { b -> b.assetId }.distinct()
-            if (asset != null && assetIds.contains(asset!!.id)) {
+            val assetId = bitmark.assetId
+            if (assetId == asset!!.id) {
                 handler.postDelayed({ navigator.popChildFragment() }, 100)
             }
         })

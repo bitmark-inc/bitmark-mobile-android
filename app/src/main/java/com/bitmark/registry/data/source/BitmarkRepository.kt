@@ -4,10 +4,10 @@ import com.bitmark.apiservice.params.IssuanceParams
 import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.BuildConfig
+import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
-import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
 import com.bitmark.registry.data.source.local.event.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
@@ -84,7 +84,7 @@ class BitmarkRepository(
         ).observeOn(Schedulers.computation()).flatMap { p ->
             localDataSource.saveAssets(p.second)
                 .andThen(localDataSource.saveBitmarks(p.first))
-                .andThen(Single.just(p))
+                .map { bitmark -> Pair(bitmark, p.second) }
         }.map { p ->
             val bitmarks = p.first
             val assets = p.second
@@ -136,13 +136,14 @@ class BitmarkRepository(
             .flatMap { bitmarks ->
 
                 // if no local data returned, sync with remote data
-                if (bitmarks.isEmpty()) syncBitmarks(
-                    owner = owner,
-                    at = at,
-                    to = "earlier",
-                    limit = limit
-                )
-                else {
+                if (bitmarks.isEmpty()) {
+                    syncBitmarks(
+                        owner = owner,
+                        at = at,
+                        to = "earlier",
+                        limit = limit
+                    )
+                } else {
                     Single.just(bitmarks)
                 }
             }
@@ -157,19 +158,25 @@ class BitmarkRepository(
     // sync bitmark with remote server then save to local db
     fun syncBitmark(bitmarkId: String, loadAsset: Boolean = false) =
         remoteDataSource.getBitmark(bitmarkId, loadAsset).flatMap { p ->
-            val bitmark = p.first
+            val bitmarkR = p.first
             val asset = p.second
-            bitmark?.asset = asset
             val saveBitmarkStream =
-                if (bitmark == null) Completable.complete() else localDataSource.saveBitmark(
-                    bitmark
-                )
+                if (bitmarkR == null) {
+                    Single.error<BitmarkData>(Throwable("Resource not found"))
+                } else {
+                    localDataSource.saveBitmark(bitmarkR)
+                        .map { bitmark ->
+                            bitmark.asset = asset
+                            bitmark
+                        }
+                }
             val saveAssetStream =
-                if (asset == null) Completable.complete() else localDataSource.saveAsset(
-                    asset
-                )
+                if (asset == null) {
+                    Completable.complete()
+                } else {
+                    localDataSource.saveAsset(asset)
+                }
             saveAssetStream.andThen(saveBitmarkStream)
-                .andThen(Single.just(bitmark))
         }
 
     // clean up bitmark is deleted from server side but not be reflected in local db
@@ -196,9 +203,12 @@ class BitmarkRepository(
                             p.first.filter { b -> b.owner != owner }
 
                         val updateUsableBitmarksStream =
-                            if (usableBitmarks.isNullOrEmpty()) Completable.complete() else localDataSource.saveBitmarks(
-                                usableBitmarks
-                            )
+                            if (usableBitmarks.isNullOrEmpty()) {
+                                Completable.complete()
+                            } else {
+                                localDataSource.saveBitmarks(usableBitmarks)
+                                    .ignoreElement()
+                            }
 
                         val deleteBitmarksStream: Completable =
                             if (unusableBitmarks.isNullOrEmpty()) {

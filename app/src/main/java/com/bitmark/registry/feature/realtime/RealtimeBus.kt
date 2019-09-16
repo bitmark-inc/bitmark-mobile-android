@@ -37,7 +37,7 @@ class RealtimeBus(
         Publisher(PublishSubject.create<Triple<String, BitmarkData.Status, BitmarkData.Status>>())
 
     val bitmarkSavedPublisher =
-        Publisher(PublishSubject.create<List<BitmarkData>>())
+        Publisher(PublishSubject.create<BitmarkData>())
 
     val assetFileSavedPublisher = Publisher(PublishSubject.create<String>())
 
@@ -85,8 +85,8 @@ class RealtimeBus(
         bitmarkDeletedPublisher.publisher.onNext(Pair(bitmarkId, lastStatus))
     }
 
-    override fun onBitmarksSaved(bitmarks: List<BitmarkData>) {
-        bitmarkSavedPublisher.publisher.onNext(bitmarks)
+    override fun onBitmarkSaved(bitmark: BitmarkData) {
+        bitmarkSavedPublisher.publisher.onNext(bitmark)
     }
 
     override fun onSaved(assetId: String) {
