@@ -75,13 +75,13 @@ abstract class BitmarkDao {
     abstract fun getById(bitmarkId: String): Single<BitmarkData>
 
     @Query("SELECT * FROM BitmarkL WHERE bitmark_id = :bitmarkId")
-    abstract fun getLById(bitmarkId: String): Single<BitmarkDataL>
+    abstract fun getLByBmId(bitmarkId: String): Single<BitmarkDataL>
 
     @Query("DELETE FROM BitmarkR WHERE id = :bitmarkId")
     abstract fun deleteRById(bitmarkId: String): Completable
 
     @Query("DELETE FROM BitmarkL WHERE bitmark_id = :bitmarkId")
-    abstract fun deleteLById(bitmarkId: String): Completable
+    abstract fun deleteLByBmId(bitmarkId: String): Completable
 
     @Query("UPDATE BitmarkL SET seen = 1 WHERE bitmark_id = :bitmarkId")
     abstract fun markSeen(bitmarkId: String): Completable

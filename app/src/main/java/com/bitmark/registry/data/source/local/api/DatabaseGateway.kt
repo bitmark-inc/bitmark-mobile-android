@@ -16,7 +16,7 @@ import com.bitmark.registry.data.source.local.api.dao.*
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 @Database(
-    entities = [TransactionData::class, AssetData::class, BitmarkDataR::class, BitmarkDataL::class, BlockData::class, AccountData::class, AssetClaimingData::class],
+    entities = [TransactionData::class, AssetDataR::class, AssetDataL::class, BitmarkDataR::class, BitmarkDataL::class, BlockData::class, AccountData::class, AssetClaimingData::class],
     version = 1
 )
 @TypeConverters(
@@ -25,7 +25,8 @@ import com.bitmark.registry.data.source.local.api.dao.*
     BitmarkStatusConverter::class,
     TransactionStatusConverter::class,
     HeadConverter::class,
-    AssetClaimingStatusConverter::class
+    AssetClaimingStatusConverter::class,
+    AssetTypeConverter::class
 )
 abstract class DatabaseGateway : RoomDatabase() {
 

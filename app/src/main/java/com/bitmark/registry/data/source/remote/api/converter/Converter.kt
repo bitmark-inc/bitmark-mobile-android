@@ -36,11 +36,11 @@ open class Converter @Inject constructor() {
         edition = b.edition
     )
 
-    fun mapAsset(): (AssetRecord) -> AssetData = { a ->
+    fun mapAsset(): (AssetRecord) -> AssetDataR = { a ->
         mapAsset(a)
     }
 
-    fun mapAsset(a: AssetRecord) = AssetData(
+    fun mapAsset(a: AssetRecord) = AssetDataR(
         a.id,
         a.blockNumber,
         a.blockOffset,

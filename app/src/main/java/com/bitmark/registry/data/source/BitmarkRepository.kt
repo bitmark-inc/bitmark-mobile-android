@@ -5,6 +5,7 @@ import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.ext.isDbRecNotFoundError
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
@@ -81,10 +82,16 @@ class BitmarkRepository(
             refAssetId = refAssetId,
             loadAsset = loadAsset,
             bitmarkIds = bitmarkIds
-        ).observeOn(Schedulers.computation()).flatMap { p ->
-            localDataSource.saveAssets(p.second)
-                .andThen(localDataSource.saveBitmarks(p.first))
-                .map { bitmark -> Pair(bitmark, p.second) }
+        ).observeOn(Schedulers.io()).flatMap { p ->
+            Single.zip(
+                localDataSource.saveAssets(p.second),
+                localDataSource.saveBitmarks(p.first),
+                BiFunction<List<AssetData>, List<BitmarkData>, Pair<List<BitmarkData>, List<AssetData>>> { asset, bitmark ->
+                    Pair(
+                        bitmark,
+                        asset
+                    )
+                })
         }.map { p ->
             val bitmarks = p.first
             val assets = p.second
@@ -162,22 +169,24 @@ class BitmarkRepository(
     fun syncBitmark(bitmarkId: String, loadAsset: Boolean = false) =
         remoteDataSource.getBitmark(bitmarkId, loadAsset).flatMap { p ->
             val bitmarkR = p.first
-            val asset = p.second
+            val assetR = p.second
             val saveBitmarkStream =
                 if (bitmarkR == null) {
                     Single.error<BitmarkData>(Throwable("Resource not found"))
                 } else {
                     localDataSource.saveBitmark(bitmarkR)
                         .map { bitmark ->
-                            bitmark.asset = asset
+                            if (assetR != null) {
+                                bitmark.asset = AssetData(assetDataR = assetR)
+                            }
                             bitmark
                         }
                 }
             val saveAssetStream =
-                if (asset == null) {
+                if (assetR == null) {
                     Completable.complete()
                 } else {
-                    localDataSource.saveAsset(asset)
+                    localDataSource.saveAsset(assetR).ignoreElement()
                 }
             saveAssetStream.andThen(saveBitmarkStream)
         }
@@ -407,11 +416,12 @@ class BitmarkRepository(
                 t.first.filterNot { tx -> tx.owner == BuildConfig.ZERO_ADDRESS }
             Triple(txs, t.second, t.third)
         }.observeOn(Schedulers.computation()).flatMap { t ->
+
             Completable.mergeArrayDelayError(
-                localDataSource.saveAssets(t.second),
+                localDataSource.saveTxs(t.first),
                 localDataSource.saveBlocks(t.third)
-            ).andThen(localDataSource.saveTxs(t.first))
-                .andThen(Single.just(t))
+            ).andThen(localDataSource.saveAssets(t.second))
+                .map { asset -> Triple(t.first, asset, t.third) }
         }.map { t ->
             val txs = t.first
             val assets = t.second
@@ -606,19 +616,21 @@ class BitmarkRepository(
     }.andThen(localDataSource.deleteEncryptedAssetFile(owner, assetId))
 
     fun getAsset(id: String) =
-        localDataSource.getAssetById(id).onErrorResumeNext {
-            remoteDataSource.getAsset(id).flatMap { asset ->
-                localDataSource.saveAsset(asset).andThen(Single.just(asset))
+        localDataSource.getAssetById(id).onErrorResumeNext { e ->
+            if (e.isDbRecNotFoundError()) {
+                remoteDataSource.getAsset(id).flatMap { asset ->
+                    localDataSource.saveAsset(asset)
+                }
+            } else {
+                Single.error(e)
             }
         }
 
     fun registerAsset(params: RegistrationParams) =
         remoteDataSource.registerAsset(params).flatMap { assetId ->
-            getAsset(assetId).flatMapCompletable { asset ->
-                localDataSource.saveAsset(
-                    asset
-                )
-            }.andThen(Single.just(assetId))
+            remoteDataSource.getAsset(assetId).flatMap { asset ->
+                localDataSource.saveAsset(asset)
+            }.map { asset -> asset.id }
         }
 
     fun getAssetClaimingInfo(assetId: String) =

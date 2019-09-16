@@ -1,10 +1,9 @@
 package com.bitmark.registry.data.source.local.api.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.AssetDataL
+import com.bitmark.registry.data.model.AssetDataR
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -18,19 +17,30 @@ import io.reactivex.Single
 @Dao
 abstract class AssetDao {
 
-    @Query("SELECT * FROM Asset WHERE id = :id")
+    @Transaction
+    @Query("SELECT * FROM AssetR WHERE id = :id")
     abstract fun getById(id: String): Single<AssetData>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun save(assets: List<AssetData>): Completable
+    @Transaction
+    @Query("SELECT * FROM AssetL WHERE asset_id = :assetId")
+    abstract fun getLByAssetId(assetId: String): Single<AssetDataL>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun save(asset: AssetData): Completable
+    abstract fun saveR(asset: AssetDataR): Completable
 
-    @Query("DELETE FROM Asset WHERE id = :id")
-    abstract fun delete(id: String): Completable
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun saveL(asset: AssetDataL): Completable
 
-    @Query("DELETE FROM Asset")
-    abstract fun delete(): Completable
+    @Query("DELETE FROM AssetR WHERE id = :id")
+    abstract fun deleteR(id: String): Completable
+
+    @Query("DELETE FROM AssetL WHERE asset_id = :assetId")
+    abstract fun deleteL(assetId: String): Completable
+
+    @Query("DELETE FROM AssetR")
+    abstract fun deleteR(): Completable
+
+    @Query("DELETE FROM AssetL")
+    abstract fun deleteL(): Completable
 
 }

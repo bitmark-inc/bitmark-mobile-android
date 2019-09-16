@@ -12,7 +12,7 @@ import com.bitmark.apiservice.response.RegistrationResponse
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.UnexpectedException
 import com.bitmark.apiservice.utils.record.AssetRecord
-import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.AssetDataR
 import com.bitmark.registry.data.model.BitmarkDataR
 import com.bitmark.registry.data.model.BlockData
 import com.bitmark.registry.data.model.TransactionData
@@ -78,8 +78,8 @@ class BitmarkRemoteDataSource @Inject constructor(
         issuer: String? = null,
         refAssetId: String? = null,
         loadAsset: Boolean = false
-    ): Single<Pair<List<BitmarkDataR>, List<AssetData>>> {
-        return rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<List<BitmarkDataR>, List<AssetData>>> { emt ->
+    ): Single<Pair<List<BitmarkDataR>, List<AssetDataR>>> {
+        return rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<List<BitmarkDataR>, List<AssetDataR>>> { emt ->
             val builder =
                 BitmarkQueryBuilder().limit(limit).pending(pending)
                     .loadAsset(loadAsset)
@@ -141,7 +141,7 @@ class BitmarkRemoteDataSource @Inject constructor(
             }).subscribeOn(Schedulers.io())
 
     fun getBitmark(bitmarkId: String, loadAsset: Boolean = false) =
-        rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<BitmarkDataR?, AssetData?>> { emt ->
+        rxErrorHandlingComposer.single(SingleOnSubscribe<Pair<BitmarkDataR?, AssetDataR?>> { emt ->
             Bitmark.get(
                 bitmarkId,
                 loadAsset,
@@ -220,8 +220,8 @@ class BitmarkRemoteDataSource @Inject constructor(
         to: String = "ealier",
         limit: Int = 100,
         loadBlock: Boolean = false
-    ): Single<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> =
-        rxErrorHandlingComposer.single(SingleOnSubscribe<Triple<List<TransactionData>, List<AssetData>, List<BlockData>>> { emt ->
+    ): Single<Triple<List<TransactionData>, List<AssetDataR>, List<BlockData>>> =
+        rxErrorHandlingComposer.single(SingleOnSubscribe<Triple<List<TransactionData>, List<AssetDataR>, List<BlockData>>> { emt ->
             val queryBuilder =
                 TransactionQueryBuilder().loadAsset(loadAsset)
                     .loadBlock(loadBlock).pending(isPending).limit(limit)
@@ -423,7 +423,7 @@ class BitmarkRemoteDataSource @Inject constructor(
     }
 
     fun getAsset(id: String) =
-        rxErrorHandlingComposer.single(SingleOnSubscribe<AssetData> { emt ->
+        rxErrorHandlingComposer.single(SingleOnSubscribe<AssetDataR> { emt ->
             Asset.get(id, object : Callback1<AssetRecord> {
                 override fun onSuccess(data: AssetRecord?) {
                     emt.onSuccess(converter.mapAsset(data!!))

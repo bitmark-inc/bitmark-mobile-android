@@ -130,12 +130,12 @@ class BitmarkLocalDataSource @Inject constructor(
                 }
         }
 
-    fun saveBitmarks(bitmarks: List<BitmarkDataR>): Single<MutableList<BitmarkData>> =
-        if (bitmarks.isEmpty()) {
+    fun saveBitmarks(bitmarkRs: List<BitmarkDataR>): Single<MutableList<BitmarkData>> =
+        if (bitmarkRs.isEmpty()) {
             Single.just(mutableListOf())
         } else {
             val streams = mutableListOf<Single<BitmarkData>>()
-            bitmarks.forEach { bitmark -> streams.add(saveBitmark(bitmark)) }
+            bitmarkRs.forEach { bitmark -> streams.add(saveBitmark(bitmark)) }
             Single.merge(streams).collectInto(mutableListOf(),
                 { t1, t2 -> t1.add(t2) })
         }
@@ -163,7 +163,7 @@ class BitmarkLocalDataSource @Inject constructor(
     private fun getBitmarkL(bitmarkId: String) =
         databaseApi.rxSingle { db ->
             db.bitmarkDao()
-                .getLById(bitmarkId)
+                .getLByBmId(bitmarkId)
         }
 
     private fun saveBitmarkL(bitmarkL: BitmarkDataL) =
@@ -202,7 +202,7 @@ class BitmarkLocalDataSource @Inject constructor(
             databaseApi.rxCompletable { db ->
                 Completable.mergeArrayDelayError(
                     db.bitmarkDao().deleteRById(bitmarkId),
-                    db.bitmarkDao().deleteLById(bitmarkId)
+                    db.bitmarkDao().deleteLByBmId(bitmarkId)
                 ).doOnComplete {
                     bitmarkDeletedListener?.onDeleted(
                         bitmarkId,
@@ -296,33 +296,63 @@ class BitmarkLocalDataSource @Inject constructor(
         db.assetDao().getById(id)
     }
 
-    fun deleteAssetById(id: String): Completable =
-        databaseApi.rxCompletable { db -> db.assetDao().delete(id) }
-
-    fun saveAssets(assets: List<AssetData>): Completable =
-        if (assets.isEmpty()) Completable.complete()
-        else {
-            val streams = mutableListOf<Completable>()
+    fun saveAssets(assets: List<AssetDataR>): Single<MutableList<AssetData>> =
+        if (assets.isEmpty()) {
+            Single.just(mutableListOf())
+        } else {
+            val streams = mutableListOf<Single<AssetData>>()
             assets.forEach { asset -> streams.add(saveAsset(asset)) }
-            Completable.mergeDelayError(streams)
+            Single.merge(streams)
+                .collectInto(
+                    mutableListOf(),
+                    { collection, data -> collection.add(data) })
         }
 
-    fun saveAsset(asset: AssetData) =
-        checkExistingAsset(asset.id).flatMapCompletable { existing ->
-            databaseApi.rxCompletable { db ->
-                db.assetDao().save(asset).doOnComplete {
-                    assetSavedListener?.onAssetSaved(asset, !existing)
+    fun saveAsset(assetR: AssetDataR) =
+        checkExistingAssetL(assetR.id).flatMap { existing ->
+            databaseApi.rxSingle { db ->
+                val assetLStream = if (existing) {
+                    getAssetL(assetR.id)
+                } else {
+                    saveAssetL(
+                        AssetDataL(
+                            assetId = assetR.id,
+                            type = AssetData.Type.UNKNOWN
+                        )
+                    ).andThen(getAssetL(assetR.id))
                 }
+
+                db.assetDao().saveR(assetR).andThen(assetLStream)
+                    .map { assetL ->
+                        AssetData(assetR, listOf(assetL))
+                    }
+                    .doOnSuccess { asset ->
+                        assetSavedListener?.onAssetSaved(
+                            asset,
+                            !existing
+                        )
+                    }
             }
         }
 
-    private fun checkExistingAsset(assetId: String) =
+    private fun getAssetL(assetId: String) = databaseApi.rxSingle { db ->
+        db.assetDao().getLByAssetId(assetId)
+    }
+
+    private fun saveAssetL(assetL: AssetDataL) =
+        databaseApi.rxCompletable { db ->
+            db.assetDao().saveL(assetL)
+        }
+
+    private fun checkExistingAssetL(assetId: String) =
         databaseApi.rxSingle { db ->
-            db.assetDao().getById(assetId)
+            db.assetDao().getLByAssetId(assetId)
         }.map { true }.onErrorResumeNext { e ->
-            if (e.isDbRecNotFoundError()) Single.just(
-                false
-            ) else Single.error(e)
+            if (e.isDbRecNotFoundError()) {
+                Single.just(false)
+            } else {
+                Single.error(e)
+            }
         }
 
     fun checkAssetFile(
