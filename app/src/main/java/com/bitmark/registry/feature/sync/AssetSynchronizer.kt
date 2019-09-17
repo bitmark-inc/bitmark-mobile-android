@@ -42,7 +42,7 @@ class AssetSynchronizer(
 
     private val isPaused = AtomicBoolean(false)
 
-    private lateinit var compositeDisposable : CompositeDisposable
+    private lateinit var compositeDisposable: CompositeDisposable
 
     private var taskProcessListener: TaskProcessListener? = null
 
@@ -73,7 +73,10 @@ class AssetSynchronizer(
 
         realtimeBus.assetFileSavedPublisher.subscribe(this) { p ->
             val assetId = p.first
-            Tracer.DEBUG.log(TAG, "asset file save for $assetId, process to upload")
+            Tracer.DEBUG.log(
+                TAG,
+                "asset file save for $assetId, process to upload"
+            )
             process(assetId, upload(assetId))
         }
 
@@ -139,7 +142,10 @@ class AssetSynchronizer(
     private fun process(taskId: String, task: Completable) {
         if (isProcessing.get() || isPaused.get()) {
             if (taskQueue.add(taskId, task)) {
-                Tracer.DEBUG.log(TAG, "added task with id $taskId to the pending queue")
+                Tracer.DEBUG.log(
+                    TAG,
+                    "added task with id $taskId to the pending queue"
+                )
             }
             return
         }
@@ -185,7 +191,10 @@ class AssetSynchronizer(
             bitmarkRepo.checkAssetFile(accountNumber, assetId)
                 .map { p -> p.second != null }.flatMapCompletable { existing ->
                     if (existing) {
-                        Tracer.DEBUG.log(TAG, "local file for asset $assetId is existing")
+                        Tracer.DEBUG.log(
+                            TAG,
+                            "local file for asset $assetId is existing"
+                        )
                         Completable.complete()
                     } else {
                         googleDriveService.listAppDataFiles(
@@ -248,7 +257,10 @@ class AssetSynchronizer(
                     val assetId = p.first
                     val file = p.second
                     if (file == null) {
-                        Tracer.DEBUG.log(TAG, "local file for asset $assetId is null")
+                        Tracer.DEBUG.log(
+                            TAG,
+                            "local file for asset $assetId is null"
+                        )
                         Completable.complete()
                     } else {
                         googleDriveService.checkExistingFile(
@@ -363,7 +375,9 @@ class AssetSynchronizer(
     private fun parseCloudStorageFileName(name: String): Pair<String, String> {
         val splitName = name.split("-")
         if (splitName.size < 2) throw IllegalArgumentException("invalid name")
-        return Pair(splitName[0], splitName[1])
+        val assetId = splitName[0]
+        val fileName = name.substring(assetId.length + 1)
+        return Pair(assetId, fileName)
     }
 
     private fun canonicalCloudStorageFileName(assetId: String, name: String) =
