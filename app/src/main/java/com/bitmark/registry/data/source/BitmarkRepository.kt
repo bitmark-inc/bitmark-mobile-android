@@ -192,55 +192,33 @@ class BitmarkRepository(
             owner,
             listOf(TO_BE_DELETED, TO_BE_TRANSFERRED)
         ).flatMapCompletable { bitmarks ->
-            if (bitmarks.isNullOrEmpty()) Completable.complete()
-            else {
+            if (bitmarks.isNullOrEmpty()) {
+                Completable.complete()
+            } else {
                 val bitmarkIds = bitmarks.map { b -> b.id }
 
-                remoteDataSource.listBitmarks(bitmarkIds = bitmarkIds)
-                    .observeOn(Schedulers.io())
-                    .flatMapCompletable { p ->
+                val streams = mutableListOf<Completable>()
 
-                        // the bitmarks're been updated in local but not be reflected in server
-                        val usableBitmarks =
-                            p.first.filter { b -> b.owner == owner }
-
-                        // the bitmarks're been deleted or transferred in server but not be reflected to local
-                        val unusableBitmarks =
-                            p.first.filter { b -> b.owner != owner }
-
-                        val updateUsableBitmarksStream =
-                            if (usableBitmarks.isNullOrEmpty()) {
-                                Completable.complete()
-                            } else {
-                                localDataSource.saveBitmarks(usableBitmarks)
+                bitmarkIds.forEach { id ->
+                    val stream = remoteDataSource.getBitmark(id, false)
+                        .observeOn(Schedulers.io()).flatMapCompletable { p ->
+                            val bitmark = p.first!!
+                            val usable = bitmark.owner == owner
+                            if (usable) {
+                                localDataSource.saveBitmark(bitmark)
                                     .ignoreElement()
-                            }
-
-                        val deleteBitmarksStream: Completable =
-                            if (unusableBitmarks.isNullOrEmpty()) {
-                                Completable.complete()
                             } else {
-                                val deleteBitmarkStreams =
-                                    mutableListOf<Completable>()
-                                unusableBitmarks.forEach { b ->
-                                    deleteBitmarkStreams.add(
-                                        deleteStoredBitmark(
-                                            owner,
-                                            b.id,
-                                            b.assetId
-                                        )
-                                    )
-                                }
-
-                                Completable.mergeDelayError(deleteBitmarkStreams)
+                                deleteStoredBitmark(
+                                    owner,
+                                    bitmark.id,
+                                    bitmark.assetId
+                                )
                             }
-
-                        Completable.mergeArray(
-                            updateUsableBitmarksStream,
-                            deleteBitmarksStream
-                        )
-
-                    }.onErrorResumeNext { Completable.complete() }
+                        }
+                    streams.add(stream)
+                }
+                Completable.mergeDelayError(streams)
+                    .onErrorResumeNext { Completable.complete() }
             }
         }
 
