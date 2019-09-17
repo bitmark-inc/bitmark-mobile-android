@@ -18,15 +18,15 @@ import com.bitmark.apiservice.utils.Address
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.data.source.remote.api.error.HttpException
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.logging.Event
-import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.transfer.TransferActivity
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
@@ -523,6 +523,12 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             val assetId = p.first
             if (bitmark.assetId != assetId) return@Observer
             bitmark.assetFile = p.second
+        })
+
+        viewModel.assetTypeChangedLiveData.observe(this, Observer { p ->
+            val assetId = p.first
+            if (bitmark.assetId != assetId) return@Observer
+            bitmark.assetType = p.second
             ivAssetType.setImageResource(bitmark.getThumbnailRes())
         })
     }

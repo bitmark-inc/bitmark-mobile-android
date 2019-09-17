@@ -34,5 +34,5 @@ data class AssetDataL(
 
     @Expose
     @ColumnInfo(name = "asset_type")
-    val type: AssetData.Type
+    val type: AssetData.Type = AssetData.Type.UNKNOWN
 )

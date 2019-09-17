@@ -1,5 +1,6 @@
 package com.bitmark.registry.data.model
 
+import android.webkit.MimeTypeMap
 import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Relation
@@ -115,6 +116,114 @@ data class AssetData(
         fun map(status: AssetRecord.Status): Status = when (status) {
             AssetRecord.Status.PENDING -> Status.PENDING
             AssetRecord.Status.CONFIRMED -> Status.CONFIRMED
+        }
+
+        fun determineAssetTypeByMetadata(metadata: Map<String, String>): Type? {
+            return when (metadata["source"] ?: metadata["Source"]) {
+                "Medical Records", "Health Records" -> Type.MEDICAL
+                "Health Kit", "Health" -> Type.HEALTH
+                // TODO consider to add it since maybe it's inconsistent
+                /*"Photo", "photo" -> AssetType.IMAGE
+                "Video", "video" -> AssetType.VIDEO*/
+                else -> null
+            }
+        }
+
+        fun determineAssetTypeByExt(ext: String): Type? {
+            return when (ext) {
+                in arrayOf(
+                    "ai",
+                    "bmp",
+                    "gif",
+                    "ico",
+                    "jpeg",
+                    "jpg",
+                    "png",
+                    "ps",
+                    "psd",
+                    "svg",
+                    "tif",
+                    "tiff"
+                ) -> Type.IMAGE
+                in arrayOf(
+                    "3g2",
+                    "3gp",
+                    "avi",
+                    "flv",
+                    "h264",
+                    "m4v",
+                    "mkv",
+                    "mov",
+                    "mp4",
+                    "mpg",
+                    "mpeg",
+                    "rm",
+                    "swf",
+                    "vob",
+                    "wmv"
+                ) -> Type.VIDEO
+                in arrayOf(
+                    "doc",
+                    "docx",
+                    "pdf",
+                    "rtf",
+                    "tex",
+                    "txt",
+                    "wks",
+                    "wps",
+                    "wpd"
+                ) -> Type.DOC
+                in arrayOf(
+                    "7z",
+                    "arj",
+                    "deb",
+                    "pkg",
+                    "rar",
+                    "rpm",
+                    "z",
+                    "zip"
+                ) -> Type.ZIP
+                else -> null
+            }
+        }
+
+        fun determineAssetTypeByMime(mime: String): Type? {
+            return when {
+                mime.contains("image/") -> Type.IMAGE
+                mime.contains("video/") -> Type.VIDEO
+                mime == "application/zip" || mime == "application/x-7z-compressed" || mime == "application/x-bzip" || mime == "application/x-bzip2" -> Type.ZIP
+                mime == "application/msword" || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mime == "application/x-abiword" || mime.contains(
+                    "application/vnd.oasis.opendocument"
+                ) || mime == "application/pdf" || mime == "application/x-shockwave-flash" || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> Type.DOC
+
+                else -> null
+            }
+        }
+
+        fun determineAssetType(
+            metadata: Map<String, String>? = null,
+            assetFile: File? = null
+        ): Type {
+            var assetType: Type? = null
+            if (metadata != null) {
+                assetType = determineAssetTypeByMetadata(metadata)
+            }
+
+            if (assetType != null) return assetType
+            val mime =
+                MimeTypeMap.getSingleton()
+                    .getMimeTypeFromExtension(assetFile?.extension)
+            if (mime != null) {
+                assetType = determineAssetTypeByMime(mime)
+            }
+
+            if (assetType != null) return assetType
+            val ext = assetFile?.extension
+            if (ext != null) {
+                assetType = determineAssetTypeByExt(ext)
+            }
+
+            return assetType ?: Type.UNKNOWN
         }
     }
 

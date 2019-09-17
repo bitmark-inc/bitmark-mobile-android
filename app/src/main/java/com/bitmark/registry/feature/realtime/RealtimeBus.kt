@@ -8,6 +8,7 @@ import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.local.event.*
 import io.reactivex.subjects.PublishSubject
+import java.io.File
 
 
 /**
@@ -28,7 +29,8 @@ class RealtimeBus(
     TxsSavedListener,
     BitmarkSeenListener,
     AssetSavedListener,
-    ActionRequiredAddedListener {
+    ActionRequiredAddedListener,
+    AssetTypeChangedListener {
 
     val bitmarkDeletedPublisher =
         Publisher(PublishSubject.create<Pair<String, BitmarkData.Status>>())
@@ -39,7 +41,8 @@ class RealtimeBus(
     val bitmarkSavedPublisher =
         Publisher(PublishSubject.create<BitmarkData>())
 
-    val assetFileSavedPublisher = Publisher(PublishSubject.create<String>())
+    val assetFileSavedPublisher =
+        Publisher(PublishSubject.create<Pair<String, File>>())
 
     val actionRequiredDeletedPublisher =
         Publisher(PublishSubject.create<ActionRequired.Id>())
@@ -55,6 +58,9 @@ class RealtimeBus(
     val actionRequiredAddedPublisher =
         Publisher(PublishSubject.create<List<ActionRequired.Id>>())
 
+    val assetTypeChangedPublisher =
+        Publisher(PublishSubject.create<Pair<String, AssetData.Type>>())
+
     init {
         bitmarkRepo.setBitmarkDeletedListener(this)
         bitmarkRepo.setBitmarkSavedListener(this)
@@ -63,6 +69,7 @@ class RealtimeBus(
         bitmarkRepo.setTxsSavedListener(this)
         bitmarkRepo.setBitmarkSeenListener(this)
         bitmarkRepo.setAssetSavedListener(this)
+        bitmarkRepo.setAssetTypeChangedListener(this)
         accountRepo.setActionRequiredDeletedListener(this)
         accountRepo.setActionRequiredAddedListener(this)
     }
@@ -89,8 +96,8 @@ class RealtimeBus(
         bitmarkSavedPublisher.publisher.onNext(bitmark)
     }
 
-    override fun onSaved(assetId: String) {
-        assetFileSavedPublisher.publisher.onNext(assetId)
+    override fun onAssetFileSaved(assetId: String, file: File) {
+        assetFileSavedPublisher.publisher.onNext(Pair(assetId, file))
     }
 
     override fun onDeleted(actionId: ActionRequired.Id) {
@@ -111,5 +118,9 @@ class RealtimeBus(
 
     override fun onAssetSaved(asset: AssetData, isNewRecord: Boolean) {
         assetsSavedPublisher.publisher.onNext(Pair(asset, isNewRecord))
+    }
+
+    override fun onAssetTypeChanged(assetId: String, type: AssetData.Type) {
+        assetTypeChangedPublisher.publisher.onNext(Pair(assetId, type))
     }
 }

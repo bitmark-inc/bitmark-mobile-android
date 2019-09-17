@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source.local.event
 
 import com.bitmark.registry.data.model.AssetData
+import java.io.File
 
 
 /**
@@ -13,10 +14,16 @@ import com.bitmark.registry.data.model.AssetData
 interface AssetChangedListener
 
 interface AssetFileSavedListener : AssetChangedListener {
-    fun onSaved(assetId: String)
+
+    fun onAssetFileSaved(assetId: String, file: File)
 }
 
 interface AssetSavedListener : AssetChangedListener {
 
     fun onAssetSaved(asset: AssetData, isNewRecord: Boolean)
+}
+
+interface AssetTypeChangedListener : AssetChangedListener {
+
+    fun onAssetTypeChanged(assetId: String, type: AssetData.Type)
 }

@@ -1,8 +1,8 @@
 package com.bitmark.registry.util.modelview
 
 import android.os.Parcelable
-import android.webkit.MimeTypeMap
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.util.DateTimeUtil
@@ -29,7 +29,7 @@ class BitmarkModelView constructor(
     val metadata: Map<String, String>?,
     val accountNumber: String,
     var seen: Boolean = false,
-    var assetType: AssetType = AssetType.UNKNOWN,
+    var assetType: AssetData.Type,
     var status: BitmarkData.Status,
     var assetFile: File? = null,
     val assetId: String,
@@ -45,9 +45,7 @@ class BitmarkModelView constructor(
             bitmark: BitmarkData,
             accountNumber: String
         ): BitmarkModelView {
-            val metadata = bitmark.asset?.metadata
             val assetFile = bitmark.asset?.file
-            val assetType = determineAssetType(metadata, assetFile)
 
             return BitmarkModelView(
                 id = bitmark.id,
@@ -60,7 +58,7 @@ class BitmarkModelView constructor(
                 metadata = bitmark.asset?.metadata ?: mapOf(),
                 accountNumber = accountNumber,
                 seen = bitmark.seen,
-                assetType = assetType,
+                assetType = bitmark.asset?.type ?: AssetData.Type.UNKNOWN,
                 status = bitmark.status,
                 assetFile = assetFile,
                 assetId = bitmark.assetId,
@@ -69,118 +67,6 @@ class BitmarkModelView constructor(
                 totalEdition = bitmark.totalEdition
             )
         }
-
-        fun determineAssetTypeByMetadata(metadata: Map<String, String>): AssetType? {
-            return when (metadata["source"] ?: metadata["Source"]) {
-                "Medical Records", "Health Records" -> AssetType.MEDICAL
-                "Health Kit", "Health" -> AssetType.HEALTH
-                // TODO consider to add it since maybe it's inconsistent
-                /*"Photo", "photo" -> AssetType.IMAGE
-                "Video", "video" -> AssetType.VIDEO*/
-                else -> null
-            }
-        }
-
-        fun determineAssetTypeByExt(ext: String): AssetType? {
-            return when (ext) {
-                in arrayOf(
-                    "ai",
-                    "bmp",
-                    "gif",
-                    "ico",
-                    "jpeg",
-                    "jpg",
-                    "png",
-                    "ps",
-                    "psd",
-                    "svg",
-                    "tif",
-                    "tiff"
-                ) -> AssetType.IMAGE
-                in arrayOf(
-                    "3g2",
-                    "3gp",
-                    "avi",
-                    "flv",
-                    "h264",
-                    "m4v",
-                    "mkv",
-                    "mov",
-                    "mp4",
-                    "mpg",
-                    "mpeg",
-                    "rm",
-                    "swf",
-                    "vob",
-                    "wmv"
-                ) -> AssetType.VIDEO
-                in arrayOf(
-                    "doc",
-                    "docx",
-                    "pdf",
-                    "rtf",
-                    "tex",
-                    "txt",
-                    "wks",
-                    "wps",
-                    "wpd"
-                ) -> AssetType.DOC
-                in arrayOf(
-                    "7z",
-                    "arj",
-                    "deb",
-                    "pkg",
-                    "rar",
-                    "rpm",
-                    "z",
-                    "zip"
-                ) -> AssetType.ZIP
-                else -> null
-            }
-        }
-
-        fun determineAssetTypeByMime(mime: String): AssetType? {
-            return when {
-                mime.contains("image/") -> AssetType.IMAGE
-                mime.contains("video/") -> AssetType.VIDEO
-                mime == "application/zip" || mime == "application/x-7z-compressed" || mime == "application/x-bzip" || mime == "application/x-bzip2" -> AssetType.ZIP
-                mime == "application/msword" || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mime == "application/x-abiword" || mime.contains(
-                    "application/vnd.oasis.opendocument"
-                ) || mime == "application/pdf" || mime == "application/x-shockwave-flash" || mime == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> AssetType.DOC
-
-                else -> null
-            }
-        }
-
-        fun determineAssetType(
-            metadata: Map<String, String>? = null,
-            assetFile: File? = null
-        ): AssetType {
-            var assetType: AssetType? = null
-            if (metadata != null) {
-                assetType = determineAssetTypeByMetadata(metadata)
-            }
-
-            if (assetType != null) return assetType
-            val mime =
-                MimeTypeMap.getSingleton()
-                    .getMimeTypeFromExtension(assetFile?.extension)
-            if (mime != null) {
-                assetType = determineAssetTypeByMime(mime)
-            }
-
-            if (assetType != null) return assetType
-            val ext = assetFile?.extension
-            if (ext != null) {
-                assetType = determineAssetTypeByExt(ext)
-            }
-
-            return assetType ?: AssetType.UNKNOWN
-        }
-    }
-
-    enum class AssetType {
-        IMAGE, VIDEO, HEALTH, DOC, MEDICAL, ZIP, UNKNOWN
     }
 
     fun confirmedAt() =
@@ -202,15 +88,14 @@ class BitmarkModelView constructor(
     fun isMusicClaiming() = OMNISCIENT_ASSET_ID == assetId
 
     fun getThumbnailRes(): Int {
-        assetType = determineAssetType(metadata, assetFile)
         return when (assetType) {
-            AssetType.IMAGE -> R.drawable.ic_asset_image
-            AssetType.VIDEO -> R.drawable.ic_asset_video
-            AssetType.HEALTH -> R.drawable.ic_asset_health_data
-            AssetType.MEDICAL -> R.drawable.ic_asset_medical_record
-            AssetType.ZIP -> R.drawable.ic_asset_zip
-            AssetType.DOC -> R.drawable.ic_asset_doc
-            AssetType.UNKNOWN -> R.drawable.ic_asset_unknow
+            AssetData.Type.IMAGE -> R.drawable.ic_asset_image
+            AssetData.Type.VIDEO -> R.drawable.ic_asset_video
+            AssetData.Type.HEALTH -> R.drawable.ic_asset_health_data
+            AssetData.Type.MEDICAL -> R.drawable.ic_asset_medical_record
+            AssetData.Type.ZIP -> R.drawable.ic_asset_zip
+            AssetData.Type.DOC -> R.drawable.ic_asset_doc
+            AssetData.Type.UNKNOWN -> R.drawable.ic_asset_unknow
         }
     }
 }

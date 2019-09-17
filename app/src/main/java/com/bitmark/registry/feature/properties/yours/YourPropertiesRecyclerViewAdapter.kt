@@ -7,12 +7,14 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.util.extension.append
 import com.bitmark.registry.util.extension.shortenAccountNumber
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_your_properties.view.*
+import java.io.File
 
 
 /**
@@ -85,6 +87,18 @@ class YourPropertiesRecyclerViewAdapter() :
         items.clear()
         items.append(pendingItems, settledItems)
         notifyDataSetChanged()
+    }
+
+    internal fun updateAssetFile(assetId: String, file: File) {
+        this.items.filter { i -> i.assetId == assetId }
+            .forEach { i -> i.assetFile = file }
+    }
+
+    internal fun updateAssetType(assetId: String, type: AssetData.Type) {
+        this.items.filter { i -> i.assetId == assetId }.forEach { i ->
+            i.assetType = type
+            notifyItemChanged(this.items.indexOf(i))
+        }
     }
 
     internal fun setOnItemClickListener(clickListener: (BitmarkModelView) -> Unit) {

@@ -6,6 +6,7 @@ import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.AssetDataL
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
@@ -60,6 +61,10 @@ class BitmarkRepository(
         localDataSource.setAssetSavedListener(listener)
     }
 
+    fun setAssetTypeChangedListener(listener: AssetTypeChangedListener?) {
+        localDataSource.setAssetTypeChangedListener(listener)
+    }
+
     // sync bitmarks from server and save to local db
     fun syncBitmarks(
         owner: String? = null,
@@ -83,15 +88,10 @@ class BitmarkRepository(
             loadAsset = loadAsset,
             bitmarkIds = bitmarkIds
         ).observeOn(Schedulers.io()).flatMap { p ->
-            Single.zip(
-                localDataSource.saveAssets(p.second),
-                localDataSource.saveBitmarks(p.first),
-                BiFunction<List<AssetData>, List<BitmarkData>, Pair<List<BitmarkData>, List<AssetData>>> { asset, bitmark ->
-                    Pair(
-                        bitmark,
-                        asset
-                    )
-                })
+            localDataSource.saveAssets(p.second).flatMap { asset ->
+                localDataSource.saveBitmarks(p.first)
+                    .map { bitmark -> Pair(bitmark, asset) }
+            }
         }.map { p ->
             val bitmarks = p.first
             val assets = p.second
@@ -175,12 +175,6 @@ class BitmarkRepository(
                     Single.error<BitmarkData>(Throwable("Resource not found"))
                 } else {
                     localDataSource.saveBitmark(bitmarkR)
-                        .map { bitmark ->
-                            if (assetR != null) {
-                                bitmark.asset = AssetData(assetDataR = assetR)
-                            }
-                            bitmark
-                        }
                 }
             val saveAssetStream =
                 if (assetR == null) {
@@ -618,8 +612,13 @@ class BitmarkRepository(
     fun getAsset(id: String) =
         localDataSource.getAssetById(id).onErrorResumeNext { e ->
             if (e.isDbRecNotFoundError()) {
-                remoteDataSource.getAsset(id).flatMap { asset ->
-                    localDataSource.saveAsset(asset)
+                remoteDataSource.getAsset(id).flatMap { assetR ->
+                    val assetType =
+                        AssetData.determineAssetType(metadata = assetR.metadata)
+                    localDataSource.saveAsset(
+                        assetR,
+                        AssetDataL(assetId = assetR.id, type = assetType)
+                    )
                 }
             } else {
                 Single.error(e)
@@ -628,8 +627,13 @@ class BitmarkRepository(
 
     fun registerAsset(params: RegistrationParams) =
         remoteDataSource.registerAsset(params).flatMap { assetId ->
-            remoteDataSource.getAsset(assetId).flatMap { asset ->
-                localDataSource.saveAsset(asset)
+            remoteDataSource.getAsset(assetId).flatMap { assetR ->
+                val assetType =
+                    AssetData.determineAssetType(metadata = assetR.metadata)
+                localDataSource.saveAsset(
+                    assetR,
+                    AssetDataL(assetId = assetR.id, type = assetType)
+                )
             }.map { asset -> asset.id }
         }
 

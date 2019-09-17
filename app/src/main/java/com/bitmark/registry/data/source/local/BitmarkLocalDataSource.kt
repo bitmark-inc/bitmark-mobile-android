@@ -41,6 +41,8 @@ class BitmarkLocalDataSource @Inject constructor(
 
     private var assetSavedListener: AssetSavedListener? = null
 
+    private var assetTypeChangedListener: AssetTypeChangedListener? = null
+
     fun setBitmarkDeletedListener(listener: BitmarkDeletedListener?) {
         this.bitmarkDeletedListener = listener
     }
@@ -67,6 +69,10 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun setAssetSavedListener(listener: AssetSavedListener?) {
         this.assetSavedListener = listener
+    }
+
+    fun setAssetTypeChangedListener(listener: AssetTypeChangedListener?) {
+        this.assetTypeChangedListener = listener
     }
 
     //region Bitmark
@@ -308,18 +314,16 @@ class BitmarkLocalDataSource @Inject constructor(
                     { collection, data -> collection.add(data) })
         }
 
-    fun saveAsset(assetR: AssetDataR) =
+    fun saveAsset(
+        assetR: AssetDataR,
+        assetL: AssetDataL = AssetDataL(assetId = assetR.id)
+    ) =
         checkExistingAssetL(assetR.id).flatMap { existing ->
             databaseApi.rxSingle { db ->
                 val assetLStream = if (existing) {
                     getAssetL(assetR.id)
                 } else {
-                    saveAssetL(
-                        AssetDataL(
-                            assetId = assetR.id,
-                            type = AssetData.Type.UNKNOWN
-                        )
-                    ).andThen(getAssetL(assetR.id))
+                    saveAssetL(assetL).andThen(getAssetL(assetR.id))
                 }
 
                 db.assetDao().saveR(assetR).andThen(assetLStream)
@@ -384,8 +388,31 @@ class BitmarkLocalDataSource @Inject constructor(
             assetId
         )
         fileGateway.save(path, fileName, content)
-    }.doOnSuccess {
-        assetFileSavedListener?.onSaved(assetId)
+    }.doOnSuccess { file ->
+        assetFileSavedListener?.onAssetFileSaved(assetId, file)
+    }.flatMap { file ->
+        val assetType = AssetData.determineAssetType(assetFile = file)
+        updateAssetType(assetId, assetType).andThen(Single.just(file))
+    }
+
+    private fun updateAssetType(assetId: String, newType: AssetData.Type) =
+        getAssetType(assetId).flatMapCompletable { type ->
+            if (type != newType && newType != AssetData.Type.UNKNOWN) {
+                databaseApi.rxCompletable { db ->
+                    db.assetDao().updateTypeByAssetId(assetId, newType)
+                }.doOnComplete {
+                    assetTypeChangedListener?.onAssetTypeChanged(
+                        assetId,
+                        newType
+                    )
+                }
+            } else {
+                Completable.complete()
+            }
+        }
+
+    private fun getAssetType(assetId: String) = databaseApi.rxSingle { db ->
+        db.assetDao().getTypeByAssetId(assetId)
     }
 
     fun listStoredAssetFile(accountNumber: String) =

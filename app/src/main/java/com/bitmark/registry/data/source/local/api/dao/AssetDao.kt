@@ -43,4 +43,13 @@ abstract class AssetDao {
     @Query("DELETE FROM AssetL")
     abstract fun deleteL(): Completable
 
+    @Query("UPDATE AssetL SET asset_type = :type WHERE asset_id = :assetId")
+    abstract fun updateTypeByAssetId(
+        assetId: String,
+        type: AssetData.Type
+    ): Completable
+
+    @Query("SELECT asset_type from AssetL WHERE asset_id = :assetId")
+    abstract fun getTypeByAssetId(assetId: String): Single<AssetData.Type>
+
 }

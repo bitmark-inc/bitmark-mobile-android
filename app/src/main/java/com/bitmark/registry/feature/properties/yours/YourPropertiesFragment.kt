@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.Navigator
@@ -19,6 +18,7 @@ import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.feature.issuance.selection.AssetSelectionFragment
 import com.bitmark.registry.feature.music_claiming.MusicClaimingActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -234,11 +234,6 @@ class YourPropertiesFragment : BaseSupportFragment(),
             }
         })
 
-        viewModel.refreshAssetTypeLiveData.observe(this, Observer { bitmarks ->
-            if (bitmarks.isEmpty()) return@Observer
-            adapter.update(bitmarks)
-        })
-
         viewModel.bitmarkSavedLiveData.observe(
             this,
             Observer { bitmarks ->
@@ -249,6 +244,14 @@ class YourPropertiesFragment : BaseSupportFragment(),
                     hideEmptyView()
                 }
             })
+
+        viewModel.assetFileSavedLiveData.observe(this, Observer { p ->
+            adapter.updateAssetFile(p.first, p.second)
+        })
+
+        viewModel.assetTypeChangedLiveData.observe(this, Observer { p ->
+            adapter.updateAssetType(p.first, p.second)
+        })
 
         viewModel.fetchLatestBitmarksLiveData().observe(this, Observer { res ->
             when {

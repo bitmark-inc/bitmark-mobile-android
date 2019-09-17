@@ -4,6 +4,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.cryptography.crypto.key.KeyPair
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.source.AccountRepository
@@ -69,6 +70,9 @@ class PropertyDetailViewModel(
 
     internal val assetFileSavedLiveData =
         BufferedLiveData<Pair<String, File?>>(lifecycle)
+
+    internal val assetTypeChangedLiveData =
+        BufferedLiveData<Pair<String, AssetData.Type>>(lifecycle)
 
     internal fun setBitmarkId(bitmarkId: String) {
         this.bitmarkId = bitmarkId
@@ -325,17 +329,12 @@ class PropertyDetailViewModel(
             bitmarkDeletedLiveData.set(p)
         }
 
-        realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
-            subscribe(accountRepo.getAccountNumber().flatMap { accountNumber ->
-                bitmarkRepo.checkAssetFile(
-                    accountNumber,
-                    assetId
-                )
-            }.subscribe { p, e ->
-                if (e == null) {
-                    assetFileSavedLiveData.set(p)
-                }
-            })
+        realtimeBus.assetFileSavedPublisher.subscribe(this) { p ->
+            assetFileSavedLiveData.set(p)
+        }
+
+        realtimeBus.assetTypeChangedPublisher.subscribe(this) { p ->
+            assetTypeChangedLiveData.set(p)
         }
     }
 

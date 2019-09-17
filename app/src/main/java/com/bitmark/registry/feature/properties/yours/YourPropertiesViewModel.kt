@@ -1,7 +1,7 @@
 package com.bitmark.registry.feature.properties.yours
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.ISSUING
 import com.bitmark.registry.data.model.BitmarkData.Status.TRANSFERRING
@@ -44,7 +44,7 @@ class YourPropertiesViewModel(
         BufferedLiveData<String>(lifecycle)
 
     internal val bitmarkSavedLiveData =
-        MutableLiveData<List<BitmarkModelView>>()
+        BufferedLiveData<List<BitmarkModelView>>(lifecycle)
 
     private val listBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
@@ -54,11 +54,14 @@ class YourPropertiesViewModel(
 
     private val markSeenLiveData = CompositeLiveData<String>()
 
-    internal val refreshAssetTypeLiveData =
-        MutableLiveData<List<BitmarkModelView>>()
-
     private val fetchLatestBitmarksLiveData =
         CompositeLiveData<List<BitmarkModelView>>()
+
+    internal val assetFileSavedLiveData =
+        BufferedLiveData<Pair<String, File>>(lifecycle)
+
+    internal val assetTypeChangedLiveData =
+        BufferedLiveData<Pair<String, AssetData.Type>>(lifecycle)
 
     private var currentOffset = -1L
 
@@ -214,23 +217,6 @@ class YourPropertiesViewModel(
             }
         }
 
-    private fun refreshAssetType(assetId: String) {
-        subscribe(Single.zip(
-            bitmarkRepo.listStoredBitmarkRefSameAsset(assetId),
-            accountRepo.getAccountNumber(),
-            BiFunction<List<BitmarkData>, String, Pair<String, List<BitmarkData>>> { bitmarks, accountNumber ->
-                Pair(
-                    accountNumber,
-                    bitmarks
-                )
-            }).flatMap(checkAssetFileStream())
-            .map(bitmarkMapFunc()).observeOn(AndroidSchedulers.mainThread()).subscribe { bitmarks, e ->
-                if (e == null) {
-                    refreshAssetTypeLiveData.value = bitmarks
-                }
-            })
-    }
-
     override fun onCreate() {
         super.onCreate()
         realtimeBus.bitmarkDeletedPublisher.subscribe(this) { p ->
@@ -238,8 +224,12 @@ class YourPropertiesViewModel(
             deletedBitmarkLiveData.set(bitmarkId)
         }
 
-        realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
-            refreshAssetType(assetId)
+        realtimeBus.assetFileSavedPublisher.subscribe(this) { p ->
+            assetFileSavedLiveData.set(p)
+        }
+
+        realtimeBus.assetTypeChangedPublisher.subscribe(this) { p ->
+            assetTypeChangedLiveData.set(p)
         }
 
         realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
@@ -251,14 +241,18 @@ class YourPropertiesViewModel(
                     accountNumber,
                     listOf(bitmark)
                 )
-            }.flatMap(checkAssetFileStream()).map { p ->
+            }.map { p ->
                 val minOffset = p.second.minBy { b -> b.offset }?.offset ?: -1L
                 currentOffset =
-                    if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
+                    if (currentOffset == -1L || currentOffset > minOffset) {
+                        minOffset
+                    } else {
+                        currentOffset
+                    }
                 bitmarkMapFunc().invoke(p)
             }.observeOn(AndroidSchedulers.mainThread()).subscribe { b, e ->
                 if (e == null) {
-                    bitmarkSavedLiveData.value = b
+                    bitmarkSavedLiveData.set(b)
                 }
             })
         }

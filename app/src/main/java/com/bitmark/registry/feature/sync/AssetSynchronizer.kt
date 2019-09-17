@@ -2,9 +2,9 @@ package com.bitmark.registry.feature.sync
 
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.google_drive.GoogleDriveService
 import com.bitmark.registry.feature.realtime.RealtimeBus
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.UniqueConcurrentLinkedDeque
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -71,7 +71,8 @@ class AssetSynchronizer(
 
         })
 
-        realtimeBus.assetFileSavedPublisher.subscribe(this) { assetId ->
+        realtimeBus.assetFileSavedPublisher.subscribe(this) { p ->
+            val assetId = p.first
             Tracer.DEBUG.log(TAG, "asset file save for $assetId, process to upload")
             process(assetId, upload(assetId))
         }

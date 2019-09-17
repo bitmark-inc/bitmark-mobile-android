@@ -100,9 +100,11 @@ class IssuanceViewModel(
         registrationParams.sign(keyPair)
 
         val registerAssetStream =
-            if (registered) Single.just(assetId) else bitmarkRepo.registerAsset(
-                registrationParams
-            )
+            if (registered) {
+                Single.just(assetId)
+            } else {
+                bitmarkRepo.registerAsset(registrationParams)
+            }
 
         return registerAssetStream.observeOn(Schedulers.io()).flatMap { id ->
             accountRepo.getAccountNumber().map { a -> Pair(a, id) }
