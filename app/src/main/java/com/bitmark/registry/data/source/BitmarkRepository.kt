@@ -125,22 +125,15 @@ class BitmarkRepository(
             }
         }
 
-    // try to clean up bitmarks in local db first
-    // then fetch bitmarks from local db and then fetch from server if no bitmark is returned from db
     fun listBitmarks(
         owner: String,
         at: Long,
         limit: Int
     ): Single<List<BitmarkData>> {
-        return Completable.mergeArrayDelayError(
-            syncUpBitmark(owner),
-            cleanupBitmark(owner)
-        ).andThen(
-            localDataSource.listBitmarksByOwnerOffsetLimitDesc(
-                owner,
-                at,
-                limit
-            )
+        return localDataSource.listBitmarksByOwnerOffsetLimitDesc(
+            owner,
+            at,
+            limit
         )
             .map { bitmarks -> bitmarks.filter { b -> b.status != TO_BE_DELETED && b.status != TO_BE_TRANSFERRED } }
             .flatMap { bitmarks ->
@@ -218,12 +211,45 @@ class BitmarkRepository(
                     streams.add(stream)
                 }
                 Completable.mergeDelayError(streams)
-                    .onErrorResumeNext { Completable.complete() }
             }
         }
 
     fun cleanupBitmark(owner: String) =
-        localDataSource.deleteNotOwnBitmarks(owner)
+        Completable.mergeArrayDelayError(
+            localDataSource.deleteNotOwnBitmarks(owner),
+            fetchNewDeleteTxs(owner).map { txs ->
+                txs.map { tx ->
+                    Pair(
+                        tx.bitmarkId,
+                        tx.assetId
+                    )
+                }
+            }.flatMapCompletable { pairs ->
+                val streams = pairs.map { p ->
+                    deleteStoredBitmark(
+                        owner,
+                        p.first,
+                        p.second
+                    )
+                }
+                Completable.mergeDelayError(streams)
+            })
+
+    private fun fetchNewDeleteTxs(owner: String) =
+        maxStoredRelevantTxOffset(owner).flatMap { offset ->
+            remoteDataSource.listTxs(
+                owner = owner,
+                sent = true,
+                loadAsset = false,
+                loadBlock = false,
+                isPending = true,
+                at = offset,
+                to = "later"
+            )
+                .map { t ->
+                    t.first.filter { tx -> tx.owner == BuildConfig.ZERO_ADDRESS }
+                }
+        }
 
     // find out all pending bitmarks in local db
     fun listStoredPendingBitmarks(owner: String): Single<List<BitmarkData>> =
