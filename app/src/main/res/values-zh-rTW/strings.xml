@@ -220,7 +220,8 @@
   <string name="clear_data">清除資料…</string>
   <string name="your_data_will_be_lost">您的資料將會遺失</string>
   <string name="if_you_remove_access_now">如果您現在移除授權，您所有的資產和資料都會被從裝置中刪除，因為您尚未授權讓Google雲端硬碟備份您的資產和資料，所有東西都會被刪除。</string>
-
+  <string name="take_control_of_your_data">掌控您的數據</string>
+  <string name="register_digital_property_rights_to_your">為您的數據註冊數位財產權並掌控誰能正當地使用。</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$d天前</string>

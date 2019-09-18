@@ -222,6 +222,8 @@
   <string name="clear_data">Clear data…</string>
   <string name="your_data_will_be_lost">Your Data Will Be Lost</string>
   <string name="if_you_remove_access_now">If you remove access now, all of your assets and data will be removed from this device. Since you have not authorized Google Drive to back up your assets and data, everything will be deleted.</string>
+  <string name="take_control_of_your_data">Take Control Of Your Data</string>
+  <string name="register_digital_property_rights_to_your">Register digital property rights to your data so that only you control who accesses it.</string>
 
   <!--string format-->
   <string name="day_ago_format">%1$dd ago</string>
