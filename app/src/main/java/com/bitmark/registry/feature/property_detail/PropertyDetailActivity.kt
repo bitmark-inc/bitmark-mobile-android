@@ -479,10 +479,10 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
         })
 
         viewModel.downloadProgressLiveData.observe(this, Observer { percent ->
-            downloadProgressDialog?.setProgress(percent)
+            downloadProgressDialog.setProgress(percent)
             if (percent >= 100) {
                 dialogController.dismiss(
-                    downloadProgressDialog ?: return@Observer
+                    downloadProgressDialog
                 )
             }
         })

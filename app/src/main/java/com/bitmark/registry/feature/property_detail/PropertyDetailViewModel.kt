@@ -137,6 +137,7 @@ class PropertyDetailViewModel(
             isPending = true,
             loadAsset = true
         )
+            .map { txs -> txs.filterNot { tx -> tx.isDeleteTx() } }
 
         return Single.zip(
             accountStream,
@@ -301,7 +302,7 @@ class PropertyDetailViewModel(
                 bitmarkId = bitmarkId,
                 isPending = true,
                 loadBlock = true
-            )
+            ).map { txs -> txs.filterNot { tx -> tx.isDeleteTx() } }
 
             subscribe(
                 Single.zip(

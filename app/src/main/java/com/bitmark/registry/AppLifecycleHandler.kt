@@ -29,6 +29,8 @@ class AppLifecycleHandler : Application.ActivityLifecycleCallbacks {
 
     fun getRunningActivity() = runningActivity
 
+    fun isOnForeground() = runningActivity != null
+
     fun addAppStateChangedListener(listener: AppStateChangedListener) {
         if (appStateChangedListeners.contains(listener)) return
         appStateChangedListeners.add(listener)

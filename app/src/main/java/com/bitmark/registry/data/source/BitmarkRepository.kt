@@ -3,7 +3,6 @@ package com.bitmark.registry.data.source
 import com.bitmark.apiservice.params.IssuanceParams
 import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
-import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.AssetDataL
@@ -247,7 +246,7 @@ class BitmarkRepository(
                 to = "later"
             )
                 .map { t ->
-                    t.first.filter { tx -> tx.owner == BuildConfig.ZERO_ADDRESS }
+                    t.first.filter { tx -> tx.isDeleteTx() }
                 }
         }
 
@@ -408,18 +407,14 @@ class BitmarkRepository(
             at = at,
             to = to,
             limit = limit
-        ).map { t ->
-            // remove delete bitmark txs
-            val txs =
-                t.first.filterNot { tx -> tx.owner == BuildConfig.ZERO_ADDRESS }
-            Triple(txs, t.second, t.third)
-        }.observeOn(Schedulers.computation()).flatMap { t ->
+        ).observeOn(Schedulers.computation()).flatMap { t ->
 
-            Completable.mergeArrayDelayError(
-                localDataSource.saveTxs(t.first),
-                localDataSource.saveBlocks(t.third)
-            ).andThen(localDataSource.saveAssets(t.second))
-                .map { asset -> Triple(t.first, asset, t.third) }
+            localDataSource.saveAssets(t.second).flatMap { asset ->
+                localDataSource.saveBlocks(t.third).andThen(Single.just(asset))
+            }.flatMap { asset ->
+                localDataSource.saveTxs(t.first)
+                    .andThen(Single.just(Triple(t.first, asset, t.third)))
+            }
         }.map { t ->
             val txs = t.first
             val assets = t.second

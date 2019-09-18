@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.BuildConfig
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.EndlessScrollListener
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.visible
@@ -55,7 +55,7 @@ class TransactionHistoryFragment : BaseSupportFragment(),
     private val connectivityChangeListener =
         object : ConnectivityHandler.NetworkStateChangeListener {
             override fun onChange(connected: Boolean) {
-                if (connected) {
+                if (connected && appLifecycleHandler.isOnForeground()) {
                     viewModel.fetchLatestTxs()
                 }
             }

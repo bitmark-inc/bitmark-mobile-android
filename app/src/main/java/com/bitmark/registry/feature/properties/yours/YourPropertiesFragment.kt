@@ -58,7 +58,7 @@ class YourPropertiesFragment : BaseSupportFragment(),
     private val connectivityChangeListener =
         object : ConnectivityHandler.NetworkStateChangeListener {
             override fun onChange(connected: Boolean) {
-                if (connected) {
+                if (connected && appLifecycleHandler.isOnForeground()) {
                     viewModel.fetchLatestBitmarks()
                 }
             }

@@ -70,14 +70,15 @@ class TransactionHistoryViewModel(
         return accountRepo.getAccountNumber().flatMap { accountNumber ->
 
             val offsetStream =
-                if (currentOffset == -1L) bitmarkRepo.maxStoredRelevantTxOffset(
-                    accountNumber
-                ) else Single.just(
-                    currentOffset - 1
-                )
+                if (currentOffset == -1L) {
+                    bitmarkRepo.maxStoredRelevantTxOffset(accountNumber)
+                } else {
+                    Single.just(currentOffset - 1)
+                }
 
             val pendingTxsStream =
                 bitmarkRepo.listStoredRelevantPendingTxs(accountNumber)
+                    .map { txs -> txs.filterNot { tx -> tx.isDeleteTx() } }
 
             Single.zip(
                 pendingTxsStream,
@@ -94,6 +95,7 @@ class TransactionHistoryViewModel(
             val needDedupPendingTxs = storedPendingTxs.isNotEmpty()
 
             bitmarkRepo.listRelevantTxs(owner, offset, PAGE_SIZE)
+                .map { txs -> txs.filterNot { tx -> tx.isDeleteTx() } }
                 .map { txs ->
                     val dedupTxs =
                         if (needDedupPendingTxs) txs.filter { b -> b.status != TransactionData.Status.PENDING } else txs
@@ -201,7 +203,9 @@ class TransactionHistoryViewModel(
         return accountRepo.getAccountNumber().flatMap { accountNumber ->
             bitmarkRepo.syncLatestRelevantTxs(
                 accountNumber
-            ).map { txs -> Pair(accountNumber, txs) }
+            )
+                .map { txs -> txs.filterNot { tx -> tx.isDeleteTx() } }
+                .map { txs -> Pair(accountNumber, txs) }
         }.map(mapTxs())
     }
 
@@ -227,8 +231,16 @@ class TransactionHistoryViewModel(
                     val minOffset =
                         p.second.minBy { t -> t.offset }?.offset ?: -1L
                     currentOffset =
-                        if (currentOffset == -1L || currentOffset > minOffset) minOffset else currentOffset
-                    mapTxs().invoke(p)
+                        if (currentOffset == -1L || currentOffset > minOffset) {
+                            minOffset
+                        } else {
+                            currentOffset
+                        }
+                    mapTxs().invoke(
+                        Pair(
+                            p.first,
+                            p.second.filterNot { tx -> tx.isDeleteTx() })
+                    )
                 }.observeOn(AndroidSchedulers.mainThread()).subscribe { ts, e ->
                     if (e == null) {
                         txsSavedLiveData.setValue(ts)

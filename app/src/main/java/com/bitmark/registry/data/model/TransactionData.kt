@@ -2,6 +2,7 @@ package com.bitmark.registry.data.model
 
 import androidx.room.*
 import com.bitmark.apiservice.utils.record.TransactionRecord
+import com.bitmark.registry.BuildConfig
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -94,8 +95,11 @@ data class TransactionData(
     @Ignore
     var block: BlockData? = null
 
+    fun isDeleteTx() = owner == BuildConfig.ZERO_ADDRESS
+
     enum class Status(val value: String) {
-        CONFIRMED("confirmed"), PENDING("pending");
+        CONFIRMED("confirmed"),
+        PENDING("pending");
 
         companion object {
             fun from(value: String): Status? = when (value) {

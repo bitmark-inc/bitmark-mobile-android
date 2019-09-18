@@ -241,7 +241,7 @@ class YourPropertiesViewModel(
                     accountNumber,
                     listOf(bitmark)
                 )
-            }.map { p ->
+            }.flatMap(checkAssetFileStream()).map { p ->
                 val minOffset = p.second.minBy { b -> b.offset }?.offset ?: -1L
                 currentOffset =
                     if (currentOffset == -1L || currentOffset > minOffset) {

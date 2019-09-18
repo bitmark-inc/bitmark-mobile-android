@@ -23,7 +23,7 @@ import java.io.File
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class YourPropertiesRecyclerViewAdapter() :
+class YourPropertiesRecyclerViewAdapter :
     RecyclerView.Adapter<YourPropertiesRecyclerViewAdapter.ViewHolder>() {
 
     private val items = mutableListOf<BitmarkModelView>()
