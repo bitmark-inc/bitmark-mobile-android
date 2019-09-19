@@ -1,7 +1,7 @@
 package com.bitmark.registry.util.modelview
 
 import android.os.Parcelable
-import com.bitmark.registry.data.model.AssetClaimingData
+import com.bitmark.registry.data.model.entity.AssetClaimingData
 import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.util.DateTimeUtil
 import com.bitmark.registry.util.DateTimeUtil.Companion.ISO8601_SIMPLE_FORMAT

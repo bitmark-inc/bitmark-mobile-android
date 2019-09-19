@@ -1,8 +1,8 @@
 package com.bitmark.registry.feature.transactions.history
 
 import androidx.lifecycle.Lifecycle
-import com.bitmark.registry.data.model.AssetClaimingData
 import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.entity.AssetClaimingData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
@@ -216,15 +216,11 @@ class TransactionHistoryViewModel(
     override fun onCreate() {
         super.onCreate()
 
-        realtimeBus.txsSavedPublisher.subscribe(this) { txs ->
-            val maxOffset =
-                txs.maxBy { t -> t.offset }?.offset ?: return@subscribe
-            if (maxOffset < currentOffset) return@subscribe // ignore unloaded txs
-
+        realtimeBus.txsSavedPublisher.subscribe(this) { tx ->
             subscribe(accountRepo.getAccountNumber().map { accountNumber ->
                 Pair(
                     accountNumber,
-                    txs
+                    listOf(tx)
                 )
             }
                 .map { p ->

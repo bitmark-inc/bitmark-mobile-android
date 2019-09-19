@@ -3,7 +3,7 @@ package com.bitmark.registry.feature.google_drive
 import android.content.Context
 import android.webkit.MimeTypeMap
 import com.bitmark.registry.BuildConfig
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount

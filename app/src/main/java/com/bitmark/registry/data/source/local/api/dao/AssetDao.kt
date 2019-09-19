@@ -2,8 +2,8 @@ package com.bitmark.registry.data.source.local.api.dao
 
 import androidx.room.*
 import com.bitmark.registry.data.model.AssetData
-import com.bitmark.registry.data.model.AssetDataL
-import com.bitmark.registry.data.model.AssetDataR
+import com.bitmark.registry.data.model.entity.AssetDataL
+import com.bitmark.registry.data.model.entity.AssetDataR
 import io.reactivex.Completable
 import io.reactivex.Single
 

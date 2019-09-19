@@ -5,10 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import com.bitmark.cryptography.crypto.Sha3256
 import com.bitmark.cryptography.crypto.encoder.Raw.RAW
 import com.bitmark.cryptography.crypto.key.KeyPair
-import com.bitmark.registry.data.model.ActionRequired
-import com.bitmark.registry.data.model.ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION
-import com.bitmark.registry.data.model.ActionRequired.Id.RECOVERY_PHRASE
-import com.bitmark.registry.data.model.ActionRequired.Type.SECURITY_ALERT
+import com.bitmark.registry.data.model.entity.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired.Id.CLOUD_SERVICE_AUTHORIZATION
+import com.bitmark.registry.data.model.entity.ActionRequired.Id.RECOVERY_PHRASE
+import com.bitmark.registry.data.model.entity.ActionRequired.Type.SECURITY_ALERT
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.AppRepository
 import com.bitmark.registry.feature.BaseViewModel

@@ -1,6 +1,7 @@
-package com.bitmark.registry.data.model
+package com.bitmark.registry.data.model.entity
 
 import androidx.room.*
+import com.bitmark.registry.data.model.AssetData
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

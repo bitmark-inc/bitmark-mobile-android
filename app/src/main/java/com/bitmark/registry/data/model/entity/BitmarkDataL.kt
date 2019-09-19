@@ -1,4 +1,4 @@
-package com.bitmark.registry.data.model
+package com.bitmark.registry.data.model.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

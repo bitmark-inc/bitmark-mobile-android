@@ -5,6 +5,8 @@ import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Relation
 import com.bitmark.apiservice.utils.record.AssetRecord
+import com.bitmark.registry.data.model.entity.AssetDataL
+import com.bitmark.registry.data.model.entity.AssetDataR
 import java.io.File
 
 

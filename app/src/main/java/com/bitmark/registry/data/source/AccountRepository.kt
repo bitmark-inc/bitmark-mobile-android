@@ -1,7 +1,7 @@
 package com.bitmark.registry.data.source
 
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.data.source.local.AccountLocalDataSource
 import com.bitmark.registry.data.source.local.event.ActionRequiredAddedListener
 import com.bitmark.registry.data.source.local.event.ActionRequiredDeletedListener

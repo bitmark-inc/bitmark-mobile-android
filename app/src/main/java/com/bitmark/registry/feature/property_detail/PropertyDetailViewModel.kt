@@ -112,7 +112,6 @@ class PropertyDetailViewModel(
         val accountStream = accountRepo.getAccountNumber()
         val txsStream = bitmarkRepo.listTxs(
             bitmarkId = bitmarkId,
-            loadBlock = true,
             isPending = true
         )
 
@@ -292,16 +291,13 @@ class PropertyDetailViewModel(
             )
         }
 
-        realtimeBus.txsSavedPublisher.subscribe(this) { txs ->
-            if (txs.isEmpty()) return@subscribe
-            val hasChanged =
-                txs.indexOfFirst { t -> t.bitmarkId == bitmarkId } != -1
+        realtimeBus.txsSavedPublisher.subscribe(this) { tx ->
+            val hasChanged = tx.bitmarkId == bitmarkId
             if (!hasChanged) return@subscribe
 
             val syncTxsStream = bitmarkRepo.listTxs(
                 bitmarkId = bitmarkId,
-                isPending = true,
-                loadBlock = true
+                isPending = true
             ).map { txs -> txs.filterNot { tx -> tx.isDeleteTx() } }
 
             subscribe(

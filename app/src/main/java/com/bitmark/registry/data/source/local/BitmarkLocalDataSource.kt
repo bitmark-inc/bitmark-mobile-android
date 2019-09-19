@@ -1,9 +1,13 @@
 package com.bitmark.registry.data.source.local
 
 import com.bitmark.registry.data.ext.isDbRecNotFoundError
-import com.bitmark.registry.data.model.*
+import com.bitmark.registry.data.model.AssetData
+import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.entity.BlockData
+import com.bitmark.registry.data.model.TransactionData
 import com.bitmark.registry.data.model.TransactionData.Status.CONFIRMED
 import com.bitmark.registry.data.model.TransactionData.Status.PENDING
+import com.bitmark.registry.data.model.entity.*
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
@@ -35,7 +39,7 @@ class BitmarkLocalDataSource @Inject constructor(
 
     private var assetFileSavedListener: AssetFileSavedListener? = null
 
-    private var txsSavedListener: TxsSavedListener? = null
+    private var txSavedListener: TxSavedListener? = null
 
     private var bitmarkSeenListener: BitmarkSeenListener? = null
 
@@ -59,8 +63,8 @@ class BitmarkLocalDataSource @Inject constructor(
         this.assetFileSavedListener = listener
     }
 
-    fun setTxsSavedListener(listener: TxsSavedListener?) {
-        this.txsSavedListener = listener
+    fun setTxsSavedListener(listener: TxSavedListener?) {
+        this.txSavedListener = listener
     }
 
     fun setBitmarkSeenListener(listener: BitmarkSeenListener?) {
@@ -86,7 +90,7 @@ class BitmarkLocalDataSource @Inject constructor(
             .onErrorResumeNext {
                 Single.just(listOf())
             }
-    }.flatMapMaybe(attachAssetToBitmark()).toSingle()
+    }
 
     fun listBitmarksByOwnerStatus(
         owner: String,
@@ -99,28 +103,6 @@ class BitmarkLocalDataSource @Inject constructor(
                         listOf()
                     )
                 }
-        }.flatMapMaybe(attachAssetToBitmark()).toSingle()
-
-    private fun attachAssetToBitmark(): (List<BitmarkData>) -> Maybe<List<BitmarkData>> =
-        { bitmarks ->
-
-            if (bitmarks.isEmpty()) {
-                Maybe.just(bitmarks)
-            } else {
-                // map asset to bitmark
-                val assetStreams = mutableListOf<Maybe<AssetData>>()
-                for (bitmark in bitmarks) {
-                    assetStreams.add(
-                        getAssetById(bitmark.assetId).toMaybe().onErrorResumeNext(
-                            Maybe.empty()
-                        )
-                    )
-                }
-                Maybe.merge(assetStreams).doOnNext { asset ->
-                    bitmarks.filter { b -> b.assetId == asset.id }
-                        .forEach { b -> b.asset = asset }
-                }.lastOrError().flatMapMaybe { Maybe.just(bitmarks) }
-            }
         }
 
     fun listBitmarksByOwnerStatus(
@@ -147,24 +129,24 @@ class BitmarkLocalDataSource @Inject constructor(
         }
 
     fun saveBitmark(bitmarkR: BitmarkDataR): Single<BitmarkData> =
-        checkExistingBitmarkL(bitmarkR.id).flatMap { existing ->
-            databaseApi.rxSingle { db ->
+        checkExistingBitmarkL(bitmarkR.id).flatMapCompletable { existing ->
+            databaseApi.rxCompletable { db ->
                 val bmLStream = if (existing) {
-                    getBitmarkL(bitmarkR.id)
+                    Completable.complete()
                 } else {
                     val bitmarkL =
-                        BitmarkDataL(bitmarkId = bitmarkR.id, seen = false)
-                    saveBitmarkL(bitmarkL).andThen(getBitmarkL(bitmarkR.id))
+                        BitmarkDataL(
+                            bitmarkId = bitmarkR.id
+                        )
+                    saveBitmarkL(bitmarkL)
                 }
                 db.bitmarkDao().saveR(bitmarkR).andThen(bmLStream)
-                    .map { bitmarkL -> BitmarkData(bitmarkR, listOf(bitmarkL)) }
             }
-        }.flatMap { bitmark ->
-            getAssetById(bitmark.bitmarkDataR.assetId).map { asset ->
-                bitmark.asset = asset
+        }.andThen(getBitmarkById(bitmarkR.id)).doOnSuccess { bitmark ->
+            bitmarkSavedListener?.onBitmarkSaved(
                 bitmark
-            }
-        }.doOnSuccess { bitmark -> bitmarkSavedListener?.onBitmarkSaved(bitmark) }
+            )
+        }
 
     private fun getBitmarkL(bitmarkId: String) =
         databaseApi.rxSingle { db ->
@@ -264,18 +246,11 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun listBitmarkRefSameAsset(assetId: String) = databaseApi.rxSingle { db ->
         db.bitmarkDao().listRefSameAsset(assetId)
-    }.onErrorResumeNext { Single.just(listOf()) }.flatMapMaybe(
-        attachAssetToBitmark()
-    ).toSingle()
+    }.onErrorResumeNext { Single.just(listOf()) }
 
     fun getBitmarkById(id: String) =
         databaseApi.rxSingle { db ->
             db.bitmarkDao().getById(id)
-        }.flatMap { bitmark ->
-            getAssetById(bitmark.assetId).map { asset ->
-                bitmark.asset = asset
-                bitmark
-            }.onErrorResumeNext { Single.just(bitmark) }
         }
 
     fun checkUnseenBitmark(owner: String) = databaseApi.rxSingle { db ->
@@ -316,7 +291,9 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun saveAsset(
         assetR: AssetDataR,
-        assetL: AssetDataL = AssetDataL(assetId = assetR.id)
+        assetL: AssetDataL = AssetDataL(
+            assetId = assetR.id
+        )
     ) =
         checkExistingAssetL(assetR.id).flatMap { existing ->
             databaseApi.rxSingle { db ->
@@ -485,25 +462,23 @@ class BitmarkLocalDataSource @Inject constructor(
 
     //region Txs
 
-    fun saveTxs(txs: List<TransactionData>): Completable {
-        return if (txs.isEmpty()) Completable.complete()
-        else databaseApi.rxCompletable { db ->
-            db.transactionDao().save(txs)
-        }.andThen(
-            Completable.mergeArray(
-                attachAssetToTx().invoke(txs).ignoreElement(),
-                attachBlkToTx().invoke(txs).ignoreElement()
-            ).doOnComplete {
-                txsSavedListener?.onTxsSaved(txs)
-            }
-        )
+    fun saveTxs(txs: List<TransactionDataR>): Completable {
+        return if (txs.isEmpty()) {
+            Completable.complete()
+        } else {
+            val streams = txs.map { tx -> saveTx(tx) }
+            Completable.merge(streams)
+        }
     }
+
+    private fun saveTx(tx: TransactionDataR) = databaseApi.rxCompletable { db ->
+        db.transactionDao()
+            .saveR(tx)
+    }.andThen(getTxById(tx.id).doOnSuccess { tx -> txSavedListener?.onTxSaved(tx) }).ignoreElement()
 
     fun listTxs(
         bitmarkId: String,
-        loadAsset: Boolean = false,
         isPending: Boolean = false,
-        loadBlock: Boolean = false,
         limit: Int = 100
     ): Single<List<TransactionData>> {
         val status =
@@ -516,10 +491,6 @@ class BitmarkLocalDataSource @Inject constructor(
                         listOf()
                     )
                 }
-        }.flatMap { txs ->
-            if (loadAsset) attachAssetToTx().invoke(txs) else Single.just(txs)
-        }.flatMap { txs ->
-            if (loadBlock) attachBlkToTx().invoke(txs) else Single.just(txs)
         }
     }
 
@@ -527,9 +498,7 @@ class BitmarkLocalDataSource @Inject constructor(
     fun listRelevantTxs(
         owner: String,
         offset: Long,
-        loadAsset: Boolean = true,
         isPending: Boolean = false,
-        loadBlock: Boolean = true,
         limit: Int = 100
     ): Single<List<TransactionData>> {
         val status =
@@ -548,60 +517,8 @@ class BitmarkLocalDataSource @Inject constructor(
                         listOf()
                     )
                 }
-        }.flatMap { txs ->
-            if (loadAsset) attachAssetToTx().invoke(txs) else Single.just(txs)
-        }.flatMap { txs ->
-            if (loadBlock) attachBlkToTx().invoke(txs) else Single.just(txs)
         }
     }
-
-    private fun attachAssetToTx(): (List<TransactionData>) -> Single<List<TransactionData>> =
-        { txs ->
-            if (txs.isNotEmpty()) {
-                val assetIds =
-                    txs.distinctBy { tx -> tx.assetId }.map { tx -> tx.assetId }
-
-                val assetStreams = mutableListOf<Maybe<AssetData>>()
-                for (id in assetIds) {
-                    val assetStream = getAssetById(id).toMaybe()
-                        .onErrorResumeNext(Maybe.empty())
-                    assetStreams.add(assetStream)
-                }
-
-                Maybe.mergeDelayError(assetStreams).doOnNext { asset ->
-                    txs.filter { tx -> tx.assetId == asset.id }
-                        .forEach { tx -> tx.asset = asset }
-                }.collectInto(txs, { _, _ -> }).flatMap { Single.just(txs) }
-
-
-            } else Single.just(txs)
-
-        }
-
-    private fun attachBlkToTx(): (List<TransactionData>) -> Single<List<TransactionData>> =
-        { txs ->
-            if (txs.isNotEmpty()) {
-                val blockNumbers = txs.distinctBy { tx -> tx.blockNumber }
-                    .map { tx -> tx.blockNumber }
-
-                val blockStreams = mutableListOf<Maybe<BlockData>>()
-                for (blkNo in blockNumbers) {
-                    if (blkNo == 0L) continue
-                    val blockStream = getBlockByNumber(blkNo)
-                    blockStreams.add(blockStream)
-                }
-
-                if (blockStreams.isEmpty()) Single.just(txs)
-                else {
-                    Maybe.merge(blockStreams).doOnNext { block ->
-                        txs.filter { tx ->
-                            tx.blockNumber == block.number
-                        }.forEach { tx -> tx.block = block }
-                    }.collectInto(txs, { _, _ -> }).flatMap { Single.just(txs) }
-                }
-
-            } else Single.just(txs)
-        }
 
     fun deleteTxsByBitmarkId(bitmarkId: String) =
         databaseApi.rxCompletable { db ->
@@ -642,9 +559,7 @@ class BitmarkLocalDataSource @Inject constructor(
 
     fun listRelevantTxsByStatus(
         who: String,
-        status: TransactionData.Status,
-        loadAsset: Boolean = true,
-        loadBlock: Boolean = true
+        status: TransactionData.Status
     ): Single<List<TransactionData>> =
         databaseApi.rxSingle { db ->
             db.transactionDao().listRelevantByStatusDesc(who, status)
@@ -653,14 +568,6 @@ class BitmarkLocalDataSource @Inject constructor(
                         listOf()
                     )
                 }
-        }.flatMap { txs ->
-            if (loadAsset) attachAssetToTx().invoke(txs) else Single.just(
-                txs
-            )
-        }.flatMap { txs ->
-            if (loadBlock) attachBlkToTx().invoke(txs) else Single.just(
-                txs
-            )
         }
 
     fun getTxById(id: String) =

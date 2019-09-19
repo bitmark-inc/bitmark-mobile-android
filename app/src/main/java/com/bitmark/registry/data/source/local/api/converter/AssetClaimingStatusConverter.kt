@@ -1,7 +1,7 @@
 package com.bitmark.registry.data.source.local.api.converter
 
 import androidx.room.TypeConverter
-import com.bitmark.registry.data.model.AssetClaimingData
+import com.bitmark.registry.data.model.entity.AssetClaimingData
 
 
 /**

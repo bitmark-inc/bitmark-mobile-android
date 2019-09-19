@@ -1,9 +1,9 @@
 package com.bitmark.registry.feature.realtime
 
-import com.bitmark.registry.data.model.ActionRequired
 import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.local.event.*
@@ -26,7 +26,7 @@ class RealtimeBus(
     BitmarkStatusChangedListener,
     AssetFileSavedListener,
     ActionRequiredDeletedListener,
-    TxsSavedListener,
+    TxSavedListener,
     BitmarkSeenListener,
     AssetSavedListener,
     ActionRequiredAddedListener,
@@ -48,7 +48,7 @@ class RealtimeBus(
         Publisher(PublishSubject.create<ActionRequired.Id>())
 
     val txsSavedPublisher =
-        Publisher(PublishSubject.create<List<TransactionData>>())
+        Publisher(PublishSubject.create<TransactionData>())
 
     val bitmarkSeenPublisher = Publisher(PublishSubject.create<String>())
 
@@ -108,8 +108,8 @@ class RealtimeBus(
         actionRequiredAddedPublisher.publisher.onNext(actionIds)
     }
 
-    override fun onTxsSaved(txs: List<TransactionData>) {
-        txsSavedPublisher.publisher.onNext(txs)
+    override fun onTxSaved(tx: TransactionData) {
+        txsSavedPublisher.publisher.onNext(tx)
     }
 
     override fun onSeen(bitmarkId: String) {

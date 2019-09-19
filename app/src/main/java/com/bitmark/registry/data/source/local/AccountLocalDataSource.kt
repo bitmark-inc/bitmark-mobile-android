@@ -1,8 +1,8 @@
 package com.bitmark.registry.data.source.local
 
 import com.bitmark.cryptography.crypto.encoder.Hex.HEX
-import com.bitmark.registry.data.model.AccountData
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.AccountData
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.data.source.local.api.DatabaseApi
 import com.bitmark.registry.data.source.local.api.FileStorageApi
 import com.bitmark.registry.data.source.local.api.SharedPrefApi
@@ -85,7 +85,10 @@ class AccountLocalDataSource @Inject constructor(
     fun saveEncPubKey(accountNumber: String, encPubKey: String): Completable =
         databaseApi.rxCompletable { db ->
             db.accountDao().saveEncPubKey(
-                AccountData(accountNumber, encPubKey)
+                AccountData(
+                    accountNumber,
+                    encPubKey
+                )
             )
         }
 

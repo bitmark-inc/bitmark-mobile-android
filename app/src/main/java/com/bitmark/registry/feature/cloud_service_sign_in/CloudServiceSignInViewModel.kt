@@ -1,7 +1,7 @@
 package com.bitmark.registry.feature.cloud_service_sign_in
 
 import androidx.lifecycle.Lifecycle
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.util.DateTimeUtil

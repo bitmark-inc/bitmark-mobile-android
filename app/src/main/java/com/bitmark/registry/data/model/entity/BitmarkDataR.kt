@@ -1,9 +1,11 @@
-package com.bitmark.registry.data.model
+package com.bitmark.registry.data.model.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.bitmark.registry.data.model.BitmarkData
+import com.bitmark.registry.data.model.Head
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

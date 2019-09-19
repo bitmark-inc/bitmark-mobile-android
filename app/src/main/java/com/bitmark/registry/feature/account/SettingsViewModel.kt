@@ -2,7 +2,7 @@ package com.bitmark.registry.feature.account
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.realtime.RealtimeBus

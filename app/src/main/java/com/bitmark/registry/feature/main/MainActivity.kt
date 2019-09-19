@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.feature.*
 import com.bitmark.registry.feature.account.AccountContainerFragment
 import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity

@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import com.bitmark.registry.data.model.BlockData
+import com.bitmark.registry.data.model.entity.BlockData
 import io.reactivex.Completable
 import io.reactivex.Maybe
 

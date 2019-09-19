@@ -4,7 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.bitmark.registry.BuildConfig
-import com.bitmark.registry.data.model.*
+import com.bitmark.registry.data.model.entity.BlockData
+import com.bitmark.registry.data.model.entity.*
 import com.bitmark.registry.data.source.local.api.converter.*
 import com.bitmark.registry.data.source.local.api.dao.*
 
@@ -16,7 +17,7 @@ import com.bitmark.registry.data.source.local.api.dao.*
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 @Database(
-    entities = [TransactionData::class, AssetDataR::class, AssetDataL::class, BitmarkDataR::class, BitmarkDataL::class, BlockData::class, AccountData::class, AssetClaimingData::class],
+    entities = [TransactionDataR::class, AssetDataR::class, AssetDataL::class, BitmarkDataR::class, BitmarkDataL::class, BlockData::class, AccountData::class, AssetClaimingData::class],
     version = 1
 )
 @TypeConverters(

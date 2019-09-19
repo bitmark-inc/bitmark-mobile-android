@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.bitmark.registry.data.model.AccountData
+import com.bitmark.registry.data.model.entity.AccountData
 import io.reactivex.Completable
 import io.reactivex.Single
 

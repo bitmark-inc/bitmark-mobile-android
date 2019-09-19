@@ -2,8 +2,8 @@ package com.bitmark.registry.data.source.local.api.dao
 
 import androidx.room.*
 import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.data.model.BitmarkDataL
-import com.bitmark.registry.data.model.BitmarkDataR
+import com.bitmark.registry.data.model.entity.BitmarkDataL
+import com.bitmark.registry.data.model.entity.BitmarkDataR
 import io.reactivex.Completable
 import io.reactivex.Single
 

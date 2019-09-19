@@ -1,6 +1,6 @@
 package com.bitmark.registry.data.source.remote.api.response
 
-import com.bitmark.registry.data.model.AssetClaimingData
+import com.bitmark.registry.data.model.entity.AssetClaimingData
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

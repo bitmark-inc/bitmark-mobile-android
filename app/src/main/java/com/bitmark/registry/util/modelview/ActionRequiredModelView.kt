@@ -1,6 +1,6 @@
 package com.bitmark.registry.util.modelview
 
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.util.DateTimeUtil
 
 

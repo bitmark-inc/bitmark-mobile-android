@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
-import com.bitmark.registry.data.model.ActionRequired
+import com.bitmark.registry.data.model.entity.ActionRequired
 import com.bitmark.registry.util.extension.getString
 import com.bitmark.registry.util.modelview.ActionRequiredModelView
 import kotlinx.android.synthetic.main.item_action_required.view.*

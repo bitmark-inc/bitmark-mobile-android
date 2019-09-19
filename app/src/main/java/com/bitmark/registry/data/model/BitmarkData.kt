@@ -1,9 +1,11 @@
 package com.bitmark.registry.data.model
 
 import androidx.room.Embedded
-import androidx.room.Ignore
 import androidx.room.Relation
 import com.bitmark.apiservice.utils.record.BitmarkRecord
+import com.bitmark.registry.data.model.entity.AssetDataR
+import com.bitmark.registry.data.model.entity.BitmarkDataL
+import com.bitmark.registry.data.model.entity.BitmarkDataR
 
 
 /**
@@ -22,13 +24,18 @@ data class BitmarkData(
         entityColumn = "bitmark_id",
         entity = BitmarkDataL::class
     )
-    val bitmarkDataL: List<BitmarkDataL>
+    val bitmarkDataL: List<BitmarkDataL>,
 
+    @Relation(
+        parentColumn = "asset_id",
+        entityColumn = "id",
+        entity = AssetDataR::class
+    )
+    var assetData: List<AssetData> = listOf()
 ) {
 
-    // ignore value declare following
-    @Ignore
-    var asset: AssetData? = null
+    val asset: AssetData?
+        get() = if (assetData.isEmpty()) null else assetData[0]
 
     val id: String
         get() = bitmarkDataR.id
@@ -77,6 +84,10 @@ data class BitmarkData(
 
     val seen: Boolean
         get() = if (bitmarkDataL.isEmpty()) false else bitmarkDataL[0].seen
+
+    fun setAsset(asset: AssetData) {
+        this.assetData = listOf(asset)
+    }
 
     enum class Status(val value: String) {
         ISSUING("issuing"),

@@ -1,10 +1,11 @@
 package com.bitmark.registry.data.model
 
-import androidx.room.*
+import androidx.room.Embedded
+import androidx.room.Relation
 import com.bitmark.apiservice.utils.record.TransactionRecord
-import com.bitmark.registry.BuildConfig
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
+import com.bitmark.registry.data.model.entity.AssetDataR
+import com.bitmark.registry.data.model.entity.BlockData
+import com.bitmark.registry.data.model.entity.TransactionDataR
 
 
 /**
@@ -13,92 +14,83 @@ import com.google.gson.annotations.SerializedName
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-@Entity(
-    tableName = "Transaction",
-    indices = [(Index(
-        value = ["id"],
-        unique = true
-    )), Index(value = ["bitmark_id"]), (Index(
-        value = ["asset_id"]
-    )), (Index(value = ["block_number"]))]
-)
 data class TransactionData(
-    @Expose
-    @PrimaryKey
-    val id: String,
 
-    @Expose
-    val owner: String,
+    @Embedded
+    val transactionDataR: TransactionDataR,
 
-    @Expose
-    @ColumnInfo(name = "asset_id")
-    @SerializedName("asset_id")
-    val assetId: String,
+    @Relation(
+        parentColumn = "asset_id",
+        entityColumn = "id",
+        entity = AssetDataR::class
+    )
+    var assetData: List<AssetData> = listOf(),
 
-    @Expose
-    val head: Head?,
-
-    @Expose
-    val status: Status,
-
-    @Expose
-    @ColumnInfo(name = "block_number")
-    @SerializedName("block_number")
-    val blockNumber: Long,
-
-    @Expose
-    @ColumnInfo(name = "block_offset")
-    @SerializedName("block_offset")
-    val blockOffset: Long,
-
-    @Expose
-    val offset: Long,
-
-    @Expose
-    @ColumnInfo(name = "expiresAt")
-    @SerializedName("expiresAt")
-    val expiresAt: String?,
-
-    @Expose
-    @ColumnInfo(name = "pay_id")
-    @SerializedName("pay_id")
-    val payId: String,
-
-    @Expose
-    @ColumnInfo(name = "previous_id")
-    @SerializedName("previous_id")
-    val previousId: String?,
-
-    @Expose
-    @ColumnInfo(name = "bitmark_id")
-    @SerializedName("bitmark_id")
-    val bitmarkId: String,
-
-    @Expose
-    @ColumnInfo(name = "countersign")
-    @SerializedName("countersign")
-    val counterSig: Boolean,
-
-    @Expose
-    @ColumnInfo(name = "previous_owner")
-    @SerializedName("previous_owner")
-    val previousOwner: String?,
-
-    @Expose
-    val confirmation: Int
+    @Relation(
+        parentColumn = "block_number",
+        entityColumn = "number",
+        entity = BlockData::class
+    )
+    var blockData: List<BlockData> = listOf()
 
 ) {
 
-    @Ignore
-    var asset: AssetData? = null
+    val id: String
+        get() = transactionDataR.id
 
-    @Ignore
-    var block: BlockData? = null
+    val owner: String
+        get() = transactionDataR.owner
 
-    fun isDeleteTx() = owner == BuildConfig.ZERO_ADDRESS
+    val assetId: String
+        get() = transactionDataR.assetId
+
+    val head: Head?
+        get() = transactionDataR.head
+
+    val status: Status
+        get() = transactionDataR.status
+
+    val blockNumber: Long
+        get() = transactionDataR.blockNumber
+
+    val blockOffset: Long
+        get() = transactionDataR.blockOffset
+
+    val offset: Long
+        get() = transactionDataR.offset
+
+    val expiresAt: String?
+        get() = transactionDataR.expiresAt
+
+    val payId: String
+        get() = transactionDataR.payId
+
+    val previousId: String?
+        get() = transactionDataR.previousId
+
+    val bitmarkId: String
+        get() = transactionDataR.bitmarkId
+
+    val counterSig: Boolean
+        get() = transactionDataR.counterSig
+
+    val previousOwner: String?
+        get() = transactionDataR.previousOwner
+
+    val confirmation: Int
+        get() = transactionDataR.confirmation
+
+    val asset: AssetData?
+        get() = if (assetData.isEmpty()) null else assetData[0]
+
+    val block: BlockData?
+        get() = if (blockData.isEmpty()) null else blockData[0]
+
+    fun isDeleteTx() = transactionDataR.isDeleteTx()
 
     enum class Status(val value: String) {
         CONFIRMED("confirmed"),
+
         PENDING("pending");
 
         companion object {

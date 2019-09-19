@@ -2,10 +2,10 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dfc9d6ccd3760efed322b74c195eec66",
+    "identityHash": "ed89c414649da4fb62b0a90187c36f90",
     "entities": [
       {
-        "tableName": "Transaction",
+        "tableName": "TransactionR",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `owner` TEXT NOT NULL, `asset_id` TEXT NOT NULL, `head` TEXT, `status` TEXT NOT NULL, `block_number` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `offset` INTEGER NOT NULL, `expiresAt` TEXT, `pay_id` TEXT NOT NULL, `previous_id` TEXT, `bitmark_id` TEXT NOT NULL, `countersign` INTEGER NOT NULL, `previous_owner` TEXT, `confirmation` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -107,36 +107,36 @@
         },
         "indices": [
           {
-            "name": "index_Transaction_id",
+            "name": "index_TransactionR_id",
             "unique": true,
             "columnNames": [
               "id"
             ],
-            "createSql": "CREATE UNIQUE INDEX `index_Transaction_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE UNIQUE INDEX `index_TransactionR_id` ON `${TABLE_NAME}` (`id`)"
           },
           {
-            "name": "index_Transaction_bitmark_id",
+            "name": "index_TransactionR_bitmark_id",
             "unique": false,
             "columnNames": [
               "bitmark_id"
             ],
-            "createSql": "CREATE  INDEX `index_Transaction_bitmark_id` ON `${TABLE_NAME}` (`bitmark_id`)"
+            "createSql": "CREATE  INDEX `index_TransactionR_bitmark_id` ON `${TABLE_NAME}` (`bitmark_id`)"
           },
           {
-            "name": "index_Transaction_asset_id",
+            "name": "index_TransactionR_asset_id",
             "unique": false,
             "columnNames": [
               "asset_id"
             ],
-            "createSql": "CREATE  INDEX `index_Transaction_asset_id` ON `${TABLE_NAME}` (`asset_id`)"
+            "createSql": "CREATE  INDEX `index_TransactionR_asset_id` ON `${TABLE_NAME}` (`asset_id`)"
           },
           {
-            "name": "index_Transaction_block_number",
+            "name": "index_TransactionR_block_number",
             "unique": false,
             "columnNames": [
               "block_number"
             ],
-            "createSql": "CREATE  INDEX `index_Transaction_block_number` ON `${TABLE_NAME}` (`block_number`)"
+            "createSql": "CREATE  INDEX `index_TransactionR_block_number` ON `${TABLE_NAME}` (`block_number`)"
           }
         ],
         "foreignKeys": []
@@ -642,7 +642,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dfc9d6ccd3760efed322b74c195eec66')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed89c414649da4fb62b0a90187c36f90')"
     ]
   }
 }

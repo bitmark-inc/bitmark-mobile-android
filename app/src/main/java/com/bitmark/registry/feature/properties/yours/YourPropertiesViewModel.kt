@@ -233,9 +233,6 @@ class YourPropertiesViewModel(
         }
 
         realtimeBus.bitmarkSavedPublisher.subscribe(this) { bitmark ->
-            val maxOffset = bitmark.offset
-            if (maxOffset < currentOffset) return@subscribe // ignore unloaded bitmarks
-
             subscribe(accountRepo.getAccountNumber().map { accountNumber ->
                 Pair(
                     accountNumber,

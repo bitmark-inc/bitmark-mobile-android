@@ -5,10 +5,10 @@ import com.bitmark.apiservice.params.RegistrationParams
 import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.registry.data.ext.isDbRecNotFoundError
 import com.bitmark.registry.data.model.AssetData
-import com.bitmark.registry.data.model.AssetDataL
 import com.bitmark.registry.data.model.BitmarkData
 import com.bitmark.registry.data.model.BitmarkData.Status.*
 import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.entity.AssetDataL
 import com.bitmark.registry.data.source.local.BitmarkLocalDataSource
 import com.bitmark.registry.data.source.local.event.*
 import com.bitmark.registry.data.source.remote.BitmarkRemoteDataSource
@@ -48,7 +48,7 @@ class BitmarkRepository(
         localDataSource.setAssetFileSavedListener(listener)
     }
 
-    fun setTxsSavedListener(listener: TxsSavedListener?) {
+    fun setTxsSavedListener(listener: TxSavedListener?) {
         localDataSource.setTxsSavedListener(listener)
     }
 
@@ -96,7 +96,7 @@ class BitmarkRepository(
             val assets = p.second
             assets.forEach { asset ->
                 bitmarks.filter { b -> b.assetId == asset.id }
-                    .forEach { b -> b.asset = asset }
+                    .forEach { b -> b.setAsset(asset) }
             }
             bitmarks
         }
@@ -416,18 +416,18 @@ class BitmarkRepository(
                     .andThen(Single.just(Triple(t.first, asset, t.third)))
             }
         }.map { t ->
-            val txs = t.first
+            val txs = t.first.map { tx -> TransactionData(tx) }
             val assets = t.second
             val blocks = t.third
 
             assets.forEach { asset ->
                 txs.filter { tx -> tx.assetId == asset.id }
-                    .forEach { tx -> tx.asset = asset }
+                    .forEach { tx -> tx.assetData = listOf(asset) }
             }
 
             blocks.forEach { block ->
                 txs.filter { tx -> tx.blockNumber == block.number }
-                    .forEach { tx -> tx.block = block }
+                    .forEach { tx -> tx.blockData = listOf(block) }
             }
 
             txs
@@ -462,16 +462,12 @@ class BitmarkRepository(
     // fetch txs by bitmark id in local db
     fun listTxs(
         bitmarkId: String,
-        loadAsset: Boolean = false,
         isPending: Boolean = false,
-        loadBlock: Boolean = false,
         limit: Int = 100
     ): Single<List<TransactionData>> {
         return localDataSource.listTxs(
             bitmarkId,
-            loadAsset,
             isPending,
-            loadBlock,
             limit
         )
     }
@@ -484,8 +480,6 @@ class BitmarkRepository(
         return localDataSource.listRelevantTxs(
             owner = owner,
             offset = offset,
-            loadAsset = true,
-            loadBlock = true,
             limit = limit
         ).flatMap { txs ->
             if (txs.isNotEmpty()) Single.just(txs)
@@ -616,7 +610,10 @@ class BitmarkRepository(
                         AssetData.determineAssetType(metadata = assetR.metadata)
                     localDataSource.saveAsset(
                         assetR,
-                        AssetDataL(assetId = assetR.id, type = assetType)
+                        AssetDataL(
+                            assetId = assetR.id,
+                            type = assetType
+                        )
                     )
                 }
             } else {
@@ -631,7 +628,10 @@ class BitmarkRepository(
                     AssetData.determineAssetType(metadata = assetR.metadata)
                 localDataSource.saveAsset(
                     assetR,
-                    AssetDataL(assetId = assetR.id, type = assetType)
+                    AssetDataL(
+                        assetId = assetR.id,
+                        type = assetType
+                    )
                 )
             }.map { asset -> asset.id }
         }

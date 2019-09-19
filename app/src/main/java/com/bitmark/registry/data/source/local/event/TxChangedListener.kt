@@ -12,6 +12,7 @@ import com.bitmark.registry.data.model.TransactionData
 
 interface TxChangedListener
 
-interface TxsSavedListener : TxChangedListener {
-    fun onTxsSaved(txs: List<TransactionData>)
+interface TxSavedListener : TxChangedListener {
+
+    fun onTxSaved(tx: TransactionData)
 }

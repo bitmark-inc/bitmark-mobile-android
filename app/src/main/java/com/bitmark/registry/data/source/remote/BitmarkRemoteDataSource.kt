@@ -12,10 +12,10 @@ import com.bitmark.apiservice.response.RegistrationResponse
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.UnexpectedException
 import com.bitmark.apiservice.utils.record.AssetRecord
-import com.bitmark.registry.data.model.AssetDataR
-import com.bitmark.registry.data.model.BitmarkDataR
-import com.bitmark.registry.data.model.BlockData
-import com.bitmark.registry.data.model.TransactionData
+import com.bitmark.registry.data.model.entity.BlockData
+import com.bitmark.registry.data.model.entity.AssetDataR
+import com.bitmark.registry.data.model.entity.BitmarkDataR
+import com.bitmark.registry.data.model.entity.TransactionDataR
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.data.source.remote.api.converter.Converter
 import com.bitmark.registry.data.source.remote.api.error.HttpException
@@ -220,8 +220,8 @@ class BitmarkRemoteDataSource @Inject constructor(
         to: String = "ealier",
         limit: Int = 100,
         loadBlock: Boolean = false
-    ): Single<Triple<List<TransactionData>, List<AssetDataR>, List<BlockData>>> =
-        rxErrorHandlingComposer.single(SingleOnSubscribe<Triple<List<TransactionData>, List<AssetDataR>, List<BlockData>>> { emt ->
+    ): Single<Triple<List<TransactionDataR>, List<AssetDataR>, List<BlockData>>> =
+        rxErrorHandlingComposer.single(SingleOnSubscribe<Triple<List<TransactionDataR>, List<AssetDataR>, List<BlockData>>> { emt ->
             val queryBuilder =
                 TransactionQueryBuilder().loadAsset(loadAsset)
                     .loadBlock(loadBlock).pending(isPending).limit(limit)
