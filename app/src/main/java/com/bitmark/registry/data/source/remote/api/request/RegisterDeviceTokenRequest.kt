@@ -12,12 +12,15 @@ import com.google.gson.annotations.SerializedName
  */
 data class RegisterDeviceTokenRequest(
     @Expose
+    @SerializedName("platform")
     val platform: String,
 
     @Expose
+    @SerializedName("token")
     val token: String,
 
     @Expose
+    @SerializedName("client")
     val client: String,
 
     @Expose

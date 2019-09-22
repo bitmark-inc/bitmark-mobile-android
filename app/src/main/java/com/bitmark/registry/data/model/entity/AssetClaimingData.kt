@@ -22,6 +22,7 @@ import com.google.gson.annotations.SerializedName
 data class AssetClaimingData(
     @Expose
     @PrimaryKey
+    @SerializedName("id")
     val id: String,
 
     @Expose
@@ -30,12 +31,15 @@ data class AssetClaimingData(
     val assetId: String,
 
     @Expose
+    @SerializedName("from")
     val from: String,
 
     @Expose
+    @SerializedName("status")
     val status: Status,
 
     @Expose
+    @SerializedName("info")
     val info: Map<String, String>?,
 
     @Expose

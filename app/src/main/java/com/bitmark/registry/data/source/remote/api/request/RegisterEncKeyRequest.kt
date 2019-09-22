@@ -14,6 +14,8 @@ data class RegisterEncKeyRequest(
     @Expose
     @SerializedName("encryption_pubkey")
     val encPubKey: String,
+
     @Expose
+    @SerializedName("signature")
     val signature: String
 ) : Request

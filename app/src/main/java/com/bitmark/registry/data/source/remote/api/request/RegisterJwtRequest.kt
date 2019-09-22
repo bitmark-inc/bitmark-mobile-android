@@ -1,6 +1,7 @@
 package com.bitmark.registry.data.source.remote.api.request
 
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
 
 /**
@@ -11,10 +12,15 @@ import com.google.gson.annotations.Expose
  */
 data class RegisterJwtRequest(
     @Expose
+    @SerializedName("timestamp")
     val timestamp: String,
+
     @Expose
+    @SerializedName("signature")
     val signature: String,
+
     @Expose
+    @SerializedName("requester")
     val requester: String
 ) :
     Request
