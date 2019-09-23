@@ -80,11 +80,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         uri = arguments?.getString(URI)
         val recoverAccount = arguments?.getBoolean(RECOVER_ACCOUNT) ?: false
 
-        var locale = Locale.getDefault()
-        if (locale != Locale.ENGLISH && locale != Locale.TRADITIONAL_CHINESE) {
-            locale = Locale.ENGLISH
-        }
-        val bip39Words = RecoveryPhrase.getWords(locale)
+        val bip39Words = RecoveryPhrase.getWords(Locale.ENGLISH)
 
         val phraseLayoutManager =
             GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)

@@ -3,15 +3,15 @@ package com.bitmark.registry.feature.recoveryphrase.show
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.logging.Event
 import com.bitmark.registry.logging.EventLogger
-import com.bitmark.registry.feature.register.RegisterContainerActivity
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
@@ -106,13 +106,8 @@ class RecoveryPhraseWarningFragment : BaseSupportFragment() {
 
                     loadAccount(accountNumber, keyAlias) { account ->
 
-                        var locale = Locale.getDefault()
-                        if (locale != Locale.ENGLISH && locale != Locale.TRADITIONAL_CHINESE) {
-                            locale = Locale.ENGLISH
-                        }
-
                         val recoveryPhrase =
-                            account.getRecoveryPhrase(locale)
+                            account.getRecoveryPhrase(Locale.ENGLISH)
                                 .mnemonicWords
                         navigator.anim(RIGHT_LEFT).replaceChildFragment(
                             R.id.layoutContainer,
