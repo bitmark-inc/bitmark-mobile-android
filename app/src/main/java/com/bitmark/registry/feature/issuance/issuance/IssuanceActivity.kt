@@ -18,15 +18,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
+import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.logging.Event
 import com.bitmark.registry.logging.EventLogger
-import com.bitmark.registry.feature.register.RegisterContainerActivity
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.AssetModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
@@ -136,6 +136,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             assetType =
                 asset.metadata?.get("source") ?: asset.metadata?.get("Source")
                         ?: getString(R.string.other)
+            tvAssetType.text = assetType
             setTvAssetTypeFocused(false)
         } else {
             etPropName.requestFocus()
