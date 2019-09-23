@@ -101,7 +101,7 @@ class SentryEventLogger(private val accountRepo: AccountRepository) :
     private fun buildBaseEventBuilder(
         event: Event,
         level: io.sentry.event.Event.Level
-    ) = Single.fromCallable {
+    ) = accountRepo.getAccountInfo().map { account ->
         val e = EventBuilder().withMessage(event.value).withLevel(level)
         e.withPlatform("Android")
         e.withEnvironment(BuildConfig.APPLICATION_ID)
@@ -109,6 +109,8 @@ class SentryEventLogger(private val accountRepo: AccountRepository) :
         e.withDist("${BuildConfig.VERSION_CODE}")
         e.withExtra("os", "Android SDK ${Build.VERSION.SDK_INT}")
         e.withExtra("device", "${Build.MANUFACTURER}-${Build.MODEL}")
+        e.withExtra("account_number", account.first)
+        e.withExtra("auth_required_setup", account.second)
     }.subscribeOn(Schedulers.computation())
 
     private fun buildUserBuilder() =
