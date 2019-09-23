@@ -148,6 +148,16 @@ fun Activity.hideKeyBoard() {
 
 }
 
+fun Activity.showKeyBoard() {
+    val view = this.currentFocus
+    if (null != view) {
+        val inputManager =
+            getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputManager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+}
+
 fun Activity.loadAccount(
     accountNumber: String,
     spec: KeyAuthenticationSpec,
@@ -343,4 +353,10 @@ fun TextView.setTextUnderline(text: String) {
         Spannable.SPAN_INCLUSIVE_EXCLUSIVE
     )
     setText(span)
+}
+
+fun View.getLocationOnScreen(): IntArray {
+    val coordinate = IntArray(2)
+    getLocationOnScreen(coordinate)
+    return coordinate
 }

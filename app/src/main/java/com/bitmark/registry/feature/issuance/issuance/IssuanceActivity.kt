@@ -7,6 +7,7 @@ import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.PopupWindow
@@ -149,7 +150,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 setActionMetadataVisibility(filled)
                 setAddMetadataVisibility(filled)
             }
-            if (!adapter.isRemoving() && adapter.hasValidRows() && !asset.registered) {
+            if (!adapter.isRemoving() && adapter.hasValidRows() && !adapter.hasBlankRow() && !asset.registered) {
                 setAddMetadataState(true)
             } else {
                 setAddMetadataState(false)
@@ -168,6 +169,40 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 setActionMetadataVisibility(false)
             }
             adapter.changeRemovableState(removable)
+        }
+
+
+        var rvYAxis = 0
+        var svYAxis = 0
+        sv.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                sv.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                rvYAxis = rvMetadata.getLocationOnScreen()[1]
+                svYAxis = sv.getLocationOnScreen()[1]
+            }
+        })
+
+        adapter.setItemFocusChangedListener { pos, focused ->
+            if (focused) {
+                showKeyBoard()
+                handler.postDelayed({
+                    val btnRegisterYAxis =
+                        btnRegister.getLocationOnScreen()[1]
+
+                    val padding = getDimensionPixelSize(R.dimen.dp_4)
+                    val halfItemHeight = getDimensionPixelSize(R.dimen.dp_36)
+                    val itemHeight =
+                        (pos + 1) * (2 * (padding + halfItemHeight))
+                    val itemOffset = rvYAxis - svYAxis + itemHeight
+                    val delta = btnRegisterYAxis - svYAxis
+                    val additionalSpace = getDimensionPixelSize(R.dimen.dp_40)
+                    sv.smoothScrollTo(
+                        0,
+                        itemOffset - delta + additionalSpace
+                    )
+                }, 200)
+            }
         }
 
         etPropName.setOnFocusChangeListener { _, hasFocus ->
@@ -320,6 +355,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
                             if (currentFocus is EditText) {
                                 hideKeyBoard()
                                 currentFocus?.clearFocus()
+                                adapter.clearFocus()
                             }
                         }
                     }

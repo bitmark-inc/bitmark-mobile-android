@@ -28,6 +28,8 @@ class MetadataRecyclerViewAdapter :
 
     private var itemRemovedListener: ((Item) -> Unit)? = null
 
+    private var itemFocusChangedListener: ((Int, Boolean) -> Unit)? = null
+
     private val internalItemDeletedListener: (Item) -> Unit = { item ->
         val pos = items.indexOf(item)
         items.removeAt(pos)
@@ -46,6 +48,10 @@ class MetadataRecyclerViewAdapter :
 
     internal fun setItemRemovedListener(listener: (Item) -> Unit) {
         this.itemRemovedListener = listener
+    }
+
+    internal fun setItemFocusChangedListener(listener: (Int, Boolean) -> Unit) {
+        this.itemFocusChangedListener = listener
     }
 
     internal fun add(requestFocus: Boolean = false) {
@@ -92,11 +98,22 @@ class MetadataRecyclerViewAdapter :
     internal fun hasValidRows() =
         items.find { i -> !i.isValid() } == null && this.items.distinctBy { t -> t.key }.size == this.items.size
 
+    internal fun hasBlankRow() = items.find { i -> i.isBlank() } != null
+
     internal fun isRemoving() = items.indexOfFirst { i -> i.removable } != -1
 
     internal fun disable() {
         items.forEach { i -> i.disable = true }
         notifyDataSetChanged()
+    }
+
+    internal fun clearFocus() {
+        items.filter { i -> i.isFocused }
+            .forEach { item ->
+                item.isFocused = false
+                notifyItemChanged(items.indexOf(item))
+            }
+
     }
 
     override fun onCreateViewHolder(
@@ -109,7 +126,8 @@ class MetadataRecyclerViewAdapter :
             false
         ),
         internalItemDeletedListener,
-        itemFilledListener
+        itemFilledListener,
+        itemFocusChangedListener
     )
 
     override fun getItemCount(): Int = items.size
@@ -121,7 +139,8 @@ class MetadataRecyclerViewAdapter :
     inner class ViewHolder(
         view: View,
         deleteClickListener: ((Item) -> Unit)?,
-        private val itemFilledListener: ((Boolean) -> Unit)?
+        private val itemFilledListener: ((Boolean) -> Unit)?,
+        private val itemFocusChangedListener: ((Int, Boolean) -> Unit)?
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -130,10 +149,22 @@ class MetadataRecyclerViewAdapter :
         init {
             with(itemView) {
                 etKey.setOnFocusChangeListener { view, hasFocus ->
+                    itemFocusChangedListener?.let {
+                        it(
+                            adapterPosition,
+                            hasFocus
+                        )
+                    }
                     handleFocusState(view, hasFocus)
                 }
 
                 etValue.setOnFocusChangeListener { view, hasFocus ->
+                    itemFocusChangedListener?.let {
+                        it(
+                            adapterPosition,
+                            hasFocus
+                        )
+                    }
                     handleFocusState(view, hasFocus)
                 }
 
@@ -177,6 +208,9 @@ class MetadataRecyclerViewAdapter :
 
                 if (item.isFocused) {
                     etKey.requestFocus()
+                } else {
+                    etKey.clearFocus()
+                    etValue.clearFocus()
                 }
             }
         }
@@ -293,7 +327,9 @@ class MetadataRecyclerViewAdapter :
     ) {
 
         enum class State {
-            VALID, INVALID, INITIALIZE
+            VALID,
+            INVALID,
+            INITIALIZE
         }
 
         fun isInvalidState() = state == State.INVALID
