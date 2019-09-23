@@ -372,7 +372,7 @@ class BitmarkLocalDataSource @Inject constructor(
         updateAssetType(assetId, assetType).andThen(Single.just(file))
     }
 
-    private fun updateAssetType(assetId: String, newType: AssetData.Type) =
+    fun updateAssetType(assetId: String, newType: AssetData.Type) =
         getAssetType(assetId).flatMapCompletable { type ->
             if (type != newType && newType != AssetData.Type.UNKNOWN) {
                 databaseApi.rxCompletable { db ->

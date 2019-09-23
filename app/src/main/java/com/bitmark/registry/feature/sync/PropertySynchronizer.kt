@@ -1,9 +1,11 @@
 package com.bitmark.registry.feature.sync
 
+import com.bitmark.registry.data.model.AssetData
 import com.bitmark.registry.data.source.AccountRepository
 import com.bitmark.registry.data.source.BitmarkRepository
 import com.bitmark.registry.data.source.Constant
 import com.bitmark.registry.logging.Tracer
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 
@@ -48,9 +50,11 @@ class PropertySynchronizer(
 
         compositeDisposable.add(accountRepo.getAccountNumber().flatMap { accountNumber ->
             val offsetStream =
-                if (minBitmarkOffset == -1L) bitmarkRepo.minStoredBitmarkOffset() else Single.just(
-                    minBitmarkOffset
-                )
+                if (minBitmarkOffset == -1L) {
+                    bitmarkRepo.minStoredBitmarkOffset()
+                } else {
+                    Single.just(minBitmarkOffset)
+                }
 
             offsetStream.flatMap { offset ->
                 bitmarkRepo.syncBitmarks(
@@ -60,9 +64,36 @@ class PropertySynchronizer(
                     pending = true,
                     loadAsset = true,
                     limit = ITEM_PER_PAGE
-                )
+                ).retry(1)
+            }.flatMap { bitmarks ->
+                if (bitmarks.isEmpty()) {
+                    Single.just(bitmarks)
+                } else {
+                    val assets = bitmarks.filter { b -> b.asset != null }
+                        .map { b -> b.asset }.distinctBy { a -> a!!.id }
+                    val streams = assets.map { asset ->
+                        bitmarkRepo.checkAssetFile(
+                            accountNumber,
+                            asset!!.id
+                        ).flatMapCompletable { p ->
+                            val file = p.second
+                            if (file == null) {
+                                Completable.complete()
+                            } else {
+                                val type = AssetData.determineAssetType(
+                                    asset.metadata,
+                                    file
+                                )
+                                bitmarkRepo.updateAssetType(asset.id, type)
+                            }
+                        }
+                    }
+                    Completable.mergeDelayError(streams)
+                        .andThen(Single.just(bitmarks))
+                }
             }
-        }.retry(1).subscribe { bitmarks, e ->
+
+        }.subscribe { bitmarks, e ->
             if (e == null) {
                 minBitmarkOffset =
                     bitmarks.minBy { b -> b.offset }?.offset ?: return@subscribe
@@ -71,7 +102,10 @@ class PropertySynchronizer(
                     Tracer.DEBUG.log(TAG, "resync bitmarks recursively")
                     syncBitmarks()
                 } else {
-                    Tracer.DEBUG.log(TAG, "stop sync bitmarks since fetched all")
+                    Tracer.DEBUG.log(
+                        TAG,
+                        "stop sync bitmarks since fetched all"
+                    )
                 }
             }
         })
@@ -81,11 +115,11 @@ class PropertySynchronizer(
 
         compositeDisposable.add(accountRepo.getAccountNumber().flatMap { accountNumber ->
             val offsetStream =
-                if (minTxsOffset == -1L) bitmarkRepo.minStoredRelevantTxOffset(
-                    accountNumber
-                ) else Single.just(
-                    minTxsOffset
-                )
+                if (minTxsOffset == -1L) {
+                    bitmarkRepo.minStoredRelevantTxOffset(accountNumber)
+                } else {
+                    Single.just(minTxsOffset)
+                }
 
             offsetStream.flatMap { offset ->
                 bitmarkRepo.syncTxs(
@@ -98,8 +132,8 @@ class PropertySynchronizer(
                     loadBlock = true,
                     limit = ITEM_PER_PAGE
                 )
-            }
-        }.retry(1).subscribe { txs, e ->
+            }.retry(1)
+        }.subscribe { txs, e ->
             if (e == null) {
                 minTxsOffset =
                     txs.minBy { t -> t.offset }?.offset ?: return@subscribe

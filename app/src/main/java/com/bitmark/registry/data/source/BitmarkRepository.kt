@@ -551,6 +551,9 @@ class BitmarkRepository(
         content: ByteArray
     ) = localDataSource.saveAssetFile(owner, assetId, fileName, content)
 
+    fun updateAssetType(assetId: String, newType: AssetData.Type) =
+        localDataSource.updateAssetType(assetId, newType)
+
     fun listStoredAssetFile(accountNumber: String) =
         localDataSource.listStoredAssetFile(accountNumber)
 
