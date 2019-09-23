@@ -9,13 +9,14 @@ import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.AppLifecycleHandler
 import com.bitmark.registry.R
 import com.bitmark.registry.data.source.AccountRepository
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.logging.Event
-import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.splash.SplashActivity
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
 import com.bitmark.registry.util.view.AuthorizationRequiredDialog
@@ -37,9 +38,11 @@ import io.reactivex.schedulers.Schedulers
 class BmServerAuthentication(
     private val context: Context,
     private val appLifecycleHandler: AppLifecycleHandler,
+    private val connectivityHandler: ConnectivityHandler,
     private val accountRepo: AccountRepository,
     private val logger: EventLogger
-) : AppLifecycleHandler.AppStateChangedListener {
+) : AppLifecycleHandler.AppStateChangedListener,
+    ConnectivityHandler.NetworkStateChangeListener {
 
     companion object {
         private const val TAG = "BmServerAuthentication"
@@ -51,6 +54,7 @@ class BmServerAuthentication(
 
     init {
         appLifecycleHandler.addAppStateChangedListener(this)
+        connectivityHandler.addNetworkStateChangeListener(this)
     }
 
     fun destroy() {
@@ -60,6 +64,11 @@ class BmServerAuthentication(
 
     override fun onForeground() {
         super.onForeground()
+        checkJwtExpiry()
+    }
+
+    override fun onChange(connected: Boolean) {
+        if (!connected) return
         checkJwtExpiry()
     }
 

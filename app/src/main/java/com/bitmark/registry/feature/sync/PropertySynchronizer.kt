@@ -8,6 +8,7 @@ import com.bitmark.registry.logging.Tracer
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
 
 
 /**
@@ -16,7 +17,7 @@ import io.reactivex.disposables.CompositeDisposable
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class PropertySynchronizer(
+class PropertySynchronizer @Inject constructor(
     private val bitmarkRepo: BitmarkRepository,
     private val accountRepo: AccountRepository
 ) {

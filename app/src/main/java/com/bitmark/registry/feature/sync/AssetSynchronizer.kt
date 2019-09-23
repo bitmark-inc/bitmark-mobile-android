@@ -14,6 +14,7 @@ import io.reactivex.exceptions.CompositeException
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
 
 /**
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Copyright © 2019 Bitmark. All rights reserved.
  */
 
-class AssetSynchronizer(
+class AssetSynchronizer @Inject constructor(
     private val googleDriveService: GoogleDriveService,
     private val bitmarkRepo: BitmarkRepository,
     private val accountRepo: AccountRepository,
