@@ -61,8 +61,8 @@
 
       <androidx.appcompat.widget.AppCompatImageView
           android:id="@+id/ivAdd"
-          android:layout_width="@dimen/dp_18"
-          android:layout_height="@dimen/dp_18"
+          android:layout_width="@dimen/dp_22"
+          android:layout_height="@dimen/dp_22"
           android:layout_gravity="end|center_vertical"
           android:clickable="true"
           android:focusable="true"
