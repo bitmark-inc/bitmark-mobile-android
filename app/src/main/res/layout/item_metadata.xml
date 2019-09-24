@@ -12,26 +12,30 @@
       android:id="@+id/tvKey"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
-      android:layout_weight="0.35"
+      android:layout_gravity="center_vertical"
+      android:layout_weight="0.4"
+      android:ellipsize="end"
       android:fontFamily="@font/andale_regular_mono"
-      android:maxLines="1"
+      android:maxLines="5"
       android:textAllCaps="true"
       android:textColor="@android:color/black"
       android:textSize="@dimen/sp_13"
-      tools:text="TYPE"
+      tools:text="This is very very long long long text for testing This is very very long long long text for testing This is very very long long long text for testing"
       />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvValue"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
-      android:layout_weight="0.65"
+      android:layout_gravity="center_vertical"
+      android:layout_marginStart="@dimen/dp_8"
+      android:layout_weight="0.6"
       android:ellipsize="end"
       android:fontFamily="@font/avenir_light"
-      android:maxLines="3"
+      android:maxLines="5"
       android:textColor="@color/dusty_gray"
       android:textSize="@dimen/sp_13"
-      tools:text="Text"
+      tools:text="This is very very long long long text for testing This is very very long long long text for testing This is very very long long long text for testing"
       />
 
 </LinearLayout>

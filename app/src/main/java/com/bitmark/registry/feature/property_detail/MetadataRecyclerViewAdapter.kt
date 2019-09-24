@@ -60,10 +60,7 @@ class MetadataRecyclerViewAdapter(@ColorRes private var textColor: Int = android
 
                 val key = entry.first
                 val value = entry.second
-                tvKey.text = if (key.length > 15) key.substring(
-                    0,
-                    15
-                ).toUpperCase() + "...:" else key.toUpperCase() + ":" // max 15 characters for better ui
+                tvKey.text = key
                 tvValue.text = value
             }
         }
