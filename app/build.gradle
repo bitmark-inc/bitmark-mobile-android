@@ -14,9 +14,6 @@ apply plugin: 'io.fabric'
 
 apply plugin: 'io.sentry.android.gradle'
 
-
-def enableSeparateBuildPerCPUArchitecture = true
-
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
   buildToolsVersion rootProject.ext.buildToolsVersion
@@ -46,7 +43,7 @@ android {
   splits {
     abi {
       reset()
-      enable enableSeparateBuildPerCPUArchitecture
+      enable project.hasProperty('splitApks')
       universalApk false // If true, also generate a universal APK
       include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
     }
@@ -220,6 +217,8 @@ android {
     exclude 'META-INF/NOTICE.txt'
     exclude 'META-INF/notice.txt'
     exclude 'META-INF/ASL2.0'
+    exclude 'lib/libsodiumjni.dylib'
+    exclude 'lib/libsodiumjni.so'
   }
 
   sentry {
