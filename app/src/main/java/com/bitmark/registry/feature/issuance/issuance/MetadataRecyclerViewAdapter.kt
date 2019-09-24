@@ -3,6 +3,8 @@ package com.bitmark.registry.feature.issuance.issuance
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
@@ -107,13 +109,12 @@ class MetadataRecyclerViewAdapter :
         notifyDataSetChanged()
     }
 
-    internal fun clearFocus() {
-        items.filter { i -> i.isFocused }
-            .forEach { item ->
-                item.isFocused = false
-                notifyItemChanged(items.indexOf(item))
-            }
-
+    internal fun requestNextFocus() {
+        val focusedIndex = items.indexOfFirst { i -> i.isFocused }
+        if (focusedIndex == items.size - 1) return
+        val nextFocusIndex = focusedIndex + 1
+        items[nextFocusIndex].isFocused = true
+        notifyItemChanged(nextFocusIndex)
     }
 
     override fun onCreateViewHolder(
@@ -179,8 +180,50 @@ class MetadataRecyclerViewAdapter :
                 ivDelete.setOnClickListener {
                     deleteClickListener?.invoke(item)
                 }
+
+                etKey.setOnEditorActionListener { view, actionId, event ->
+                    if (event == null) {
+                        handleEditorAction(view, actionId)
+                    } else {
+                        false
+                    }
+                }
+
+                etValue.setOnEditorActionListener { view, actionId, event ->
+                    if (event == null) {
+                        handleEditorAction(view, actionId)
+                    } else {
+                        false
+                    }
+                }
             }
         }
+
+        private fun handleEditorAction(view: View, actionId: Int) =
+            when (actionId) {
+                EditorInfo.IME_ACTION_DONE -> {
+                    if (hasValidRows() && !hasBlankRow() && isLastItem()) {
+                        add(true)
+                    }
+                    true
+                }
+
+                EditorInfo.IME_ACTION_NEXT -> {
+                    if (view == itemView.etKey) {
+                        // workaround to force the etKey get ime DONE at the first time get focus
+                        itemView.etValue.imeOptions = if (isLastItem()) {
+                            EditorInfo.IME_ACTION_DONE
+                        } else {
+                            EditorInfo.IME_ACTION_UNSPECIFIED
+                        }
+                    } else {
+                        requestNextFocus()
+                    }
+                    false
+                }
+
+                else -> false
+            }
 
         fun bind(item: Item) {
             this.item = item
@@ -259,6 +302,12 @@ class MetadataRecyclerViewAdapter :
                     if (!item.isInvalidState()) {
                         showValidState()
                     }
+                    (`this` as EditText).imeOptions =
+                        if (`this` == etValue && isLastItem()) {
+                            EditorInfo.IME_ACTION_DONE
+                        } else {
+                            EditorInfo.IME_ACTION_UNSPECIFIED
+                        }
                     item.isFocused = true
                 } else {
                     // bit delay for waiting for ${that}'s focus event
@@ -279,6 +328,8 @@ class MetadataRecyclerViewAdapter :
                 }
             }
         }
+
+        private fun isLastItem() = adapterPosition == items.size - 1
 
         private fun showInvalidState() {
             item.state = Item.State.INVALID

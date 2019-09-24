@@ -355,7 +355,6 @@ class IssuanceActivity : BaseAppCompatActivity() {
                             if (currentFocus is EditText) {
                                 hideKeyBoard()
                                 currentFocus?.clearFocus()
-                                adapter.clearFocus()
                             }
                         }
                     }
