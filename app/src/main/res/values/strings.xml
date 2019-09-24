@@ -113,8 +113,8 @@
   <string name="share_with">Share with</string>
   <string name="release_notes">Release Notes</string>
   <string-array name="release_note_info">
-    <item name="content">Highlights of the new features\n---\n\nEnhancements\n---\n\nWe value your feedback, if you have ideas or suggestions on how to make our app even better, please email us at %1$s.\n</item>
-    <item name="date">2018-07-29T15:00:00.000000Z</item>
+    <item name="content">Highlights of the new features\n— You can now back up your assets on your Google Drive\n\nEnhancements\n— Bug fixes and performance improvements\n— Redesigned splash screen\n— Improved usability for the registering Property Rights\n\nWe value your feedback, if you have ideas or suggestions on how to make our app even better, please email us at support@bitmark.com.</item>
+    <item name="date">2019-09-24T00:00:00.000000Z</item>
   </string-array>
   <string name="close">Close</string>
   <string name="clean_up_data">Cleanup data…</string>
