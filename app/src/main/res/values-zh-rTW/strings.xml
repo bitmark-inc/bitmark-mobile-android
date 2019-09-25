@@ -111,7 +111,7 @@
   <string name="share_with">分享給</string>
   <string name="release_notes">版本歷史紀錄</string>
   <string-array name="release_note_info">
-    <item name="content">新的功能\n— 您將可以備份資產至您的Google雲端硬碟\n\n改善體驗\n— 修正錯誤並提升效能\n— 重新設計啟動畫面\n— 提升登記產權頁面的易用性\n\n我們很重視您的回饋意見，如果您有任何想法或建議，進而優化我們的app，請發送電子郵件至support@bitmark.com。</item>
+    <item name="content">新的功能\n&#x2014; 您將可以備份資產至您的Google雲端硬碟\n\n改善體驗\n&#x2014; 修正錯誤並提升效能\n&#x2014; 重新設計啟動畫面\n&#x2014; 提升登記產權頁面的易用性\n\n我們很重視您的回饋意見，如果您有任何想法或建議，進而優化我們的app，請發送電子郵件至support@bitmark.com。</item>
     <item name="date">2019-09-24T00:00:00.000000Z</item>
   </string-array>
   <string name="close">關閉</string>
@@ -137,7 +137,7 @@
   <string name="value">VALUE</string>
   <string name="edit">編輯</string>
   <string name="add_new_field">新增欄位</string>
-  <string name="number_of_bitmarks_to_issue">發行 bitmarks 數量</string>
+  <string name="number_of_bitmarks_to_issue">發行Bitmark憑證數量</string>
   <string name="rights_claim">產權聲明</string>
   <string name="quote_i_hereby_claim_that_i_am_the_legal">「本人在此聲明為此資產之擁有者，並且同意將資產所有權登記在Bitmark區塊鏈上面。」</string>
   <string name="could_not_register_property">無法登記產，請稍後再試。</string>

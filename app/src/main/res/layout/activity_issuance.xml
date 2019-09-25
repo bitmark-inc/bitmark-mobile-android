@@ -406,7 +406,6 @@
       android:id="@+id/progressBar"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_3"
-      android:layout_marginBottom="@dimen/dp_1"
       android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="gone"
       app:layout_constraintTop_toBottomOf="@id/layoutToolbar"

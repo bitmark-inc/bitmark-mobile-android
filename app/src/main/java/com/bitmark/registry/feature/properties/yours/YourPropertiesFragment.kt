@@ -189,7 +189,6 @@ class YourPropertiesFragment : BaseSupportFragment(),
         viewModel.refreshBitmarksLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    layoutSwipeRefresh.isRefreshing = false
                     adapter.clear()
                     endlessScrollListener.resetState()
                     viewModel.reset()
@@ -203,6 +202,9 @@ class YourPropertiesFragment : BaseSupportFragment(),
                         "refresh bitmarks failed: ${res.throwable()
                             ?: "unknown"}"
                     )
+                }
+
+                res.isLoading() -> {
                     layoutSwipeRefresh.isRefreshing = false
                 }
             }

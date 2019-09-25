@@ -97,7 +97,11 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                 item.id
             )
             val bundle =
-                WebViewActivity.getBundle(url, getString(R.string.registry))
+                WebViewActivity.getBundle(
+                    url,
+                    getString(R.string.registry),
+                    hasNav = true
+                )
             navigator.anim(RIGHT_LEFT)
                 .startActivity(WebViewActivity::class.java, bundle)
         }
@@ -173,7 +177,6 @@ class TransactionHistoryFragment : BaseSupportFragment(),
         viewModel.refreshTxsLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    layoutSwipeRefresh.isRefreshing = false
                     adapter.clear()
                     endlessScrollListener.resetState()
                     viewModel.reset()
@@ -185,8 +188,11 @@ class TransactionHistoryFragment : BaseSupportFragment(),
                         TAG,
                         "refresh txs failed: ${res.throwable() ?: "unknown"}"
                     )
-                    layoutSwipeRefresh.isRefreshing = false
                     progressBar.gone()
+                }
+
+                res.isLoading() -> {
+                    layoutSwipeRefresh.isRefreshing = false
                 }
             }
         })

@@ -152,7 +152,11 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
             )
             navigator.anim(RIGHT_LEFT).startActivity(
                 WebViewActivity::class.java,
-                WebViewActivity.getBundle(url, getString(R.string.registry))
+                WebViewActivity.getBundle(
+                    url,
+                    getString(R.string.registry),
+                    hasNav = true
+                )
             )
         }
 

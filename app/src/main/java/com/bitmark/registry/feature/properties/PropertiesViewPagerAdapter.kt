@@ -28,8 +28,10 @@ class PropertiesViewPagerAdapter(
 
     init {
         super.add(
-            YourPropertiesFragment.newInstance(), WebViewFragment.newInstance(
-                "%s?env=app".format(BuildConfig.REGISTRY_WEBSITE)
+            YourPropertiesFragment.newInstance(),
+            WebViewFragment.newInstance(
+                "%s?env=app".format(BuildConfig.REGISTRY_WEBSITE),
+                hasNav = true
             )
         )
     }

@@ -26,9 +26,16 @@ class WebViewActivity : AppCompatActivity() {
 
         private const val TITLE = "title"
 
-        fun getBundle(url: String, title: String? = null): Bundle {
+        private const val HAS_NAV = "has_nav"
+
+        fun getBundle(
+            url: String,
+            title: String? = null,
+            hasNav: Boolean = false
+        ): Bundle {
             val bundle = Bundle()
             bundle.putString(URL, url)
+            bundle.putBoolean(HAS_NAV, hasNav)
             if (title != null) bundle.putString(TITLE, title)
             return bundle
         }
@@ -61,6 +68,13 @@ class WebViewActivity : AppCompatActivity() {
             layoutToolbar.visible()
         } else {
             layoutToolbar.gone()
+        }
+
+        val hasNav = intent?.extras?.getBoolean(HAS_NAV) ?: false
+        if (hasNav) {
+            layoutNav.visible()
+        } else {
+            layoutNav.gone()
         }
 
         webview.settings.javaScriptEnabled = true

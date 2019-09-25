@@ -60,12 +60,12 @@
       android:id="@+id/webview"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_above="@id/layourNav"
+      android:layout_above="@id/layoutNav"
       android:layout_below="@id/layoutToolbar"
       />
 
   <LinearLayout
-      android:id="@+id/layourNav"
+      android:id="@+id/layoutNav"
       android:layout_width="match_parent"
       android:layout_height="@dimen/dp_44"
       android:layout_alignParentBottom="true"
@@ -103,7 +103,6 @@
       android:layout_height="@dimen/dp_3"
       android:layout_below="@id/layoutToolbar"
       android:layout_marginBottom="@dimen/dp_44"
-      android:layout_marginTop="@dimen/dp_1"
       android:progressDrawable="@drawable/bg_progress_blue_ribbon"
       android:visibility="gone"
       tools:progress="25"

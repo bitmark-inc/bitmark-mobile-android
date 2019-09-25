@@ -31,15 +31,19 @@ class WebViewFragment : Fragment(), BehaviorComponent {
 
         private const val PRELOAD = "preload"
 
+        private const val HAS_NAV = "has_nav"
+
         fun newInstance(
             url: String,
             title: String? = null,
-            preload: Boolean = false
+            preload: Boolean = false,
+            hasNav: Boolean = false
         ): WebViewFragment {
             val fragment = WebViewFragment()
             val bundle = Bundle()
             bundle.putString(URL, url)
             bundle.putBoolean(PRELOAD, preload)
+            bundle.putBoolean(HAS_NAV, hasNav)
             if (title != null) bundle.putString(TITLE, title)
             fragment.arguments = bundle
             return fragment
@@ -75,11 +79,19 @@ class WebViewFragment : Fragment(), BehaviorComponent {
     private fun initComponents() {
         url = arguments?.getString(URL)
         val title = arguments?.getString(TITLE)
+
         if (title != null) {
             tvToolbarTitle.text = title
             layoutToolbar.visible()
         } else {
             layoutToolbar.gone()
+        }
+
+        val hasNav = arguments?.getBoolean(HAS_NAV) ?: false
+        if (hasNav) {
+            layoutNav.visible()
+        } else {
+            layoutNav.gone()
         }
 
         preload = arguments?.getBoolean(PRELOAD) ?: false

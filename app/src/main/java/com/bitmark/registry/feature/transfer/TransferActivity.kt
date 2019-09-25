@@ -11,16 +11,16 @@ import com.bitmark.apiservice.params.TransferParams
 import com.bitmark.apiservice.utils.Address
 import com.bitmark.registry.R
 import com.bitmark.registry.data.model.BitmarkData
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.logging.Event
-import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.modelview.BitmarkModelView
 import com.bitmark.registry.util.view.InfoAppCompatDialog
@@ -93,11 +93,10 @@ class TransferActivity : BaseAppCompatActivity() {
             if (blocked) return@setSafetyOnclickListener
             val recipient = etRecipient.text.toString()
             if (Address.isValidAccountNumber(recipient) && bitmark.accountNumber != recipient) {
-                tvError.invisible()
                 hideKeyBoard()
                 transfer(bitmark, keyAlias, recipient)
             } else {
-                tvError.visible()
+                showError()
             }
 
         }
@@ -125,6 +124,13 @@ class TransferActivity : BaseAppCompatActivity() {
             }
         }
 
+    }
+
+    private fun showError() {
+        tvError.visible()
+        handler.postDelayed({
+            tvError.invisible()
+        }, 1000)
     }
 
     override fun deinitComponents() {
