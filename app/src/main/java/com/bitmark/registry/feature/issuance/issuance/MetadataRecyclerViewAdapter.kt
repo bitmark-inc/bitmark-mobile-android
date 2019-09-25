@@ -32,6 +32,8 @@ class MetadataRecyclerViewAdapter :
 
     private var itemFocusChangedListener: ((Int, Boolean) -> Unit)? = null
 
+    private var actionDoneClickListener: ((Boolean) -> Unit)? = null
+
     private val internalItemDeletedListener: (Item) -> Unit = { item ->
         val pos = items.indexOf(item)
         items.removeAt(pos)
@@ -54,6 +56,10 @@ class MetadataRecyclerViewAdapter :
 
     internal fun setItemFocusChangedListener(listener: (Int, Boolean) -> Unit) {
         this.itemFocusChangedListener = listener
+    }
+
+    internal fun setActionDoneClickListener(listener: (Boolean) -> Unit) {
+        this.actionDoneClickListener = listener
     }
 
     internal fun add(requestFocus: Boolean = false) {
@@ -128,7 +134,8 @@ class MetadataRecyclerViewAdapter :
         ),
         internalItemDeletedListener,
         itemFilledListener,
-        itemFocusChangedListener
+        itemFocusChangedListener,
+        actionDoneClickListener
     )
 
     override fun getItemCount(): Int = items.size
@@ -141,7 +148,8 @@ class MetadataRecyclerViewAdapter :
         view: View,
         deleteClickListener: ((Item) -> Unit)?,
         private val itemFilledListener: ((Boolean) -> Unit)?,
-        private val itemFocusChangedListener: ((Int, Boolean) -> Unit)?
+        private val itemFocusChangedListener: ((Int, Boolean) -> Unit)?,
+        private val actionDoneClickListener: ((Boolean) -> Unit)?
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -202,9 +210,7 @@ class MetadataRecyclerViewAdapter :
         private fun handleEditorAction(view: View, actionId: Int) =
             when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> {
-                    if (hasValidRows() && !hasBlankRow() && isLastItem()) {
-                        add(true)
-                    }
+                    actionDoneClickListener?.let { it(isLastItem()) }
                     true
                 }
 

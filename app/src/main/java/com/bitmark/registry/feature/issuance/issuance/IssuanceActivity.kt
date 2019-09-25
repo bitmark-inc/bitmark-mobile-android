@@ -171,6 +171,14 @@ class IssuanceActivity : BaseAppCompatActivity() {
             adapter.changeRemovableState(removable)
         }
 
+        adapter.setActionDoneClickListener { isLastItem ->
+            if (adapter.hasValidRows() && !adapter.hasBlankRow() && isLastItem) {
+                adapter.add(true)
+                setAddMetadataState(false)
+                setActionMetadataState(true, getString(R.string.edit))
+            }
+        }
+
 
         var rvYAxis = 0
         var svYAxis = 0
