@@ -216,7 +216,7 @@ class BitmarkRepository(
     fun cleanupBitmark(owner: String) =
         Completable.mergeArrayDelayError(
             localDataSource.deleteNotOwnBitmarks(owner),
-            fetchNewDeleteTxs(owner).map { txs ->
+            fetchNewTransferredTxs(owner).map { txs ->
                 txs.map { tx ->
                     Pair(
                         tx.bitmarkId,
@@ -234,7 +234,7 @@ class BitmarkRepository(
                 Completable.mergeDelayError(streams)
             })
 
-    private fun fetchNewDeleteTxs(owner: String) =
+    private fun fetchNewTransferredTxs(owner: String) =
         maxStoredRelevantTxOffset(owner).flatMap { offset ->
             remoteDataSource.listTxs(
                 owner = owner,
@@ -246,7 +246,7 @@ class BitmarkRepository(
                 to = "later"
             )
                 .map { t ->
-                    t.first.filter { tx -> tx.isDeleteTx() }
+                    t.first.filter { tx -> tx.previousOwner == owner }
                 }
         }
 

@@ -127,16 +127,8 @@ class WebSocketEventHandler @Inject constructor(
                                 deleteBmStream(accountNumber)
                             } else {
                                 // incoming tx
-                                bitmarkRepo.maxStoredBitmarkOffset()
-                                    .flatMap { offset ->
-                                        bitmarkRepo.syncBitmarks(
-                                            owner = accountNumber,
-                                            at = offset,
-                                            to = "later",
-                                            pending = true,
-                                            loadAsset = true
-                                        )
-                                    }.ignoreElement()
+                                bitmarkRepo.syncLatestBitmarks(accountNumber)
+                                    .ignoreElement()
                             }
                         }
                 }
