@@ -6,17 +6,17 @@ import android.os.Handler
 import android.text.TextUtils
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
-import com.bitmark.registry.logging.Event
-import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.RegisterContainerActivity
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.gone
 import com.bitmark.registry.util.extension.gotoSecuritySetting
 import com.bitmark.registry.util.extension.loadAccount
@@ -156,7 +156,7 @@ class SplashActivity : BaseAppCompatActivity() {
                             .startActivityAsRoot(
                                 MainActivity::class.java, notificationData
                             )
-                    }, 500)
+                    }, 250)
                 }
 
                 res.isError() -> {
@@ -188,7 +188,7 @@ class SplashActivity : BaseAppCompatActivity() {
                         // a bit delay to avoid flash screen if nothing need to cleanup
                         hideLoading()
                         viewModel.getExistingAccount()
-                    }, 500)
+                    }, 250)
                 }
 
                 res.isError() -> {
