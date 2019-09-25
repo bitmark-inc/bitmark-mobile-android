@@ -143,26 +143,26 @@ class RecoveryPhraseAdapter(
         notifyItemChanged(focusedIndex)
     }
 
-    fun showHiddenSequentially(word: String) {
-        val items = ArrayList<Item>(this.items)
-        items.sortWith(Comparator { o1, o2 -> o1.sequence.compareTo(o2.sequence) })
-        val item = items.find { i -> i.hidden }
-
-        if (item != null) {
-            item.hidden = false
-            item.word = word
-            item.textColor = R.color.blue_ribbon
-            val pos = this.items.indexOf(item)
-            notifyItemChanged(pos)
-        }
+    fun show(word: String) {
+        val item = items.find { i -> i.hidden && i.focused } ?: return
+        item.hidden = false
+        item.word = word
+        item.focused = false
+        item.textColor = R.color.blue_ribbon
+        notifyItemChanged(items.indexOf(item))
+        requestNextHiddenFocus()
     }
 
     fun hide(sequence: Int) {
         val item = items.firstOrNull { i -> i.sequence == sequence } ?: return
         if (item.hidden) return
+        clearFocus()
         item.hidden = true
+        item.focused = true
         notifyItemChanged(items.indexOf(item))
     }
+
+    fun countHidden() = items.count { i -> i.hidden }
 
     fun isItemsVisible() = this.items.find { i -> i.hidden } == null
 
@@ -174,9 +174,30 @@ class RecoveryPhraseAdapter(
         return words contentDeepEquals sortedWords
     }
 
-    fun setColors(@ColorRes color: Int) {
-        this.items.forEach { i -> i.textColor = color }
+    fun setTextColor(@ColorRes color: Int, indexes: IntArray? = null) {
+        if (indexes == null) {
+            this.items.forEach { i -> i.textColor = color }
+        } else {
+            for (item in items) {
+                if (indexes.contains(item.sequence)) {
+                    item.textColor = color
+                } else {
+                    item.textColor = textColor
+                }
+            }
+        }
+
         notifyDataSetChanged()
+    }
+
+    fun requestNextHiddenFocus() {
+        val hiddenItems = items.filter { i -> i.hidden }.toMutableList()
+        if (hiddenItems.isEmpty()) return
+        hiddenItems.sortWith(Comparator { o1, o2 -> o1.sequence.compareTo(o2.sequence) })
+        clearFocus()
+        val firstHiddenItem = hiddenItems.first()
+        firstHiddenItem.focused = true
+        notifyItemChanged(this.items.indexOf(firstHiddenItem))
     }
 
     fun getPhrase(): Array<String?> {
@@ -188,6 +209,13 @@ class RecoveryPhraseAdapter(
     }
 
     fun isValid() = null == items.find { it.word.isEmpty() }
+
+    fun requestFocus(sequence: Int) {
+        clearFocus()
+        val item = items.find { i -> i.sequence == sequence } ?: return
+        item.focused = true
+        notifyItemChanged(items.indexOf(item))
+    }
 
     override fun afterTextChanged(item: Item) {
         items.find { it.sequence == item.sequence }
@@ -229,6 +257,7 @@ class RecoveryPhraseAdapter(
                 if (!editable) {
                     edtWord.isFocusable = false
                     edtWord.isLongClickable = false
+                    edtWord.isCursorVisible = false
                 }
 
                 edtWord.doOnTextChanged { text, _, _, _ ->
@@ -236,7 +265,11 @@ class RecoveryPhraseAdapter(
 
                     edtWord.background = ContextCompat.getDrawable(
                         context,
-                        if (text.isNullOrBlank()) R.drawable.bg_border_blue_ribbon_wild_sand_stateful else R.drawable.bg_border_blue_ribbon_white_stateful
+                        if (text.isNullOrBlank()) {
+                            R.drawable.bg_border_blue_ribbon_wild_sand
+                        } else {
+                            R.drawable.bg_border_blue_ribbon_white
+                        }
                     )
 
                     listener.onTextChanged(item)
@@ -253,12 +286,24 @@ class RecoveryPhraseAdapter(
                     edtWord.imeOptions =
                         if (hasFocus && (isLastItem() || isValid())) EditorInfo.IME_ACTION_DONE else EditorInfo.IME_ACTION_NEXT
 
-                    if (!hasFocus && !text.isNullOrBlank()) {
-                        edtWord.background = null
+                    if (!hasFocus) {
+                        edtWord.background = if (text.isNullOrBlank()) {
+                            ContextCompat.getDrawable(
+                                context,
+                                R.color.wild_sand
+                            )
+                        } else {
+                            null
+                        }
                     } else {
+                        edtWord.setSelection(edtWord.text?.length ?: 0)
                         edtWord.background = ContextCompat.getDrawable(
                             context,
-                            if (text.isNullOrBlank()) R.drawable.bg_border_blue_ribbon_wild_sand_stateful else R.drawable.bg_border_blue_ribbon_white_stateful
+                            if (text.isNullOrBlank()) {
+                                R.drawable.bg_border_blue_ribbon_wild_sand
+                            } else {
+                                R.drawable.bg_border_blue_ribbon_white
+                            }
                         )
                     }
                 }
@@ -302,8 +347,17 @@ class RecoveryPhraseAdapter(
 
                 if (item.focused) {
                     edtWord.requestFocus()
+                    edtWord.background = ContextCompat.getDrawable(
+                        context,
+                        R.drawable.bg_border_blue_ribbon_wild_sand
+                    )
                 } else {
                     edtWord.clearFocus()
+                    edtWord.background =
+                        ContextCompat.getDrawable(
+                            context,
+                            if (item.hidden || item.word.isBlank()) R.color.wild_sand else android.R.color.white
+                        )
                 }
 
             }
@@ -327,8 +381,11 @@ class Item(
     internal var hidden: Boolean = false,
     internal var textColor: Int = R.color.gray,
     internal var focused: Boolean = false
-)
+) {
+    fun isHidden() = hidden
+}
 
 enum class Version(val value: Int) {
-    TWELVE(12), TWENTY_FOUR(24)
+    TWELVE(12),
+    TWENTY_FOUR(24)
 }

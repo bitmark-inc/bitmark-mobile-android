@@ -10,16 +10,16 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
-import com.bitmark.registry.logging.Event
-import com.bitmark.registry.logging.EventLogger
 import com.bitmark.registry.feature.notification.DeleteFirebaseInstanceIdService
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.register.recoveryphrase.RecoveryPhraseAdapter
+import com.bitmark.registry.logging.Event
+import com.bitmark.registry.logging.EventLogger
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.sdk.authentication.KeyAuthenticationSpec
@@ -95,6 +95,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
         rvRecoveryPhrase.layoutManager = layoutManager
         rvRecoveryPhrase.isNestedScrollingEnabled = false
+        rvRecoveryPhrase.itemAnimator = null
         rvRecoveryPhrase.adapter = adapter
         val hiddenSequences =
             (1..recoveryPhrase.size).shuffled().take(HIDDEN_ITEM_QUANTITY)
@@ -104,6 +105,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
             recoveryPhrase,
             hiddenSequences
         )
+        adapter.requestNextHiddenFocus()
 
         val hiddenWords = adapter.getHiddenWords().toMutableList().shuffled()
         val tvs = listOf<TextView>(tvWord1, tvWord2, tvWord3, tvWord4)
@@ -128,14 +130,14 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
                     tvWord3.visible()
                     tvWord4.visible()
 
-                    tvPrimaryMessage.invisible()
-                    tvSecondaryMessage.invisible()
+                    hideNotice()
                     btnAction.invisible()
 
                     adapter.set(
                         recoveryPhrase,
                         hiddenSequences
                     )
+                    adapter.requestNextHiddenFocus()
 
                 }
 
@@ -152,7 +154,17 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
 
         adapter.setOnItemClickListener { item ->
             if (!hiddenSequences.contains(item.sequence)) return@setOnItemClickListener
-            adapter.hide(item.sequence)
+            val hiddenCount = adapter.countHidden()
+            hideNotice()
+            btnAction.invisible()
+            if (item.isHidden()) {
+                adapter.requestFocus(item.sequence)
+            } else {
+                adapter.hide(item.sequence)
+            }
+            if (hiddenCount == 0) {
+                adapter.setTextColor(R.color.blue_ribbon, hiddenSequences)
+            }
             tvs.firstOrNull { tv -> tv.text == item.word }?.visible()
         }
 
@@ -172,7 +184,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
     ) {
         v.invisible()
         val text = (v as? AppCompatTextView)?.text.toString()
-        adapter.showHiddenSequentially(text)
+        adapter.show(text)
 
         if (adapter.isItemsVisible()) {
             if (adapter.compare(phrase)) {
@@ -354,7 +366,7 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         tvPrimaryMessage.visible()
         tvSecondaryMessage.visible()
         btnAction.visible()
-        adapter.setColors(R.color.torch_red)
+        adapter.setTextColor(R.color.torch_red)
     }
 
     private fun showSuccess(
@@ -369,7 +381,12 @@ class RecoveryPhraseTestFragment : BaseSupportFragment() {
         tvPrimaryMessage.visible()
         tvSecondaryMessage.visible()
         btnAction.visible()
-        adapter.setColors(R.color.blue_ribbon)
+        adapter.setTextColor(R.color.blue_ribbon)
+    }
+
+    private fun hideNotice() {
+        tvPrimaryMessage.invisible()
+        tvSecondaryMessage.invisible()
     }
 
     override fun onBackPressed() =

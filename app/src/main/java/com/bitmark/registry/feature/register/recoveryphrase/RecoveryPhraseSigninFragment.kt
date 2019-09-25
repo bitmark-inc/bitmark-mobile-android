@@ -7,14 +7,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseSupportFragment
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
 import com.bitmark.registry.feature.Navigator
+import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
 import com.bitmark.registry.logging.Event
 import com.bitmark.registry.logging.EventLogger
-import com.bitmark.registry.feature.register.authentication.AuthenticationFragment
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.*
 import com.bitmark.registry.util.view.ProgressAppCompatDialog
 import com.bitmark.registry.util.view.SimpleRecyclerViewAdapter
@@ -113,6 +113,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 tvSwitchWord.gone()
                 btnSubmit.gone()
                 setSuggestionVisibility(true)
+                setErrorVisibility(false)
             } else {
                 tvSwitchWord.visible()
                 btnSubmit.visible()
@@ -172,7 +173,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
         })
 
         adapter.setOnDoneListener {
-            submit(adapter.getPhrase(), uri, recoverAccount)
+            activity?.hideKeyBoard()
         }
 
         suggestionAdapter.setItemClickListener { text ->
@@ -315,6 +316,7 @@ class RecoveryPhraseSigninFragment : BaseSupportFragment() {
                 navigateAuthentication(phrase, uri, false)
             }
         } else {
+            tvSwitchWord.gone()
             setErrorVisibility(true)
         }
     }
