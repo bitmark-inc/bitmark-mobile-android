@@ -180,8 +180,8 @@ class Navigator(host: Any) {
                 R.anim.slide_bottom_out
             )
             RIGHT_LEFT -> activity?.overridePendingTransition(
-                R.anim.slide_right_out,
-                R.anim.slide_left_in
+                R.anim.slide_left_in,
+                R.anim.slide_right_out
             )
         }
     }

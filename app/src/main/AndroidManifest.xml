@@ -7,7 +7,7 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
   <application
       android:name=".RegistryApplication"
@@ -60,7 +60,7 @@
         android:name=".feature.scan_qr_code.ScanQrCodeActivity"
         android:screenOrientation="portrait"
         android:stateNotNeeded="true"
-        tools:replace="android:screenOrientation"/>
+        />
 
     <activity
         android:name=".feature.WebViewActivity"
@@ -72,7 +72,8 @@
 
     <activity
         android:name=".feature.account.details.WhatsNewActivity"
-        android:screenOrientation="portrait"/>
+        android:theme="@style/AppTheme.Translucent"
+        />
 
     <activity
         android:name=".feature.issuance.issuance.IssuanceActivity"
@@ -85,7 +86,7 @@
 
     <activity
         android:name=".feature.music_claiming.MusicClaimingActivity"
-        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.Translucent"
         />
 
     <activity
@@ -100,7 +101,8 @@
     <activity
         android:name="com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity"
         android:launchMode="singleInstance"
-        android:screenOrientation="portrait"/>
+        android:screenOrientation="portrait"
+        />
 
     <!-- Firebase message service -->
     <service

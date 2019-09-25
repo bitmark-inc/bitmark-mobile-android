@@ -9,6 +9,12 @@
     <item name="android:windowLightStatusBar">true</item>
   </style>
 
+  <style name="AppTheme.Translucent" parent="AppTheme">
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:colorBackgroundCacheHint">@null</item>
+    <item name="android:windowIsTranslucent">true</item>
+  </style>
+
   <style name="TabLayout" parent="@android:style/TextAppearance.Widget.TabWidget">
     <item name="android:fontFamily">@font/avenir_bold</item>
     <item name="android:textSize">@dimen/sp_14</item>
