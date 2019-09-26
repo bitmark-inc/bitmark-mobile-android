@@ -99,9 +99,9 @@
         android:screenOrientation="portrait"/>
 
     <activity
-        android:name="com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity"
+        android:name=".feature.cloud_service_sign_in.CloudServiceSignInActivity"
         android:launchMode="singleInstance"
-        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.Translucent"
         />
 
     <!-- Firebase message service -->
