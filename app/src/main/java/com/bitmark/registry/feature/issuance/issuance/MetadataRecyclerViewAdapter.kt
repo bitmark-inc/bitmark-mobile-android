@@ -28,18 +28,11 @@ class MetadataRecyclerViewAdapter :
 
     private var itemFilledListener: ((Boolean) -> Unit)? = null
 
-    private var itemRemovedListener: ((Item) -> Unit)? = null
+    private var deleteClickListener: ((Item) -> Unit)? = null
 
     private var itemFocusChangedListener: ((Int, Boolean) -> Unit)? = null
 
     private var actionDoneClickListener: ((Boolean) -> Unit)? = null
-
-    private val internalItemDeletedListener: (Item) -> Unit = { item ->
-        val pos = items.indexOf(item)
-        items.removeAt(pos)
-        notifyItemRemoved(pos)
-        itemRemovedListener?.invoke(item)
-    }
 
     init {
         // always keep 1 items at first
@@ -50,8 +43,8 @@ class MetadataRecyclerViewAdapter :
         this.itemFilledListener = listener
     }
 
-    internal fun setItemRemovedListener(listener: (Item) -> Unit) {
-        this.itemRemovedListener = listener
+    internal fun setItemDeleteClickListener(listener: (Item) -> Unit) {
+        this.deleteClickListener = listener
     }
 
     internal fun setItemFocusChangedListener(listener: (Int, Boolean) -> Unit) {
@@ -115,6 +108,20 @@ class MetadataRecyclerViewAdapter :
         notifyDataSetChanged()
     }
 
+    internal fun remove(item: Item) {
+        val index = items.indexOf(item)
+        if (index == -1) return
+        items.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
+    internal fun clear(pos: Int) {
+        val item = items[pos]
+        item.key = ""
+        item.value = ""
+        notifyItemChanged(pos)
+    }
+
     internal fun requestNextFocus() {
         val focusedIndex = items.indexOfFirst { i -> i.isFocused }
         if (focusedIndex == items.size - 1) return
@@ -132,7 +139,7 @@ class MetadataRecyclerViewAdapter :
             parent,
             false
         ),
-        internalItemDeletedListener,
+        deleteClickListener,
         itemFilledListener,
         itemFocusChangedListener,
         actionDoneClickListener
@@ -254,9 +261,13 @@ class MetadataRecyclerViewAdapter :
 
                 etKey.setText(item.key.toUpperCase())
                 etValue.setText(item.value)
+                etKey.setSelection(item.key.length)
+                etValue.setSelection(item.value.length)
 
                 if (item.isFocused) {
-                    etKey.requestFocus()
+                    if (item.isBlank()) {
+                        etKey.requestFocus()
+                    }
                 } else {
                     etKey.clearFocus()
                     etValue.clearFocus()

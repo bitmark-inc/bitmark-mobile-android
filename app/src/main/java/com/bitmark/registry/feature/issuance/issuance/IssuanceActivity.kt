@@ -126,6 +126,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
             LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         rvMetadata.isNestedScrollingEnabled = false
         rvMetadata.layoutManager = layoutManager
+        rvMetadata.itemAnimator = null
         rvMetadata.adapter = adapter
 
         if (asset.registered) {
@@ -146,9 +147,9 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         adapter.setItemFilledListener { filled ->
-            if (adapter.hasSingleRow()) {
-                setActionMetadataVisibility(filled)
-                setAddMetadataVisibility(filled)
+            if (adapter.hasSingleRow() && (filled || adapter.isRemoving())) {
+                setActionMetadataVisibility(true)
+                setAddMetadataVisibility(true)
             }
             if (!adapter.isRemoving() && adapter.hasValidRows() && !adapter.hasBlankRow() && !asset.registered) {
                 setAddMetadataState(true)
@@ -160,19 +161,20 @@ class IssuanceActivity : BaseAppCompatActivity() {
             )
         }
 
-        adapter.setItemRemovedListener {
-            val removable = adapter.isRemovable()
-            if (!removable) {
-                tvActionMetadata.setText(R.string.edit)
-                setActionMetadataState(false)
+        adapter.setItemDeleteClickListener { item ->
+            if (adapter.isRemovable()) {
+                adapter.remove(item)
+            } else {
+                adapter.clear(0)
+                tvActionMetadata.setText(R.string.done)
+                setActionMetadataState(true)
                 setAddMetadataVisibility(false)
-                setActionMetadataVisibility(false)
+                setActionMetadataVisibility(true)
             }
-            adapter.changeRemovableState(removable)
         }
 
         adapter.setActionDoneClickListener { isLastItem ->
-            if (adapter.hasValidRows() && !adapter.hasBlankRow() && isLastItem) {
+            if (adapter.hasValidRows() && !adapter.hasBlankRow() && isLastItem && !adapter.isRemoving()) {
                 adapter.add(true)
                 setAddMetadataState(false)
                 setActionMetadataState(true, getString(R.string.edit))
@@ -324,6 +326,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
                     getString(R.string.edit)
                 )
             }
+            clearFocus()
         }
 
         tvAddMetadata.setOnClickListener {
@@ -339,6 +342,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
         }
 
         tvAssetType.setOnClickListener {
+            clearFocus()
             setTvAssetTypeFocused(true)
             showAssetTypePopupMenu(asset.registered)
         }
@@ -458,6 +462,16 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun clearFocus() {
+        hideKeyBoard()
+        val focused = currentFocus ?: return
+        focused.isFocusableInTouchMode = false
+        focused.isFocusable = false
+        focused.isFocusableInTouchMode = true
+        focused.isFocusable = true
+        focused.clearFocus()
     }
 
     private fun setTvAssetTypeFocused(focused: Boolean) {
