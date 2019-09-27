@@ -52,6 +52,8 @@ class BmServerAuthentication(
 
     private var authorizationRequiredDialog: AuthorizationRequiredDialog? = null
 
+    private var isProcessing = false
+
     init {
         appLifecycleHandler.addAppStateChangedListener(this)
         connectivityHandler.addNetworkStateChangeListener(this)
@@ -59,6 +61,7 @@ class BmServerAuthentication(
 
     fun destroy() {
         compositeDisposable.dispose()
+        connectivityHandler.removeNetworkStateChangeListener(this)
         appLifecycleHandler.removeAppStateChangedListener(this)
     }
 
@@ -73,29 +76,29 @@ class BmServerAuthentication(
     }
 
     private fun checkJwtExpiry() {
-        compositeDisposable.add(accountRepo.checkMobileServerJwtExpiry().subscribe { expired, e ->
-            if (e == null && expired) {
-                prepareRefreshJwt()
+        if (isProcessing) return
+        compositeDisposable.add(accountRepo.checkMobileServerJwtExpiry().flatMap { expired ->
+            if (expired) {
+                Single.zip(
+                    accountRepo.getAccountNumber(),
+                    accountRepo.getKeyAlias(),
+                    BiFunction<String, String, Pair<String, String>> { accountNumber, keyAlias ->
+                        Pair(accountNumber, keyAlias)
+                    })
+            } else {
+                Single.just(Pair("", ""))
             }
-        })
-    }
-
-    private fun prepareRefreshJwt() {
-        compositeDisposable.add(
-            Single.zip(
-                accountRepo.getAccountNumber(),
-                accountRepo.getKeyAlias(),
-                BiFunction<String, String, Pair<String, String>> { accountNumber, keyAlias ->
-                    Pair(accountNumber, keyAlias)
-                }).observeOn(AndroidSchedulers.mainThread()).subscribe { p, e ->
-                val activity = appLifecycleHandler.getRunningActivity()
-                if (e == null && activity != null) {
-                    loadAccount(activity, p.first, p.second) { account ->
-                        refreshJwt(account.accountNumber, account.authKeyPair)
-                    }
+        }.doOnSubscribe {
+            isProcessing = true
+        }.observeOn(AndroidSchedulers.mainThread()).subscribe { p, e ->
+            isProcessing = false
+            val activity = appLifecycleHandler.getRunningActivity()
+            if (e == null && activity != null && p.first.isNotEmpty() && p.second.isNotEmpty()) {
+                loadAccount(activity, p.first, p.second) { account ->
+                    refreshJwt(account.accountNumber, account.authKeyPair)
                 }
             }
-        )
+        })
     }
 
     private fun refreshJwt(requester: String, keyPair: KeyPair) {
