@@ -8,7 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -17,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bitmark.cryptography.crypto.key.KeyPair
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.BaseAppCompatActivity
@@ -126,7 +126,8 @@ class IssuanceActivity : BaseAppCompatActivity() {
             LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         rvMetadata.isNestedScrollingEnabled = false
         rvMetadata.layoutManager = layoutManager
-        rvMetadata.itemAnimator = null
+        (rvMetadata.itemAnimator as SimpleItemAnimator).supportsChangeAnimations =
+            false
         rvMetadata.adapter = adapter
 
         if (asset.registered) {
@@ -166,10 +167,12 @@ class IssuanceActivity : BaseAppCompatActivity() {
                 adapter.remove(item)
             } else {
                 adapter.clear(0)
-                tvActionMetadata.setText(R.string.done)
-                setActionMetadataState(true)
+                adapter.changeRemovableState(false)
+                adapter.requestNextFocus()
+                tvActionMetadata.setText(R.string.edit)
+                setActionMetadataState(false)
                 setAddMetadataVisibility(false)
-                setActionMetadataVisibility(true)
+                setActionMetadataVisibility(false)
             }
         }
 
@@ -326,7 +329,6 @@ class IssuanceActivity : BaseAppCompatActivity() {
                     getString(R.string.edit)
                 )
             }
-            clearFocus()
         }
 
         tvAddMetadata.setOnClickListener {
@@ -364,10 +366,7 @@ class IssuanceActivity : BaseAppCompatActivity() {
                         val endY = event.y
 
                         if (Math.abs(startX - endX) < 100 && Math.abs(startY - endY) < 100) {
-                            if (currentFocus is EditText) {
-                                hideKeyBoard()
-                                currentFocus?.clearFocus()
-                            }
+                            clearFocus()
                         }
                     }
                 }

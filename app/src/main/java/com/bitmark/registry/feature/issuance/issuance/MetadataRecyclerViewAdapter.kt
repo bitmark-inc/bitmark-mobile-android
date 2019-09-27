@@ -74,9 +74,12 @@ class MetadataRecyclerViewAdapter :
 
     internal fun changeRemovableState(removable: Boolean) {
         this.items.forEach { item ->
-            item.removable = removable
+            if (item.removable != removable) {
+                item.removable = removable
+                notifyItemChanged(items.indexOf(item))
+            }
+
         }
-        notifyDataSetChanged()
     }
 
     internal fun isRemovable() = items.size > 1
@@ -165,23 +168,19 @@ class MetadataRecyclerViewAdapter :
         init {
             with(itemView) {
                 etKey.setOnFocusChangeListener { view, hasFocus ->
-                    itemFocusChangedListener?.let {
-                        it(
-                            adapterPosition,
-                            hasFocus
-                        )
-                    }
                     handleFocusState(view, hasFocus)
                 }
 
+                etKey.setOnClickListener { view ->
+                    handleFocusState(view, true)
+                }
+
                 etValue.setOnFocusChangeListener { view, hasFocus ->
-                    itemFocusChangedListener?.let {
-                        it(
-                            adapterPosition,
-                            hasFocus
-                        )
-                    }
                     handleFocusState(view, hasFocus)
+                }
+
+                etValue.setOnClickListener { view ->
+                    handleFocusState(view, true)
                 }
 
                 etKey.doOnTextChanged { text, _, _, _ ->
@@ -265,8 +264,11 @@ class MetadataRecyclerViewAdapter :
                 etValue.setSelection(item.value.length)
 
                 if (item.isFocused) {
-                    if (item.isBlank()) {
+                    if (!etKey.isFocused && !etValue.isFocused) {
                         etKey.requestFocus()
+                        notifyItemFocusedChanged(true)
+                    } else {
+                        showValidState()
                     }
                 } else {
                     etKey.clearFocus()
@@ -311,6 +313,7 @@ class MetadataRecyclerViewAdapter :
         }
 
         private fun handleFocusState(`this`: View, hasFocus: Boolean) {
+            notifyItemFocusedChanged(hasFocus)
             with(itemView) {
                 val that = if (`this` == etKey) etValue else etKey
 
@@ -323,10 +326,13 @@ class MetadataRecyclerViewAdapter :
                         if (`this` == etValue && isLastItem()) {
                             EditorInfo.IME_ACTION_DONE
                         } else {
-                            EditorInfo.IME_ACTION_UNSPECIFIED
+                            EditorInfo.IME_ACTION_NEXT
                         }
                     item.isFocused = true
                 } else {
+                    if (!that.isFocused) {
+                        item.isFocused = false
+                    }
                     // bit delay for waiting for ${that}'s focus event
                     handler.postDelayed(
                         {
@@ -343,6 +349,15 @@ class MetadataRecyclerViewAdapter :
                         100
                     )
                 }
+            }
+        }
+
+        private fun notifyItemFocusedChanged(hasFocus: Boolean) {
+            itemFocusChangedListener?.let {
+                it(
+                    adapterPosition,
+                    hasFocus
+                )
             }
         }
 
