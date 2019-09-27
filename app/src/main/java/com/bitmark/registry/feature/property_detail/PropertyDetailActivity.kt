@@ -399,6 +399,7 @@ class PropertyDetailActivity : BaseAppCompatActivity() {
 
             when {
                 res.isSuccess() -> {
+                    dialogController.dismiss(downloadProgressDialog)
                     val file = res.data()
                     if (file != null) {
                         bitmark.assetFile = file
