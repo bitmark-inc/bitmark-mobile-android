@@ -36,14 +36,8 @@ class NetworkModule {
             BuildConfig.CORE_API_ENDPOINT,
             CoreApi::class.java,
             gson,
-            listOf(interceptor)
+            appInterceptors = listOf(interceptor)
         )
-    }
-
-    @Singleton
-    @Provides
-    fun provideCoreApiInterceptor(): CoreApiInterceptor {
-        return CoreApiInterceptor()
     }
 
     @Singleton
@@ -56,14 +50,8 @@ class NetworkModule {
             BuildConfig.MOBILE_SERVER_ENDPOINT,
             MobileServerApi::class.java,
             gson,
-            listOf(authInterceptor)
+            appInterceptors = listOf(authInterceptor)
         )
-    }
-
-    @Singleton
-    @Provides
-    fun provideMobileServerApiInterceptor(): MobileServerApiInterceptor {
-        return MobileServerApiInterceptor()
     }
 
     @Singleton
@@ -77,40 +65,37 @@ class NetworkModule {
             BuildConfig.FILE_COURIER_SERVER_ENPOINT,
             FileCourierServerApi::class.java,
             gson,
-            listOf(authInterceptor, progressInterceptor)
+            appInterceptors = listOf(progressInterceptor, authInterceptor)
         )
     }
 
     @Singleton
     @Provides
-    fun provideFileCourierApiInterceptor(): FileCourierServerInterceptor {
-        return FileCourierServerInterceptor()
-    }
-
-    @Singleton
-    @Provides
-    fun provideKeyAccountServerApi(gson: Gson): KeyAccountServerApi {
+    fun provideKeyAccountServerApi(
+        gson: Gson,
+        interceptor: KeyAccountApiInterceptor
+    ): KeyAccountServerApi {
         return ServiceGenerator.createService(
             BuildConfig.KEY_ACCOUNT_SERVER_ENDPOINT,
             KeyAccountServerApi::class.java,
-            gson
+            gson,
+            appInterceptors = listOf(interceptor)
         )
     }
 
     @Singleton
     @Provides
-    fun provideRegistryApi(gson: Gson): RegistryApi {
+    fun provideRegistryApi(
+        gson: Gson,
+        interceptor: RegistryApiInterceptor
+    ): RegistryApi {
         return ServiceGenerator.createService(
             BuildConfig.REGISTRY_API_ENDPOINT,
             RegistryApi::class.java,
-            gson
+            gson,
+            appInterceptors = listOf(interceptor)
         )
     }
-
-    @Singleton
-    @Provides
-    fun provideProgressInterceptor(publisher: PublishSubject<Progress>) =
-        ProgressInterceptor(publisher)
 
     @Singleton
     @Provides

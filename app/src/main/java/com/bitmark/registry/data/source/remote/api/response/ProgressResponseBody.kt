@@ -16,17 +16,14 @@ class ProgressResponseBody(
     private val listener: ProgressListener?
 ) : ResponseBody() {
 
-    private var bufferedSource: BufferedSource? = null
+    private val bufferedSource = source(responseBody.source()).buffer()
 
     override fun contentLength(): Long = responseBody.contentLength()
 
     override fun contentType(): MediaType? = responseBody.contentType()
 
     override fun source(): BufferedSource {
-        if (bufferedSource == null) {
-            bufferedSource = source(responseBody.source()).buffer()
-        }
-        return bufferedSource!!
+        return bufferedSource
     }
 
     private fun source(source: Source): Source {
@@ -38,7 +35,7 @@ class ProgressResponseBody(
                 totalBytesRead += if (bytesRead != -1L) bytesRead else 0
                 listener?.update(
                     totalBytesRead,
-                    responseBody.contentLength(),
+                    contentLength(),
                     bytesRead == -1L
                 )
                 return bytesRead

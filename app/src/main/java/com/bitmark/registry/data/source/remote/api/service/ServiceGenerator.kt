@@ -28,10 +28,12 @@ class ServiceGenerator {
             endPoint: String,
             serviceClass: Class<T>,
             gson: Gson,
-            interceptors: List<Interceptor>? = null,
+            appInterceptors: List<Interceptor>? = null,
+            networkInterceptors: List<Interceptor>? = null,
             timeout: Long = CONNECTION_TIMEOUT
         ): T {
-            val httpClient = buildHttpClient(interceptors, timeout)
+            val httpClient =
+                buildHttpClient(appInterceptors, networkInterceptors, timeout)
             val builder = Retrofit.Builder().baseUrl(endPoint)
                 .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory())
                 .addConverterFactory(GsonConverterFactory.create(gson))
@@ -42,20 +44,24 @@ class ServiceGenerator {
         }
 
         fun buildHttpClient(
-            interceptors: List<Interceptor>? = null,
+            appInterceptors: List<Interceptor>? = null,
+            networkInterceptors: List<Interceptor>? = null,
             timeout: Long = CONNECTION_TIMEOUT
         ): OkHttpClient {
             val httpClientBuilder = OkHttpClient.Builder()
+
+            appInterceptors?.forEach { interceptor ->
+                httpClientBuilder.addInterceptor(interceptor)
+            }
+
+            networkInterceptors?.forEach { interceptor ->
+                httpClientBuilder.addNetworkInterceptor(interceptor)
+            }
+
             if (BuildConfig.DEBUG) {
                 val loggingInterceptor = HttpLoggingInterceptor()
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
                 httpClientBuilder.addInterceptor(loggingInterceptor)
-            }
-
-            interceptors?.forEach { interceptor ->
-                httpClientBuilder.addInterceptor(
-                    interceptor
-                )
             }
 
             httpClientBuilder.writeTimeout(timeout, TimeUnit.SECONDS)

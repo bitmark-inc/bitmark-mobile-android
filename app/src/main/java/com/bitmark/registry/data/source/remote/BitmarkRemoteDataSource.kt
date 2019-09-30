@@ -12,9 +12,9 @@ import com.bitmark.apiservice.response.RegistrationResponse
 import com.bitmark.apiservice.utils.callback.Callback1
 import com.bitmark.apiservice.utils.error.UnexpectedException
 import com.bitmark.apiservice.utils.record.AssetRecord
-import com.bitmark.registry.data.model.entity.BlockData
 import com.bitmark.registry.data.model.entity.AssetDataR
 import com.bitmark.registry.data.model.entity.BitmarkDataR
+import com.bitmark.registry.data.model.entity.BlockData
 import com.bitmark.registry.data.model.entity.TransactionDataR
 import com.bitmark.registry.data.source.Constant.OMNISCIENT_ASSET_ID
 import com.bitmark.registry.data.source.remote.api.converter.Converter
@@ -33,6 +33,7 @@ import com.bitmark.sdk.features.Transaction
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.SingleOnSubscribe
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import okhttp3.MultipartBody
@@ -278,9 +279,14 @@ class BitmarkRemoteDataSource @Inject constructor(
         progress: (Int) -> Unit
     ): Single<DownloadAssetFileResponse> {
 
-        val subscription = progressPublisher.subscribe { p ->
+        var disposable: Disposable? = null
+
+        disposable = progressPublisher.subscribe { p ->
             if (p.identifier == assetId) {
                 progress.invoke(p.progress)
+                if (p.done) {
+                    disposable?.dispose()
+                }
             }
         }
 
@@ -291,9 +297,8 @@ class BitmarkRemoteDataSource @Inject constructor(
             receiver
         ).flatMap { res ->
 
-            subscription.dispose()
-
             if (!res.isSuccessful) {
+                disposable?.dispose()
                 val code = res.code()
                 Single.error<DownloadAssetFileResponse>(
                     HttpException(code)

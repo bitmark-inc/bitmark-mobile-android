@@ -3,6 +3,7 @@ package com.bitmark.registry.data.source.remote.api.middleware
 import android.text.TextUtils
 import com.bitmark.registry.logging.Tracer
 import okhttp3.Response
+import javax.inject.Inject
 
 
 /**
@@ -11,7 +12,9 @@ import okhttp3.Response
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class FileCourierServerInterceptor : Interceptor() {
+class FileCourierServerInterceptor @Inject constructor() : Interceptor() {
+
+    override fun getTag(): String? = "FileCourierServer"
 
     override fun intercept(chain: okhttp3.Interceptor.Chain): Response {
         val builder = chain.request().newBuilder()
@@ -26,7 +29,9 @@ class FileCourierServerInterceptor : Interceptor() {
             )
 
         val req = builder.build()
-        Tracer.INFO.log("FileCourierServerInterceptor", req.toString())
-        return chain.proceed(req)
+        Tracer.INFO.log(getTag()!!, req.toString())
+        val res = chain.proceed(req)
+        Tracer.INFO.log(getTag()!!, res.toString())
+        return res
     }
 }

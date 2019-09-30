@@ -4,6 +4,7 @@ import com.bitmark.registry.data.source.remote.api.response.ProgressListener
 import com.bitmark.registry.data.source.remote.api.response.ProgressResponseBody
 import io.reactivex.subjects.PublishSubject
 import okhttp3.Response
+import javax.inject.Inject
 
 
 /**
@@ -12,8 +13,12 @@ import okhttp3.Response
  * Email: hieupham@bitmark.com
  * Copyright © 2019 Bitmark. All rights reserved.
  */
-class ProgressInterceptor(private val publisher: PublishSubject<Progress>) :
+class ProgressInterceptor @Inject constructor(
+    private val publisher: PublishSubject<Progress>
+) :
     Interceptor() {
+
+    override fun getTag(): String? = null
 
     override fun intercept(chain: okhttp3.Interceptor.Chain): Response {
         val identifier = chain.request().header("identifier") ?: ""
@@ -28,7 +33,7 @@ class ProgressInterceptor(private val publisher: PublishSubject<Progress>) :
                         done: Boolean
                     ) {
 
-                        if (contentLength > 0)
+                        if (contentLength > 0) {
                             publisher.onNext(
                                 Progress(
                                     identifier,
@@ -36,6 +41,10 @@ class ProgressInterceptor(private val publisher: PublishSubject<Progress>) :
                                     bytesRead >= contentLength
                                 )
                             )
+                        } else if (done) {
+                            publisher.onNext(Progress(identifier, 100, true))
+                        }
+
                     }
 
                 })
