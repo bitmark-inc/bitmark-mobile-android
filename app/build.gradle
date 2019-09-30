@@ -49,6 +49,22 @@ android {
     }
   }
 
+  bundle {
+    density {
+      // Different APKs are generated for devices with different screen densities; true by default.
+      enableSplit false
+    }
+    abi {
+      // Different APKs are generated for devices with different CPU architectures; true by default.
+      enableSplit true
+    }
+    language {
+      // This is disabled so that the App Bundle does NOT split the APK for each language.
+      // We're gonna use the same APK for all languages.
+      enableSplit false
+    }
+  }
+
   androidExtensions {
     experimental = true
   }
@@ -294,7 +310,7 @@ dependencies {
   implementation 'com.aurelhubert:ahbottomnavigation:2.3.4'
   implementation 'com.google.code.gson:gson:2.8.5'
   implementation 'com.google.zxing:core:3.3.3'
-  implementation ('com.journeyapps:zxing-android-embedded:3.6.0') {
+  implementation('com.journeyapps:zxing-android-embedded:3.6.0') {
     transitive = false
   }
   implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
@@ -306,7 +322,6 @@ dependencies {
   implementation 'org.slf4j:slf4j-nop:1.7.25'
 
   //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-2'
-
 
   // Testing
   testImplementation 'junit:junit:4.12'
