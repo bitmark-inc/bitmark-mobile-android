@@ -10,3 +10,4 @@ google-services.json
 .idea
 .gradle
 distribution
+!*gradle/wrapper/*

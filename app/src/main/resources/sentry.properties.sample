@@ -1,5 +1,0 @@
-dsn=https://xxx@sentry.io/xxx
-buffer.dir=sentry-events
-buffer.size=100
-async=true
-async.queuesize=100
