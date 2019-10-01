@@ -3,11 +3,15 @@
 app/build
 build
 .externalNativeBuild
-keystores/release.keystore
-keystores/*.properties
+keystores/release.*
 google-services.json
 .DS_Store
 .idea
 .gradle
 distribution
+
+# keep these files
 !*gradle/wrapper/*
+!version.properties
+!keystores/debug.*
+!gradle.properties

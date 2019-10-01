@@ -1,5 +1,11 @@
 language: android
 dist: trusty
+
+env:
+  global:
+    - secure: "cZVBm9MFG68pSnDIkR+i7XJ7syLZqnxA9Zo4HE2Qp5YcWd43kiT51UN8TxSqDmYX3hX1x9j1ETLWxNRD1i5TuBV3ZHixmOH5UO7si/aaUYZAeXfTXj1ixDqMtujMShW/sTasWDiHusjzosKRhkA7VaZ/Z7Xv4CuRJCmE1USD6Pz2cd1tT0FnBBAhqFvLW3gJfQcKr6m59iBMzo2mxxHpweJsaJ5vg/cP/ETc6VpkO3MevnkG5l8OjPjgRNC8xuyi38gq2YRjGmr43Sh/TP0vQ8SRE7FqY0JlylFPj6UaKfbCP3GVDYX0gHsiXWgaST9TVbE5Pynbkw0Qnv/FtF+5B/sMZsv5Dn+v3mxKoXgWP+JWwxd3M++9RycbKm/r9V10kndy67wjmyY4h/VJ1t2X7k9lsg07Y7DfLRNzc3LLB48zhZmNSfxVBGNb95suSjAUSCvgz70e/Kq5hrpSv26MRqyuyBw8UAyicSTtOGZPdlASP7ly1avZODwPWGt0SDd5CYGXyVlVP/UClnHz6j+hENShHqeeHLLLAc7fo7/mY3As88InpmMyMRGzJ56fuAHaS2uvc+znoMzsxgsz3hGkV9xZ3AHVZOfD/jEoSXIkAF2s31dn+8d9chKAhifpT187wnM2YBn2BuzZqSFrouK6tMKZqnbhFY1c0pJgY4uy7Js="
+    - secure: "nMeYVH57S/QfrpcZ9mX4XTDRI7kSadhS1PkzDcUNFO820s/fSCdVbnq+RYp4p7piKJgWLYiu7/LiHJdFfYM8HMKk2QQ/TYxzRhN801wHpWo/P8UfkmRt9FRQ+iK22E1dzpoELLwuwL7VxAOHbjp0nq95cgqfP3u5D0z9Izxs7bI6zZ8FrMPtnVKaIPbH3MEJ5M0l+H+DKwWYn8mSW4IQ6MtVhucZtzqzuIxam6DyCXi8c7RAhNiP8fuhehPTcVgDCoG/3aO1yHYg1TwrWQCOq02LONgLt2kBuMRsxhDtRU2QF/ZPKWSOcRwggRa1yDDvPuHAdQfq2TI6pIE7iuXzLmmuXkf8Meb4JszHF/rGAGzXS3VBKdr6z/H0jmvWubidAcOm3BuwBlhkmXlmGCSy0r0fIvsUzSZvE3x+jaxc7AKDURjxQBcrNWcbfhny+b/+USgy0lU8lBUEn4FrQBe7fuUx01RfWmQ5oF647Ojz+Cg2Knv04SeUMJFbl4GWXID3/2cOwzZ2KgN9ZFAknmeLfqm4Smb/fINO2XzBQwIoE7uGMy1RJmU8IKtqZxQzmZdBPswpiyoRceRaETuHS1P7guLT4kIOJ05PZRUJ0IKGjGCDFJRjC/RGpvGk1QV66jZMNXL+TsiCjnwR04FOa8CETBVfpbpfabrGzF0o20KN0Hs="
+
 android:
   components:
     - tools
@@ -24,10 +30,11 @@ cache:
     - $HOME/.android/build-cache
 
 before_install:
+- openssl aes-256-cbc -K $encrypted_e9cc71682a6f_key -iv $encrypted_e9cc71682a6f_iv -in .travis/secrets.tar.enc -out secrets.tar -d
+- tar xvf secrets.tar
 - chmod +x gradlew
-- wget https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip --quiet
-- unzip -q android-ndk-r20-linux-x86_64.zip -d $HOME
-- export ANDROID_NDK_HOME=$HOME/android-ndk-20
+- echo y | sdkmanager "ndk-bundle"
+- export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
 - export PATH=$PATH:$ANDROID_NDK_HOME
 - mkdir "$ANDROID_HOME/licenses" || true
 - echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license"
@@ -36,8 +43,9 @@ before_install:
 install:
 before_script:
 - rm -fr $HOME/.gradle/caches/modules-2/files-2.1/com.bitmark.sdk
+- mkdir -p app/src/main/resources && touch app/src/main/resources/sentry.properties
 - mkdir -p distribution && touch distribution/release_note.txt && touch distribution/all.txt && touch distribution/testers.txt
-- touch version.properties && touch key.properties && touch app/fabric.properties && touch sentry.properties && touch app/src/main/resources/sentry.properties
+- touch version.properties && touch key.properties && touch app/fabric.properties && touch sentry.properties && touch keystores/release.properties
 - echo -n >local.properties && echo "ndk.dir=$ANDROID_NDK_HOME"$'\n'"sdk.dir=$ANDROID_HOME" >local.properties
 - echo -n >key.properties && echo "api.key.bitmark=$BM_API_KEY"$'\n'"api.key.intercom=$INTERCOM_API_KEY" >key.properties
 - echo -n >distribution/release_note.txt && echo "Git commit:$TRAVIS_COMMIT"$'\n'"Message:$TRAVIS_COMMIT_MESSAGE" >distribution/release_note.txt
@@ -45,6 +53,7 @@ before_script:
 - echo -n >sentry.properties && echo "defaults.project=bitmark-registry"$'\n'"defaults.org=bitmark-inc"$'\n'"auth.token=$SENTRY_AUTH_TOKEN" >sentry.properties
 - echo -n >app/fabric.properties && echo "apiSecret=$FABRIC_SECRET"$'\n'"apiKey=$FABRIC_API_KEY" >app/fabric.properties
 - echo -n >app/src/main/resources/sentry.properties && echo "dsn=$SENTRY_DSN"$'\n'"buffer.dir=sentry-events"$'\n'"buffer.size=100"$'\n'"async=true"$'\n'"async.queuesize=100" >app/src/main/resources/sentry.properties
+- echo -n >keystores/release.properties && echo "key.alias=bitmark2019"$'\n'"key.store.password=$key.store.password"$'\n'"key.alias.password=$key.alias.password" >keystores/release.properties
 
 script:
 - ./gradlew clean fillSecretKey assembleInhouseDebug crashlyticsUploadDistributionInhouseDebug
