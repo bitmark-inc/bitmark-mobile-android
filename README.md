@@ -46,7 +46,11 @@ Create `distribution` directory for distribution configuration
 
 Add `release.keystore` and `release.properties` for releasing as production
 
-#### Installing
+## Documentation
+This project is based on [Bitmark Android Architecture](https://github.com/bitmark-inc/bitmark-android-arch). 
+For more detail, please give a read on that repo. 
+
+## Installing
 
 `./gradlew clean fillSecretKey assembleInhouseDebug`
 
@@ -56,3 +60,11 @@ Using `-PsplitApks` to build split APKs
 The debug build is distributed via ***Fabric Beta***
 
 `./gradew crashlyticsUploadDistributionInhouseDebug`
+
+## License
+
+```SPDX-License-Identifier: ISC```
+
+Copyright © 2014-2019 Bitmark. All rights reserved.
+
+Use of this source code is governed by an ISC license that can be found in the [LICENSE](LICENSE) file.
