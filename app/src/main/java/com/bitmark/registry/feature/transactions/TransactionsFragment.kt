@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.transactions
 
 import com.bitmark.registry.R
@@ -6,13 +12,6 @@ import com.bitmark.registry.feature.BaseViewModel
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.fragment_transactions.*
 
-
-/**
- * @author Hieu Pham
- * @since 7/8/19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class TransactionsFragment : BaseSupportFragment() {
 
     companion object {

@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature
 
 import android.view.ViewGroup
@@ -5,13 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 
-
-/**
- * @author Hieu Pham
- * @since 7/8/19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 open class ViewPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
 
     var currentFragment: Fragment? = null

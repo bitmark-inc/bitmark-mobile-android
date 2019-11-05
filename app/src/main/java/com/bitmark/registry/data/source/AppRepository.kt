@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.data.source
 
 import com.bitmark.registry.data.source.local.AppLocalDataSource
@@ -7,13 +13,6 @@ import com.bitmark.registry.data.source.remote.api.middleware.Cache
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-25
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class AppRepository(
     private val localDataSource: AppLocalDataSource,
     private val remoteDataSource: AppRemoteDataSource

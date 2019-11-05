@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.util.view
 
 import android.content.Context
@@ -21,13 +27,6 @@ import kotlinx.android.synthetic.main.layout_qr_code_sharing.*
 import java.io.File
 import java.io.FileOutputStream
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-23
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class QrCodeSharingDialog(context: Context, private val text: String) :
     BaseBottomSheetDialog(context) {
 

@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature
 
 import android.content.ActivityNotFoundException
@@ -9,13 +15,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import com.bitmark.registry.R
 
-
-/**
- * @author Hieu Pham
- * @since 7/1/19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class Navigator(host: Any) {
 
     companion object {

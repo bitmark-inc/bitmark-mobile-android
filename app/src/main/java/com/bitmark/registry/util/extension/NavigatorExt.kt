@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.util.extension
 
 import android.content.Context
@@ -8,14 +14,6 @@ import android.provider.Settings
 import com.bitmark.registry.R
 import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.NONE
-
-
-/**
- * @author Hieu Pham
- * @since 2019-08-21
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 
 fun Navigator.gotoSecuritySetting() {
     val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)

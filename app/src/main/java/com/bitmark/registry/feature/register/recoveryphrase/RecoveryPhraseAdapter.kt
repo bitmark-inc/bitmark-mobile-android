@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.register.recoveryphrase
 
 import android.view.LayoutInflater
@@ -12,13 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bitmark.registry.R
 import kotlinx.android.synthetic.main.item_recovery_phrase.view.*
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-08
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class RecoveryPhraseAdapter(
     private val editable: Boolean = true,
     @ColorRes private val textColor: Int = R.color.gray

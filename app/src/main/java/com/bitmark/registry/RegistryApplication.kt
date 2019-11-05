@@ -1,12 +1,18 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry
 
 import com.bitmark.apiservice.configuration.GlobalConfiguration
 import com.bitmark.apiservice.configuration.Network
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.data.source.remote.api.middleware.BitmarkSdkHttpObserver
 import com.bitmark.registry.data.source.remote.api.service.ServiceGenerator
 import com.bitmark.registry.feature.connectivity.ConnectivityHandler
 import com.bitmark.registry.keymanagement.ApiKeyManager.Companion.API_KEY_MANAGER
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.sdk.features.BitmarkSDK
 import com.crashlytics.android.Crashlytics
 import dagger.android.AndroidInjector
@@ -19,13 +25,6 @@ import io.sentry.android.AndroidSentryClientFactory
 import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 7/1/19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class RegistryApplication : DaggerApplication() {
 
     companion object {

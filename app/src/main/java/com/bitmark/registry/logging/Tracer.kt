@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.logging
 
 import android.util.Log
@@ -5,13 +11,6 @@ import com.google.gson.GsonBuilder
 import io.sentry.Sentry
 import io.sentry.event.BreadcrumbBuilder
 
-
-/**
- * @author Hieu Pham
- * @since 2019-09-10
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class Tracer(private val level: Level) {
 
     companion object {

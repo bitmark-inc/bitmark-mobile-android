@@ -1,16 +1,15 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.data.source.remote.api.response
 
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.*
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-29
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class ProgressResponseBody(
     private val responseBody: ResponseBody,
     private val listener: ProgressListener?

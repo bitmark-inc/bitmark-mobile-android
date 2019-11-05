@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.logging
 
 import android.os.Build
@@ -14,13 +20,6 @@ import io.sentry.event.EventBuilder
 import io.sentry.event.UserBuilder
 import io.sentry.event.interfaces.ExceptionInterface
 
-
-/**
- * @author Hieu Pham
- * @since 2019-09-10
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class SentryEventLogger(private val accountRepo: AccountRepository) :
     EventLogger {
 

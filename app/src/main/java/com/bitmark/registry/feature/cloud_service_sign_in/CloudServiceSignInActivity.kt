@@ -1,10 +1,15 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.cloud_service_sign_in
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import com.bitmark.registry.R
-import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.feature.BaseAppCompatActivity
 import com.bitmark.registry.feature.BaseViewModel
 import com.bitmark.registry.feature.DialogController
@@ -12,21 +17,15 @@ import com.bitmark.registry.feature.Navigator
 import com.bitmark.registry.feature.Navigator.Companion.BOTTOM_UP
 import com.bitmark.registry.feature.Navigator.Companion.RIGHT_LEFT
 import com.bitmark.registry.feature.google_drive.GoogleDriveSignIn
+import com.bitmark.registry.feature.main.MainActivity
 import com.bitmark.registry.logging.Event
 import com.bitmark.registry.logging.EventLogger
-import com.bitmark.registry.feature.main.MainActivity
+import com.bitmark.registry.logging.Tracer
 import com.bitmark.registry.util.extension.setSafetyOnclickListener
 import com.google.android.gms.common.api.ApiException
 import kotlinx.android.synthetic.main.activity_cloud_service_sign_in.*
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 2019-08-19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class CloudServiceSignInActivity : BaseAppCompatActivity() {
 
     companion object {

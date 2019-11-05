@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.properties
 
 import androidx.lifecycle.Lifecycle
@@ -8,13 +14,6 @@ import com.bitmark.registry.feature.realtime.RealtimeBus
 import com.bitmark.registry.util.livedata.CompositeLiveData
 import com.bitmark.registry.util.livedata.RxLiveDataTransformer
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-14
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class PropertiesViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,

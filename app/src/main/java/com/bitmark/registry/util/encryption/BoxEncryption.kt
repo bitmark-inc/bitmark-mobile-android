@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.util.encryption
 
 import com.bitmark.cryptography.crypto.Box
@@ -5,13 +11,6 @@ import com.bitmark.cryptography.crypto.Random.secureRandomBytes
 import com.bitmark.cryptography.utils.ArrayUtils.concat
 import com.bitmark.cryptography.utils.ArrayUtils.slice
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-18
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class BoxEncryption(private val privateKey: ByteArray) : PublicKeyEncryption {
 
     override fun encrypt(

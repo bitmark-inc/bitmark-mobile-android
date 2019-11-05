@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.issuance.selection
 
 import android.Manifest
@@ -26,13 +32,6 @@ import kotlinx.android.synthetic.main.fragment_asset_selection.*
 import java.io.File
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-30
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class AssetSelectionFragment : BaseSupportFragment() {
 
     companion object {

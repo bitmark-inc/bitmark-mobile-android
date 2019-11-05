@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.data.source.remote.api.middleware
 
 import com.bitmark.apiservice.middleware.HttpObserver
@@ -6,13 +12,6 @@ import okhttp3.Request
 import okhttp3.Response
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 2019-09-10
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class BitmarkSdkHttpObserver @Inject constructor() : HttpObserver {
 
     override fun onRequest(request: Request?) {

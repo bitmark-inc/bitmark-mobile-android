@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.main
 
 import androidx.lifecycle.Lifecycle
@@ -38,13 +44,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
 
-
-/**
- * @author Hieu Pham
- * @since 2019-07-27
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class MainViewModel(
     lifecycle: Lifecycle,
     private val accountRepo: AccountRepository,

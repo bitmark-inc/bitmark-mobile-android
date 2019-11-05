@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.data.source.remote.api.middleware
 
 import com.bitmark.registry.data.ext.toRemoteError
@@ -5,13 +11,6 @@ import io.reactivex.*
 import io.reactivex.functions.Function
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 2019-08-27
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class RxErrorHandlingComposer @Inject constructor() {
 
     fun <T> single(publisher: SingleOnSubscribe<T>): Single<T> =

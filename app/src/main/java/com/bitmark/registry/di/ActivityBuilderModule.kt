@@ -1,7 +1,15 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.di
 
 import com.bitmark.registry.feature.account.details.WhatsNewActivity
 import com.bitmark.registry.feature.account.details.WhatsNewModule
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
+import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInModule
 import com.bitmark.registry.feature.issuance.issuance.IssuanceActivity
 import com.bitmark.registry.feature.issuance.issuance.IssuanceModule
 import com.bitmark.registry.feature.main.MainActivity
@@ -14,8 +22,6 @@ import com.bitmark.registry.feature.property_detail.PropertyDetailActivity
 import com.bitmark.registry.feature.property_detail.PropertyDetailModule
 import com.bitmark.registry.feature.register.RegisterContainerActivity
 import com.bitmark.registry.feature.register.RegisterContainerModule
-import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInActivity
-import com.bitmark.registry.feature.cloud_service_sign_in.CloudServiceSignInModule
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeActivity
 import com.bitmark.registry.feature.scan_qr_code.ScanQrCodeModule
 import com.bitmark.registry.feature.splash.SplashActivity
@@ -25,13 +31,6 @@ import com.bitmark.registry.feature.transfer.TransferModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
-
-/**
- * @author Hieu Pham
- * @since 7/1/19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 @Module
 abstract class ActivityBuilderModule {
 

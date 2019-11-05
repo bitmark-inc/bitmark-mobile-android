@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.music_claiming
 
 import android.content.Intent
@@ -35,13 +41,6 @@ import kotlinx.android.synthetic.main.layout_bitmark_cert.*
 import java.io.File
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 2019-08-09
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class MusicClaimingActivity : BaseAppCompatActivity() {
 
     companion object {

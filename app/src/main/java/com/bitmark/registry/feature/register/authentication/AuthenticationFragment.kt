@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.feature.register.authentication
 
 import android.content.Context
@@ -36,13 +42,6 @@ import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.fragment_authentication.*
 import javax.inject.Inject
 
-
-/**
- * @author Hieu Pham
- * @since 7/5/19
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class AuthenticationFragment : BaseSupportFragment() {
 
     companion object {

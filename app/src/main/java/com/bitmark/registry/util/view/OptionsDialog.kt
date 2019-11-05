@@ -1,3 +1,9 @@
+/**
+ * SPDX-License-Identifier: ISC
+ * Copyright © 2014-2019 Bitmark. All rights reserved.
+ * Use of this source code is governed by an ISC
+ * license that can be found in the LICENSE file.
+ */
 package com.bitmark.registry.util.view
 
 import android.content.Context
@@ -13,13 +19,6 @@ import com.bitmark.registry.util.extension.setTextColorRes
 import kotlinx.android.synthetic.main.item_options.view.*
 import kotlinx.android.synthetic.main.layout_options_bottom_sheet.*
 
-
-/**
- * @author Hieu Pham
- * @since 2019-08-10
- * Email: hieupham@bitmark.com
- * Copyright © 2019 Bitmark. All rights reserved.
- */
 class OptionsDialog(
     context: Context,
     private val title: String,
