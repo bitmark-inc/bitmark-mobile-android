@@ -304,8 +304,12 @@ dependencies {
   }
   implementation 'com.google.http-client:google-http-client-gson:1.26.0'
 
+  // Bitmark SDK
+  implementation 'com.bitmark.sdk:android-sdk:2.1.0'
+  implementation 'com.bitmark.sdk:api-service:2.1.0'
+  implementation 'com.bitmark.sdk:cryptography:1.6.0-SNAPSHOT'
+
   // Others
-  implementation 'com.bitmark.sdk:android-sdk:2.1.0-SNAPSHOT'
   implementation 'com.google.firebase:firebase-messaging:19.0.1'
   implementation 'com.aurelhubert:ahbottomnavigation:2.3.4'
   implementation 'com.google.code.gson:gson:2.8.5'

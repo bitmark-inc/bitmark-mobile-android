@@ -134,6 +134,10 @@
           android:resource="@xml/filepaths"/>
     </provider>
 
+    <meta-data
+        android:name="io.sentry.dsn"
+        android:value="https://e2c0804e9d1f4db4a603e69674963fe1@sentry.io/1724969" />
+
   </application>
 
 </manifest>
