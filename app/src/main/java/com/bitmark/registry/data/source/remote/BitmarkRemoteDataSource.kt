@@ -33,6 +33,7 @@ import com.bitmark.registry.data.source.remote.api.response.AssetFileInfoRespons
 import com.bitmark.registry.data.source.remote.api.response.DownloadAssetFileResponse
 import com.bitmark.registry.data.source.remote.api.service.*
 import com.bitmark.registry.util.encryption.SessionData
+import com.bitmark.registry.util.extension.safetyUrlDecode
 import com.bitmark.sdk.features.Asset
 import com.bitmark.sdk.features.Bitmark
 import com.bitmark.sdk.features.Transaction
@@ -306,7 +307,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                 val headers = res.headers()
                 val algorithm = headers["data-key-alg"]
                 val encDataKey = headers["enc-data-key"]
-                val fileName = headers["file-name"]
+                val fileName = headers["file-name"]?.safetyUrlDecode()
                 val resBody = res.body()
 
                 Single.just(
@@ -355,7 +356,11 @@ class BitmarkRemoteDataSource @Inject constructor(
 
             })
         val filePart =
-            MultipartBody.Part.createFormData("file", file.name, fileReqBody)
+            MultipartBody.Part.createFormData(
+                "file",
+                file.name.safetyUrlDecode(),
+                fileReqBody
+            )
         val keyAlgorithmReqBody = sessionData.algorithm.toRequestBody()
         val encKeyReqBody = sessionData.encryptedKey.toRequestBody()
         val orgContentTypeReqBody = "*".toRequestBody()
@@ -391,7 +396,7 @@ class BitmarkRemoteDataSource @Inject constructor(
                     val encKey = headers["enc-data-key"]
                     val orgContentType = headers["orig-content-type"]
                     val expiration = headers["expiration"]
-                    val name = headers["file-name"]
+                    val name = headers["file-name"]?.safetyUrlDecode()
                     val date = headers["date"]
                     Single.just(
                         AssetFileInfoResponse(

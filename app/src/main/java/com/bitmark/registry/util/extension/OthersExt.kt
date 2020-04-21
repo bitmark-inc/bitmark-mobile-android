@@ -11,6 +11,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.google.zxing.common.BitMatrix
 import org.json.JSONArray
+import java.net.URLDecoder
 
 inline fun <reified T> Gson.fromJson(json: String) =
     this.fromJson<T>(json, object : TypeToken<T>() {}.type)
@@ -44,4 +45,10 @@ fun JSONArray.toStringArray() = try {
 
 } catch (e: Throwable) {
     null
+}
+
+fun String.safetyUrlDecode() = try {
+    URLDecoder.decode(this, "utf-8")
+} catch (e: Throwable) {
+    this
 }
